@@ -2702,6 +2702,63 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .anonrec:empty{display:none}.anonrec{margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px}
 .anonh{font-weight:700;font-size:13.5px;margin-bottom:6px}.anonh small{font-weight:400;color:var(--mute)}.anonl{display:flex;flex-wrap:wrap;gap:6px}
 .dupl{margin:8px 0 12px;padding-left:18px;font-size:14px;line-height:1.6;max-height:42vh;overflow:auto}.dupl s{opacity:.55}.dupl u{text-decoration-color:var(--acc,#3b6bff)}
+/* 🛡 고객 동의 카드 (2026-11-04) — 동의 두 개를 따로 켜는 알약 버튼 */
+.cns{margin:12px 0 4px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--soft) 70%,transparent),transparent)}
+.cns.done{border-color:color-mix(in srgb,#2e9e6b 40%,var(--line))}
+.cns-h{display:flex;align-items:center;gap:6px;font-size:13px}.cns-h .i{width:15px;height:15px;opacity:.7}
+.cns-d{margin-left:auto;font-size:12px;color:var(--mute)}.cns-d.warn{color:#c0392b;font-weight:700}
+.cns-t{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cns-o{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+.cns-o i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid color-mix(in srgb,var(--ink) 35%,transparent);position:relative}
+.cns-o em{margin-left:auto;font-style:normal;font-size:11px;color:var(--mute);white-space:nowrap}
+.cns-o[aria-pressed="true"]{background:color-mix(in srgb,#2e9e6b 12%,var(--bg));border-color:color-mix(in srgb,#2e9e6b 55%,var(--line))}
+.cns-o[aria-pressed="true"] i{border-color:#2e9e6b;background:#2e9e6b}
+.cns-o[aria-pressed="true"] i::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.cns-a{display:flex;gap:14px;margin-top:8px}.cns-l{background:none;border:0;padding:4px 0;font:inherit;font-size:12.5px;color:var(--acc,#3b6bff);cursor:pointer}
+.cns-x{white-space:pre-wrap;font:inherit;font-size:12.5px;line-height:1.6;margin:8px 0 0;padding:10px 12px;border-radius:10px;background:var(--soft);max-height:38vh;overflow:auto}
+.cns-b{font:inherit;font-size:12px;padding:4px 10px;border-radius:999px;border:1px dashed color-mix(in srgb,#e0a100 60%,var(--line));background:color-mix(in srgb,#e0a100 10%,transparent);color:var(--ink);cursor:pointer}
+.cns-b.old{border-color:#c0392b;background:color-mix(in srgb,#c0392b 10%,transparent)}
+@media (max-width:420px){.cns-t{grid-template-columns:1fr}}
+/* ---------- 병력 결과 v2 (2026-11-04 · 우리만의 화면) ---------- */
+.pv2-hero{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,var(--side) 0%,var(--side2) 100%);color:var(--side-ink);margin:4px 0 0}
+.pv2-k{font-size:12px;letter-spacing:.08em;color:#E9D3A4;font-weight:700}
+.pv2-hero h3{margin:6px 0 4px;font-size:20px;letter-spacing:-.02em;line-height:1.35;color:#fff}.pv2-hero h3 em{font-style:normal;color:#7BE3B0}
+.pv2-hero p{margin:0;color:var(--side-mute);font-size:13.5px}.pv2-hero p b{color:#fff}
+.pv2-why{display:flex;flex-direction:column;gap:7px;justify-content:center}
+.pv2-why div{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);font-size:13px}
+.pv2-why b{margin-left:auto;white-space:nowrap;padding-left:8px;font-variant-numeric:tabular-nums;color:#fff}
+.pv2-why i,.pv2-rb .q i{width:8px;height:8px;border-radius:50%;flex:none}
+.pv2-hero i.r,.pv2-rows i.r{background:var(--red)}.pv2-hero i.a,.pv2-rows i.a{background:var(--amber)}.pv2-hero i.g,.pv2-rows i.g{background:var(--green)}
+.pv2-hero i.r{background:#FF7B7B}.pv2-hero i.a{background:#F2B45A}.pv2-hero i.g{background:#5FE0A2}
+.pv2-sec{margin:22px 0 8px;display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap}.pv2-sec h4{margin:0;font-size:15.5px;white-space:nowrap}.pv2-sec span{color:var(--mute);font-size:12.5px}
+.pv2-lad{position:relative;display:grid;grid-template-columns:repeat(var(--n),1fr);padding:14px 6px 6px;background:var(--paper);border:1px solid var(--line);border-radius:14px}
+.pv2-lad::before{content:"";position:absolute;left:5%;right:5%;top:30px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--amber) 70%,var(--green));opacity:.45}
+.pv2-st{position:relative;text-align:center;padding:0 2px;background:none;border:0;cursor:pointer;font:inherit;color:inherit}
+.pv2-st .d{display:block;width:18px;height:18px;margin:7px auto 7px;border-radius:50%;border:3px solid var(--paper);box-shadow:0 0 0 2px currentColor;background:currentColor}
+.pv2-st.sr{color:var(--red)}.pv2-st.sa{color:var(--amber)}.pv2-st.sg{color:var(--green)}
+.pv2-st.pick .d{width:26px;height:26px;margin:3px auto 3px;box-shadow:0 0 0 2px currentColor,0 0 14px currentColor}
+.pv2-st b{display:block;color:var(--ink);font-size:13px}.pv2-st small{display:block;color:var(--mute);font-size:11px;line-height:1.3}
+.pv2-st.pick b::after{content:"추천";display:inline-block;margin-left:4px;padding:0 5px;border-radius:5px;background:var(--green);color:#fff;font-size:10.5px;vertical-align:1px}
+.pv2-ll{display:flex;justify-content:space-between;color:var(--mute);font-size:11.5px;padding:4px 10px 0}
+.pv2-g{margin:14px 0 6px;font-weight:700;font-size:13.5px;color:var(--ink2)}.pv2-g small{color:var(--mute);font-weight:400}
+.pv2-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.pv2-row{border:1px solid var(--line);border-radius:12px;background:var(--paper);overflow:hidden}
+.pv2-row[open]{border-color:var(--accent)}
+.pv2-row summary{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;list-style:none}
+.pv2-row summary::-webkit-details-marker{display:none}
+.pv2-row .t{font-weight:700;font-size:14px;min-width:84px}.pv2-row .t small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.pv2-row .dots{display:flex;gap:4px}.pv2-row .dots i{width:10px;height:10px;border-radius:3px}
+.pv2-row .cnt{margin-left:auto;text-align:right;font-size:12px;color:var(--ink2);white-space:nowrap}.pv2-row .cnt b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.pv2-pill{padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.pv2-pill.r{background:var(--red-soft);color:var(--red)}.pv2-pill.a{background:var(--amber-soft);color:var(--amber)}.pv2-pill.g{background:var(--green-soft);color:var(--green)}
+.pv2-row .chev{color:var(--mute);transition:transform .15s}.pv2-row[open] .chev{transform:rotate(90deg)}
+.pv2-rb{border-top:1px dashed var(--line);padding:9px 14px 12px;display:grid;gap:6px}
+.pv2-rb .q{display:grid;grid-template-columns:12px 1fr auto;gap:9px;align-items:center;font-size:12.5px;color:var(--ink2)}.pv2-rb .q b{color:var(--ink);font-variant-numeric:tabular-nums}
+.pv2-rb .act{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.pv2-foot{margin-top:16px;padding:10px 14px;border-radius:12px;background:var(--soft);border:1px solid var(--line);color:var(--mute);font-size:12.5px}
+.pv2-foot summary{cursor:pointer;list-style:none}.pv2-foot summary::-webkit-details-marker{display:none}.pv2-foot summary span{color:var(--accent)}
+.pv2-foot b{color:var(--ink2)}.pv2-foot p{margin:8px 0 0;line-height:1.7}
+@media (max-width:720px){.pv2-hero{grid-template-columns:1fr}.pv2-rows{grid-template-columns:1fr}.pv2-lad{grid-template-columns:repeat(5,1fr);row-gap:12px}.pv2-lad::before{display:none}.pv2-row .t{min-width:70px}}
 
 </style>
 </head>
@@ -3560,7 +3617,9 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
       if (winDrugs.length) g.rx = true;
       var newDrug = null;
       if (g.code && knownCodes[g.code]) {
-        var prevHosp = {}; basic.forEach(function (b) { if (b.code === g.code && pd(b.date) < d3m) prevHosp[b.hosp + '|' + b.date] = 1; });
+        // 비교 기준 = 3개월 전 '마지막' 진료일의 처방 (2026-11-04 MHS 대조: 5년 안 아무 때나 먹었던 약과 비교하면 신규·증가를 놓침)
+        var lastPrev = ''; basic.forEach(function (b) { if (b.code === g.code && pd(b.date) < d3m && b.date > lastPrev) lastPrev = b.date; });
+        var prevHosp = {}; basic.forEach(function (b) { if (b.code === g.code && b.date === lastPrev) prevHosp[b.hosp + '|' + b.date] = 1; });
         var prev = {}; rxBefore.forEach(function (x) { if (prevHosp[x.hosp + '|' + x.date] || Object.keys(prevHosp).some(function (pk) { return pk.split('|')[1] === x.date; })) { var q = (x.dose || 1) * (x.times || 1); prev[ik3(x.ingr) || x.drug] = Math.max(prev[ik3(x.ingr) || x.drug] || 0, q); } });
         winDrugs.forEach(function (x) { var key = ik3(x.ingr) || x.drug; var q = (x.dose || 1) * (x.times || 1); if (!(key in prev) || q > prev[key]) { if (!newDrug || x.date < newDrug.date) newDrug = x; } });
       }
@@ -13331,7 +13390,7 @@ function HealthUI(root, H) {
     var c = S.cur, d = S.data;
     var base = d ? d.base : '';
     var h = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="' + esc(String(c.name || '?').slice(0, 1)) + '">' + esc(c.name) + '</h2><span class="cmeta">' + sexTxt(c.sex) + (c.birth ? ' / ' + ageOf(c.birth, base) + '세(' + birthTxt(c.birth) + ')' : '') + '</span>' +
-      '<div class="cact">' + (d ? (d.covOnly ? '<span class="stbadge w">보장분석만</span>' : '<span class="stbadge">' + IC.ok + '분석완료</span>') : '<span class="stbadge w">파일 첨부 대기</span>') +
+      '<div class="cact">' + cnsBadge(c) + (d ? (d.covOnly ? '<span class="stbadge w">보장분석만</span>' : '<span class="stbadge">' + IC.ok + '분석완료</span>') : '<span class="stbadge w">파일 첨부 대기</span>') +
       (c.sample ? '' : '<button class="btn lg" type="button" data-act="docs">' + IC.doc + '서류 받기</button>') +
       (c.sample ? '' : '<button class="btn lg pri" type="button" data-act="files">' + IC.clip + (d ? '다시 분석' : '병력파악 (파일 첨부)') + '</button>') +
       (c.sample ? '' : '<button class="btn lg cmore" type="button" data-act="cmore" aria-label="더보기 (정보 수정 · 삭제)">⋯</button>') + '</div></div>';
@@ -13386,6 +13445,49 @@ function HealthUI(root, H) {
   }
 
   // ================= 고지항목 판정표 =================
+  // ---------- 병력 결과 v2 (2026-11-04 · 우리만의 화면): 한 줄 결론 → 걸린 이유 → 심사 사다리 → 유형별 접기 ----------
+  var PV2_LAD = ['std', 's3105', 's355', 's345', 's335', 's325', 's315', 's311', 's31', 's305'];
+  var PV2_GRP = [['건강·암', function(p){ return PV2_LAD.indexOf(p.id) >= 0; }], ['실손', function(p){ return /^sil/.test(p.id); }], ['운전자', function(p){ return /^drv/.test(p.id); }]];
+  function pv2Sum(p){ return p.lines.reduce(function(a, l){ return a + (l.y || 0); }, 0); }
+  function pv2Pick(ps){
+    var lad = PV2_LAD.map(function(id){ return ps.filter(function(p){ return p.id === id; })[0]; }).filter(Boolean);
+    if (!lad.length) return null;
+    var free = lad.filter(function(p){ return p.status === 'n'; })[0]; if (free) return { p: free, free: true, lad: lad };
+    var best = lad.slice().sort(function(x, y){ return pv2Sum(x) - pv2Sum(y) || (x.status === 'c' ? 0 : 1) - (y.status === 'c' ? 0 : 1) || lad.indexOf(x) - lad.indexOf(y); })[0];
+    return { p: best, free: false, lad: lad };
+  }
+  function pv2Free(p){ // 걸린 게 '3개월 내 진료'뿐이면: 마지막 진료일부터 3개월 뒤 고지 없이 가능
+    var hit = p.lines.filter(function(l){ return l.y; }); if (hit.length !== 1 || !/^3개월/.test(hit[0].label) || !S.DD || !S.DD.last) return '';
+    var t = new Date(S.DD.last + 'T00:00:00Z'); t.setUTCMonth(t.getUTCMonth() + 3); t.setUTCDate(t.getUTCDate() + 1); var d = t.toISOString().slice(0, 10);
+    return d > todayStr() ? d : '';
+  }
+  function pv2Html(ps){
+    var pk = pv2Pick(ps), h = '', md = function(d){ return (+d.slice(5, 7)) + '월 ' + (+d.slice(8)) + '일'; };
+    if (pk) {
+      var p = pk.p, fd = pv2Free(p), why = {};
+      ps.forEach(function(q){ q.lines.forEach(function(l){ var k = l.label; if (!why[k] || (l.y || 0) > why[k].y) why[k] = { y: l.y || 0, c: l.c || 0 }; }); });
+      var wk = Object.keys(why).sort(function(a, b){ return why[b].y - why[a].y || why[b].c - why[a].c; }).slice(0, 3);
+      h += '<div class="pv2-hero"><div><div class="pv2-k">한 줄 결론</div><h3>' + (pk.free ? '<em>' + esc(p.short) + '</em>부터 고지 없이 가입할 수 있습니다' : '지금은 <em>' + esc(p.short === '표준체' ? '표준체' : '간편 ' + p.short) + '</em>이 가장 가벼운 길입니다') + '</h3><p>' +
+        (pk.free ? '이보다 까다로운 유형은 고지가 필요합니다. 보험료가 낮은 왼쪽 유형부터 비교해 보세요.' : '모든 건강·암 유형에 고지할 것이 있습니다. 이 유형은 <b>' + pv2Sum(p) + '건</b>만 알리면 됩니다.' + (fd ? ' 마지막 진료일부터 3개월이 지나는 <b>' + md(fd) + '</b>부터는 고지 없이 가입할 수 있습니다.' : '')) + '</p></div>' +
+        '<div class="pv2-why">' + wk.map(function(k){ var w = why[k], c = w.y ? 'r' : w.c ? 'a' : 'g'; return '<div><i class="' + c + '"></i>' + esc(k.replace(/ 내 /g, ' 안 ')) + '<b>' + (w.y ? w.y + '건' : w.c ? '확인 ' + w.c : '없음') + '</b></div>'; }).join('') + '</div></div>';
+      h += '<div class="pv2-sec"><h4>심사 사다리</h4><span>왼쪽일수록 까다롭고 보험료가 낮으며, 오른쪽일수록 쉽고 보험료가 높습니다</span></div><div class="pv2-lad" style="--n:' + pk.lad.length + '">' + pk.lad.map(function(q){
+        var c = q.status === 'n' ? 'sg' : q.status === 'c' || q === p ? 'sa' : 'sr', f = q === p ? pv2Free(q) : '';
+        return '<button type="button" class="pv2-st ' + c + (q === p ? ' pick' : '') + '" data-pvj="' + q.id + '"><span class="d"></span><b>' + esc(q.short) + '</b><small>' + (q.status === 'n' ? '고지 없음' : '고지 ' + pv2Sum(q) + (f ? ' · ' + (+f.slice(5, 7)) + '/' + (+f.slice(8)) + ' 무고지' : '')) + '</small></button>'; }).join('') +
+        '</div><div class="pv2-ll"><span>← 까다로움 · 보험료 낮음</span><span>쉬움 · 보험료 높음 →</span></div>';
+    }
+    h += '<div class="pv2-sec"><h4>유형별 자세히</h4><span>네모 하나 = 질문 하나 · 빨강 걸림 · 노랑 확인 · 초록 통과</span></div>';
+    PV2_GRP.forEach(function(g){
+      var list = ps.filter(g[1]); if (!list.length) return;
+      if (g[0] === '건강·암' && pk) list = pk.lad;
+      h += '<div class="pv2-g">' + g[0] + ' <small>' + list.length + '</small></div><div class="pv2-rows">' + list.map(function(q){
+        var n = pv2Sum(q), f = pv2Free(q), pill = q.status === 'n' ? '<span class="pv2-pill g">통과</span>' : pk && q === pk.p ? '<span class="pv2-pill g">추천' + (f ? ' · ' + (+f.slice(5, 7)) + '/' + (+f.slice(8)) + ' 무고지' : '') + '</span>' : q.status === 'c' ? '<span class="pv2-pill a">확인 후 결정</span>' : '<span class="pv2-pill r">고지 후 심사</span>';
+        return '<details class="pv2-row" id="pv2-' + q.id + '"><summary><span class="t">' + esc(q.short) + '<small>' + esc(q.id === 'std' ? q.title.replace(/^\D*/, '') : PV2_LAD.indexOf(q.id) > 0 ? '간편 심사' : q.title.replace(q.short, '').trim() || q.title) + '</small></span><span class="dots">' + q.lines.map(function(l){ return '<i class="' + (l.y ? 'r' : l.c ? 'a' : 'g') + '"></i>'; }).join('') + '</span><span class="cnt"><b>' + n + '</b>건</span>' + pill + '<span class="chev">›</span></summary>' +
+          '<div class="pv2-rb">' + q.lines.map(function(l){ return '<div class="q"' + (l.note ? ' title="' + esc(l.note) + '"' : '') + '><i class="' + (l.y ? 'r' : l.c ? 'a' : 'g') + '"></i><span>' + esc(l.label.replace(/ 내 /g, ' 안 ')) + '</span><b>' + (l.y ? l.y + '건' + (l.c ? ' +확인 ' + l.c : '') : l.c ? '확인 ' + l.c : '0') + '</b></div>'; }).join('') +
+          '<div class="act"><button class="pb" type="button" data-pv="' + q.id + '">' + IC.search + '걸린 진료 보기</button><button class="pb" type="button" data-ps="' + q.id + '">' + IC.save + '보고서 저장</button></div></div></details>';
+      }).join('') + '</div>';
+    });
+    return h;
+  }
   function renderProducts(){
     var E = S.E, sm = Products.summaryLine(E.products);
     var h = '';
@@ -13396,18 +13498,8 @@ function HealthUI(root, H) {
       h += '<div class="applybox"><b>청약 예정일 ' + dot(S.cur.applyDate) + ' 기준으로 판정한 결과입니다.</b>' + (gap > 0 ? ' 자료 조회일부터 청약일까지 <b>' + gap + '일</b>은 자료에 없으니 그 사이 진료를 꼭 확인하세요.' : '') +
         (ch.length ? '<div class="note" style="margin-top:6px">분석일(' + dot(S.data.base) + ') 기준과 달라지는 항목 — 기간이 지나 빠지거나 새로 들어온 진료</div><ul>' + ch.slice(0, 12).join('') + (ch.length > 12 ? '<li>외 ' + (ch.length - 12) + '건</li>' : '') + '</ul>' : '<div class="note" style="margin-top:6px">분석일 기준과 달라지는 항목은 없습니다.</div>') + '</div>';
     }
-    h += '<div class="psum"><span class="chipx ' + (sm.ok ? 'ok' : 'bad') + '">' + (sm.ok ? IC.ok : IC.warn) + esc(sm.text) + '</span><span class="note">상품 카드의 <b>결과 보기</b>에서 상병별 고지 내용·고지양식·질문지를 확인하세요.</span></div>';
-    h += '<div class="pgrid">' + E.products.map(function(p){
-      var bd = p.status === 'y' ? '<span class="bdg y">심사 필요</span>' : p.status === 'c' ? '<span class="bdg c">확인 필요</span>' : '<span class="bdg n">고지 없음</span>';
-      return '<article class="pc"><div class="pc-h"><h4>' + esc(p.title) + '</h4><div class="pc-a"><button class="pb" type="button" data-pv="' + p.id + '">' + IC.search + '결과 보기</button><button class="pb" type="button" data-ps="' + p.id + '">' + IC.save + '결과 저장</button>' + bd + '</div></div><ul class="pl">' +
-        p.lines.map(function(l){
-          var st = l.y ? 'y' : l.c ? 'c' : 'n';
-          var n = l.y ? l.y + '건' + (l.c ? '<small>+' + l.c + ' 확인</small>' : '') : l.c ? l.c + '건' : '0건';
-          var s = st === 'y' ? IC.warn + '고지필요' : st === 'c' ? IC.warn + '확인필요' : IC.ok + '해당없음';
-          return '<li' + (l.note ? ' title="' + esc(l.note) + '"' : '') + '><span>' + esc(l.label) + '</span><span class="n">' + n + '</span><span class="s ' + st + '">' + s + '</span></li>';
-        }).join('') + '</ul></article>';
-    }).join('') + '</div>';
-    h += '<div class="pfoot">※ \'심사 필요\'는 가입 불가 안내가 아니므로 고지 후 심사를 진행해 보시기 바랍니다.<br>※ \'확인 필요\'는 보험사·상품에 따라 고지 대상이 될 수 있는 항목입니다. 고객에게 확인한 뒤 결정하세요.<br>※ 3개월 이내 입원·수술·검사 여부와 비급여 진료는 심평원 자료로 확인되지 않으니 고객에게 꼭 질문하세요.<br>※ 본 분석 결과는 첨부한 자료를 바탕으로 한 참고용이며, 최종 고지 여부는 원본 서류와 고객 확인 후 판단해야 합니다.</div>';
+    h += pv2Html(E.products);
+    h += '<details class="pv2-foot"><summary><b>판정 기준 안내</b> · 고지 후 심사는 가입이 안 된다는 뜻이 아닙니다 <span>펼치기 ›</span></summary><p>· <b>고지 후 심사</b>: 고지하고 보험사 심사를 받으면 됩니다. 가입 거절이 아닙니다.<br>· <b>확인</b>: 보험사·상품에 따라 고지 대상이 될 수 있습니다. 고객께 여쭤본 뒤 정하세요.<br>· 3개월 안 입원·수술·검사와 비급여 진료는 심평원 자료에 없으니 고객께 꼭 여쭤보세요.<br>· 첨부한 자료로 낸 참고 결과입니다. 최종 고지 여부는 원본 서류와 고객 확인으로 정합니다.</p></details>';
     return h;
   }
 
@@ -14104,6 +14196,7 @@ function HealthUI(root, H) {
     if ((t = e.target.closest('[data-ptab]'))) { S.tab = t.dataset.ptab; S.pv = null; renderCustomer(); return; }
     if ((t = e.target.closest('[data-dt]'))) { setDTab(t.dataset.dt); return; }
     if ((t = e.target.closest('[data-hm]'))) { S.hmode = t.dataset.hm; try { localStorage.setItem('mhs_hmode', S.hmode); } catch(er){} renderCustomer(); return; }
+    if ((t = e.target.closest('[data-pvj]'))) { var r0 = document.getElementById('pv2-' + t.dataset.pvj); if (r0) { r0.open = true; r0.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     if ((t = e.target.closest('[data-pv]'))) { S.pv = t.dataset.pv; S.pvTab = 'sum'; renderCustomer(); window.scrollTo(0, 0); return; }
     if ((t = e.target.closest('[data-ps]'))) { var p = prodOf(t.dataset.ps); saveFile(S.cur.name + ' 병력분석 레포트(' + p.title + ')_' + ymd() + '.html', buildHistoryReport(p.id)); if (S.pv) buildParts(S.pv); return; }
     if ((t = e.target.closest('[data-dl]'))) {
@@ -14169,6 +14262,41 @@ function HealthUI(root, H) {
   $('dlg').addEventListener('click', function(e){ if (e.target === this) closeDlg(); });
 
   // ---------- 고객 등록/수정 ----------
+  // ---------- 🛡 고객 동의 (2026-11-04): 개인정보(필수) · 건강정보(병력 파악 때) 따로 · 날짜 남김 · 1년 지나면 다시 받기 ----------
+  // 우리 방식: 체크칸 하나 대신 동의 두 개를 따로 켜는 카드 + 동의 글 펼쳐 보기 + 고객에게 보낼 글 복사. 문구는 초안(법무 검토 필요).
+  var CNS_VER = '2026-11', CNS_DAYS = 365;
+  function cnsText(){
+    var me = (PL && PL.d && PL.d.nick) || '';
+    return '[개인정보 수집·이용 동의 안내]\n' + (me ? me + ' 설계사가 ' : '담당 설계사가 ') + '보험 상담을 위해 아래 정보를 받습니다.\n\n' +
+      '① 개인정보 (필수)\n· 쓰는 곳: 보험 상담, 보장 점검, 미청구 보험금 확인, 상품 안내·가입 설계\n· 받는 것: 이름, 성별, 생년월일 (선택: 연락처, 주소, 직업)\n\n' +
+      '② 건강정보 (병력 확인이 필요할 때)\n· 쓰는 곳: 병력 확인, 미청구 보험금 확인\n· 받는 것: 진료·투약·입원 내역 등 건강에 관한 정보\n\n' +
+      '· 보관: 상담이 끝나거나 동의를 거두실 때까지, 길어도 1년 (지나면 바로 지웁니다)\n· 정보는 담당 설계사 기기에만 잠가 두고, 회사나 다른 사람에게 넘기지 않습니다.\n' +
+      '· 동의하지 않으셔도 되며, 그 경우 해당 확인·상담이 어려울 수 있습니다.\n\n동의하시면 "동의합니다"라고 답장 부탁드립니다.';
+  }
+  function cnsState(c){ var k = c && c.consent; if (!k || !k.at) return { lv: 'none' }; var days = Math.floor((Date.now() - k.at) / 864e5); return { lv: days > CNS_DAYS ? 'old' : 'ok', days: days, at: k.at, h: !!k.h }; }
+  function cnsDate(at){ var d = new Date(at - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10); return dot(d); }
+  function cnsCard(c){
+    var st = cnsState(c), on = st.lv === 'ok';
+    return '<div class="cns' + (on ? ' done' : '') + '" id="fCns"><div class="cns-h">' + IC.lock + '<b>고객 동의</b>' +
+      (on ? '<span class="cns-d">' + cnsDate(st.at) + ' 받음 · ' + (CNS_DAYS - st.days) + '일 남음</span>' : st.lv === 'old' ? '<span class="cns-d warn">1년이 지나 다시 받아야 합니다</span>' : '<span class="cns-d">받은 뒤 눌러 주세요</span>') + '</div>' +
+      '<div class="cns-t"><button type="button" class="cns-o" id="fOk1" aria-pressed="' + on + '"><i></i><span>개인정보 수집·이용</span><em>필수</em></button>' +
+      '<button type="button" class="cns-o" id="fOk2" aria-pressed="' + (on && st.h) + '"><i></i><span>건강정보(병력)</span><em>병력 파악 때</em></button></div>' +
+      '<div class="cns-a"><button type="button" class="cns-l" id="fCnsV">동의 글 보기</button><button type="button" class="cns-l" id="fCnsC">📋 고객에게 보낼 글 복사</button></div>' +
+      '<pre class="cns-x" id="fCnsX" hidden>' + esc(cnsText()) + '</pre></div>';
+  }
+  function cnsWire(){
+    ['fOk1', 'fOk2'].forEach(function(id){ var b = $(id); if (b) b.onclick = function(){ var v = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', String(v)); if (id === 'fOk2' && v) $('fOk1').setAttribute('aria-pressed', 'true'); if (id === 'fOk1' && !v) $('fOk2').setAttribute('aria-pressed', 'false'); }; });
+    if ($('fCnsV')) $('fCnsV').onclick = function(){ var x = $('fCnsX'); x.hidden = !x.hidden; this.textContent = x.hidden ? '동의 글 보기' : '접기'; };
+    if ($('fCnsC')) $('fCnsC').onclick = function(){ copyText(cnsText(), '동의 안내 글'); };
+  }
+  // 저장할 동의: 새로 켰으면 {at, h, ver} · 기존 동의 그대로면 true · 안 켰으면 null(새 고객은 등록 막음, 수정은 통과)
+  function cnsRead(c){
+    var p1 = $('fOk1') && $('fOk1').getAttribute('aria-pressed') === 'true', p2 = $('fOk2') && $('fOk2').getAttribute('aria-pressed') === 'true', st = cnsState(c);
+    if (!p1) return c ? true : null;
+    if (st.lv === 'ok' && st.h === p2) return true;
+    return { at: Date.now(), h: p2 ? 1 : 0, ver: CNS_VER };
+  }
+  function cnsBadge(c){ if (!c || c.sample) return ''; var st = cnsState(c); return st.lv === 'ok' ? '' : '<button type="button" class="cns-b' + (st.lv === 'old' ? ' old' : '') + '" data-act="edit" title="고객 동의를 받고 정보 수정에서 눌러 주세요">' + (st.lv === 'old' ? '동의 1년 지남' : '동의 확인 필요') + '</button>'; }
   function openCustForm(c){
     var sex = c ? c.sex : '';
     var b = c && c.birth ? c.birth.slice(0,4) + '-' + c.birth.slice(4,6) + '-' + c.birth.slice(6) : '';
@@ -14182,7 +14310,7 @@ function HealthUI(root, H) {
       '<div class="frow2"><div><label class="l" for="fRef">소개자 <small class="note">(선택)</small></label><input id="fRef" type="text" maxlength="20" value="' + esc(c && c.ref || '') + '" placeholder="예: 김OO 고객 소개"></div><div><label class="l" for="fInt">관심 상품 <small class="note">(선택)</small></label><input id="fInt" type="text" maxlength="30" value="' + esc(c && c.interest || '') + '" placeholder="예: 간편 3.5.5, 실손"></div></div>' +
       '<label class="l" for="fMemo">메모 <small class="note">(선택)</small></label><textarea id="fMemo" placeholder="상담 내용 등">' + esc(c ? c.memo || '' : '') + '</textarea>' +
       '<div class="safe">' + IC.lock + '<span>고객 정보는 잠금 비밀번호로 암호화되어 이 기기(와 동기화를 켠 내 구글 드라이브)에만 저장됩니다. 주민번호 뒷자리·계좌번호는 고객 화면의 <b>등록 요청서</b>에만 넣으세요 (화면에는 가려서 보이고, AI·회사 서버로는 절대 보내지 않습니다).</span></div>' +
-      (c ? '' : '<label class="consent"><input type="checkbox" id="fOk"> 고객 개인정보 수집·이용 동의 받음</label>') +
+      cnsCard(c) +
       '<div class="ferr" id="fErr"></div></div><div class="mrow">' + '<button class="btn lg" type="button" id="fCancel" style="margin-left:auto">취소</button><button class="go" type="button" id="fSave">' + (c ? '저장' : '등록') + '</button></div>');
     var sx = sex, stg = (c && c.stage && c.stage !== 'db' ? c.stage : 'lead'), chv = c ? chOf(c) : (S.ch && S.ch !== 'mine' && S.ch !== 'none' ? S.ch : '');
     $('fCh').onclick = function(e){ var bt = e.target.closest('button'); if (!bt) return; chv = bt.getAttribute('aria-pressed') === 'true' ? '' : bt.dataset.v; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x.dataset.v === chv)); }); };
@@ -14190,7 +14318,7 @@ function HealthUI(root, H) {
     $('fPhone').addEventListener('input', function(){ var v = this.value.replace(/\D/g, '').slice(0, 11); this.value = v.length > 7 ? v.slice(0, 3) + '-' + v.slice(3, v.length - 4) + '-' + v.slice(-4) : v.length > 3 ? v.slice(0, 3) + '-' + v.slice(3) : v; });
     $('fSex').onclick = function(e){ var bt = e.target.closest('button'); if (!bt) return; sx = bt.dataset.s; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === bt)); }); };
     $('fBirth').addEventListener('input', function(){ var v = this.value.replace(/\D/g, '').slice(0, 8); this.value = v.length > 6 ? v.slice(0,4) + '-' + v.slice(4,6) + '-' + v.slice(6) : v.length > 4 ? v.slice(0,4) + '-' + v.slice(4) : v; });
-    $('fCancel').onclick = closeDlg;
+    $('fCancel').onclick = closeDlg; cnsWire();
     // 글(붙여넣기·사진·연락처)에서 칸 채우기: 한 명이면 이 창에 바로, 여러 명이면 한꺼번에 등록 창으로
     var fillFrom = function(t, from, list){
       var ppl = list || peopleScan(t); if (ppl.length > 1) { closeDlg(); if (list) openPaste('', null, null, list); else openPaste(t); return; }
@@ -14212,11 +14340,12 @@ function HealthUI(root, H) {
       if (!name) { err.textContent = '이름을 입력하세요.'; return; }
       if (!sx) { err.textContent = '성별을 선택하세요.'; return; }
       if (bd.length !== 8 || +bd.slice(4,6) < 1 || +bd.slice(4,6) > 12 || +bd.slice(6) < 1 || +bd.slice(6) > 31) { err.textContent = '생년월일 8자리를 확인하세요. (예: 19580707)'; return; }
-      if (!c && !$('fOk').checked) { err.textContent = '개인정보 수집·이용 동의를 받은 뒤 체크하세요.'; return; }
+      var cns = cnsRead(c); if (!cns) { err.textContent = '고객에게 개인정보 수집·이용 동의를 받은 뒤 ‘개인정보’를 눌러 주세요.'; return; }
       var h = c ? Object.assign({}, c) : { status: 'wait' };
       var ph = $('fPhone').value.replace(/\D/g, '');
       if (ph && !normPhone(ph)) { err.textContent = '휴대폰 번호를 확인하세요. (예: 010-1234-5678)'; return; }
       h.name = name; h.sex = sx; h.birth = bd; h.memo = $('fMemo').value.trim();
+      if (cns !== true) h.consent = cns; // 동의한 날짜·종류 (기존 동의는 그대로)
       if (stg !== (c && c.stage)) stageMark(h, stg);
       h.phone = ph; h.stage = stg; h.ch = chv; h.ref = $('fRef').value.trim(); h.interest = $('fInt').value.trim();
       h = await Store.saveHead(h);
@@ -15067,6 +15196,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="2ab4685e76d3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="0751938db2af";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
