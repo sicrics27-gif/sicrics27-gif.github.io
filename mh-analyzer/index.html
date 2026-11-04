@@ -2701,6 +2701,7 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 /* 📊 익명 통계 참고 (2026-11-04) */
 .anonrec:empty{display:none}.anonrec{margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px}
 .anonh{font-weight:700;font-size:13.5px;margin-bottom:6px}.anonh small{font-weight:400;color:var(--mute)}.anonl{display:flex;flex-wrap:wrap;gap:6px}
+.dupl{margin:8px 0 12px;padding-left:18px;font-size:14px;line-height:1.6;max-height:42vh;overflow:auto}.dupl s{opacity:.55}.dupl u{text-decoration-color:var(--acc,#3b6bff)}
 
 </style>
 </head>
@@ -6576,7 +6577,7 @@ function HealthUI(root, H) {
   var ADM = { id: '__admin' };
   async function admLoad(){ try { return (await Store.loadData(ADM.id)) || null; } catch(e){ return null; } }
   async function admSave(d){ await Store.saveHead({ id: ADM.id, hidden: true, name: '__admin', status: 'admin', created: d.created || Date.now() }); await Store.saveData(ADM.id, d); }
-  function invite(u){ return '[AOB9 사용 안내]\n' + u.name + '님, AOB9(어센틱 오션브랜치 9팀) 프로그램 OTP입니다.\n\nOTP: ' + u.code + '\n등록할 구글 계정: ' + u.email + '\n\n① 앱 설치 (안드로이드 · 누르면 바로 다운로드)\nhttps://sicrics27-gif.github.io/mh-analyzer/apk.html\n→ 다운로드 알림 "열기" → "출처를 알 수 없는 앱"이 뜨면 설정에서 허용 → 설치\n· 아이폰도 위 주소를 사파리로 열면 설치 방법이 나옵니다\n· PC: https://github.com/' + Access.REPO + '/releases/latest 에서 MH-Analyzer-setup.exe 설치\n② 앱을 열고 위 OTP를 넣은 뒤, 위 구글 계정으로 본인 확인\n③ 잠금 비밀번호를 만들고 시작'; }
+  function invite(u){ return '[AOB9 사용 안내]\n' + u.name + '님, AOB9(어센틱 오션브랜치 9팀) 프로그램 OTP입니다.\n\nOTP: ' + u.code + '\n등록할 구글 계정: ' + u.email + '\n\n① 앱 설치 (안드로이드 · 누르면 바로 다운로드)\nhttps://sicrics27-gif.github.io/mh-analyzer/apk.html\n→ 다운로드 알림 "열기" → "출처를 알 수 없는 앱"이 뜨면 설정에서 허용 → 설치\n· 아이폰도 위 주소를 사파리로 열면 설치 방법이 나옵니다\n· PC: https://github.com/sicrics27-gif/sicrics27-gif.github.io/releases/latest 에서 MH-Analyzer-setup.exe 설치\n② 앱을 열고 위 OTP를 넣은 뒤, 위 구글 계정으로 본인 확인\n③ 잠금 비밀번호를 만들고 시작'; }
   async function openAdmin(){
     var d = await admLoad();
     if (!d || !d.token) { admSetup(d); return; }
@@ -7683,6 +7684,7 @@ function HealthUI(root, H) {
     S.pm = ym || S.pm || ymOf(todayStr()); S.pview = S.pview || 'month';
     if (S.acfpOn === undefined) { try { S.acfpOn = localStorage.getItem('mhs_acfp') === '1'; } catch(e){ S.acfpOn = false; } }
     if (gcReady() && Date.now() - GC_LAST > 60 * 1000) setTimeout(function(){ gcAuto(); }, 400);
+    setTimeout(function(){ try { dupOffer(); } catch(e){} }, 1200);
     if (Date.now() - (CO.at || 0) > 10 * 60 * 1000) { CO.at = Date.now(); setTimeout(function(){ coSync(); }, 800); }
     S.cur = null; S.data = null; S.view = 'plan'; $('shell').classList.add('has-c'); armBack(); renderList();
     var y = +S.pm.slice(0, 4), m = +S.pm.slice(5, 7), n = mDays(S.pm), first = wdOf(dstr(y, m, 1)), t = todayStr();
@@ -11894,7 +11896,7 @@ function HealthUI(root, H) {
       rows.filter(function(r){ return r.on && r.x.trim() && /^\d{4}-\d{2}-\d{2}$/.test(r.d); }).forEach(function(r){
         var v = PL.d.days[r.d] = PL.d.days[r.d] || { items: [] }; v.items = v.items || [];
         if (r.big) { if (v.big !== r.x) { v.big = v.big ? v.big + ' · ' + r.x : r.x; n++; } }
-        else if (!v.items.some(function(y){ return samePlan(y, r); })) { v.items.push({ t: r.t, x: r.x.trim(), c: r.c, at: Date.now() }); n++; }
+        else if (!v.items.some(function(y){ return samePlan(y, r) || nearSame(y, r); })) { v.items.push({ t: r.t, x: r.x.trim(), c: r.c, at: Date.now() }); n++; } // 2026-11-04: '김명환/김영환'처럼 글자 한두 개 다른 건 같은 일정
         days[r.d] = 1; PL.d.mt[r.d] = Date.now(); });
       await planSave(); closeDlg(); var ds = Object.keys(days).sort();
       toast(n + '개 일정을 싯플랜에 넣었습니다' + (gcReady() ? ' · 캘린더에 맞추는 중…' : ''));
@@ -11928,18 +11930,20 @@ function HealthUI(root, H) {
     return { d: y + '-' + pad(mo) + '-' + pad(d), hit: r[0] };
   }
   function ciRegion(s){
-    var r;
+    var r; s = String(s || '').replace(/\//g, ' ');
     if ((r = s.match(/(서울|부산|대구|인천|광주|대전|울산)(?:특별시|광역시|시)?\s*([가-힣]{1,4}?)(구|군)(?=[\s,(]|$)/))) return { r: r[2], hit: r[0] };
     if ((r = s.match(/(?:^|\s)(세종)(?:특별자치시|시)?(?=[\s,(]|$)/))) return { r: '세종', hit: r[0] };
     if ((r = s.match(/(?:^|[\s(])([가-힣]{1,4}?)(시|군)(?=[\s,(]|$)/)) && !CI_PLACE.test(r[1]) && !/^(오|도|일|당|그|어|분|매|상|임)$/.test(r[1])) return { r: r[1], hit: r[0] };
     if ((r = s.match(/(?:^|\s)(서울|부산|대구|인천|광주|대전|울산)(?=[\s,(]|$)/))) return { r: r[1], hit: r[0] };
+    if ((r = s.match(/(?:^|[\s(])([가-힣]{1,3}?)(읍|면)(?=[\s,(]|$)/)) && !/^(일|당|어|이|그|전|후|대|정|측)$/.test(r[1])) return { r: r[1], hit: r[0] }; // 2026-11-04: '고성읍' → 고성
     if ((r = s.match(/(?:^|[\s(])([가-힣]{1,4}?)구(?=[\s,(]|$)/))) return { r: r[1], hit: r[0] };
     return null;
   }
   // 예약 글처럼 보이는지 (이름+나이 또는 DB+주소/시간) — 이미 '거제 홍길동 인포DB 1차상담'으로 줄인 글은 아님
-  function ciRaw(s){ s = String(s || ''); return /[가-힣]{2,4}\s*님?\s*\d{2}\s*(?:세|살)?(?=[\s,)]|$)/.test(s) && (/DB|디비|소개|지인/i.test(s) || !!ciRegion(s) || !!ciTime(s)) || /DB|디비/i.test(s) && !!ciRegion(s) && s.length > 24; }
+  function ciNorm(s){ return String(s || '').replace(/([가-힣]{2,4})\s*[.·,\/]\s*(\d{2})(?=[\s\/,.)]|$)/g, '$1 $2'); } // 2026-11-04: '김외숙.47' · '김외숙/47' 도 이름+나이로
+  function ciRaw(s){ s = ciNorm(s); return /[가-힣]{2,4}\s*님?\s*\d{2}\s*(?:세|살)?(?=[\s,)]|$)/.test(s) && (/DB|디비|소개|지인/i.test(s) || !!ciRegion(s) || !!ciTime(s)) || /DB|디비/i.test(s) && !!ciRegion(s) && s.length > 24; }
   function calSimplify(raw, base){
-    var s = String(raw || '').replace(/\r/g, '').replace(/[ \t ]+/g, ' ').trim(), o = { raw: s }, rest = s.replace(/\n/g, ' ');
+    var slashy = /\//.test(String(raw || '')); var s = ciNorm(raw).replace(/\r/g, '').replace(/[ \t ]+/g, ' ').trim(), o = { raw: s }, rest = s.replace(/\n/g, ' ');
     var cut = function(h){ if (h) rest = rest.replace(h, ' '); };
     var tm = ciTime(rest); if (tm) { o.t = tm.t; cut(tm.hit); rest = rest.replace(/~\s*(오전|오후)?\s*\d{1,2}(\s*:\s*\d{2}|\s*시(\s*\d{1,2}\s*분|\s*반)?)?/, ' '); }
     var dt = ciDate(rest, base); if (dt) { o.d = dt.d; cut(dt.hit); } rest = rest.replace(/\(\s*[일월화수목금토]\s*\)/g, ' ').replace(/[일월화수목금토]요일/g, ' ');
@@ -11967,6 +11971,7 @@ function HealthUI(root, H) {
     var loc = rest.replace(/^\s*(어센틱)\s+/, ' ').replace(/(^|\s)(어센틱|님|고객님)(?=\s|$)/g, ' ').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')').replace(/\s{2,}/g, ' ').trim();
     loc = loc.replace(/\(([^()]+)\)\s*\1/g, '($1)').replace(/([가-힣A-Za-z0-9]{3,})\s*\(\1\)/g, '$1').replace(/^[\s,·~-]+|[\s,·~-]+$/g, '');
     o.loc = /(시|군|구|동|면|읍|리|로|길|병원|의원|센터|카페|역|점|아파트|\d)/.test(loc) ? loc.slice(0, 120) : '';
+    if (slashy) { var lp = loc.split(/[\/,]+/).map(function(w){ return w.trim(); }).filter(function(w){ return w && !/[:~]|만원|희망|통화|방문|점검|보험료|원대/.test(w) && /(시|군|구|동|면|읍|리|로|길|병원|의원|센터|아파트|빌라|\d+(번지|호|층)?)$/.test(w); }); o.loc = lp.join(' ').slice(0, 120); } // 2026-11-04: '/본인점검/보험료:…/오전통화희망' 같은 메모는 장소로 안 씀(원래 글은 메모에 남음)
     return o;
   }
   // 여러 예약을 한 번에: 빈 줄로 나누고, 한 줄마다 이름+시간이 다 있으면 줄마다 나눔
@@ -12353,6 +12358,32 @@ function HealthUI(root, H) {
   // ---------- 📢 회사 일정표 → 팀원 싯플랜 자동 (관리자가 한 번 읽으면 모두에게 · 2026-11-02) ----------
   // 저장 위치: access.json 의 sched (회사 교육·회의 일정만, 고객 정보 없음). 팀원 앱은 열 때 받아 싯플랜에 넣고 캘린더에도 맞춤.
   // ---------- 👥 회사 일정 팀 공유 (2026-11-04): 팀원 누구나 올림 → 팀 서버가 '추가만'으로 합침(줄어든 것·오타 차이는 반영 안 함) → 모두의 싯플랜에 추가 ----------
+  // ---------- 겹쳐 들어간 일정 정리 (2026-11-04): 회사 일정표 사진·팀 공유가 이름 한두 글자만 다르게 여러 번 들어간 것 ----------
+  // 자동으로 지우지 않음('지우기는 직접 지운 것만') → 싯플랜을 열 때 한 번 보여 주고, [하나만 남기기]를 누르면 그때 정리(다시 안 들어오게 tomb, 캘린더에서도 지움)
+  function dupGroups(){
+    var out = [], days = (PL.d && PL.d.days) || {}, skip = (PL.d && PL.d.dupSkip) || {}, t0 = addDay(todayStr(), -7);
+    Object.keys(days).sort().forEach(function(d){
+      if (d < t0) return; var its = (days[d].items || []).filter(function(x){ return x && x.x && !x.loc && x.c !== 'r'; }), used = [];
+      for (var i = 0; i < its.length; i++) { if (used.indexOf(i) >= 0) continue; var g = [its[i]];
+        for (var j = i + 1; j < its.length; j++) if (used.indexOf(j) < 0 && (samePlan(its[i], its[j]) || nearSame(its[i], its[j]))) { g.push(its[j]); used.push(j); }
+        if (g.length > 1) { var key = d + '|' + g.map(function(x){ return Store.planKey(x); }).sort().join('~'); if (!skip[key]) out.push({ d: d, items: g, key: key }); } }
+    });
+    return out;
+  }
+  function dupOffer(){
+    if (S.view !== 'plan' || !$('dlg').hidden) return; var gs = dupGroups(); if (!gs.length) return;
+    var n = gs.reduce(function(a, g){ return a + g.items.length - 1; }, 0);
+    var li = gs.slice(0, 12).map(function(g){ return '<li><b>' + (+g.d.slice(5, 7)) + '/' + (+g.d.slice(8)) + '</b> ' + g.items.map(function(x, k){ return (k ? '<s>' : '<u>') + esc(x.x) + (k ? '</s>' : '</u>'); }).join(' · ') + '</li>'; }).join('');
+    openDlg('<h4>🧹 같은 일정이 겹쳐 들어간 것 같아요</h4><p class="note">회사 일정표를 여러 번 넣거나 팀원이 올리면서 이름 한두 글자만 다르게 <b>' + n + '건</b>이 더 들어갔습니다. 밑줄 친 것 하나만 남기고 줄 그은 것을 지울까요? (캘린더에서도 같이 지워지고, 다시 들어오지 않습니다)</p><ul class="dupl">' + li + '</ul>' +
+      '<div class="row"><button class="btn primary" type="button" id="dupGo">하나만 남기기</button><button class="btn" type="button" id="dupNo">그대로 두기</button></div>');
+    $('dupNo').onclick = async function(){ PL.d.dupSkip = PL.d.dupSkip || {}; gs.forEach(function(g){ PL.d.dupSkip[g.key] = 1; }); await planSave(); closeDlg(); };
+    $('dupGo').onclick = async function(){
+      var ds = []; PL.d.gdel = PL.d.gdel || []; PL.d.mt = PL.d.mt || {};
+      gs.forEach(function(g){ var v = PL.d.days[g.d]; if (!v) return; g.items.slice(1).forEach(function(x){ var i = v.items.indexOf(x); if (i < 0) return; planTomb(g.d, x); if (x.gid) PL.d.gdel.push(x.gid); v.items.splice(i, 1); }); PL.d.mt[g.d] = Date.now(); ds.push(g.d); });
+      await planSave(); closeDlg(); toast(n + '건 정리했습니다' + (gcReady() ? ' · 캘린더에서도 지우는 중…' : '')); showPlan(S.pm);
+      if (gcReady()) gcPush(ds, true).catch(function(){}); planChanged(ds);
+    };
+  }
   function nearSame(a, b){ if ((a.t || '') !== (b.t || '')) return false; var n = function(s){ return String(s || '').replace(/[\s·.,()\-]/g, ''); }, x = n(a.x), y = n(b.x); if (!x || !y) return false; if (x === y) return true; var L = Math.max(x.length, y.length); if (Math.abs(x.length - y.length) > 2) return false; var m = []; for (var i = 0; i <= x.length; i++) { m[i] = [i]; for (var j = 1; j <= y.length; j++) m[i][j] = i ? Math.min(m[i-1][j] + 1, m[i][j-1] + 1, m[i-1][j-1] + (x[i-1] === y[j-1] ? 0 : 1)) : j; } return m[x.length][y.length] <= Math.max(1, Math.floor(L * 0.2)); }
   var TSC = { at: 0, d: null };
   async function teamSchedGet(){ if (TSC.d && Date.now() - TSC.at < 10 * 60e3) return TSC.d; var x = await cdTeamCtx(); if (!x) return null; try { var j = await teamPost(x.u, { a: 'sched_get', c: x.c, g: x.g }); if (j && j.ok) { TSC.d = j.sched || {}; TSC.at = Date.now(); return TSC.d; } } catch(e){} return null; }
@@ -15036,6 +15067,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="cabe7af5b2b6";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="2ab4685e76d3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
