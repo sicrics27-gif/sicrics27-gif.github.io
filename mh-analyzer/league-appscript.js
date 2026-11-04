@@ -230,7 +230,9 @@ function doPost_(e) {
       if (b.a === 'sched_put') {
         const ym = String(b.ym || ''); if (!/^\d{4}-\d{2}$/.test(ym)) return out({ ok: false, error: 'ym' });
         const r = rows.find(x => String(x.ym) === ym); let old = []; if (r) { try { old = JSON.parse(r.json) || []; } catch (e) { old = []; } }
-        const m = scMerge(old, Array.isArray(b.items) ? b.items.slice(0, 300) : []);
+        const custLike = t => { t = String(t || ''); if (/1차|2차|3차|상담|클로징|db|인포|계약|만남|증권|청구/i.test(t) && !/교육|초청|석회|세미나|강의/.test(t)) return true; return /^[가-힣]{2,3}\s+[가-힣]{2,4}\s+\S/.test(t) && !/교육|초청|석회|미팅|워킹|위클리|마감|회의|공유|세미나|시상|강의/.test(t); }; // 고객 약속 같은 줄은 받지 않음 (2026-11-05)
+        old = old.filter(x => !custLike(x && x.x));
+        const m = scMerge(old, (Array.isArray(b.items) ? b.items.slice(0, 300) : []).filter(x => !custLike(x && x.x)));
         if (!m.add) return out({ ok: true, add: 0 });
         const vals = [ym, Date.now(), String(b.n || '팀원').slice(0, 10), JSON.stringify(m.items)];
         if (r) sh.getRange(r.row, 1, 1, 4).setValues([vals]); else sh.appendRow(vals);
