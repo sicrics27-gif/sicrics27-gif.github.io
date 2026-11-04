@@ -1,0 +1,16 @@
+{
+ "id": "./bisa.html",
+ "name": "보험비서",
+ "short_name": "보험비서",
+ "description": "담당 설계사와 연결된 나의 보험비서 — 내 보장 보기 · 보험금 청구 요청 · 문의",
+ "lang": "ko",
+ "start_url": "./bisa.html",
+ "scope": "./bisa.html",
+ "display": "standalone",
+ "background_color": "#f4f6fa",
+ "theme_color": "#0f2a5c",
+ "icons": [
+  { "src": "bisa-icon.png", "sizes": "512x512", "type": "image/png" },
+  { "src": "bisa-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+ ]
+}

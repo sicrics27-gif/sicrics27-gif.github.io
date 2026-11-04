@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AOB9 카카오톡 연결</title>
+<style>
+:root{--bg:#0d1017;--card:#161b24;--ink:#e8ecf3;--sub:#9aa6b8;--ac:#fee500}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Pretendard Variable","Malgun Gothic",sans-serif;padding:24px 16px}
+.c{max-width:520px;margin:0 auto;background:var(--card);border-radius:16px;padding:22px}
+h1{font-size:20px;margin:0 0 12px}p{margin:8px 0;color:var(--sub)}b{color:var(--ink)}
+textarea{width:100%;box-sizing:border-box;min-height:110px;border-radius:10px;border:1px solid #2a3240;background:#0b0e14;color:var(--ink);padding:10px;font:13px/1.4 monospace;word-break:break-all}
+button{margin-top:10px;width:100%;border:0;border-radius:12px;padding:14px;font:700 16px sans-serif;background:var(--ac);color:#191919;cursor:pointer}
+.err{color:#ff8a80}
+</style></head><body><div class="c"><h1>💬 AOB9 카카오톡 연결</h1><div id="o"><p>확인하는 중…</p></div></div>
+<script>
+// 카카오 로그인에서 돌아온 코드로 열쇠를 받아 '연결 코드'로 보여 줌 (이 페이지는 어디에도 저장하지 않음 · 복사해서 AOB9에 붙여 넣기)
+(function () {
+  var o = document.getElementById('o'), q = new URLSearchParams(location.search), st = {};
+  function show(h) { o.innerHTML = h; }
+  try { st = JSON.parse(atob(q.get('state') || '')); } catch (e) { }
+  if (q.get('error')) { show('<p class="err">카카오 동의가 취소됐습니다 (' + (q.get('error_description') || q.get('error')) + '). AOB9에서 다시 [카카오 로그인]을 눌러 주세요.</p>'); return; }
+  var code = q.get('code'); if (!code || !st.k) { show('<p class="err">잘못된 접근입니다. AOB9 → 브리핑 설정 → 카카오 로그인 버튼으로 열어 주세요.</p>'); return; }
+  var body = new URLSearchParams({ grant_type: 'authorization_code', client_id: st.k, redirect_uri: location.origin + location.pathname, code: code });
+  fetch('https://kauth.kakao.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }, body: body.toString() })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (!j.refresh_token) { show('<p class="err">열쇠를 받지 못했습니다: ' + (j.error_description || j.error || '알 수 없는 오류') + '</p><p>카카오 개발자 화면에서 Redirect URI가 <b>' + location.origin + location.pathname + '</b> 로 등록됐는지, [보안] Client Secret이 꺼져 있는지 확인해 주세요.</p>'); return; }
+      var c = 'KK1.' + btoa(unescape(encodeURIComponent(JSON.stringify({ k: st.k, r: j.refresh_token }))));
+      show('<p>✅ 연결 준비 완료! 아래 <b>연결 코드</b>를 복사해서 AOB9 → 브리핑 설정 → 카카오톡의 <b>두 번째 칸</b>에 붙여 넣고 [연결]을 누르세요.</p><textarea id="t" readonly>' + c + '</textarea><button id="b">📋 연결 코드 복사</button><p>⚠️ 붙여 넣기 전에 다른 글을 복사하면 지워집니다. 이 코드는 내 카카오톡에 메시지를 보낼 수 있는 열쇠이니 다른 사람에게 보내지 마세요.</p>');
+      document.getElementById('b').onclick = function () { var t = document.getElementById('t'); t.select(); try { navigator.clipboard.writeText(c).then(function () { document.getElementById('b').textContent = '✅ 복사했습니다'; }, function () { document.execCommand('copy'); document.getElementById('b').textContent = '✅ 복사했습니다'; }); } catch (e) { document.execCommand('copy'); } };
+    })
+    .catch(function (e) { show('<p class="err">카카오 서버에 연결하지 못했습니다: ' + e + '</p>'); });
+})();
+</script></body></html>

@@ -1,0 +1,9 @@
+const V="mhs-cabe7af5b2b6";const ASSETS=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","lib/pdf.min.js","lib/pdf.worker.min.js","lib/jszip.min.js","lib/xlsx.full.min.js","lib/PretendardVariable.woff2","lib/qrcode.js","lib/bg-afg.jpg","lib/bg-afg-tall.jpg","lib/bg-afg-hero.jpg","lib/bg-concrete-side.jpg","lib/bg-main.jpg","lib/afg-mark.jpg","lib/leaflet.js","lib/leaflet.css"];
+self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener("fetch",e=>{const u=new URL(e.request.url);
+ if(e.request.method==="POST"&&u.pathname.endsWith("/share-target")){e.respondWith((async()=>{const f=await e.request.formData();const fs=f.getAll("file");const c=await caches.open("mhs-share");const idx=[];for(let i=0;i<fs.length;i++){const k="./__share/"+Date.now()+"_"+i;await c.put(k,new Response(fs[i],{headers:{"x-name":encodeURIComponent(fs[i].name||("공유파일"+i+".pdf"))}}));idx.push(k);}await c.put("./__share/index",new Response(JSON.stringify(idx)));return Response.redirect("./?shared=1",303);})());return;}
+ if(e.request.method!=="GET")return;
+ if(u.origin===location.origin){if(u.pathname.endsWith("version.json"))return;e.respondWith((e.request.mode==="navigate"?fetch(e.request.url,{cache:"no-cache",credentials:"same-origin"}):fetch(e.request,{cache:"no-cache"})).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r;}).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||caches.match("index.html"))));return;}
+ if(/fonts\.(googleapis|gstatic)\.com$/.test(u.hostname)){e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const c=res.clone();caches.open(V).then(x=>x.put(e.request,c));return res;})));}
+});

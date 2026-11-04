@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f2a5c">
+<title>보험비서</title>
+<link rel="manifest" href="bisa.webmanifest">
+<link rel="icon" href="bisa-icon.png">
+<link rel="apple-touch-icon" href="bisa-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="보험비서">
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--ink:#14213d;--sub:#5b6577;--line:#e3e7ef;--ac:#1f4fb8;--ac2:#0f2a5c;--ok:#1e8e5a;--warn:#b45309;--soft:#eef3ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--card:#161b24;--ink:#e8ecf3;--sub:#9aa6b8;--line:#263040;--ac:#6d9bff;--ac2:#0b1730;--soft:#1a2335}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Pretendard Variable","Apple SD Gothic Neo","Malgun Gothic",sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+header.top{background:linear-gradient(135deg,var(--ac2),#1f4fb8);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 16px 64px}
+header.top .in{max-width:560px;margin:0 auto}header.top small{opacity:.8}header.top h1{margin:4px 0 0;font-size:22px;letter-spacing:-.3px}
+.pl{margin-top:-46px;background:var(--card);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(15,42,92,.12);display:flex;gap:14px;align-items:center}
+.av{flex:none;width:54px;height:54px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:22px;font-weight:800;color:var(--ac)}
+.pl .who{flex:1;min-width:0}.pl .who b{font-size:17px}.pl .who small{display:block;color:var(--sub)}
+.pl .acts{display:flex;gap:6px}.pl .acts a{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);text-decoration:none;font-size:20px}
+h2{font-size:15px;margin:22px 4px 10px;color:var(--sub);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:96px}
+.tile i{font-style:normal;font-size:26px}.tile b{font-size:16px}.tile small{color:var(--sub);font-size:12.5px;line-height:1.35}
+.tile.big{grid-column:1/-1;background:linear-gradient(135deg,var(--ac),#3b6bff);color:#fff;border:0}.tile.big small{color:#e6edff}
+.badge{position:absolute;top:10px;right:10px;background:#e5484d;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.back{border:0;background:none;color:var(--ac);font-weight:700;padding:14px 0 4px;cursor:pointer;font-size:15px}
+label.l{display:block;font-size:13px;color:var(--sub);margin:12px 0 6px;font-weight:600}
+input[type=text],input[type=date],input[type=tel],select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+textarea{min-height:110px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:#fff}
+.go{width:100%;border:0;border-radius:14px;background:var(--ac);color:#fff;font-weight:800;padding:16px;margin-top:16px;cursor:pointer;font-size:16px}
+.go:disabled{opacity:.5}.btn2{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:13px;margin-top:8px;cursor:pointer;font-weight:700}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.note{color:var(--sub);font-size:13px}.safe{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--sub);background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:12px}
+.ct{border-top:1px solid var(--line);padding:12px 0}.ct:first-child{border-top:0;padding-top:0}
+.ct h3{margin:0 0 2px;font-size:15px}.ct small{color:var(--sub)}
+.rd{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:14px;border-bottom:1px dashed var(--line)}.rd:last-child{border-bottom:0}.rd b{white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--ac);margin-right:4px}
+.msg{background:var(--soft);border-radius:14px;padding:12px 14px;margin:10px 0;white-space:pre-wrap}.msg small{display:block;color:var(--sub);margin-bottom:4px}
+.msg.me{background:var(--card);border:1px solid var(--line)}
+.center{text-align:center;padding:40px 10px}.center i{font-style:normal;font-size:46px}
+.inst{display:flex;gap:10px;align-items:center;background:#fff7e6;color:#7a4b00;border:1px solid #f5d38a;border-radius:14px;padding:12px;margin:14px 0 0;font-size:13.5px}
+.inst button{flex:none;border:0;border-radius:10px;background:#f5b301;color:#2b1d00;font-weight:800;padding:9px 12px;cursor:pointer}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.ck input{margin-top:4px;width:20px;height:20px}
+.doc li{margin:4px 0}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#14213d;color:#fff;border-radius:12px;padding:12px 16px;font-size:14px;z-index:9;max-width:90vw}
+</style>
+</head>
+<body>
+<div id="app"><div class="center"><i>⏳</i><p>여는 중…</p></div></div>
+<script>
+// 보험비서 (고객용) — 담당 설계사가 보낸 링크로 열면, 내 보장 보기·보험금 청구 요청·문의를 할 수 있습니다.
+// 모든 내용은 이 휴대폰에서 잠근 뒤(암호화) 보내고, 담당 설계사만 열 수 있습니다. 중계 서버는 내용을 볼 수 없습니다.
+(function(){
+  var API = (new URLSearchParams(location.search).get('api')) || 'https://aob9-bisa.nhc-3c490f.workers.dev';
+  var $ = function(id){ return document.getElementById(id); }, app = $('app');
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var LS = { get: function(k){ try { return JSON.parse(localStorage.getItem('bisa_' + k) || 'null'); } catch(e){ return null; } }, set: function(k, v){ try { localStorage.setItem('bisa_' + k, JSON.stringify(v)); } catch(e){} } };
+  function toast(t){ var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function(){ d.remove(); }, 2600); }
+  // ---- 암호 (AES-GCM, 열쇠는 링크의 # 뒤에만) ----
+  function b64u(u8){ var s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function ub64(s){ s = String(s).replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  var KEY = null;
+  async function key(){ if (!KEY) KEY = await crypto.subtle.importKey('raw', ub64(S.k), 'AES-GCM', false, ['encrypt', 'decrypt']); return KEY; }
+  async function enc(obj){ var iv = crypto.getRandomValues(new Uint8Array(12)), ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, await key(), new TextEncoder().encode(JSON.stringify(obj)))); return { iv: b64u(iv), ct: b64u(ct) }; }
+  async function dec(x){ var pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ub64(x.iv) }, await key(), ub64(x.ct)); return JSON.parse(new TextDecoder().decode(pt)); }
+  async function api(path, opt){ var r = await fetch(API + path, opt), j = {}; try { j = await r.json(); } catch(e){} if (!r.ok || !j.ok) throw new Error(j.error || ('연결 오류 ' + r.status)); return j; }
+  // ---- 초대 링크 읽기 ----
+  var h = new URLSearchParams(location.hash.slice(1)), S = LS.get('inv') || {};
+  if (h.get('i') && h.get('k')) { S = { i: h.get('i'), k: h.get('k') }; LS.set('inv', S); }
+  var B = LS.get('bundle'), inKakao = /KAKAOTALK/i.test(navigator.userAgent), isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var DEFER = null; window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); DEFER = e; var b = $('instBtn'); if (b) b.hidden = false; });
+  function plName(){ var p = (B && B.pl) || {}; return (p.name || '') + (p.title || ''); }
+  function setTitle(){ document.title = plName() ? plName() + ' 보험비서' : '보험비서'; }
+  function shell(inner, back){
+    var p = (B && B.pl) || {}, ph = String(p.phone || '').replace(/[^\d]/g, '');
+    return '<header class="top"><div class="in"><small>' + esc((B && B.c && B.c.name) ? B.c.name + '님의' : '나의') + '</small><h1>' + esc(plName() ? plName() + ' 보험비서' : '보험비서') + '</h1></div></header><div class="wrap">' +
+      '<div class="pl"><div class="av">' + esc((p.name || '?').slice(0, 1)) + '</div><div class="who"><b>' + esc(p.name || '') + ' ' + esc(p.title || '') + '</b><small>' + esc(p.org || '담당 설계사') + '</small></div><div class="acts">' + (ph ? '<a href="tel:' + ph + '" aria-label="전화">📞</a><a href="sms:' + ph + '" aria-label="문자">💬</a>' : '') + (p.kakao ? '<a href="' + esc(p.kakao) + '" aria-label="카카오톡">🟡</a>' : '') + '</div></div>' +
+      (back ? '<button class="back" data-go="home">‹ 처음으로</button>' : '') + inner + '</div>';
+  }
+  function installBanner(){
+    if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) return '';
+    if (inKakao) return '<div class="inst"><span>📲 휴대폰 홈 화면에 앱처럼 두려면 <b>기본 브라우저</b>로 열어 주세요</span><button data-act="ext">브라우저로 열기</button></div>';
+    if (isIOS) return '<div class="inst"><span>📲 아래 <b>공유 버튼(□↑)</b> → <b>홈 화면에 추가</b>를 누르면 앱처럼 쓸 수 있어요</span></div>';
+    return '<div class="inst"><span>📲 홈 화면에 추가하면 앱처럼 바로 열 수 있어요</span><button id="instBtn" data-act="inst"' + (DEFER ? '' : ' hidden') + '>추가</button></div>';
+  }
+  // ---- 화면들 ----
+  function home(){
+    var unread = (LS.get('replies') || []).filter(function(m){ return !m.seen; }).length;
+    app.innerHTML = shell(installBanner() + '<h2>무엇을 도와드릴까요?</h2><div class="grid">' +
+      '<button class="tile big" data-go="claim"><i>💰</i><b>보험금 청구 요청</b><small>영수증·진단서 사진만 찍어 보내 주세요. 담당 설계사가 확인해 드립니다</small></button>' +
+      '<button class="tile" data-go="cov"><i>🛡️</i><b>내 보장 보기</b><small>가입하신 보험과 특약</small></button>' +
+      '<button class="tile" data-go="ask"><i>💬</i><b>문의 · 상담 요청</b><small>전화가 부담스러우면 여기로</small></button>' +
+      '<button class="tile" data-go="inbox">' + (unread ? '<span class="badge">' + unread + '</span>' : '') + '<i>📨</i><b>받은 답장</b><small>설계사가 보낸 안내</small></button>' +
+      '<button class="tile" data-go="hosp"><i>🏥</i><b>내 주변 병원</b><small>진료과별로 찾기</small></button>' +
+      '<button class="tile" data-go="docs"><i>📋</i><b>청구 서류 안내</b><small>무엇을 떼어야 하나요?</small></button>' +
+      '<button class="tile" data-go="about"><i>🔒</i><b>개인정보 · 앱 정보</b><small>내 정보는 이렇게 지켜집니다</small></button>' +
+      '</div>');
+    setTitle(); pollReplies();
+  }
+  var CL = { kind: '질병 통원', photos: [] };
+  function claim(){
+    var kinds = ['질병 통원', '질병 입원', '상해(다침)', '수술', '진단(암·뇌·심장 등)', '약값', '기타'];
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0">💰 보험금 청구 요청</h3><p class="note">사진을 보내 주시면 담당 설계사가 어느 보험에서 얼마나 받을 수 있는지 확인하고 청구를 도와드립니다.</p>' +
+      '<label class="l">어떤 일인가요?</label><div class="chips" id="clK">' + kinds.map(function(k){ return '<button type="button" aria-pressed="' + (CL.kind === k) + '">' + k + '</button>'; }).join('') + '</div>' +
+      '<label class="l">진료 · 사고 날짜</label><input type="date" id="clD" value="' + new Date().toISOString().slice(0, 10) + '">' +
+      '<label class="l">병원 이름 (아시면)</label><input type="text" id="clH" placeholder="예: OO정형외과">' +
+      '<label class="l">사진 (영수증 · 진료비 세부내역서 · 진단서 등, 여러 장 가능)</label><input type="file" id="clF" accept="image/*" multiple><div class="thumbs" id="clT"></div>' +
+      '<label class="l">하실 말씀 (선택)</label><textarea id="clM" placeholder="예: 무릎이 아파서 3번 통원했어요"></textarea>' +
+      '<button class="go" id="clGo">담당 설계사에게 보내기</button>' +
+      '<div class="safe">🔒<span>사진과 내용은 이 휴대폰에서 잠근 뒤 보내져 <b>담당 설계사만</b> 열 수 있습니다. 보낸 뒤에도 실제 청구 전에 설계사가 한 번 더 연락드립니다.</span></div></div>', true);
+    $('clK').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ CL.kind = b.textContent; $('clK').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); }; });
+    CL.photos = [];
+    $('clF').onchange = async function(){ var fs = [].slice.call(this.files || []).slice(0, 8); for (var i = 0; i < fs.length; i++) { try { var im = await shrink(fs[i]); CL.photos.push(im); $('clT').insertAdjacentHTML('beforeend', '<img src="data:image/jpeg;base64,' + im + '" alt="">'); } catch(e){} } this.value = ''; };
+    $('clGo').onclick = async function(){ if (!CL.photos.length && !$('clM').value.trim()) { toast('사진이나 하실 말씀을 넣어 주세요'); return; }
+      var b = this; b.disabled = true; b.textContent = '안전하게 보내는 중…';
+      try { await send({ t: 'claim', kind: CL.kind, date: $('clD').value, hosp: $('clH').value.trim(), memo: $('clM').value.trim(), imgs: CL.photos });
+        mine({ t: 'claim', text: '💰 청구 요청 · ' + CL.kind + ' · ' + $('clD').value + (CL.photos.length ? ' · 사진 ' + CL.photos.length + '장' : '') });
+        done('청구 요청을 보냈습니다', '담당 설계사가 확인하고 연락드릴게요. 보통 하루 안에 답장이 옵니다.'); }
+      catch(e){ b.disabled = false; b.textContent = '다시 보내기'; toast(e.message || '보내지 못했습니다'); } };
+  }
+  var ASK = { kind: '상담 요청' };
+  function ask(){
+    var kinds = ['상담 요청', '보장 문의', '연락처·주소 변경', '해지·변경 문의', '기타'];
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0">💬 문의 · 상담 요청</h3>' +
+      '<label class="l">어떤 내용인가요?</label><div class="chips" id="akK">' + kinds.map(function(k){ return '<button type="button" aria-pressed="' + (ASK.kind === k) + '">' + k + '</button>'; }).join('') + '</div>' +
+      '<label class="l">편한 연락 방법 · 시간</label><div class="chips" id="akW">' + ['문자로 답장', '전화 주세요 (평일 낮)', '전화 주세요 (저녁)', '이 앱으로 답장'].map(function(k, i){ return '<button type="button" aria-pressed="' + (i === 3) + '">' + k + '</button>'; }).join('') + '</div>' +
+      '<label class="l">내용</label><textarea id="akM" placeholder="궁금하신 점을 편하게 적어 주세요"></textarea>' +
+      '<button class="go" id="akGo">보내기</button><div class="safe">🔒<span>담당 설계사만 볼 수 있게 잠가서 보냅니다.</span></div></div>', true);
+    var way = '이 앱으로 답장';
+    $('akK').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ ASK.kind = b.textContent; $('akK').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); }; });
+    $('akW').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ way = b.textContent; $('akW').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); }; });
+    $('akGo').onclick = async function(){ var m = $('akM').value.trim(); if (!m) { toast('내용을 적어 주세요'); return; } var b = this; b.disabled = true; b.textContent = '보내는 중…';
+      try { await send({ t: 'ask', kind: ASK.kind, way: way, memo: m }); mine({ t: 'ask', text: '💬 ' + ASK.kind + ' · ' + m }); done('문의를 보냈습니다', '담당 설계사가 확인하고 ' + (way === '이 앱으로 답장' ? '이 앱으로 답장드릴게요.' : '연락드릴게요.')); }
+      catch(e){ b.disabled = false; b.textContent = '다시 보내기'; toast(e.message || '보내지 못했습니다'); } };
+  }
+  function cov(){
+    var L = (B && B.cov) || [];
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0 0 4px">🛡️ 내 보장</h3><p class="note">' + (B && B.covAt ? esc(B.covAt) + ' 기준 · ' : '') + '담당 설계사가 정리해 보내 드린 내용입니다. 정확한 보장은 보험증권·약관을 따릅니다.</p>' +
+      (L.length ? L.map(function(c){ return '<div class="ct"><h3>' + esc(c.co) + '</h3><small>' + esc(c.pr || '') + (c.st ? ' · ' + esc(c.st) + ' 가입' : '') + (c.prem ? ' · 월 ' + Number(c.prem).toLocaleString() + '원' : '') + '</small>' +
+        (c.rid || []).map(function(r){ return '<div class="rd"><span>' + (r[2] ? '<span class="tag">' + esc(r[2]) + '</span>' : '') + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '</div>'; }).join('') : '<p>아직 보장 내용이 없습니다. 담당 설계사가 보장분석을 마치면 여기에 보입니다.</p>') +
+      '</div><button class="btn2" data-go="ask">이 보장에 대해 물어보기</button>', true);
+  }
+  function hosp(){
+    var D = ['병원', '내과', '정형외과', '이비인후과', '피부과', '안과', '치과', '한의원', '소아청소년과', '산부인과', '응급실', '약국'];
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0">🏥 내 주변 병원</h3><p class="note">누르면 지도 앱에서 가까운 곳을 찾아 줍니다.</p><div class="chips">' + D.map(function(d){ return '<button type="button" data-map="' + d + '">' + d + '</button>'; }).join('') + '</div>' +
+      '<p class="note" style="margin-top:14px">💡 진료를 받으면 <b>진료비 영수증</b>과 <b>진료비 세부내역서</b>를 같이 받아 두세요. 나중에 청구할 때 필요합니다.</p></div>', true);
+    app.querySelectorAll('[data-map]').forEach(function(b){ b.onclick = function(){ location.href = 'https://map.kakao.com/link/search/' + encodeURIComponent(b.dataset.map); }; });
+  }
+  function docs(){
+    var G = [['🩺 통원 (외래 진료)', ['진료비 영수증', '진료비 세부내역서 (비급여가 있으면 꼭)', '약 처방이 있으면 약제비 영수증·처방전']],
+      ['🛏️ 입원', ['입·퇴원 확인서 (병명·질병코드 적힌 것)', '진료비 영수증 · 진료비 세부내역서', '수술했다면 수술확인서']],
+      ['🔪 수술', ['수술확인서 (수술명·수술코드)', '진료비 영수증 · 세부내역서']],
+      ['🎗️ 진단 (암·뇌·심장 등)', ['진단서 (질병코드 적힌 것)', '암은 조직검사 결과지(병리 보고서)', '뇌·심장은 검사 결과지(CT·MRI 판독 등)']],
+      ['🚑 상해 (다침)', ['진단서 또는 초진 기록', '진료비 영수증 · 세부내역서', '사고 경위 (언제·어디서·어떻게)']]];
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0 0 6px">📋 청구 서류 안내</h3><p class="note">보험사와 금액에 따라 필요한 서류가 다를 수 있어요. 사진을 보내 주시면 담당 설계사가 빠진 서류를 알려 드립니다.</p>' +
+      G.map(function(g){ return '<div class="ct"><h3>' + g[0] + '</h3><ul class="doc">' + g[1].map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>'; }).join('') +
+      '<p class="note">⏰ 보험금은 사고·진단일로부터 <b>3년 안에</b> 청구해야 합니다.</p></div><button class="go" data-go="claim">사진 찍어서 청구 요청하기</button>', true);
+  }
+  function about(){
+    var c = LS.get('consent') || {};
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0 0 6px">🔒 개인정보 · 앱 정보</h3>' +
+      '<p>이 앱은 <b>' + esc(plName()) + '</b> 설계사가 고객님과 편하게 소통하려고 드리는 앱입니다.</p><ul class="doc">' +
+      '<li>보장 내용·청구 사진·문의 글은 이 휴대폰에서 <b>잠근 뒤</b> 보내져, 담당 설계사만 열 수 있습니다.</li><li>중간 서버에는 잠긴 글만 잠시 머물며(받은 요청 30일·답장 90일 뒤 자동 삭제) 운영자도 내용을 볼 수 없습니다.</li>' +
+      '<li>동의일: ' + esc(c.at ? new Date(c.at).toLocaleDateString('ko-KR') : '-') + '</li></ul>' +
+      '<button class="btn2" id="abOff">이 휴대폰에서 연결 끊기 (저장된 내용 지우기)</button></div>', true);
+    $('abOff').onclick = function(){ if (!confirm('이 휴대폰에서 보험비서 연결을 끊을까요? 다시 쓰려면 설계사에게 링크를 다시 받아야 합니다.')) return; try { Object.keys(localStorage).filter(function(k){ return /^bisa_/.test(k); }).forEach(function(k){ localStorage.removeItem(k); }); } catch(e){} location.replace(location.pathname); };
+  }
+  function inbox(){
+    var R = (LS.get('replies') || []).slice().reverse(), M = LS.get('mine') || [], all = R.map(function(r){ return { me: false, at: r.at, text: r.text }; }).concat(M.map(function(m){ return { me: true, at: m.at, text: m.text }; })).sort(function(a, b){ return b.at - a.at; });
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0 0 6px">📨 주고받은 내용</h3>' + (all.length ? all.slice(0, 60).map(function(m){ return '<div class="msg' + (m.me ? ' me' : '') + '"><small>' + (m.me ? '내가 보냄' : esc(plName())) + ' · ' + new Date(m.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</small>' + esc(m.text) + '</div>'; }).join('') : '<p class="note">아직 주고받은 내용이 없습니다.</p>') + '</div><button class="go" data-go="ask">문의 보내기</button>', true);
+    var rs = LS.get('replies') || []; rs.forEach(function(r){ r.seen = 1; }); LS.set('replies', rs);
+  }
+  function done(t, s){ app.innerHTML = shell('<div class="card center"><i>✅</i><h3>' + esc(t) + '</h3><p class="note">' + esc(s) + '</p><button class="go" data-go="home">처음으로</button></div>', false); }
+  function mine(m){ var L = LS.get('mine') || []; L.push({ at: Date.now(), text: m.text }); LS.set('mine', L.slice(-100)); }
+  async function send(obj){ obj.at = Date.now(); var x = await enc(obj); await api('/v1/msg/' + encodeURIComponent(S.i), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(x) }); }
+  async function pollReplies(){
+    try { var last = LS.get('lastOut') || '', j = await api('/v1/out/' + encodeURIComponent(S.i) + (last ? '?since=' + encodeURIComponent(last) : '')), rs = LS.get('replies') || [], n = 0;
+      for (var i = 0; i < j.items.length; i++) { var it = j.items[i]; try { var m = await dec(it); if (m.t === 'bundle') { B = m.b; LS.set('bundle', B); } else { rs.push({ at: it.at, text: m.text || '', seen: 0 }); n++; } } catch(e){} last = it.id; }
+      if (j.items.length) { LS.set('lastOut', last); LS.set('replies', rs.slice(-200)); }
+      if (n && document.querySelector('[data-go="inbox"]')) home();
+    } catch(e){}
+  }
+  function shrink(file){ return new Promise(function(res, rej){ var u = URL.createObjectURL(file), im = new Image(); im.onload = function(){ var k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg', 0.82).split(',')[1]); }; im.onerror = function(){ rej(new Error('사진을 열지 못했습니다')); }; im.src = u; }); }
+  // ---- 처음: 동의 → 내용 받기 ----
+  function consent(){
+    app.innerHTML = '<header class="top"><div class="in"><small>환영합니다</small><h1>보험비서</h1></div></header><div class="wrap"><div class="card" style="margin-top:-40px"><h3 style="margin:0 0 6px">시작하기 전에 확인해 주세요</h3>' +
+      '<p class="note">담당 설계사가 보장 안내·보험금 청구 도움·상담을 드리기 위해 아래 정보를 씁니다.</p>' +
+      '<label class="ck"><input type="checkbox" id="c1"><span><b>[필수] 개인정보 수집·이용</b><br><small class="note">이름·연락처·가입 보험 내용 / 목적: 보장 안내·상담 / 보관: 연결을 끊을 때까지</small></span></label>' +
+      '<label class="ck"><input type="checkbox" id="c2"><span><b>[필수] 민감정보(건강 정보) 처리</b><br><small class="note">청구할 때 보내시는 진단서·영수증 속 진료 정보 / 목적: 보험금 청구 도움 / 담당 설계사만 열람</small></span></label>' +
+      '<button class="go" id="cGo">동의하고 시작하기</button><p class="note" style="margin-top:10px">동의하지 않으셔도 담당 설계사와 전화·문자로는 똑같이 상담하실 수 있습니다.</p></div></div>';
+    $('cGo').onclick = function(){ if (!$('c1').checked || !$('c2').checked) { toast('두 항목에 모두 동의해 주세요'); return; } LS.set('consent', { at: Date.now(), v: 1 }); load(); };
+  }
+  async function load(){
+    if (!S.i || !S.k) { app.innerHTML = '<div class="wrap center"><i>📲</i><h3>담당 설계사에게 받은 링크로 열어 주세요</h3><p class="note">카카오톡으로 받은 "보험비서" 링크를 누르면 바로 시작됩니다.</p></div>'; return; }
+    if (!LS.get('consent')) { consent(); return; }
+    if (B) home();
+    try { var j = await api('/v1/inv/' + encodeURIComponent(S.i)); B = await dec(j); LS.set('bundle', B); home(); }
+    catch(e){ if (!B) app.innerHTML = '<div class="wrap center"><i>⚠️</i><h3>내용을 불러오지 못했습니다</h3><p class="note">' + esc(e.message || '') + '<br>인터넷 연결을 확인하거나 담당 설계사에게 링크를 다시 받아 주세요.</p><button class="go" onclick="location.reload()">다시 시도</button></div>'; }
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest('[data-go],[data-act]'); if (!t) return;
+    var g = t.dataset.go, a = t.dataset.act;
+    if (a === 'ext') { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href); return; }
+    if (a === 'inst' && DEFER) { DEFER.prompt(); DEFER = null; t.hidden = true; return; }
+    ({ home: home, claim: claim, ask: ask, cov: cov, hosp: hosp, docs: docs, about: about, inbox: inbox })[g] && ({ home: home, claim: claim, ask: ask, cov: cov, hosp: hosp, docs: docs, about: about, inbox: inbox })[g]();
+    window.scrollTo(0, 0); });
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && B) pollReplies(); });
+  load();
+})();
+</script>
+</body>
+</html>
