@@ -8190,6 +8190,7 @@ function HealthUI(root, H) {
   // 맞출 범위: 30일 전부터 앞으로 적어 둔 모든 날 + 예전에 올렸던 날
   async function gcAll(quiet){
     PL.d = null; await planLoad();
+    try { if (planTidyRaw().length) await planSave(); } catch(e){}
     var from = addDay(todayStr(), -30), ds = {};
     Object.keys(PL.d.days).forEach(function(d){ if (d >= from) ds[d] = 1; });
     Object.keys(PL.d.gsync || {}).forEach(function(d){ if (d >= from) ds[d] = 1; });
@@ -8300,7 +8301,7 @@ function HealthUI(root, H) {
   }
   async function gcSweep(force){
     await planLoad(); if (!PL.d.gcal || !PL.d.gcal.id) return 0; var td = todayStr();
-    if (!force && PL.d.gsweep === td) return 0;
+    if (!force && PL.d.gsweep === td && PL.d.gcal.oldv === 2) return 0; // oldv: 옛 캘린더 정리가 새로 들어온 날은 한 번 더 돎
     var base = GC + '/calendars/' + encodeURIComponent(PL.d.gcal.id) + '/events', evs = [], page = '';
     for (var g = 0; g < 20; g++) { var q = 'singleEvents=true&maxResults=2500&timeMin=' + encodeURIComponent(new Date(Date.now() - 31 * 864e5).toISOString()) + (page ? '&pageToken=' + encodeURIComponent(page) : ''); var j = await gcJson(base + '?' + q); evs = evs.concat(j.items || []); page = j.nextPageToken || ''; if (!page) break; }
     var wantD = {}, rm = [];
@@ -8312,9 +8313,43 @@ function HealthUI(root, H) {
       if (dup) rm.push(ev.id);
     });
     await gcPool(rm.map(function(id){ return function(){ return Sync.gapi(base + '/' + encodeURIComponent(id), { method: 'DELETE' }).catch(function(){}); }; }), 4);
+    var old = 0; try { old = await gcOldCals(); PL.d.gcal.oldv = 2; } catch(e){}
     PL.d.gsweep = td; await planSave();
     if (rm.length) toast('🧹 캘린더에 겹쳐 남아 있던 일정 ' + rm.length + '개를 정리했습니다');
-    return rm.length;
+    return rm.length + old;
+  }
+  // 2026-11-05: 예전에 만들어진 같은 이름 '○○ 싯플랜' 캘린더(최대 10개)에 같은 일정이 하나씩 남아 삼성 캘린더에 5~6번 겹쳐 보이던 문제.
+  // 지금 쓰는 캘린더 하나만 남기고, 옛 캘린더의 일정은 싯플랜에 없는 것만 싯플랜에 '추가'한 뒤(추가만 원칙) 옛 캘린더를 지움.
+  async function gcOldCals(){
+    var cur = PL.d.gcal && PL.d.gcal.id; if (!cur) return 0;
+    var name = PL.d.nick + ' 싯플랜', cand = {};
+    (PL.d.gcal.ids || []).forEach(function(id){ if (id && id !== cur) cand[id] = 1; });
+    try { var l = await gcJson(GC + '/users/me/calendarList?maxResults=250'); (l.items || []).forEach(function(c){ if (c.id !== cur && c.summary === name && (c.accessRole === 'owner')) cand[c.id] = 1; }); } catch(e){ if (e.code === 'OFFLINE' || e.code === 'NEED_LOGIN') throw e; }
+    var gone = PL.d.gcal.gone = PL.d.gcal.gone || [], nDel = 0, nAdd = 0, ds = {};
+    for (var id in cand) {
+      if (gone.indexOf(id) >= 0) continue;
+      var base = GC + '/calendars/' + encodeURIComponent(id) + '/events', evs = [], page = '', ok = true;
+      try { for (var g = 0; g < 20; g++) { var j = await gcJson(base + '?singleEvents=true&maxResults=2500' + (page ? '&pageToken=' + encodeURIComponent(page) : '')); evs = evs.concat(j.items || []); page = j.nextPageToken || ''; if (!page) break; } }
+      catch(e){ if (e.code === 'NOT_FOUND' || e.status === 404 || e.status === 410) { gone.push(id); continue; } if (e.code === 'OFFLINE' || e.code === 'NEED_LOGIN') throw e; continue; }
+      evs.forEach(function(ev){
+        if (ev.status === 'cancelled') return; var info = evInfo(ev); if (!info || !info.x) return;
+        var it = { t: info.allDay ? '' : info.t, x: info.x, co: 1 };
+        var v = PL.d.days[info.d];
+        if (info.allDay && v && v.big && ptxt(v.big) === ptxt(info.x.slice(0, 20))) return;
+        if ((v && (v.items || []).some(function(y){ return likeSame(y, it); })) || tombLike(info.d, it)) return; // 이미 있음·직접 지운 것 → 그냥 둠
+        v = PL.d.days[info.d] = PL.d.days[info.d] || { items: [], big: '' }; v.items = v.items || [];
+        if (info.allDay && !v.big) v.big = info.x.slice(0, 20); else v.items.push({ t: info.allDay ? '' : info.t, x: info.x.slice(0, 60), c: info.c || autoColor(info.x), at: Date.now() + 1 });
+        PL.d.mt = PL.d.mt || {}; PL.d.mt[info.d] = Date.now(); ds[info.d] = 1; nAdd++;
+      });
+      if (Object.keys(ds).length) await planSave(); // 옛 캘린더를 지우기 전에 먼저 저장 (실패하면 지우지 않음)
+      try { await Sync.gapi(GC + '/calendars/' + encodeURIComponent(id), { method: 'DELETE' }); gone.push(id); nDel++; }
+      catch(e){ if (e.code === 'NOT_FOUND' || e.status === 404 || e.status === 410) gone.push(id); else ok = false; }
+      if (!ok) continue;
+    }
+    PL.d.gcal.ids = (PL.d.gcal.ids || []).filter(function(x){ return x === cur || gone.indexOf(x) < 0; });
+    PL.d.gcal.gone = gone.slice(-50);
+    if (nDel || nAdd) { await planSave(); var dl = Object.keys(ds); if (dl.length) { try { planChanged(dl); } catch(e){} gcPush(dl, true).catch(function(){}); } toast('🧹 겹쳐 있던 옛 "' + name + '" 캘린더 ' + nDel + '개를 정리했습니다' + (nAdd ? ' · 거기에만 있던 일정 ' + nAdd + '개는 싯플랜에 옮겼습니다' : '')); }
+    return nDel;
   }
   setInterval(function(){ try { if (document.visibilityState === 'visible' && Store.isOpen()) gcAuto(); } catch(e){} }, 5 * 60 * 1000);
   document.addEventListener('visibilitychange', function(){ try { if (document.visibilityState === 'visible' && Store.isOpen()) setTimeout(function(){ gcAuto(); }, 1500); } catch(e){} });
@@ -12035,7 +12070,7 @@ function HealthUI(root, H) {
     if (!nm && ag && !CI_STOP.test(ag[1])) nm = ag[1];
     if (ag && (!nm || ag[1] === nm || ag[1].indexOf(nm) >= 0)) { o.age = +ag[2]; cut(ag[0]); }
     var db = rest.match(/([A-Za-z가-힣]{0,6}?)\s*(DB|디비)(?![A-Za-z])/i), tag = '';
-    if (db) { tag = (db[1] && !/^(어센틱)$/.test(db[1]) ? db[1] : '') + 'DB'; cut(db[0]); }
+    if (db) { var pre = db[1] && !/^(어센틱)$/.test(db[1]) && !ciRegion(db[1]) && db[1] !== nm ? db[1] : ''; tag = pre + 'DB'; if (pre) cut(db[0]); else rest = rest.replace(/(DB|디비)(?![A-Za-z])/i, ' '); } // 2026-11-05: '부산 DB' → 지역 부산 + DB ('부산DB'로 붙이지 않음)
     else if (/소개/.test(rest)) tag = '소개'; else if (/지인/.test(rest)) tag = '지인';
     var kind = /클로징|계약|청약/.test(rest) ? '클로징' : /3\s*차/.test(rest) ? '3차상담' : /2\s*차/.test(rest) ? '2차상담' : /증권\s*전달/.test(rest) ? '증권전달' : /기프트|선물/.test(rest) ? '기프트' : /리대|리크루팅|리쿠르팅/.test(rest) ? '리대만남' : '1차상담';
     rest = rest.replace(/(1|2|3)\s*차\s*(상담|미팅)?|클로징|증권\s*전달|소개|지인|예약(확정|완료)?|상담/g, ' ');
@@ -12051,7 +12086,7 @@ function HealthUI(root, H) {
     var loc = rest.replace(/^\s*(어센틱)\s+/, ' ').replace(/(^|\s)(어센틱|님|고객님)(?=\s|$)/g, ' ').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')').replace(/\s{2,}/g, ' ').trim();
     loc = loc.replace(/\(([^()]+)\)\s*\1/g, '($1)').replace(/([가-힣A-Za-z0-9]{3,})\s*\(\1\)/g, '$1').replace(/^[\s,·~-]+|[\s,·~-]+$/g, '');
     o.loc = /(시|군|구|동|면|읍|리|로|길|병원|의원|센터|카페|역|점|아파트|\d)/.test(loc) ? loc.slice(0, 120) : '';
-    if (slashy) { var lp = loc.split(/[\/,]+/).map(function(w){ return w.trim(); }).filter(function(w){ return w && !/[:~]|만원|희망|통화|방문|점검|보험료|원대/.test(w) && /(시|군|구|동|면|읍|리|로|길|병원|의원|센터|아파트|빌라|\d+(번지|호|층)?)$/.test(w); }); o.loc = lp.join(' ').slice(0, 120); } // 2026-11-04: '/본인점검/보험료:…/오전통화희망' 같은 메모는 장소로 안 씀(원래 글은 메모에 남음)
+    if (slashy) { var lp = loc.split(/[\/,]+/).map(function(w){ return w.trim(); }).filter(function(w){ return w && !/[:~]|만원|희망|통화|방문|점검|보험료|원대|상시|평일|주말|오전|오후|저녁/.test(w) && /(시|군|구|동|면|읍|리|로|길|병원|의원|센터|아파트|빌라|\d+(번지|호|층)?)$/.test(w); }); o.loc = lp.join(' ').slice(0, 120); } // 2026-11-04: '/본인점검/보험료:…/오전통화희망' 같은 메모는 장소로 안 씀(원래 글은 메모에 남음)
     return o;
   }
   // 여러 예약을 한 번에: 빈 줄로 나누고, 한 줄마다 이름+시간이 다 있으면 줄마다 나눔
@@ -12451,6 +12486,7 @@ function HealthUI(root, H) {
     return out;
   }
   function dupOffer(){
+    try { var td0 = planTidyRaw(); if (td0.length) { planSave().then(function(){ planChanged(td0); if (gcReady()) gcPush(td0, true).catch(function(){}); if (S.view === 'plan' && $('dlg').hidden) { var y0 = window.scrollY; showPlan(); window.scrollTo(0, y0); } }).catch(function(){}); } } catch(e){}
     if (S.view !== 'plan' || !$('dlg').hidden) return; var gs = dupGroups(); if (!gs.length) return;
     var n = gs.reduce(function(a, g){ return a + g.items.length - 1; }, 0);
     var li = gs.slice(0, 12).map(function(g){ return '<li><b>' + (+g.d.slice(5, 7)) + '/' + (+g.d.slice(8)) + '</b> ' + g.items.map(function(x, k){ var t = (x.t ? x.t + ' ' : '') + x.x; return '<a href="#" data-dk="' + gs.indexOf(g) + ':' + k + '">' + (k ? '<s>' : '<u>') + esc(t) + (k ? '</s>' : '</u>') + '</a>'; }).join(' · ') + '</li>'; }).join('');
@@ -12484,6 +12520,31 @@ function HealthUI(root, H) {
     var fr = {}; Object.keys(PL.d.days || {}).forEach(function(d){ ((PL.d.days[d] || {}).items || []).forEach(function(x){ var k = ptxt(x.x); fr[k] = (fr[k] || 0) + 1; }); });
     var sc = function(x){ return (x.co ? 0 : 1000) + (x.hand ? 500 : 0) + (x.cset ? 300 : 0) + (x.gid ? 50 : 0) + (fr[ptxt(x.x)] || 0) * 10; };
     return g.slice().sort(function(a, b){ return sc(b) - sc(a) || (a.at || 0) - (b.at || 0); });
+  }
+  // 2026-11-05: 싯플랜에 원래 예약 글 그대로 들어간 줄('어센틱 송매숙 부산 DB 71세 방문일정: …')을 '부산 송매숙 DB 1차상담'으로 줄임.
+  // 같은 날 이미 줄인 줄(같은 이름)이 있으면 원래 글 줄은 지우고(캘린더 복사본도) 줄인 줄에 시간·장소·원래 글만 보탬. 글자색·필체는 그대로.
+  function planTidyRaw(){
+    if (!PL.d || !PL.d.days) return []; var t0 = addDay(todayStr(), -7), out = [];
+    Object.keys(PL.d.days).forEach(function(d){
+      if (d < t0) return; var v = PL.d.days[d], its = (v && v.items) || [], ch = false;
+      its.slice().forEach(function(x){
+        if (!x || !x.x || x.keepRaw || !ciRaw(x.x)) return;
+        var o; try { o = calSimplify(x.x + (x.loc && x.x.indexOf(x.loc) < 0 ? ' ' + x.loc : ''), d); } catch(e){ return; }
+        if (!o || !o.name || !o.x || ptxt(o.x) === ptxt(x.x)) return;
+        var gid = x.gid || gcIdFor(d, x), rawTxt = x.x;
+        var sib = its.filter(function(y){ return y !== x && y.x && !ciRaw(y.x) && ptxt(y.x).indexOf(ptxt(o.name)) >= 0; })[0];
+        if (sib) {
+          if (!sib.raw) sib.raw = rawTxt.slice(0, 200); if (!sib.loc && (x.loc || o.loc)) sib.loc = x.loc || o.loc; if (!sib.t && x.t) sib.t = x.t;
+          planTomb(d, x); its.splice(its.indexOf(x), 1);
+          if (gid && gid !== (sib.gid || gcIdFor(d, sib))) { PL.d.gdel = PL.d.gdel || []; if (PL.d.gdel.indexOf(gid) < 0) PL.d.gdel.push(gid); }
+        } else {
+          planTomb(d, x); if (gid) x.gid = gid; x.raw = rawTxt.slice(0, 200); x.x = o.x.slice(0, 60); if (!x.loc && o.loc) x.loc = o.loc; if (!x.t && o.t) x.t = o.t; if (!x.c) x.c = o.c; x.at = Date.now() + 1;
+        }
+        ch = true;
+      });
+      if (ch) { PL.d.mt = PL.d.mt || {}; PL.d.mt[d] = Date.now(); out.push(d); }
+    });
+    return out;
   }
   function gcIdFor(d, x){ try { var m = gcEvents(d); return Object.keys(m).filter(function(id){ return m[id].ref.item === x; })[0] || ''; } catch(e){ return ''; } }
   function tombLike(d, x){ var tb = PL.d.tomb || {}; return Object.keys(tb).some(function(k){ if (k.slice(0, 11) !== d + '|') return false; var r = k.slice(11), i = r.indexOf('|'); if (i < 0 || r.slice(0, i) === '#big') return false; return likeSame({ t: r.slice(0, i), x: r.slice(i + 1), co: x.co }, x); }); }
@@ -15242,6 +15303,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="bc4798126963";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="4691b5d35076";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
