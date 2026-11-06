@@ -2760,6 +2760,53 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .pv2-foot b{color:var(--ink2)}.pv2-foot p{margin:8px 0 0;line-height:1.7}
 @media (max-width:720px){.pv2-hero{grid-template-columns:1fr}.pv2-rows{grid-template-columns:1fr}.pv2-lad{grid-template-columns:repeat(5,1fr);row-gap:12px}.pv2-lad::before{display:none}.pv2-row .t{min-width:70px}}
 
+/* 💵 상담 계산기 (2026-11-06) */
+.fxdlg{max-width:760px}
+.fxtabs{display:flex;flex-wrap:wrap;flex-shrink:0;height:auto;overflow:visible;margin:4px 0 10px}
+.fxdlg .fxwrap,.fxdlg .fxwarn,.fxdlg .mrow{flex-shrink:0}
+.fxtabs button{flex:1 1 auto;font-size:14px}
+.fxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.fxf{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--ink2)}
+.fxi{display:flex;align-items:center;gap:6px}
+.form .fxi input{flex:1;min-width:0;height:44px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:#fff8d6;color:#222;font-size:16px;text-align:right}
+.fxi b{font-weight:600;color:var(--ink2);min-width:28px}
+.fxseg{display:flex;flex-wrap:wrap;flex-shrink:0;height:auto;overflow:visible}
+.fxt{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+.fxt th,.fxt td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:right;vertical-align:top}
+.fxt th:first-child{text-align:left;font-weight:600;color:var(--ink2)}
+.fxt:not(.one) tr:first-child th{text-align:right;font-size:12px;color:var(--ink2)}
+.fxt.one td{width:50%}
+.fxt tr.tot td{color:var(--accent);font-size:15px}
+.fxt tr.sub th,.fxt tr.sub td{font-size:12px;color:var(--ink2)}
+.fxt td small{display:block;font-size:11px;color:var(--ink2)}
+.fxcmp{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--soft);font-size:13px;line-height:1.6}
+.fxinfo h5{margin:12px 0 6px;font-size:15px}
+.fxinfo ol,.fxinfo ul{margin:0;padding-left:20px;font-size:14px;line-height:1.7}
+.fxinfo li{margin-bottom:6px}
+.fxinfo small{color:var(--ink2)}
+.fxwarn{margin-top:10px}
+@media (max-width:600px){.fxt{font-size:12px}.fxt th,.fxt td{padding:6px 3px}.fxtabs button{padding:8px 8px;font-size:13px}}
+.fxshowb{float:right;font-size:13px;padding:6px 10px}
+.fxhero{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:12px 0}
+.fxhero>div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.fxhero small{display:block;font-size:12px;color:var(--ink2)}
+.fxhero b{font-size:20px}
+.fxhero .hi{border-color:#e0a43a;background:rgba(224,164,58,.12)}
+.fxbars{display:flex;gap:10px;align-items:flex-end;height:180px;margin:14px 0 4px;padding:0 2px}
+.fxbg{flex:1;display:flex;flex-direction:column;align-items:center;height:100%}
+.fxbg>b{font-size:13px;margin-top:4px}
+.fxbcol{flex:1;width:100%;display:flex;gap:3px;align-items:flex-end}
+.fxb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.fxb i{display:block;width:100%;border-radius:4px 4px 0 0}
+.fxb em{font-style:normal;font-size:9px;color:var(--ink2);white-space:nowrap;margin-bottom:2px;order:-1}
+.fxleg{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;margin-bottom:6px}
+.fxleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.mbox.fxshow{position:fixed;inset:0;z-index:9999;max-width:none;width:100%;height:100%;max-height:none;border-radius:0;font-size:18px;overflow:auto;background:linear-gradient(var(--paper),var(--paper)),#0b1020!important;backdrop-filter:none}
+.fxshow .fxt{font-size:17px}.fxshow .fxhero b{font-size:28px}.fxshow .fxbars{height:300px}.fxshow .fxb em{font-size:12px}.fxshow .fxinfo ul,.fxshow .fxinfo ol{font-size:17px}
+@media (max-width:600px){.fxbars{gap:6px}.fxb em{display:none}.fxhero b{font-size:17px}}
+.fxt td b{white-space:nowrap}
+@media (max-width:600px){.fxt tr.tot td{font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -2792,7 +2839,7 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="propMenu" data-act="propScan" hidden></button><button type="button" id="coDirBtn" hidden></button><button type="button" id="bulkMemoBtn" hidden></button><button type="button" id="briefBtn" hidden></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="propMenu" data-act="propScan" hidden></button><button type="button" id="coDirBtn" hidden></button><button type="button" id="fxCalcBtn" hidden></button><button type="button" id="bulkMemoBtn" hidden></button><button type="button" id="briefBtn" hidden></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -12955,10 +13002,199 @@ function HealthUI(root, H) {
   ['tbMap', 'snMap', 'rlMap'].forEach(function(id){ var b = $(id); if (b) b.onclick = function(){ showMap(); }; });
   $('snCall').onclick = async function(){ await planLoad(); showCall(); };
   // ===== 메뉴(☰ 오른쪽 위 · 휴대폰 '더보기') = 일할 때 쓰는 것 / 환경설정(⚙ 왼쪽 위) = 설정·연결·백업 (2026-11-01 정리) =====
+  // ---------- 💵 상담 계산기: 달러 저축전환 · 연금형 · 적금 (2026-11-06) ----------
+  // 계산식은 지점 '저축 전환 시뮬레이터 2026'과 같음. 예시·참고용이며 실제 금액은 설계서·약관 기준.
+  var FXC = { tab: 'cmp', v: null, show: false };
+  function fxDef(){ return { pay: 1100000, yrs: 7, r5: '', r7: 124.8, fx: 25.7, ir: 4.3, won: 10, age: 40, st: 65, en: 100, fy: 23, mul: 3, sp: 500000, sm: 36, sr: 3.5, sk: 'simple', st2: 15.4, fx0: 1400, fxn: 1400 }; }
+  function fxLoad(){ if (FXC.v) return FXC.v; var v = fxDef(); try { var j = JSON.parse(localStorage.getItem('aob_fxcalc') || 'null'); if (j) Object.keys(j).forEach(function(k){ if (k in v) v[k] = j[k]; }); } catch(e){} return (FXC.v = v); }
+  function fxSave(){ try { localStorage.setItem('aob_fxcalc', JSON.stringify(FXC.v)); } catch(e){} }
+  function fxN(s){ s = String(s == null ? '' : s).replace(/[,\s원%]/g, ''); if (s === '' || s === '-') return NaN; return +s; }
+  function fxW(n){ if (!isFinite(n)) return '–'; return Math.round(n).toLocaleString('ko-KR') + '원'; }
+  function fxM(n){ if (!isFinite(n)) return ''; var m = n / 10000; return m >= 10000 ? (m / 10000).toFixed(2).replace(/\.?0+$/, '') + '억' : Math.round(m).toLocaleString('ko-KR') + '만'; }
+  function fxMan(n){ if (!isFinite(n)) return '–'; var m = Math.round(n / 10000); return (m < 0 ? '-' : '') + Math.abs(m).toLocaleString('ko-KR') + '만'; }
+  function fxP(n){ return isFinite(n) ? (n * 100).toFixed(1) + '%' : '–'; }
+  // 달러 저축전환: 원금 → 10년째(전환 시점) 환급금 → 전환 후 공시이율 복리 → 환율 변동 반영
+  function fxCalc(v){
+    var pay = fxN(v.pay), y = +v.yrs, rate = fxN(y === 5 ? v.r5 : v.r7) / 100, fx = fxN(v.fx) / 100, ir = fxN(v.ir) / 100;
+    if (!(pay > 0) || !(rate >= 0) || !(fx >= -1) || !(ir >= 0)) return null;
+    var P = pay * 12 * y, R10 = P * rate, cols = [{ k: 10, l: y === 7 ? '10년 · 저축전환 시점' : '10년째 환급금', R: R10 }];
+    if (y === 7) [15, 20].forEach(function(k){ cols.push({ k: k, l: k + '년 · 전환 후 ' + (k - 10) + '년', R: R10 * Math.pow(1 + ir, k - 10) }); });
+    cols.forEach(function(c){ c.P = P; c.gain = c.R - P; c.after = y === 7 ? c.R - R10 : NaN; c.fxg = c.R * fx; c.total = P + c.gain + c.fxg; c.ratio = c.total / P; });
+    return { pay: pay, base: pay / (1 + (fxN(v.won) || 0) / 100), P: P, y: y, cols: cols };
+  }
+  // 연금형: 전환(가입 10년) 뒤 수령 시작까지 공시이율로 불리고, 시작 나이부터 매월 말 수령 (앞 몇 년은 배수만큼 많이)
+  function fxPension(v){
+    var c = fxCalc(v); if (!c) return { err: '달러 저축전환 칸(월 납입액·환급률)을 먼저 채워 주세요' };
+    if (c.y !== 7) return { err: '5년납은 저축전환 연금형 계산을 지원하지 않습니다 (7년납만)' };
+    var a = fxN(v.age), s = fxN(v.st), e = fxN(v.en), fy = fxN(v.fy), m = fxN(v.mul), ir = fxN(v.ir) / 100, fx = fxN(v.fx) / 100;
+    if (![a, s, e, fy, m].every(isFinite) || a < 0 || fy < 0 || m < 1) return { err: '나이·기간·배수를 숫자로 넣어 주세요 (배수는 1 이상)' };
+    if (s - a < 10) return { err: '수령 시작 나이는 가입 나이 + 10(저축전환 시점) 이후여야 합니다' };
+    if (e <= s) return { err: '수령 종료 나이는 시작 나이보다 커야 합니다' };
+    var n = (e - s) * 12, k = Math.min(fy * 12, n), i = Math.pow(1 + ir, 1 / 12) - 1;
+    var B0 = c.P * (fxN(v.r7) / 100) * Math.pow(1 + ir, s - a - 10), B = B0 * (1 + fx);
+    var a1 = i === 0 ? k : (1 - Math.pow(1 + i, -k)) / i, a2 = i === 0 ? n - k : Math.pow(1 + i, -k) * (1 - Math.pow(1 + i, -(n - k))) / i;
+    var base = B / (m * a1 + a2), f = k ? base * m : 0, rest = n === k ? 0 : base, tot = f * k + rest * (n - k);
+    return { P: c.P, B0: B0, B: B, f: f, rest: rest, tot: tot, ratio: tot / c.P, yrs: e - s, n: n, k: k, conv: a + 10, wait: s - a - 10 };
+  }
+  // 적금: 매월 초 같은 금액, 단리 또는 월복리, 이자에 세금
+  function fxSaving(v){
+    var p = fxN(v.sp), n = Math.round(fxN(v.sm)), r = fxN(v.sr) / 100, t = fxN(v.st2) / 100;
+    if (!(p > 0) || !(n > 0) || !(r >= 0)) return null;
+    var it = 0;
+    if (v.sk === 'comp') { var q = r / 12; for (var j = 1; j <= n; j++) it += p * (Math.pow(1 + q, j) - 1); }
+    else it = p * (r / 12) * n * (n + 1) / 2;
+    var tax = it * (t || 0); return { P: p * n, it: it, tax: tax, net: p * n + it - tax, n: n };
+  }
+
+  // 원화 종신 예시: 신한(간편가입)모아더드림Plus종신 (해약환급금 일부지급형, 7년납, 확정금리 10년 이내 2.75% · 초과 1.50%)
+  // 설명서 예시(간편심사형·여자 34세·월 100만 원) 납입보험료 대비 해약환급률. 7년 90%·10년 119.5%는 보너스로 정해진 값, 나머지는 나이·성별에 따라 조금 다름
+  var WON_RT = [[1, 27.5], [2, 34.1], [3, 36.7], [5, 39.4], [6, 40.4], [7, 90.0], [8, 91.6], [9, 93.2], [10, 119.5], [15, 124.4], [20, 134.4], [25, 140.4], [30, 146.9], [35, 154.0], [40, 161.5], [50, 178.0], [60, 195.8]];
+  function wonRt(y){ for (var i = 0; i < WON_RT.length; i++) { if (WON_RT[i][0] === y) return WON_RT[i][1] / 100; if (WON_RT[i][0] > y && i) { var a = WON_RT[i - 1], b = WON_RT[i]; return (a[1] + (b[1] - a[1]) * (y - a[0]) / (b[0] - a[0])) / 100; } } return WON_RT[WON_RT.length - 1][1] / 100; }
+  // 적금으로 같은 기간 넣고(세후), 만기금은 같은 이율로 계속 굴린다고(세후 연복리) 가정
+  function savAt(v, pay, payY, y){ var s = fxSaving({ sp: pay, sm: payY * 12, sr: v.sr, sk: v.sk, st2: v.st2 }); if (!s) return NaN; var r = (fxN(v.sr) / 100) * (1 - (fxN(v.st2) || 0) / 100); return y <= payY ? NaN : s.net * Math.pow(1 + r, y - payY); }
+  function fxCmp(v){
+    var pay = fxN(v.pay), y = +v.yrs || 7; if (!(pay > 0)) return null;
+    var P = pay * 12 * y, c = fxCalc(v), ir = fxN(v.ir) / 100, fx = fxN(v.fx) / 100;
+    var R10 = c ? c.cols[0].R : NaN, rows = [10, 15, 20, 30].map(function(k){
+      var usd = c ? R10 * (y === 7 ? Math.pow(1 + ir, k - 10) : 1) * (1 + fx) : NaN; if (c && y !== 7 && k > 10) usd = NaN;
+      return { k: k, P: P, sav: savAt(v, pay, y, k), won: y === 7 ? P * wonRt(k) : NaN, usd: usd };
+    });
+    return { P: P, y: y, rows: rows };
+  }
+  function fxBars(rows){
+    var keys = [['P', '납입 원금', 'var(--ink2)'], ['sav', '적금', '#8a9bb0'], ['won', '원화 종신', '#3fae7a'], ['usd', '달러 저축전환', '#e0a43a']];
+    var mx = 0; rows.forEach(function(r){ keys.forEach(function(k){ if (isFinite(r[k[0]]) && r[k[0]] > mx) mx = r[k[0]]; }); }); if (!mx) return '';
+    return '<div class="fxbars">' + rows.map(function(r){ return '<div class="fxbg"><div class="fxbcol">' + keys.map(function(k){ var x = r[k[0]]; return '<div class="fxb" title="' + k[1] + '"><i style="height:' + (isFinite(x) ? Math.max(2, x / mx * 100) : 0) + '%;background:' + k[2] + '"></i><em>' + (isFinite(x) ? fxMan(x).replace('만', '') : '') + '</em></div>'; }).join('') + '</div><b>' + r.k + '년</b></div>'; }).join('') + '</div><div class="fxleg">' + keys.map(function(k){ return '<span><i style="background:' + k[2] + '"></i>' + k[1] + '</span>'; }).join('') + '<span class="note">단위: 만 원</span></div>';
+  }
+  // 원화고정납입 옵션: 원화환산보험료(미화 기본보험료 × 신청일 환율)의 110~130%를 매월 고정 원화로(천원 단위)
+  function fxFix(v){
+    var fixp = fxN(v.pay), pct = 100 + (fxN(v.won) || 0), r0 = fxN(v.fx0), rn = fxN(v.fxn);
+    if (!(fixp > 0) || !(r0 > 0) || pct < 110 || pct > 130) return { err: '원화고정 비율은 10~30%(환산보험료의 110~130%)만 신청할 수 있습니다' };
+    var won0 = fixp / (pct / 100), usd = won0 / r0, be = fixp / usd;
+    var sc = [-20, -10, 0, 10, 20].map(function(d){ var r = r0 * (1 + d / 100); return { d: d, r: r }; });
+    if (rn > 0 && !sc.some(function(x){ return Math.abs(x.r - rn) < 1; })) sc.push({ d: (rn / r0 - 1) * 100, r: rn, now: 1 });
+    sc.sort(function(a, b){ return a.r - b.r; });
+    sc.forEach(function(x){ x.conv = usd * x.r; x.pay = Math.max(fixp, x.conv); x.diff = fixp - x.conv; });
+    return { fixp: fixp, pct: pct, won0: won0, usd: usd, be: be, sc: sc };
+  }
+  function fxInp(id, val, unit, hint){ return '<label class="fxf"><span>' + hint + '</span><span class="fxi"><input type="text" inputmode="decimal" data-fx="' + id + '" value="' + esc(val === '' ? '' : (unit === '원' ? Math.round(fxN(val)).toLocaleString('ko-KR') : val)) + '"><b>' + unit + '</b></span></label>'; }
+  function fxBody(){
+    var v = fxLoad(), h = '';
+    if (FXC.tab === 'cmp') {
+      h += '<div class="fxg">' + fxInp('pay', v.pay, '원', '월 납입액') + '<label class="fxf"><span>납입기간</span><span class="seg fxseg"><button type="button" data-fxy="5" aria-pressed="' + (v.yrs == 5) + '">5년납</button><button type="button" data-fxy="7" aria-pressed="' + (v.yrs == 7) + '">7년납</button></span></label>' + fxInp('sr', v.sr, '%', '비교할 적금 이자율') + '</div><div id="fxOut"></div>';
+    } else if (FXC.tab === 'won') {
+      h += '<div class="fxg">' + fxInp('pay', v.pay, '원', '월 납입액 (7년납)') + '</div><div id="fxOut"></div>';
+    } else if (FXC.tab === 'fix') {
+      h += '<div class="fxg">' + fxInp('pay', v.pay, '원', '매월 고정 원화 납입액') + fxInp('won', v.won, '%', '원화고정 비율 (+10~30%)') + fxInp('fx0', v.fx0, '원', '신청일 납입기준환율') + fxInp('fxn', v.fxn, '원', '지금 환율 (확인용)') + '</div><div id="fxOut"></div>';
+    } else if (FXC.tab === 'fx') {
+      h += '<div class="fxg">' + fxInp('pay', v.pay, '원', '월 납입액') + '<label class="fxf"><span>납입기간</span><span class="seg fxseg"><button type="button" data-fxy="5" aria-pressed="' + (v.yrs == 5) + '">5년납</button><button type="button" data-fxy="7" aria-pressed="' + (v.yrs == 7) + '">7년납</button></span></label>' +
+        (v.yrs == 5 ? fxInp('r5', v.r5, '%', '5년납 환급률 (10년째)') : fxInp('r7', v.r7, '%', '7년납 환급률 (10년째)')) + fxInp('fx', v.fx, '%', '환율 변동률 (누적)') + (v.yrs == 7 ? fxInp('ir', v.ir, '%', '전환 후 공시이율 (연 복리)') : '') + '</div>';
+      h += '<p class="note">환급률은 설계서의 10년째 해약환급률을 넣으세요. 환율 변동률은 연간이 아니라 누적입니다 (기본 +25.7% = 2015→2025 원/달러 연평균 환율 1,131원→1,421원).</p><div id="fxOut"></div>';
+    } else if (FXC.tab === 'pen') {
+      h += '<div class="fxg">' + fxInp('age', v.age, '세', '가입 나이') + fxInp('st', v.st, '세', '수령 시작 나이') + fxInp('en', v.en, '세', '수령 종료 나이') + fxInp('fy', v.fy, '년', '집중수령 기간') + fxInp('mul', v.mul, '배', '집중수령 배수 (1 = 균등)') + '</div>';
+      h += '<p class="note">월 납입액·환급률·공시이율·환율은 \'달러 저축전환\' 칸 값을 그대로 씁니다. 기간을 나눠 꺼내 쓰는 계산이며 종신연금 지급 보장이 아닙니다.</p><div id="fxOut"></div>';
+    } else if (FXC.tab === 'sav') {
+      h += '<div class="fxg">' + fxInp('sp', v.sp, '원', '월 납입액') + fxInp('sm', v.sm, '개월', '기간') + fxInp('sr', v.sr, '%', '연 이자율') +
+        '<label class="fxf"><span>이자 방식</span><span class="seg fxseg"><button type="button" data-fxk="simple" aria-pressed="' + (v.sk !== 'comp') + '">단리</button><button type="button" data-fxk="comp" aria-pressed="' + (v.sk === 'comp') + '">월복리</button></span></label>' +
+        '<label class="fxf"><span>이자 세금</span><span class="seg fxseg">' + [['15.4', '일반 15.4%'], ['9.5', '세금우대 9.5%'], ['0', '비과세']].map(function(x){ return '<button type="button" data-fxt="' + x[0] + '" aria-pressed="' + (String(v.st2) === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</span></label></div><div id="fxOut"></div>';
+    } else {
+      h += '<div class="fxinfo"><h5>달러 저축전환의 장점</h5><ol>' +
+        '<li><b>달러의 유동성 확보</b> — 전환 뒤 <b>중도인출·추가납입</b> 가능<br><small>환율이 오르면 중도인출로 원화 확보(1회 해약환급금의 50% 한도, 최대 기본보험료의 80%) · 환율이 내리면 추가납입으로 달러 확보(최대 기본보험료의 200%)</small></li>' +
+        '<li><b>달러보험 만기의 연장</b> — 종신보험·저축전환의 만기 = 피보험자 사망<br><small>전환 시점에 피보험자를 부모 → 자녀로 바꿀 수 있음</small></li>' +
+        '<li><b>적용 이율 상승으로 효율적 적립</b> — 종신보험은 10년 이후 적용이율 1%로 바뀌지만, 전환하면 그 시점 공시이율로 복리 적립 (' + esc(v.ir) + '% 기준)</li></ol>' +
+        '<h5>전환 조건 (특약 부가 시)</h5><ul><li>계약일부터 7년이 지난 계약</li><li>전환 신청 때 특약 제외 해약환급금 $10,000 이상</li><li>피보험자 나이 만 15~70세(일반심사형) · 30~75세(간편심사형)</li><li>전환 시점의 사업방법서·약관·산출방법서가 적용됨</li></ul>' +
+        '<h5>중도인출 · 추가납입</h5><ul><li>인출 수수료: 인출금액의 0.2%와 2달러 중 작은 금액 · 연 4회까지 면제 · 100달러 이상 10달러 단위</li><li>한 달 2회까지, 계약 후 10년 안 총 인출은 실제 낸 보험료 총액 이내 · 인출 후 해약환급금이 기본보험료의 20% 이상</li><li>중도인출하면 보험금·해약환급금이 줄어들 수 있음</li><li>추가납입은 수시로 가능, 수수료 없음 · 한도 = 기본보험료 총액 + 추가납입 한도 (인출한 만큼 한도에 더함)</li></ul>' +
+        '<p class="note">예시: 40세 남자, 저해약환급금형, 일반심사형, 7년납, 가입금액 10만 달러, 10년+1일 시점 전환 → 해약환급률 124.8%. 상품마다 조건이 다르니 약관·사업방법서를 꼭 확인하세요.</p></div>';
+    }
+    return h;
+  }
+  function fxRow(l, vals, cls){ return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><th>' + l + '</th>' + vals.map(function(x){ return '<td>' + x + '</td>'; }).join('') + '</tr>'; }
+  function fxOut(){
+    var o = $('fxOut'); if (!o) return; var v = fxLoad(), h = '';
+    if (FXC.tab === 'cmp') {
+      var m = fxCmp(v); if (!m) { o.innerHTML = '<p class="note">월 납입액을 넣으면 바로 비교됩니다.</p>'; return; }
+      var best = m.rows[m.rows.length - 1];
+      h = '<div class="fxhero"><div><small>' + m.y + '년 동안 낸 원금</small><b>' + fxMan(m.P) + '원</b></div><div><small>20년 뒤 · 적금</small><b>' + fxMan(m.rows[2].sav) + '</b></div><div><small>20년 뒤 · 원화 종신</small><b>' + fxMan(m.rows[2].won) + '</b></div><div class="hi"><small>20년 뒤 · 달러 저축전환</small><b>' + fxMan(m.rows[2].usd) + '</b></div></div>' + fxBars(m.rows) +
+        '<table class="fxt"><tr><th></th>' + m.rows.map(function(r){ return '<th>' + r.k + '년</th>'; }).join('') + '</tr>' +
+        fxRow('적금 → 같은 이율로 계속', m.rows.map(function(r){ return fxMan(r.sav) + '<small>' + fxP(r.sav / r.P) + '</small>'; })) +
+        fxRow('원화 종신 (확정금리)', m.rows.map(function(r){ return fxMan(r.won) + '<small>' + fxP(r.won / r.P) + '</small>'; })) +
+        fxRow('달러 저축전환 (환율 포함)', m.rows.map(function(r){ return '<b>' + fxMan(r.usd) + '</b><small>' + fxP(r.usd / r.P) + '</small>'; }), 'tot') + '</table>' +
+        '<p class="note">적금: 연 ' + esc(v.sr) + '% ' + (v.sk === 'comp' ? '월복리' : '단리') + '로 ' + m.y + '년 넣고 만기금을 같은 이율(세후)로 계속 굴린다고 가정 · 원화 종신: 7년납 설명서 예시 환급률(나이·성별에 따라 조금 다름) · 달러: 10년째 환급률 ' + esc(v.r7) + '%, 전환 후 공시이율 ' + esc(v.ir) + '%, 환율 ' + esc(v.fx) + '% 가정 (달러 저축전환 탭에서 바꿈)</p>';
+    } else if (FXC.tab === 'won') {
+      var pw = fxN(v.pay); if (!(pw > 0)) { o.innerHTML = '<p class="note">월 납입액을 넣어 주세요.</p>'; return; }
+      var Pw = pw * 84, yy = [1, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60];
+      h = '<div class="fxhero"><div><small>7년 동안 낸 원금</small><b>' + fxMan(Pw) + '원</b></div><div><small>7년 (납입 완료)</small><b>' + fxMan(Pw * 0.9) + '</b></div><div class="hi"><small>10년</small><b>' + fxMan(Pw * 1.195) + '</b></div><div><small>20년</small><b>' + fxMan(Pw * 1.344) + '</b></div></div>' +
+        '<table class="fxt one"><tr><th>경과</th><td>예상 해약환급금 · 환급률</td></tr>' + yy.map(function(y){ var r = wonRt(y); return fxRow(y + '년', ['<b>' + fxMan(Math.min(y, 7) * pw * 12 * r) + '</b><small>' + fxP(r) + '</small>'], y === 10 ? 'tot' : (y < 7 ? 'sub' : '')); }).join('') + '</table>' +
+        '<div class="fxinfo"><h5>신한 (간편가입)모아더드림Plus종신 핵심</h5><ul><li><b>확정금리</b>: 10년 이내 연복리 2.75% · 10년 초과 1.50% (금리가 내려가도 그대로)</li><li><b>보너스</b>: 7년 납입완료 때 환급률 90%, 10년 시점 119.5%로 맞춰 주고(장기유지보너스 I), 20년에 한 번 더(장기유지보너스 II · 7년납 합산보너스 36.5%)</li><li><b>사망보험금 체증</b>: 7년까지 가입금액 100% → 7년부터 매년 5%씩 → 27년부터 200%</li><li><b>납입 끝난 뒤</b>: 계약자적립액 인출 연 12회(수수료 없음, 인출 후 적립액 ≥ 연간 기본보험료) · 추가납입특약Ⅱ로 수시 추가납입(공시이율 적립)</li><li><b>New연금전환특약</b>: 계약 5년 지나면 30~85세에 연금으로 전환(종신·확정·상속형)</li><li><b>주의</b>: 해약환급금 일부지급형 — 7년 안에 해지하면 일반형의 50%만(3년 36.7%, 5년 39.4%) · 보장성보험이라 저축 목적에는 맞지 않다는 설명 필수</li></ul></div>' +
+        '<p class="note">설명서 예시(간편심사형·여자 34세·월 100만 원 7년납) 환급률을 월 납입액에 곱한 값입니다. 7년 90%·10년 119.5%는 나이와 상관없이 같고, 그 밖의 해는 나이·성별에 따라 조금 다릅니다. 정확한 금액은 가입설계서로 확인하세요.</p>';
+    } else if (FXC.tab === 'fix') {
+      var q = fxFix(v); if (q.err) { o.innerHTML = '<p class="ferr">' + esc(q.err) + '</p>'; return; }
+      h = '<div class="fxhero"><div><small>원화환산보험료 (기준)</small><b>' + fxW(q.won0) + '</b></div><div><small>미화 기본보험료</small><b>$' + q.usd.toFixed(2) + '</b></div><div class="hi"><small>매월 고정 납입</small><b>' + fxW(q.fixp) + '</b></div><div><small>이 환율을 넘으면 고정액보다 커짐</small><b>' + Math.round(q.be).toLocaleString('ko-KR') + '원</b></div></div>' +
+        '<table class="fxt"><tr><th>환율</th><th>원화환산보험료</th><th>이번 달 내는 돈</th><th>남는 돈 → 달러로 적립</th></tr>' + q.sc.map(function(x){ return '<tr' + (x.now ? ' class="tot"' : '') + '><th>' + Math.round(x.r).toLocaleString('ko-KR') + '원' + (x.now ? ' (지금)' : x.d ? ' (' + (x.d > 0 ? '+' : '') + Math.round(x.d) + '%)' : ' (신청일)') + '</th><td>' + fxW(x.conv) + '</td><td>' + fxW(x.pay) + '</td><td>' + (x.diff >= 0 ? fxW(x.diff) : '<span class="ferr">' + fxW(-x.diff) + ' 부족 → 적립액에서 자동 인출</span>') + '</td></tr>'; }).join('') + '</table>' +
+        '<div class="fxinfo"><h5>원화고정납입 옵션 설명</h5><ul><li>원화환산보험료(미화 기본보험료 × 신청일 납입기준환율)의 <b>110~130%를 매월 같은 원화</b>로 냅니다 (천 원 단위).</li><li>환율이 낮아 남는 돈은 <b>원화고정납입용 추가보험료</b>로 달러 적립됩니다 — 환율이 쌀 때 달러를 더 모으는 효과.</li><li>환율이 올라 환산보험료가 고정액보다 커지면, 그 차액(고정납초과보험료)은 쌓아 둔 추가 적립액에서 <b>자동 중도인출</b>되어 냅니다. 적립액이 모자라면 회사가 안내하고 고정액을 다시 정하거나 환산보험료를 내야 합니다.</li><li>원화고정납입옵션과 고정납초과보험료 자동인출 옵션은 <b>같이 신청·같이 해지</b>만 됩니다.</li></ul></div>';
+    } else if (FXC.tab === 'fx') {
+      var c = fxCalc(v); if (!c) { o.innerHTML = '<p class="note">월 납입액과 환급률을 넣으면 바로 계산됩니다.</p>'; return; }
+      var cs = c.cols, sv = fxSaving({ sp: c.pay, sm: c.y * 12, sr: v.sr, sk: v.sk, st2: v.st2 });
+      h = '<p class="note">단위: 만 원 · 글로 복사하면 원 단위로 나갑니다</p><table class="fxt"><tr><th></th>' + cs.map(function(x){ return '<th>' + x.l + '</th>'; }).join('') + '</tr>' +
+        fxRow('① 원금 · 총납입액', cs.map(function(x){ return fxMan(x.P); })) +
+        fxRow('② 환급 증감분', cs.map(function(x){ return fxMan(x.gain); })) +
+        (c.y === 7 ? fxRow('　저축전환 후 증가분', cs.map(function(x){ return fxMan(x.after); }), 'sub') : '') +
+        fxRow('③ 환차손익 (가정)', cs.map(function(x){ return fxMan(x.fxg); })) +
+        fxRow('예상 원화 환급금 ①+②+③', cs.map(function(x){ return '<b>' + fxMan(x.total) + '</b>'; }), 'tot') +
+        fxRow('환율 변동 전 환급금', cs.map(function(x){ return fxMan(x.R); }), 'sub') +
+        fxRow('원금 대비 (환율 포함)', cs.map(function(x){ return '<b>' + fxP(x.ratio) + '</b>'; }), 'tot') + '</table>' +
+        '<p class="note">기준 금액(원화고정 ' + esc(v.won) + '% 제외) ' + fxW(c.base) + ' · 월 납입금 전부를 같은 환율로 바꾸고 받을 때 환율만 달라진다고 단순화했습니다.</p>' +
+        (sv ? '<div class="fxcmp">같은 돈 ' + fxW(c.pay) + '을 적금(연 ' + esc(v.sr) + '% ' + (v.sk === 'comp' ? '월복리' : '단리') + ', 세금 ' + esc(v.st2) + '%)에 ' + c.y + '년 넣으면 만기 <b>' + fxW(sv.net) + '</b> (' + fxP(sv.net / sv.P) + ') · 적금 탭에서 이율을 바꿀 수 있습니다</div>' : '');
+    } else if (FXC.tab === 'pen') {
+      var p = fxPension(v); if (p.err) { o.innerHTML = '<p class="ferr">' + esc(p.err) + '</p>'; return; }
+      h = '<table class="fxt one">' + fxRow('총 납입원금', [fxW(p.P)]) + fxRow('저축전환 나이 · 거치기간', [esc(p.conv) + '세 · ' + esc(p.wait) + '년']) + fxRow('수령 시작 잔액 (환율 제외)', [fxW(p.B0)]) + fxRow('수령 시작 잔액 (환율 포함)', [fxW(p.B)]) +
+        (p.k ? fxRow('집중수령 월 금액 (' + Math.round(p.k / 12) + '년)', ['<b>' + fxW(p.f) + '</b>'], 'tot') : '') + fxRow('이후 월 금액', ['<b>' + fxW(p.rest) + '</b>'], 'tot') +
+        fxRow('누적 수령액 (' + p.yrs + '년 · ' + p.n + '회)', ['<b>' + fxW(p.tot) + '</b><small>' + fxM(p.tot) + '</small>']) + fxRow('원금 대비 누적 수령률', ['<b>' + fxP(p.ratio) + '</b>'], 'tot') + '</table>' +
+        '<p class="note">매월 말 인출 기준 · 이율·환율 고정 가정 · 비용·세금·환전비용 미반영 · 실제 연금상품 지급액이 아닙니다.</p>';
+    } else if (FXC.tab === 'sav') {
+      var s = fxSaving(v); if (!s) { o.innerHTML = '<p class="note">월 납입액·기간·이자율을 넣으면 바로 계산됩니다.</p>'; return; }
+      h = '<table class="fxt one">' + fxRow('원금 (' + s.n + '개월)', [fxW(s.P)]) + fxRow('세전 이자', [fxW(s.it)]) + fxRow('이자 세금', [fxW(s.tax)]) + fxRow('만기 받는 돈', ['<b>' + fxW(s.net) + '</b><small>' + fxM(s.net) + '</small>'], 'tot') + fxRow('원금 대비', [fxP(s.net / s.P)]) + fxRow('실제 연 수익률 (세후, 단리 환산)', [fxP(s.P ? (s.net - s.P) / s.P / (s.n / 12) : NaN)]) + '</table>' +
+        '<p class="note">매월 같은 날 넣는 정기적금 기준 · 적금 연 ' + esc(v.sr) + '%는 원금 전체에 붙는 이자가 아니라 넣은 달수만큼만 붙습니다(실제 수익은 대략 절반).</p>';
+    }
+    o.innerHTML = h;
+  }
+  function fxText(){
+    var v = fxLoad();
+    if (FXC.tab === 'cmp') { var m = fxCmp(v); if (!m) return ''; return '[같은 돈 비교] 월 ' + fxW(fxN(v.pay)) + ' × ' + m.y + '년 (원금 ' + fxW(m.P) + ')\n' + m.rows.map(function(r){ return r.k + '년 뒤 · 적금 ' + fxMan(r.sav) + ' / 원화 종신 ' + fxMan(r.won) + ' / 달러 저축전환 ' + fxMan(r.usd); }).join('\n') + '\n※ 이율·환율 가정 예시입니다. 실제 금액은 설계서·약관 기준이며 중도해지·환율 하락 시 손실이 날 수 있습니다.'; }
+    if (FXC.tab === 'won') { var pw = fxN(v.pay); if (!(pw > 0)) return ''; return '[원화 종신 7년납 예시] 월 ' + fxW(pw) + ' (원금 ' + fxW(pw * 84) + ')\n7년 ' + fxMan(pw * 84 * 0.9) + ' (90%) / 10년 ' + fxMan(pw * 84 * 1.195) + ' (119.5%) / 20년 ' + fxMan(pw * 84 * 1.344) + ' (134.4%)\n확정금리 10년 이내 2.75%·초과 1.50% · 7년 안 해지 시 환급금 적음\n※ 예시이며 정확한 금액은 가입설계서 기준입니다.'; }
+    if (FXC.tab === 'fix') { var q = fxFix(v); if (q.err) return ''; return '[원화고정납입] 매월 ' + fxW(q.fixp) + ' 고정 (원화환산보험료 ' + fxW(q.won0) + '의 ' + q.pct + '%)\n환율이 ' + Math.round(q.be).toLocaleString('ko-KR') + '원보다 낮으면 남는 돈은 달러로 추가 적립, 높으면 적립액에서 자동 인출\n※ 예시이며 실제는 약관 기준입니다.'; }
+    if (FXC.tab === 'pen') { var p = fxPension(v); if (p.err) return ''; return '[연금형 예시] 월 ' + fxW(fxN(v.pay)) + ' × 7년납 · ' + v.st + '세부터 ' + v.en + '세까지 수령\n' + (p.k ? '집중수령 ' + Math.round(p.k / 12) + '년 월 ' + fxW(p.f) + '\n' : '') + '이후 월 ' + fxW(p.rest) + '\n누적 ' + fxW(p.tot) + ' (원금 대비 ' + fxP(p.ratio) + ')\n※ 이율·환율 고정 가정 예시이며 실제 지급액이 아닙니다.'; }
+    if (FXC.tab === 'sav') { var s = fxSaving(v); if (!s) return ''; return '[적금] 월 ' + fxW(s.P / s.n) + ' × ' + s.n + '개월 · 연 ' + v.sr + '% ' + (v.sk === 'comp' ? '월복리' : '단리') + '\n원금 ' + fxW(s.P) + ' / 세후 이자 ' + fxW(s.it - s.tax) + '\n만기 ' + fxW(s.net); }
+    var c = fxCalc(v); if (!c) return '';
+    return '[달러 저축전환 예시] 월 ' + fxW(c.pay) + ' × ' + c.y + '년납 (원금 ' + fxW(c.P) + ')\n' + c.cols.map(function(x){ return x.l + ': ' + fxW(x.total) + ' (원금 대비 ' + fxP(x.ratio) + ')'; }).join('\n') + '\n※ 환율 ' + (fxN(v.fx) >= 0 ? '+' : '') + v.fx + '%' + (c.y === 7 ? ' · 전환 후 공시이율 ' + v.ir + '%' : '') + ' 가정 예시입니다. 환율·이율에 따라 달라지고 중도해지·환율 하락 시 손실이 날 수 있습니다.';
+  }
+  function openFxCalc(){
+    var tabs = [['cmp', '📊 한눈에 비교'], ['fx', '💵 달러 저축전환'], ['fix', '🔒 원화고정납입'], ['won', '🇰🇷 원화 종신'], ['pen', '🧓 연금형'], ['sav', '🏦 적금'], ['info', '📌 장점·조건']];
+    openDlg('<h4>💼 상담 화면 <button type="button" class="btn fxshowb" id="fxShow">' + (FXC.show ? '✕ 크게 보기 끄기' : '🖥 고객에게 크게 보여주기') + '</button></h4><div class="seg fxtabs">' + tabs.map(function(t){ return '<button type="button" data-fxtab="' + t[0] + '" aria-pressed="' + (FXC.tab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div><div class="form fxwrap" id="fxBox">' + fxBody() + '</div>' +
+      '<p class="note fxwarn">예시·참고용 계산입니다. 보험은 예·적금과 구조가 다르고, 중도해지·환율 하락 때 원금 손실이 날 수 있습니다. 세금·환전비용은 빠져 있고 실제 금액은 설계서·약관 기준입니다.</p>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="fxRst" style="margin-right:auto">↺ 기본값</button><button class="btn lg" type="button" id="fxCp">📋 글로 복사</button><button class="go" type="button" id="fxX">닫기</button></div>', 'fxdlg' + (FXC.show ? ' fxshow' : ''));
+    fxOut(); fxWire();
+  }
+  function fxWire(){
+    var box = $('dlgBox'); if (!box) return;
+    box.querySelectorAll('[data-fxtab]').forEach(function(b){ b.onclick = function(){ FXC.tab = b.dataset.fxtab; openFxCalc(); }; });
+    box.querySelectorAll('[data-fx]').forEach(function(i){
+      i.oninput = function(){ FXC.v[i.dataset.fx] = i.value.replace(/[^\d.\-]/g, ''); fxSave(); fxOut(); };
+      i.onblur = function(){ var k = i.dataset.fx; if (/^(pay|sp)$/.test(k) && isFinite(fxN(i.value))) i.value = Math.round(fxN(i.value)).toLocaleString('ko-KR'); };
+    });
+    box.querySelectorAll('[data-fxy]').forEach(function(b){ b.onclick = function(){ FXC.v.yrs = +b.dataset.fxy; fxSave(); openFxCalc(); }; });
+    box.querySelectorAll('[data-fxk]').forEach(function(b){ b.onclick = function(){ FXC.v.sk = b.dataset.fxk; fxSave(); openFxCalc(); }; });
+    box.querySelectorAll('[data-fxt]').forEach(function(b){ b.onclick = function(){ FXC.v.st2 = b.dataset.fxt; fxSave(); openFxCalc(); }; });
+    $('fxX').onclick = closeDlg;
+    $('fxShow').onclick = function(){ FXC.show = !FXC.show; openFxCalc(); };
+    $('fxRst').onclick = function(){ FXC.v = fxDef(); fxSave(); openFxCalc(); };
+    $('fxCp').onclick = async function(){ var t = fxText(); if (!t) { toast('계산할 값을 먼저 넣어 주세요'); return; } try { await navigator.clipboard.writeText(t); toast('복사했습니다 · 카톡에 붙여 넣으세요'); } catch(e){ toast('복사가 막혀 있습니다'); } };
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('#fxCalcBtn'); if (t) openFxCalc(); });
   function openSheet(kind, into){
     var MENU = [
       ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
-      ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
+      ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
       ['🌱 성장 · 소통', [['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류 신고', '캡처 올리면 AI가 고침'], ['#sugBtn', '💡', '건의사항', '기능 아이디어'], ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
     var SET = [
@@ -15330,6 +15566,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="fa5216012ff8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="084c4f8980b6";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
