@@ -12523,6 +12523,15 @@ function HealthUI(root, H) {
   }
   // 2026-11-05: 싯플랜에 원래 예약 글 그대로 들어간 줄('어센틱 송매숙 부산 DB 71세 방문일정: …')을 '부산 송매숙 DB 1차상담'으로 줄임.
   // 같은 날 이미 줄인 줄(같은 이름)이 있으면 원래 글 줄은 지우고(캘린더 복사본도) 줄인 줄에 시간·장소·원래 글만 보탬. 글자색·필체는 그대로.
+  // 싯플랜 고객 줄에서 고객 이름만 ('사하 최일용 1차상담' → 최일용, '고성 김외숙님 DB 1차상담' → 김외숙)
+  function custNameOf(t){
+    t = String(t || ''); if (!custLike(t)) return '';
+    if (ciRaw(t)) { try { return (calSimplify(t, todayStr()) || {}).name || ''; } catch(e){ return ''; } }
+    var ws = t.replace(/[()·,/]/g, ' ').split(/\s+/).map(function(w){ return w.replace(/(아버님|어머님|고객님|님)$/, ''); }).filter(function(w){ return /^[가-힣]{2,4}$/.test(w) && !CI_STOP.test(w) && !/^(클로징|상담|증권전달|기프트|리대만남|인포|디비|소개|지인|계약|청약|방문|통화|만남|미팅|액션)$/.test(w) && !/차상담$|상담$/.test(w); });
+    if (ws.length >= 2 && !/^[가-힣]{3}$/.test(ws[0]) ) return ws[1]; // 앞 낱말이 지역(사하·거제·고성…)
+    if (ws.length >= 2 && ciRegion(ws[0])) return ws[1];
+    return ws[0] || '';
+  }
   function planTidyRaw(){
     if (!PL.d || !PL.d.days) return []; var t0 = addDay(todayStr(), -7), out = [];
     Object.keys(PL.d.days).forEach(function(d){
@@ -12540,6 +12549,24 @@ function HealthUI(root, H) {
         } else {
           planTomb(d, x); if (gid) x.gid = gid; x.raw = rawTxt.slice(0, 200); x.x = o.x.slice(0, 60); if (!x.loc && o.loc) x.loc = o.loc; if (!x.t && o.t) x.t = o.t; if (!x.c) x.c = o.c; x.at = Date.now() + 1;
         }
+        ch = true;
+      });
+      // 2026-11-06: 같은 날 같은 고객 이름 줄이 두 개(삼성 캘린더에 적은 것 + AOB9에 적은 것)면 하나로 합침
+      // 남기는 줄: 글자색·필체를 정한 줄 → 나중에 고친 줄. 시간은 나중에 고친 줄 것, 장소·원래 글은 빈 쪽에 보탬
+      var byN = {};
+      its.slice().forEach(function(x){ var nm = x && x.x ? custNameOf(x.x) : ''; if (nm.length >= 2) (byN[nm] = byN[nm] || []).push(x); });
+      Object.keys(byN).forEach(function(nm){
+        var g = byN[nm]; if (g.length < 2) return;
+        var newest = g.slice().sort(function(a, b){ return (b.at || 0) - (a.at || 0); })[0];
+        var keep = g.filter(function(x){ return x.hand || x.cset; })[0] || newest;
+        g.forEach(function(x){
+          if (x === keep || its.indexOf(x) < 0) return;
+          var gi = x.gid || gcIdFor(d, x);
+          if (!keep.loc && x.loc) keep.loc = x.loc; if (!keep.raw && x.raw) keep.raw = x.raw;
+          planTomb(d, x); its.splice(its.indexOf(x), 1);
+          if (gi && gi !== (keep.gid || gcIdFor(d, keep))) { PL.d.gdel = PL.d.gdel || []; if (PL.d.gdel.indexOf(gi) < 0) PL.d.gdel.push(gi); }
+        });
+        if (newest !== keep && newest.t && newest.t !== keep.t) { if (!keep.gid) { var kg = gcIdFor(d, keep); if (kg) keep.gid = kg; } planTomb(d, keep); keep.t = newest.t; keep.at = Date.now() + 1; }
         ch = true;
       });
       if (ch) { PL.d.mt = PL.d.mt || {}; PL.d.mt[d] = Date.now(); out.push(d); }
@@ -15303,6 +15330,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="4691b5d35076";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="fa5216012ff8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
