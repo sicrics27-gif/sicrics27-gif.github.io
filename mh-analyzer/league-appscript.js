@@ -1,4 +1,4 @@
-// AOB9 · 9팀 팀 서버 (리그전 + 건의사항·오류 신고(자동 개선) + MD's PICK + OTP 요청 + 보험사 연락처 팀 공유) · 버전 2026-11-04 — 구글 Apps Script, 관리자(강남혁) 구글 계정에서 한 번 배포
+// AOB9 · 9팀 팀 서버 (리그전 + 건의사항·오류 신고(자동 개선) + MD's PICK + OTP 요청 + 보험사 연락처 팀 공유) · 버전 2026-11-07 — 구글 Apps Script, 관리자(강남혁) 구글 계정에서 한 번 배포
 // 저장하는 것: 리그(별명·주간 숫자), 건의사항(이름·제목·내용·상태·답변). 고객 정보는 받지 않습니다.
 // OTP가 '사용 중'인 사람만 글을 올릴 수 있습니다 (access.json 확인). 건의사항 검토는 관리자 열쇠가 있어야 합니다.
 const ACCESS = 'https://raw.githubusercontent.com/sicrics27-gif/sicrics27-gif.github.io/main/mh-analyzer/access.json'; // 2026-11-04: 코드 저장소 비공개 → 공개 배포 저장소의 입장 목록
@@ -241,6 +241,39 @@ function doPost_(e) {
       const sched = {}; rows.sort((a, b2) => String(a.ym) < String(b2.ym) ? -1 : 1).slice(-3).forEach(r => { try { sched[String(r.ym)] = { at: +r.at, items: JSON.parse(r.json) }; } catch (e) { } });
       return out({ ok: true, sched: sched });
     }
+    // ---------- 🔎 상품 정보 (2026-11-07) ----------
+    // 팀원 누구나 원수사 안내 문자를 올림(pism_put) → 관리자 앱이 꺼내 NHC 장부로(pism_take) → 대표님이 확정한 값만 팀 공개(pi_put / pi_get)
+    if (b.a === 'pism_put') {
+      if (!allowed(b.c)) return out({ ok: false, error: 'OTP 사용자가 아닙니다' });
+      let t = String(b.text || '').slice(0, 3000).replace(/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g, '(전화번호)').replace(/\d{6}[-\s]?[1-4]\d{6}/g, '(주민번호)');
+      if (t.trim().length < 10) return out({ ok: false, error: '글이 너무 짧습니다' });
+      const sh = piSheet('상품문자', ['id', 'at', 'n', 'from', 'text']);
+      sh.appendRow([Utilities.getUuid().slice(0, 8), Date.now(), String(b.n || '팀원').slice(0, 10), String(b.from || '').slice(0, 40), t]);
+      return out({ ok: true });
+    }
+    if (b.a === 'pism_take') {
+      if (!isAdmin(b.k)) return out({ ok: false, error: '관리자만' });
+      const sh = piSheet('상품문자', ['id', 'at', 'n', 'from', 'text']), v = sh.getDataRange().getValues(); v.shift();
+      const rows = v.filter(r => r[0]).map(r => ({ id: r[0], at: r[1], n: r[2], from: r[3], text: r[4] }));
+      if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);
+      return out({ ok: true, rows: rows });
+    }
+    if (b.a === 'pi_put') {
+      if (!isAdmin(b.k)) return out({ ok: false, error: '관리자만' });
+      const items = Array.isArray(b.items) ? b.items.slice(0, 2000) : [];
+      const sh = piSheet('상품정보', ['at', 'json']);
+      if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1);
+      const at = Date.now(), chunk = [];
+      for (let i = 0; i < items.length; i += 40) chunk.push([at, JSON.stringify(items.slice(i, i + 40))]);
+      if (chunk.length) sh.getRange(2, 1, chunk.length, 2).setValues(chunk);
+      return out({ ok: true, n: items.length });
+    }
+    if (b.a === 'pi_get') {
+      if (!allowed(b.c)) return out({ ok: false, error: 'OTP 사용자가 아닙니다' });
+      const sh = piSheet('상품정보', ['at', 'json']), v = sh.getDataRange().getValues(); v.shift();
+      let items = [], at = 0; v.forEach(r => { try { items = items.concat(JSON.parse(r[1])); at = Math.max(at, +r[0] || 0); } catch (e) { } });
+      return out({ ok: true, at: at, items: items });
+    }
     // ---------- 리그전 (주간 점수) ----------
     if (!allowed(b.c)) return out({ ok: false, error: 'OTP 사용자가 아닙니다' });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(b.week || '')) return out({ ok: false, error: 'week' });
@@ -251,6 +284,11 @@ function doPost_(e) {
     const all = p.getKeys().filter(k => k.indexOf('w_') === 0).sort(); while (all.length > 12) p.deleteProperty(all.shift());
     return out({ ok: true });
   } finally { lock.releaseLock(); }
+}
+function piSheet(name, cols) {
+  const ss = SpreadsheetApp.openById(props().getProperty('SUG_SHEET') || sheet().getParent().getId());
+  let sh = ss.getSheetByName(name); if (!sh) { sh = ss.insertSheet(name); sh.appendRow(cols); sh.setFrozenRows(1); }
+  return sh;
 }
 // OTP 요청 시트
 const OTC = ['rid', 'at', 'n', 'm', 'dev', 'note', 'st', 'code', 'dt'];

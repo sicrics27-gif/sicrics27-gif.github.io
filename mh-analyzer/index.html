@@ -2807,6 +2807,43 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .fxt td b{white-space:nowrap}
 @media (max-width:600px){.fxt tr.tot td{font-size:13px}}
 
+/* 🔎 상품 정보 (2026-11-07) */
+.pidlg{max-width:760px}
+.pibar{display:flex;gap:8px;margin:8px 0}
+.pibar input{flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--paper);color:var(--ink);font-size:15px}
+.pibar select{height:42px;border:1px solid var(--line);border-radius:10px;padding:0 8px;background:var(--paper);color:var(--ink);max-width:45%}
+.pist{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.pist .chip{border:1px solid var(--line);background:var(--soft);color:var(--ink2);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+.pist .chip.on{background:var(--accent);color:var(--on-accent,#fff);border-color:var(--accent)}
+.pist .chip.red{border-color:#e5484d;color:#e5484d}
+.pic{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--soft)}
+.pic.s-conflict{border:2px solid #e5484d;background:rgba(229,72,77,.06)}
+.pic.s-confirmed{border-color:var(--accent)}
+.pih{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pih span{color:var(--ink2);font-size:13px}
+.pih .pill{margin-left:auto;font-style:normal;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--line)}
+.pih .pill.r{background:#e5484d;color:#fff}.pih .pill.g{background:#3fae7a;color:#fff}.pih .pill.b{background:var(--accent);color:var(--on-accent,#fff)}
+.pik{font-size:13px;color:var(--ink2);margin:2px 0 6px}
+.piv{border-top:1px dashed var(--line);padding:6px 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.piv.ok .pivv{color:var(--accent)}
+.pivv{font-size:15px;font-weight:600;flex:1 1 100%}
+.pivv small{font-weight:400;color:var(--ink2)}
+.pis{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.pisrc{font-size:11px;padding:2px 6px;border-radius:6px;background:var(--paper);border:1px solid var(--line);color:var(--ink2);text-decoration:none}
+.red{color:#e5484d}
+
+/* 🗓 주마감 (2026-11-07) */
+.wcform{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.wcf{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--ink2);font-weight:600}
+.wcf.w{grid-column:span 2}.wcf.full{grid-column:1/-1}
+.wcf input{height:40px;text-align:right;font-size:16px}
+.wcf textarea{font-size:14px}
+.wcf small{font-weight:400;font-size:11px;color:var(--mute)}
+.wcf.ed input{border-color:var(--accent)}
+.wcbox>*{flex-shrink:0}
+.wcbox .wkt{white-space:pre-wrap;max-height:none}
+@media (max-width:600px){.wcform{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -2839,7 +2876,7 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="propMenu" data-act="propScan" hidden></button><button type="button" id="coDirBtn" hidden></button><button type="button" id="fxCalcBtn" hidden></button><button type="button" id="bulkMemoBtn" hidden></button><button type="button" id="briefBtn" hidden></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="propMenu" data-act="propScan" hidden></button><button type="button" id="coDirBtn" hidden></button><button type="button" id="fxCalcBtn" hidden></button><button type="button" id="piBtn" hidden></button><button type="button" id="wcBtn" hidden></button><button type="button" id="bulkMemoBtn" hidden></button><button type="button" id="briefBtn" hidden></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -5989,6 +6026,9 @@ function HealthUI(root, H) {
 
   // 😣 불편해: 대표님 한마디를 회사(비공개) 저장소 inbox/aob9/feedback 에 → 밤에 기술실장이 고침 (2026-11-04)
   async function fbSend(cfg, obj) { var id = 'F-' + new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + newId().slice(2, 6); await putFile(cfg, 'inbox/aob9/feedback/' + id + '.json', obj, 'AOB9 불편 신고 ' + id); return id; }
+  // 🔎 상품 정보 (2026-11-07): 원수사 안내 문자 → inbox/products/sms · 대표님 확정 → inbox/products/confirm (고객 정보 없음)
+  async function prodSend(cfg, obj) { var id = 'S-' + new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + newId().slice(2, 6); await putFile(cfg, 'inbox/products/sms/' + id + '.json', obj, '원수사 안내 문자'); return id; }
+  async function prodConfirm(cfg, obj) { var id = 'C-' + new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14) + '-' + newId().slice(2, 6); await putFile(cfg, 'inbox/products/confirm/' + id + '.json', obj, '상품 정보 확정'); return id; }
   async function careGet(cfg) { var f = await getFile(cfg, 'outbox/aob9/care.json'); return f ? f.data : null; }
   // 2026-11-04 대표님 결정: 고객 정보(계약·병력·상담 메모·사진)는 회사(NHC)로 보내지 않음 — 이름을 지워도 개인 단위 자료라 막음. 관리자 우회 경로 없음.
   var CLOSED = '개인정보 보호 원칙: 고객 정보(계약·병력·상담 내용)는 회사로 보내지 않습니다. 이 기기에서 처리됩니다.';
@@ -6033,7 +6073,7 @@ function HealthUI(root, H) {
     '26': '뇌혈관진단', '27': '뇌졸중진단', '28': '뇌출혈진단', '29': '뇌혈관수술', '30': '뇌경색혈전', '31': '허혈성진단', '32': '부정맥/심부전', '33': '급성심근경색', '34': '허혈성수술', '35': '심근경색혈전', '36': '질병수술', '37': '상해수술', '38': '1종수술', '39': '2종수술', '40': '3종수술', '41': '4종수술', '42': '5종수술', '43': '1-7종수술',
     '44': '질병후유장해', '45': '상해후유장해', '46': '질병입원일당', '47': '상해입원일당', '48': '응급실', '49': '일반사망', '50': '질병사망', '51': '상해/재해사망', '52': '골절', '53': '깁스', '54': '화상', '55': '배상책임', '56': '교통사고처리지원금', '57': '자동차벌금', '58': '변호사선임', '59': '자동차부상치료' };
   root.NHC = { DEF_REPO: DEF_REPO, ROWS: ROWS, CATS: CATS, facts: facts, deid: deid, matches: matches, targetTxt: targetTxt, ageOf: ageOf, newId: newId,
-    verify: verify, send: send, fbSend: fbSend, careGet: careGet, fetchResult: fetchResult, consSend: consSend, consFetch: consFetch, campaigns: campaigns, stats: stats, tasks: tasks, afg: afg, pushToken: pushToken };
+    verify: verify, send: send, fbSend: fbSend, careGet: careGet, prodSend: prodSend, prodConfirm: prodConfirm, fetchResult: fetchResult, consSend: consSend, consFetch: consFetch, campaigns: campaigns, stats: stats, tasks: tasks, afg: afg, pushToken: pushToken };
 })(this);
 
 </script>
@@ -9227,6 +9267,89 @@ function HealthUI(root, H) {
     else if (g === 'ver') { window.__aobGo = ''; location.reload(); }
   });
 
+  // ================= 🗓 주마감 (2026-11-07 대표님 양식 그대로) =================
+  // 싯플랜 일정·이번 주 새로 등록한 고객·계약 실적으로 숫자를 자동으로 채우고, 칸마다 직접 고칠 수 있음(고친 값은 그 주에 저장, 기기 간 동기화).
+  // 고객 이름이 들어가는 글이라 이 기기에서 복사·카톡 보내기만 함(회사·서버로 보내지 않음).
+  function wcKind(t){
+    t = String(t || '');
+    if (/리대|리크루팅|리쿠르팅|리크루트/.test(t)) return 'ri';
+    if (/\bcis\b|씨아이에스/i.test(t)) return 'cis';
+    if (/액션/.test(t) && !/액션\s*콜/.test(t)) return 'act';
+    if (/교육|석회|위클리|워킹|공유|회의|미팅\s*$|팀\s*미팅|지점|출근|귀점|마감|초청|세미나|시상|점심|식사|휴무|개인/.test(t) && !/1차|2차|3차|상담|클로징/.test(t)) return '';
+    if (/클로징|청약|계약\s*체결|서명/.test(t)) return 'close';
+    if (/프로세스|증권\s*전달|기프트|선물\s*전달/.test(t)) return 'proc';
+    if (/상담|[123]\s*차|보장\s*분석|보장\s*점검|리모델링|\bAS\b|만남|방문/i.test(t)) return 'consult';
+    return '';
+  }
+  function wcRoute(c){
+    var m = String(c.memo || '') + ' ' + String(c.ref || '') + ' ' + JSON.stringify(c.db || {});
+    var k = chOf(c), dbk = (/인포\s*DB[^\n,·/]{0,8}/i.exec(m) || /(실버|일반)\s*DB/i.exec(m) || [''])[0].replace(/\s+/g, '');
+    if (k === 'db' || k === 'dbk' || /DB/.test(dbk)) { var sub = /실버/.test(m) ? '(실버)' : /인포/i.test(m) && /일반/.test(m) ? '(일반)' : ''; return (/인포/i.test(m) ? '인포DB' : 'DB') + sub; }
+    if (k === 'ref' || /소개/.test(c.ref || '')) return /지인/.test(c.ref || '') || k === 'ref' ? '지인소개' : '소개';
+    return chTxt(k) || '';
+  }
+  function wcJob(c){ var r = c.req || {}; if (r.job) return r.job; var m = /직업\s*[:：]?\s*([^\n,/·]{2,15})/.exec(c.memo || ''); return m ? m[1].trim() : ''; }
+  function wcCreated(c){ return c.created ? new Date(c.created - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) : ''; }
+  async function wcAuto(R){
+    await planLoad();
+    var n = { ri: 0, act: 0, cis: 0, consult: 0, close: 0, proc: 0 };
+    for (var d = R.from; d <= R.to; d = addD(d, 1)) itemsOf(d).forEach(function(x){ var k = wcKind(x.x); if (k) n[k]++; });
+    var news = S.list.filter(function(c){ var cd = wcCreated(c); return !c.sample && cd >= R.from && cd <= R.to; }).sort(function(a, b){ return (a.created || 0) - (b.created || 0); });
+    var deals = (PL.d.deals || []).filter(function(x){ return x.d >= R.from && x.d <= R.to; });
+    var prev = (PL.d.wkc || {})[addD(R.from, -7)] || {};
+    var w3 = prev.w3 != null && prev.w3 !== '' ? (+prev.w3 || 0) + (deals.length >= 3 ? 1 : 0) : '';
+    return {
+      total: n.ri + n.act + n.cis + n.consult + n.close + n.proc, ri: n.ri, act: n.act, cis: n.cis, consult: n.consult, close: n.close, proc: n.proc,
+      ref: news.filter(function(c){ return /소개/.test(wcRoute(c)); }).length,
+      news: news.map(function(c){ var a = ageOf(c.birth) || c.age || ''; return [c.name || '', a, wcJob(c), wcRoute(c)].join('/'); }).join('\n'),
+      deal: deals.length, amt: deals.reduce(function(s, x){ return s + (+x.amt || 0); }, 0), w3: w3
+    };
+  }
+  var WC_F = [['total', '1. 총만남 횟수'], ['ri', '리대'], ['act', '액션'], ['cis', 'Cis'], ['consult', '3.상담만남 횟수'], ['close', '4.클로징만남 횟수'], ['ref', '5.소개인원 수'], ['proc', '6.프로세스 횟수'], ['deal', '이번주 계약 건수'], ['amt', '이번주 계약 월납'], ['w3', '현재 3W 진행사항']];
+  function wcVal(A, S0, k){ return S0 && S0[k] != null && S0[k] !== '' ? S0[k] : A[k]; }
+  function wcText(V, who){
+    var L = ['<' + who + ' 주마감>', '', '1. 총만남 횟수 : ' + V.total, '2.리대만남 횟수 : ' + V.ri + '/' + V.act + '/' + V.cis, '(리대/액션/Cis)', '3.상담만남 횟수 : ' + V.consult, '4.클로징만남 횟수 : ' + V.close,
+      '5.소개인원 수 : ' + V.ref, '6.프로세스 횟수 : ' + V.proc, '7.이번주 신규 번호 (이름/나이/직업/ 경로) '];
+    String(V.news || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){ L.push(s); });
+    L.push('', '이번주 계약 건수 : ' + V.deal + '건', '', '이번주 계약 월납 : ' + (+String(V.amt).replace(/[^\d]/g, '') || 0).toLocaleString('ko-KR'), '현재 3W 진행사항 : ' + (V.w3 === '' || V.w3 == null ? '' : V.w3 + '주'), '', '이번주 잘 했던 점 ');
+    String(V.good || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){ L.push(/^-/.test(s) ? s : '- ' + s); });
+    L.push('', '이번주 아쉬웠던점');
+    String(V.bad || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){ L.push(/^-/.test(s) ? s : '-' + s); });
+    return L.join('\n');
+  }
+  async function openWeekClose(off){
+    off = off || 0; await planLoad(); PL.d.wkc = PL.d.wkc || {};
+    var R = weekRange(off), A = await wcAuto(R), S0 = PL.d.wkc[R.from] || {}, who = PL.d.wkcWho || (S0.who) || ((League.nick && League.nick()) || PL.d.nick || '') + 'AP';
+    var V = {}; WC_F.forEach(function(f){ V[f[0]] = wcVal(A, S0, f[0]); }); V.news = S0.news != null ? S0.news : A.news; V.good = S0.good || ''; V.bad = S0.bad || '';
+    var wn = '일월화수목금토', dd = function(d){ return (+d.slice(5, 7)) + '/' + (+d.slice(8)) + '(' + wn[wdOf(d)] + ')'; };
+    var num = function(k, lab, wide){ var auto = A[k], ed = S0[k] != null && S0[k] !== '' && String(S0[k]) !== String(auto); return '<label class="wcf' + (wide ? ' w' : '') + (ed ? ' ed' : '') + '"><span>' + lab + '</span><input type="text" inputmode="numeric" data-wc="' + k + '" value="' + esc(V[k]) + '"><small>' + (auto === '' ? '직접' : '자동 ' + (k === 'amt' ? (+auto || 0).toLocaleString('ko-KR') : auto)) + (ed ? ' · <a href="#" data-wcr="' + k + '">↺</a>' : '') + '</small></label>'; };
+    openDlg('<h4>🗓 주마감 <small class="note">' + dd(R.from) + ' ~ ' + dd(R.to) + '</small></h4>' +
+      '<div class="wkseg"><button type="button" data-wco="0" aria-pressed="' + !off + '">이번 주</button><button type="button" data-wco="1" aria-pressed="' + (off === 1) + '">지난주</button></div>' +
+      '<p class="note">싯플랜 일정·이번 주 새로 등록한 고객·계약 실적으로 자동으로 채웠습니다. 칸을 고치면 이 주에 저장되고, ↺ 를 누르면 자동 값으로 돌아갑니다.</p>' +
+      '<div class="form wcform"><label class="wcf w"><span>이름</span><input type="text" id="wcWho" value="' + esc(who) + '" maxlength="12"></label>' +
+      num('total', '1. 총만남') + num('ri', '2. 리대') + num('act', '액션') + num('cis', 'Cis') + num('consult', '3. 상담만남') + num('close', '4. 클로징만남') + num('ref', '5. 소개인원') + num('proc', '6. 프로세스') +
+      '<label class="wcf full"><span>7. 이번주 신규 번호 <small>(이름/나이/직업/경로 · 이번 주 새로 등록한 고객 ' + (A.news ? A.news.split('\n').length : 0) + '명' + (S0.news != null && S0.news !== A.news ? ' · <a href="#" data-wcr="news">↺ 다시 불러오기</a>' : '') + ')</small></span><textarea data-wc="news" rows="5">' + esc(V.news) + '</textarea></label>' +
+      num('deal', '계약 건수') + num('amt', '계약 월납') + num('w3', '3W 진행(주)') +
+      '<label class="wcf full"><span>이번주 잘 했던 점 <small>(한 줄에 하나)</small></span><textarea data-wc="good" rows="3" placeholder="DB상담&#10;효율적인 동선">' + esc(V.good) + '</textarea></label>' +
+      '<label class="wcf full"><span>이번주 아쉬웠던점</span><textarea data-wc="bad" rows="2" placeholder="도입원소통">' + esc(V.bad) + '</textarea></label></div>' +
+      '<pre class="wkt" id="wcT"></pre>' +
+      '<div class="mact"><button class="btn" type="button" id="wcCp">📋 글로 복사</button><button class="go" type="button" id="wcKk">카톡으로 보내기</button><button class="btn" type="button" id="wcX">닫기</button></div>', 'wkbox wcbox');
+    var cur = function(){ var o = {}; WC_F.forEach(function(f){ var el = document.querySelector('[data-wc="' + f[0] + '"]'); o[f[0]] = el ? el.value.trim() : V[f[0]]; }); ['news', 'good', 'bad'].forEach(function(k){ o[k] = document.querySelector('[data-wc="' + k + '"]').value; }); return o; };
+    var paint = function(){ $('wcT').textContent = wcText(cur(), $('wcWho').value.trim() || who); };
+    var tm = null, save = function(){ clearTimeout(tm); tm = setTimeout(async function(){ var o = cur(), keep = {}; Object.keys(o).forEach(function(k){ if (k === 'news' ? o[k] !== A.news : ['good', 'bad'].indexOf(k) >= 0 ? o[k] : String(o[k]) !== String(A[k])) keep[k] = o[k]; }); PL.d.wkc[R.from] = keep; PL.d.wkcWho = $('wcWho').value.trim(); var ks = Object.keys(PL.d.wkc).sort(); while (ks.length > 26) delete PL.d.wkc[ks.shift()]; try { await planSave(); } catch(e){} }, 600); };
+    $('dlgBox').querySelectorAll('[data-wc]').forEach(function(el){ el.oninput = function(){ paint(); save(); }; });
+    $('wcWho').oninput = function(){ paint(); save(); };
+    $('dlgBox').querySelectorAll('[data-wcr]').forEach(function(a){ a.onclick = async function(e){ e.preventDefault(); var k = a.dataset.wcr; if (PL.d.wkc[R.from]) delete PL.d.wkc[R.from][k]; await planSave(); openWeekClose(off); }; });
+    $('dlgBox').querySelectorAll('[data-wco]').forEach(function(b){ b.onclick = function(){ openWeekClose(+b.dataset.wco); }; });
+    $('wcX').onclick = closeDlg;
+    $('wcCp').onclick = async function(){ var t = $('wcT').textContent; try { await navigator.clipboard.writeText(t); toast('주마감 글을 복사했습니다 · 카톡에 붙여 넣으세요'); } catch(e){ toast('복사가 막혀 있습니다'); } };
+    $('wcKk').onclick = async function(){ var t = $('wcT').textContent; try { await navigator.clipboard.writeText(t); } catch(e){}
+      if (window.Native && Native.on) { try { await natCall('shareText', { text: t, pkg: 'com.kakao.talk' }); return; } catch(e){} }
+      if (navigator.share) { try { await navigator.share({ text: t }); return; } catch(e){ if (e && e.name === 'AbortError') return; } }
+      toast('복사했습니다 · 카톡 대화방에 붙여 넣으세요'); };
+    paint();
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('#wcBtn'); if (t) openWeekClose(0); });
   // ================= 📊 주간 활동 보고 (이름 없이 숫자만) =================
   function weekRange(off){ var t = todayStr(), mon = addD(t, -((wdOf(t) + 6) % 7) - 7 * (off || 0)), sun = addD(mon, 6); return { from: mon, to: off ? sun : t, sun: sun }; }
   async function weekData(R, cur){
@@ -13191,10 +13314,132 @@ function HealthUI(root, H) {
     $('fxCp').onclick = async function(){ var t = fxText(); if (!t) { toast('계산할 값을 먼저 넣어 주세요'); return; } try { await navigator.clipboard.writeText(t); toast('복사했습니다 · 카톡에 붙여 넣으세요'); } catch(e){ toast('복사가 막혀 있습니다'); } };
   }
   document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('#fxCalcBtn'); if (t) openFxCalc(); });
+  // ---------- 🔎 상품 정보 (2026-11-07 대표님: "네 가지 다 만들어") ----------
+  // ① 원수사 문자를 누구나 '📩 문자 넣기'로 → ② 대표님 휴대폰 알림 자동 읽기(NHC 앱) → ③ 보험사 공시실 정기 수집 → ④ 서로 다르면 빨강, 대표님 확정분만 팀 공개
+  // 장부는 NHC(nhc/prodinfo.py → outbox/afg/product-info.json). 팀원은 팀 서버의 '확정' 목록만 봄. 모든 값에 출처. 고객 정보 없음.
+  var PI = { d: null, team: null, q: '', cov: '', st: '', busy: false };
+  var PI_ST = { conflict: ['서로 다름', 'r'], agree: ['두 곳 일치', 'g'], pending: ['확인 대기', 'm'], confirmed: ['확정', 'b'], info: ['참고', 'm'] };
+  function piOwner(){ return !!ROLE.admin; }
+  function piSrc(s){
+    s = s || {}; var ic = s.type === 'disclosure' ? '🏛 공시' : s.type === 'mdspec' ? '📘 MD Spec' : /자동/.test(s.by || '') ? '📱 자동' : '📩 문자';
+    var t = ic + (s.doc && s.type !== 'sms' ? ' · ' + s.doc : '') + (s.page ? ' p.' + s.page : '') + (s.at ? ' · ' + String(s.at).slice(0, 10) : '') + (s.by && s.type === 'sms' && !/자동/.test(s.by) ? ' · ' + s.by : '');
+    return s.url ? '<a class="pisrc" href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(t) + ' ↗</a>' : '<span class="pisrc" title="' + esc(s.text || '') + '">' + esc(t) + '</span>';
+  }
+  function piCache(k, v){ try { if (v === undefined) return JSON.parse(localStorage.getItem('aob_pi_' + k) || 'null'); localStorage.setItem('aob_pi_' + k, JSON.stringify(v)); } catch(e){ return null; } }
+  async function piLoad(force){
+    if (piOwner()) {
+      var cfg = await nhcLoad();
+      if (cfg && cfg.token) {
+        try { piRelay(cfg).catch(function(){}); var d = await NHC.afg(cfg, 'product-info.json'); if (d && d.items) { PI.d = d; piCache('d', d); return; } } catch(e){ if (force) toast(e.message || String(e)); }
+      }
+      PI.d = PI.d || piCache('d');
+      if (PI.d) return;
+    }
+    var lic = Access.lic && Access.lic(), u = ''; try { u = await League.url(); } catch(e){}
+    if (lic && lic.c && u) { try { var j = await teamPost(u, { a: 'pi_get', c: lic.c }); if (j && j.ok) { PI.team = j; piCache('t', j); return; } } catch(e){} }
+    PI.team = PI.team || piCache('t');
+  }
+  // 팀원이 팀 서버에 올린 문자 → NHC 장부로 (관리자 기기에서만)
+  async function piRelay(cfg){
+    var c = await otpAdminCtx(); if (!c || !cfg || !cfg.token) return 0;
+    var j = await teamPost(c.u, { a: 'pism_take', k: c.key }); if (!j || !j.ok || !(j.rows || []).length) return 0;
+    for (var i = 0; i < j.rows.length; i++) { var r = j.rows[i]; try { await NHC.prodSend(cfg, { text: r.text, from: r.from || '', at: new Date(+r.at || Date.now()).toISOString().slice(0, 10), by: '팀원 ' + (r.n || '') }); } catch(e){} }
+    return j.rows.length;
+  }
+  function piItems(){
+    if (PI.d) return PI.d.items || [];
+    return ((PI.team && PI.team.items) || []).map(function(x){ return Object.assign({ status: 'confirmed', confirmed: { value: x.value, at: x.at }, vals: [{ value: x.value, srcs: x.srcs || [] }] }, x); });
+  }
+  function piCard(it){
+    var st = PI_ST[it.status] || PI_ST.pending, own = piOwner() && PI.d;
+    var head = '<div class="pih"><b>' + esc(it.co) + '</b>' + (it.product ? ' <span>' + esc(it.product) + '</span>' : '') + '<em class="pill ' + st[1] + '">' + st[0] + '</em></div>' +
+      '<div class="pik">' + esc(it.cov || '상품') + ' · <b>' + esc(it.field) + '</b>' + (it.cond ? ' · ' + esc(it.cond) : '') + '</div>';
+    var vals = (it.vals || []).map(function(v, i){
+      var ok = it.confirmed && it.confirmed.value === v.value;
+      return '<div class="piv' + (ok ? ' ok' : '') + '"><div class="pivv">' + (ok ? '✅ ' : '') + esc(v.value) + (v.note ? ' <small>' + esc(v.note) + '</small>' : '') + '</div><div class="pis">' + (v.srcs || []).map(piSrc).join('') + '</div>' +
+        (own && it.status !== 'info' && !ok ? '<button type="button" class="btn sm" data-pick="' + esc(it.key) + '" data-pv="' + i + '">✅ 이 값으로 확정</button>' : '') + '</div>';
+    }).join('');
+    return '<div class="pic s-' + it.status + '">' + head + vals + (it.confirmed && it.confirmed.at ? '<div class="note">대표님 확인 ' + esc(String(it.confirmed.at).slice(0, 10)) + '</div>' : '') + '</div>';
+  }
+  function piRender(){
+    var box = $('piList'); if (!box) return;
+    var all = piItems(), q = PI.q.trim().toLowerCase(), own = piOwner() && PI.d;
+    var L = all.filter(function(it){
+      if (PI.cov && it.cov !== PI.cov) return false;
+      if (own) { if (PI.st ? it.status !== PI.st : it.status === 'info') return false; }
+      if (q && (it.co + ' ' + (it.product || '') + ' ' + it.cov + ' ' + it.field + ' ' + (it.vals || []).map(function(v){ return v.value; }).join(' ')).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    if (own) { var cnt = {}; all.forEach(function(i){ cnt[i.status] = (cnt[i.status] || 0) + 1; }); $('piSt').innerHTML = Object.keys(PI_ST).map(function(k){ return '<button type="button" class="chip' + (PI.st === k ? ' on' : '') + (k === 'conflict' && cnt[k] ? ' red' : '') + '" data-pist="' + k + '">' + PI_ST[k][0] + ' ' + (cnt[k] || 0) + '</button>'; }).join(''); }
+    box.innerHTML = L.length ? L.slice(0, 200).map(piCard).join('') + (L.length > 200 ? '<p class="note">' + (L.length - 200) + '건 더 있음 · 검색으로 좁혀 주세요</p>' : '') :
+      '<p class="note">' + (all.length ? '조건에 맞는 정보가 없습니다.' : own ? '아직 장부가 비어 있습니다. 원수사 문자를 넣거나, 이번 주 공시실 수집이 끝나면 채워집니다.' : '대표님이 확인한 상품 정보가 아직 없습니다. 원수사 문자를 받으면 📩 문자 넣기로 보내 주세요 — 확인되면 여기에 보입니다.') + '</p>';
+  }
+  async function openProdInfo(){
+    openDlg('<h4>🔎 상품 정보 <button type="button" class="btn sm" id="piIn" style="float:right">📩 문자 넣기</button></h4>' +
+      '<p class="note">담보별로 어느 보험사가 좋은지 — 원수사 문자·' + (piOwner() ? '대표님 휴대폰 알림·' : '') + '보험사 공시실·MD Spec을 함께 모아 서로 맞춰 봅니다. ' + (piOwner() ? '<b class="red">빨강 = 출처끼리 값이 다름</b> · 고른 값만 팀에 공개됩니다.' : '대표님이 확인한 값만 보입니다.') + ' 모든 값은 출처 문서로 다시 확인하세요(사내용 · 고객 배포 금지).</p>' +
+      '<div class="pibar"><input type="search" id="piQ" placeholder="보험사·상품·담보 검색" value="' + esc(PI.q) + '"><select id="piCov"><option value="">담보 전체</option></select></div><div class="pist" id="piSt"></div>' +
+      '<div id="piList"><p class="note">불러오는 중…</p></div><div class="mrow"><button class="btn lg" type="button" id="piRe" style="margin-right:auto">↻ 새로 받기</button><button class="go" type="button" id="piX">닫기</button></div>', 'pidlg');
+    $('piX').onclick = closeDlg; $('piIn').onclick = piInput;
+    $('piQ').oninput = function(){ PI.q = this.value; piRender(); };
+    $('piCov').onchange = function(){ PI.cov = this.value; piRender(); };
+    $('piRe').onclick = async function(){ $('piList').innerHTML = '<p class="note">불러오는 중…</p>'; await piLoad(true); piFill(); };
+    await piLoad(false); piFill();
+  }
+  function piFill(){
+    var covs = {}; piItems().forEach(function(i){ if (i.cov) covs[i.cov] = 1; });
+    var sel = $('piCov'); if (sel) sel.innerHTML = '<option value="">담보 전체</option>' + Object.keys(covs).sort().map(function(c){ return '<option' + (PI.cov === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('');
+    piRender();
+  }
+  async function piConfirm(key, vi, btn){
+    var it = (PI.d && PI.d.items || []).find(function(x){ return x.key === key; }); if (!it) return; var v = it.vals[vi]; if (!v) return;
+    var cfg = await nhcLoad(); if (!cfg || !cfg.token) { toast('NHC 본사 연결(관리자 메뉴)이 있어야 확정할 수 있습니다'); return; }
+    btn.disabled = true; btn.textContent = '저장 중…';
+    try {
+      await NHC.prodConfirm(cfg, { key: key, value: v.value, at: todayStr(), by: '대표님' });
+      it.status = 'confirmed'; it.confirmed = { value: v.value, at: todayStr() }; piCache('d', PI.d);
+      var n = await piPublish(); piRender(); toast('확정했습니다 · 팀 공개 ' + n + '건');
+    } catch(e){ btn.disabled = false; btn.textContent = '✅ 이 값으로 확정'; toast('확정 실패 · ' + (e.message || e)); }
+  }
+  // 확정된 것만 팀 서버로 (팀원 화면용) — 원문 글은 빼고 출처만
+  async function piPublish(){
+    var c = await otpAdminCtx(); if (!c) return 0;
+    var L = (PI.d.items || []).filter(function(i){ return i.status === 'confirmed' && i.confirmed; }).map(function(i){
+      var v = (i.vals || []).find(function(x){ return x.value === i.confirmed.value; }) || {};
+      return { key: i.key, co: i.co, product: i.product, cov: i.cov, field: i.field, cond: i.cond, value: i.confirmed.value, at: i.confirmed.at, srcs: (v.srcs || []).map(function(s){ var o = Object.assign({}, s); delete o.text; return o; }) };
+    });
+    var j = await teamPost(c.u, { a: 'pi_put', k: c.key, items: L }); return j && j.ok ? j.n : 0;
+  }
+  function piInput(){
+    openDlg('<h4>📩 원수사 문자 넣기</h4><p class="note">보험사가 보낸 상품 안내(한도·보험료·개정·판매중지·출시 등) 문자나 알림톡을 그대로 붙여 넣으세요. 형식은 상관없습니다. 고객 이름·번호가 든 글은 보내지 않습니다.</p>' +
+      '<div class="form"><textarea id="piTx" rows="9" placeholder="[메리츠화재] 11월 개정 안내 …"></textarea><div class="ferr" id="piErr"></div></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="piPaste" style="margin-right:auto">📋 붙여넣기</button><button class="btn lg" type="button" id="piNo">닫기</button><button class="go" type="button" id="piGo">보내기</button></div>');
+    $('piNo').onclick = function(){ closeDlg(); openProdInfo(); };
+    $('piPaste').onclick = async function(){ try { $('piTx').value = await navigator.clipboard.readText(); } catch(e){ toast('붙여넣기가 막혀 있습니다 · 칸을 길게 눌러 붙여 넣으세요'); } };
+    $('piGo').onclick = async function(){
+      var t = String($('piTx').value || '').trim(), err = $('piErr');
+      if (t.length < 10) { err.textContent = '안내 글을 붙여 넣어 주세요'; return; }
+      var hit = custHit(t); if (hit) { err.textContent = '고객 이름(' + hit + ')이 들어 있습니다. 보험사 상품 안내 글만 보내 주세요.'; return; }
+      t = t.replace(/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g, '(전화번호)').replace(/\d{6}[-\s]?[1-4]\d{6}/g, '(주민번호)').slice(0, 3000);
+      this.disabled = true; this.textContent = '보내는 중…';
+      try {
+        var cfg = piOwner() ? await nhcLoad() : null;
+        if (cfg && cfg.token) await NHC.prodSend(cfg, { text: t, from: '', at: todayStr(), by: '대표님' });
+        else { var lic = Access.lic && Access.lic(), u = await League.url(); if (!lic || !lic.c || !u) throw new Error('팀 서버 연결이 없습니다'); var j = await teamPost(u, { a: 'pism_put', c: lic.c, n: (League.nick && League.nick()) || '팀원', text: t }); if (!j || !j.ok) throw new Error((j && j.error) || '전송 실패'); }
+        closeDlg(); toast('📩 보냈습니다 · 몇 분 안에 정리돼 출처와 함께 상품 정보에 들어갑니다');
+      } catch(e){ this.disabled = false; this.textContent = '보내기'; err.textContent = '보내지 못했습니다 · ' + (e.message || e); }
+    };
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('#piBtn'); if (t) openProdInfo(); });
+  document.addEventListener('click', function(e){
+    if (!e.target.closest || !e.target.closest('.pidlg')) return;
+    var s = e.target.closest('[data-pist]'); if (s) { PI.st = PI.st === s.dataset.pist ? '' : s.dataset.pist; piRender(); return; }
+    var b = e.target.closest('[data-pick]'); if (b && !b.disabled) piConfirm(b.dataset.pick, +b.dataset.pv, b);
+  });
+  setTimeout(function(){ try { if (ROLE.admin) nhcLoad().then(function(cfg){ if (cfg && cfg.token) piRelay(cfg).catch(function(){}); }); } catch(e){} }, 45000);
   function openSheet(kind, into){
     var MENU = [
-      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
-      ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
+      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
+      ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
       ['🌱 성장 · 소통', [['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류 신고', '캡처 올리면 AI가 고침'], ['#sugBtn', '💡', '건의사항', '기능 아이디어'], ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
     var SET = [
@@ -15566,6 +15811,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="084c4f8980b6";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="0197f68696f1";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
