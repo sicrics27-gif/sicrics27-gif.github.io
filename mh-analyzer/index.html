@@ -1004,7 +1004,7 @@ table.ht tr.grp td svg{color:var(--gold)}
 .ctlast{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin-left:auto;font-size:13.5px;font-variant-numeric:tabular-nums}
 .ctlast small{color:var(--mute);font-size:12px;margin-right:5px}
 .ctlast em{font-style:normal;color:var(--ink2);font-weight:600}
-@media (max-width:600px){.ctlast{margin-left:0;width:100%}.ctb{flex:1 1 0;justify-content:center}}
+@media (max-width:600px){.ctlast{margin-left:0;width:100%}.ctb{flex:1 1 0;justify-content:center;white-space:nowrap;padding:0 6px;gap:4px;font-size:13px;min-width:0}}
 .tpl{display:flex;flex-wrap:wrap;gap:6px}
 .tpl button{border:1px solid var(--line);background:var(--paper);border-radius:8px;height:32px;padding:0 12px;font:inherit;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
 .tpl button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
@@ -2843,6 +2843,8 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .wcbox>*{flex-shrink:0}
 .wcbox .wkt{white-space:pre-wrap;max-height:none}
 @media (max-width:600px){.wcform{grid-template-columns:repeat(2,1fr)}}
+/* 싯플랜 사진 창 버튼 (2026-11-09 주간 점검): 휴대폰에서 6개가 한 줄에 끼어 글자가 세로로 깨짐 → 두 줄로 나눔 */
+@media (max-width:600px){.mrow.psnrow{flex-wrap:wrap;gap:8px}.mrow.psnrow>button{flex:1 1 calc(50% - 4px);margin:0!important;white-space:nowrap;min-width:0;padding-left:8px;padding-right:8px}}
 
 </style>
 </head>
@@ -8134,7 +8136,7 @@ function HealthUI(root, H) {
     }
     var name = PL.d.nick + '_싯플랜_' + S.pm + '.png';
     var blob = await new Promise(function(res){ cv.toBlob(res, 'image/png'); });
-    openDlg('<h4>' + IC.doc + ' 싯플랜 사진</h4><img class="psnap" alt="싯플랜 사진 미리보기" src="' + URL.createObjectURL(blob) + '"><div class="mrow"><button class="btn lg" type="button" id="snX" style="margin-right:auto">닫기</button>' + (navigator.clipboard && window.ClipboardItem ? '<button class="btn lg" type="button" id="snCp">이미지 복사 (카톡 PC에 붙여넣기)</button>' : '') + (navigator.canShare && navigator.canShare({ files: [new File([blob], name, { type: 'image/png' })] }) ? '<button class="go" type="button" id="snSh">공유 (카톡 등)</button>' : '') + '<button class="go" type="button" id="snKk">💬 카톡 나에게 보내기</button><button class="go" type="button" id="snDl">이미지 저장</button></div>', 'wide');
+    openDlg('<h4>' + IC.doc + ' 싯플랜 사진</h4><img class="psnap" alt="싯플랜 사진 미리보기" src="' + URL.createObjectURL(blob) + '"><div class="mrow psnrow"><button class="btn lg" type="button" id="snX" style="margin-right:auto">닫기</button>' + (navigator.clipboard && window.ClipboardItem ? '<button class="btn lg" type="button" id="snCp" title="이미지 복사 → 카톡 PC 대화창에 Ctrl+V">🖼 이미지 복사</button>' : '') + (navigator.canShare && navigator.canShare({ files: [new File([blob], name, { type: 'image/png' })] }) ? '<button class="go" type="button" id="snSh">공유 (카톡 등)</button>' : '') + '<button class="go" type="button" id="snKk">💬 카톡 나에게 보내기</button><button class="go" type="button" id="snDl">💾 이미지 저장</button></div>', 'wide');
     $('snX').onclick = closeDlg;
     var mr = $('snX').parentNode, hb = document.createElement('button'); hb.type = 'button'; hb.className = 'btn lg'; hb.textContent = '✍️ 내 필체'; hb.onclick = function(){ closeDlg(); openHand(planSnap); }; mr.insertBefore(hb, $('snX').nextSibling);
     // 📋 글로 복사: 오늘 일정을 '⏰️0755 출근' 보고 글로 (단톡방 보고용 · 예전 '오늘 보고 복사')
@@ -9944,7 +9946,7 @@ function HealthUI(root, H) {
     });
     var nShow = 0; Object.keys(groups).forEach(function(g){ nShow += groups[g].length; });
     var bar = '<div class="lsort"><span>고객 <b>' + nShow + '</b>명</span><label><select id="fSort" aria-label="고객 목록 정렬" title="정렬">' + SORTS.map(function(x){ return '<option value="' + x[0] + '"' + (x[0] === so ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label></div>';
-    if (!S.list.length) h = '<div class="cempty">등록된 고객이 없습니다.<br>위의 <b>신규 고객 등록</b>으로 시작하세요.</div>';
+    if (!S.list.length) h = '<div class="cempty">등록된 고객이 없습니다.<br><span class="phonly"><button type="button" class="btn pri" data-rail="new" style="margin-top:10px">＋ 첫 고객 등록</button></span></div>';
     else if (!h) h = bar + '<div class="cempty">검색 결과가 없습니다.</div>';
     else h = bar + h;
     $('clist').innerHTML = h;
@@ -13448,7 +13450,7 @@ function HealthUI(root, H) {
     var MENU = [
       ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
-      ['🌱 성장 · 소통', [['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류 신고', '캡처 올리면 AI가 고침'], ['#sugBtn', '💡', '건의사항', '기능 아이디어'], ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
+      ['🌱 성장 · 소통', [['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류 신고', '한 줄 적으면 AI가 고침 (사진 안 보냄)'], ['#sugBtn', '💡', '건의사항', '기능 아이디어'], ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
     var SET = [
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
@@ -15819,6 +15821,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="650d4fdec9b8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="1f078e08f748";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
