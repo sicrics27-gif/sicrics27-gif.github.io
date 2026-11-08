@@ -11934,7 +11934,7 @@ function HealthUI(root, H) {
     var tok; try { tok = await liveAuth(); } catch(e){ toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); slowCall(); return; } // 실시간 열쇠가 없으면 예전 방식으로
     var sc = SC.find(function(s){ return s.k === CALL.sc; }) || SC[0], rand = CALL.topic === 'rand', nm = pick(FAKE), female = FEMALE.indexOf(nm) >= 0, hist = [], ended = false, muted = false, uBuf = '', aBuf = '';
     var sys = aiSys(sc, nm) + ' 설계사는 자신을 "' + meLine() + '"라고 소개합니다.' +
-      ' [목소리 연기] 지금은 진짜 전화 통화다. 글을 읽는 말투가 아니라 실제 사람이 수화기에 대고 말하듯: 말 빠르기를 들쭉날쭉하게, 생각할 땐 "음…", "어…" 하고 잠깐 멈추고, 놀라거나 웃을 땐 소리로 자연스럽게(짧게 "아하하", "헐"). 숨 쉬듯 끊어 말하고, 또박또박 낭독하지 않는다. 문장을 길게 이어 붙이지 않는다. 상대가 말을 시작하면 바로 멈추고 듣는다. 한국어로만 말한다.';
+      ' [목소리 연기] 지금은 진짜 전화 통화다. 글을 읽는 말투가 아니라 실제 사람이 수화기에 대고 말하듯: 말 빠르기를 들쭉날쭉하게, 생각할 땐 "음…", "어…" 하고 잠깐 멈추고, 놀라거나 웃을 땐 소리로 자연스럽게(짧게 "아하하", "헐"). 숨 쉬듯 끊어 말하고, 또박또박 낭독하지 않는다. 문장을 길게 이어 붙이지 않는다. 상대가 말을 시작하면 바로 멈추고 듣는다. 한 번에 한두 문장(5초 안쪽)만 말하고 상대 차례를 준다. 설명을 줄줄 늘어놓지 않는다. 상대 말에 "네네", "아 그래요?", "그렇죠"처럼 짧게 맞장구부터 치고 답한다. 상담원·AI 같은 정중한 안내 문구("도와드리겠습니다", "궁금하신 점")는 쓰지 않는다. 한국어로만 말한다.';
     var el = phoneOpen({ nm: nm, num: '010-' + String(2000 + Math.floor(Math.random() * 7999)) + '-' + String(1000 + Math.floor(Math.random() * 8999)), ai: true });
     var note = function(t){ var n = $('cphNote'); if (n) n.textContent = t || ''; };
     var showYou = function(t){ var y = $('cphYou'); if (y) y.innerHTML = '<small>' + esc(nm) + '</small>' + esc(t); };
@@ -11976,7 +11976,7 @@ function HealthUI(root, H) {
         ws.onopen = function(){ ws.send(JSON.stringify({ setup: { model: mdl,
           generationConfig: { responseModalities: ['AUDIO'], temperature: 1, speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: pick(female ? VOICES_F : VOICES_M) } } } },
           systemInstruction: { parts: [{ text: sys }] }, inputAudioTranscription: {}, outputAudioTranscription: {},
-          realtimeInputConfig: { automaticActivityDetection: { endOfSpeechSensitivity: 'END_SENSITIVITY_LOW', startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', prefixPaddingMs: 300, silenceDurationMs: 1000 } } } })); };
+          realtimeInputConfig: { automaticActivityDetection: { endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH', startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 200, silenceDurationMs: 650 } } } })); };
         ws.onerror = function(){ rej(new Error('연결 실패')); };
         ws.onclose = function(ev){ rej(new Error('연결이 끊겼어요 (' + ev.code + ')')); };
         ws.onmessage = async function(ev){ var m; try { m = JSON.parse(typeof ev.data === 'string' ? ev.data : await ev.data.text()); } catch(e){ return; } if (m.setupComplete) res(); };
@@ -12086,8 +12086,16 @@ function HealthUI(root, H) {
   var JV_URL = 'https://nhc-jarvis.nhc-3c490f.workers.dev'; // 세리아 중계소 — 실시간 통화 1회용 열쇠만 받음 (진짜 Gemini 열쇠는 앱에 없음)
   var LIVE = { pend: null, ws: null, ctxIn: null, ctxOut: null, src: null, proc: null, stream: null, next: 0, playing: [], userBuf: '', aiBuf: '', t0: 0 };
   function b64FromI16(i16){ var u8 = new Uint8Array(i16.buffer), s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+  // 2026-11-09 대표님 "액션콜이 AI 티가 난다" → 휴대폰 통화 음질(300~3400Hz)로 걸러 너무 깨끗한 AI 음색을 줄임
+  var PHF = { hp: 0, hpx: 0, lp: 0 };
+  function phoneTone(f){ var a1 = Math.exp(-2 * Math.PI * 300 / 24000), a2 = Math.exp(-2 * Math.PI * 3400 / 24000);
+    for (var i = 0; i < f.length; i++) { var x = f[i]; PHF.hp = a1 * (PHF.hp + x - PHF.hpx); PHF.hpx = x; PHF.lp = (1 - a2) * PHF.hp + a2 * PHF.lp; var y = PHF.lp * 1.35; f[i] = y / (1 + Math.abs(y) * 0.35); } return f; }
+  function f2b64(f){ var s = ''; for (var i = 0; i < f.length; i++) { var v = Math.max(-1, Math.min(1, f[i])) * 32767 | 0; if (v < 0) v += 65536; s += String.fromCharCode(v & 255, v >> 8); } return btoa(s); }
   function livePlay(b64){
     if (LIVE.pend) { LIVE.pend.push(b64); return; } // 수화기 준비 중
+    var bin0 = atob(b64), n0 = bin0.length >> 1, f0 = new Float32Array(n0);
+    for (var k = 0; k < n0; k++) { var v0 = bin0.charCodeAt(2 * k) | (bin0.charCodeAt(2 * k + 1) << 8); if (v0 >= 32768) v0 -= 65536; f0[k] = v0 / 32768; }
+    phoneTone(f0); b64 = f2b64(f0);
     if (LIVE.nat && !CALL.spk) { natCall('pcmWrite', { b64: b64 }).catch(function(){ LIVE.nat = false; }); return; } // 수화기로 (스피커를 켜면 아래 웹 소리로 — 울림 방지)
     var c = LIVE.ctxOut; if (!c) return;
     var bin = atob(b64), n = bin.length >> 1, f = new Float32Array(n);
@@ -15811,6 +15819,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="0197f68696f1";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="650d4fdec9b8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
