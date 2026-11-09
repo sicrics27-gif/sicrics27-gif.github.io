@@ -1,4 +1,4 @@
-const V="mhs-1f078e08f748";const ASSETS=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","lib/pdf.min.js","lib/pdf.worker.min.js","lib/jszip.min.js","lib/xlsx.full.min.js","lib/PretendardVariable.woff2","lib/qrcode.js","lib/bg-afg.jpg","lib/bg-afg-tall.jpg","lib/bg-afg-hero.jpg","lib/bg-concrete-side.jpg","lib/bg-main.jpg","lib/afg-mark.jpg","lib/leaflet.js","lib/leaflet.css"];
+const V="mhs-64dc946ceb70";const ASSETS=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","lib/pdf.min.js","lib/pdf.worker.min.js","lib/jszip.min.js","lib/xlsx.full.min.js","lib/PretendardVariable.woff2","lib/qrcode.js","lib/bg-afg.jpg","lib/bg-afg-tall.jpg","lib/bg-afg-hero.jpg","lib/bg-concrete-side.jpg","lib/bg-main.jpg","lib/afg-mark.jpg","lib/leaflet.js","lib/leaflet.css"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener("fetch",e=>{const u=new URL(e.request.url);
