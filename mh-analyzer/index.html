@@ -4787,7 +4787,8 @@ function HealthUI(root, H) {
     { id: 'dxBurn', label: '화상 진단비', grp: '상해', r: /화상.*진단/, x: /중대한/, ev: function (v) { return firstCode(v, BURN); }, note: '심재성 2도 이상' },
     { id: 'cast', label: '깁스 치료비', grp: '상해', r: /깁스/, ev: function (v) { return firstCode(v, FRAC); }, note: '깁스(석고붕대) 했는지 확인 · 부목 제외 상품 있음' },
     { id: 'surgInj', label: '상해 수술비', grp: '수술', r: /상해.*수술|수술급여금\s*상해/, x: /흉터|성형|중대한|외모|골절|인공관절|각막/, ev: function (v) { return v.surg.length && INJV(v) && v.codes.find(function (c) { return INJ.test(cd(c.code)); }); }, note: '수술 정의(절단·적출 등) 약관 확인' },
-    { id: 'surgDis', label: '질병 수술비', grp: '수술', r: /질병.*수술|수술급여금\s*질병|종수술|대질병수술|수술특약|기타수술/, x: /암|특정질병|7대|인공관절|각막/, ev: function (v) { return v.surg.length && DIS(v) && v.codes[0]; }, note: '수술 분류(1~5종·N대질병) 약관 확인' },
+    { id: 'surg2', label: '뇌·심장 수술비(2대)', grp: '수술', r: /(뇌혈관|뇌졸중|뇌출혈|뇌경색|허혈|심근경색|심장|심뇌|2대질[병환]).*수술/, ev: function (v) { return v.surg.length && (firstCode(v, CEREBRO) || firstCode(v, HEMO) || firstCode(v, ISCH) || firstCode(v, AMI)); }, note: '뇌혈관·허혈성심장질환으로 수술했을 때 · 수술확인서' },
+    { id: 'surgDis', label: '질병 수술비', grp: '수술', r: /질병.*수술|수술급여금\s*질병|종수술|대질병수술|수술특약|기타수술/, x: /뇌혈관|뇌졸중|뇌출혈|허혈|심근|심장질환|2대질|암|특정질병|7대|인공관절|각막/, ev: function (v) { return v.surg.length && DIS(v) && v.codes[0]; }, note: '수술 분류(1~5종·N대질병) 약관 확인' },
     { id: 'inpDis', label: '질병 입원일당', grp: '입원', r: /질병.*입원일당|입원특약\s*질병|특정질병입원|종신입원특약\s*질병/, x: /간병|중환자|요양병원|상급|종합병원/, ev: function (v) { return v.inp && DIS(v) && v.codes[0]; }, perDay: true, note: '입원 일수 × 일당 · 면책일수 약관 확인' },
     { id: 'inpInj', label: '상해 입원일당', grp: '입원', r: /상해.*입원일당|입원특약\s*상해/, x: /간병|중환자|교통/, ev: function (v) { return v.inp && INJV(v) && v.codes.find(function (c) { return INJ.test(cd(c.code)); }); }, perDay: true, note: '입원 일수 × 일당' },
     { id: 'inpCare', label: '간병인 지원 입원일당', grp: '입원', r: /간병인.*입원일당/, ev: function (v) { return v.inp && v.codes[0]; }, perDay: true, note: '간병인 사용 시에만 · 질병/상해 구분 확인' }
@@ -11057,14 +11058,26 @@ function HealthUI(root, H) {
 
   // ================= MD 백과 (AFG MD's Spec → 담보별 '어디가 한도 높고 어디가 싼지') =================
   // NHC outbox/afg/md-spec.json(nhc/mdspec.py가 매달 만듦)을 읽어 보여 주기만 함. 사내 교육용 — 고객 배포·외부 게시 금지.
-  var MDB_TOC = [['암진단비', '암진단비'], ['유사암', '유사암'], ['뇌혈관', '뇌혈관진단비'], ['허혈성심장', '허혈성심장진단비'], ['암치료비', '암치료비'], ['순환계 치료비', '순환계 치료비'], ['수술비', '수술비'], ['실손', '실손의료비'],
+  var MDB_TOC = [['암진단비', '암진단비'], ['유사암', '유사암'], ['뇌혈관', '뇌혈관진단비'], ['허혈성심장', '허혈성심장진단비'], ['암치료비', '암치료비'], ['순환계 치료비', '순환계 치료비'], ['질병수술', '질병수술비'], ['뇌·심장 수술(2대)', '2대수술비'], ['실손', '실손의료비'],
     ['운전자', '운전자'], ['치아', '치아'], ['치매간병', '치매·간병보험'], ['간편심사', '간편심사'], ['종신', '종신보험'], ['단기납종신', '단기납종신'], ['경영인정기', '경영인정기'], ['연금', '연금·저축']];
   // 설계 요청 담보 이름 → 백과 항목 (순서 중요: 좁은 것부터)
-  var MDB_SYN = [['유사암', /유사암|소액암|갑상선/], ['순환계 치료비', /순환계|순통치/], ['암치료비', /암\s*치료|항암|표적|암\s*통원|암통치|암\s*주요/], ['암진단비', /암/], ['뇌혈관진단비', /뇌/], ['허혈성심장진단비', /허혈|심근|심장/],
-    ['상해·질병 통원치료', /통원|상통치|비통치/], ['수술비', /수술/], ['실손의료비', /실손/], ['운전자', /운전자|벌금|변호사|교통사고/], ['치아', /치아|임플란트|보철/], ['치매·간병보험', /치매|간병|장기요양/],
+  var MDB_SYN = [['유사암', /유사암|소액암|갑상선/], ['순환계 치료비', /순환계|순통치/], ['암치료비', /암\s*치료|항암|표적|암\s*통원|암통치|암\s*주요/], ['2대수술비', /(뇌|허혈|심근|심장|심뇌|2대).*수술/], ['암진단비', /암/], ['뇌혈관진단비', /뇌/], ['허혈성심장진단비', /허혈|심근|심장/],
+    ['상해·질병 통원치료', /통원|상통치|비통치/], ['질병수술비', /수술/], ['실손의료비', /실손/], ['운전자', /운전자|벌금|변호사|교통사고/], ['치아', /치아|임플란트|보철/], ['치매·간병보험', /치매|간병|장기요양/],
     ['단기납종신', /단기납/], ['종신보험', /종신/], ['경영인정기', /경영인|정기/], ['연금·저축', /연금|저축/], ['간편심사', /간편|유병/]];
   var MDB = { cov: '', q: '' };
-  function dsSpec(){ var s = DSX.ref && DSX.ref.spec; return s && s.encyclopedia ? s : null; }
+  function dsSpec(){ var s = DSX.ref && DSX.ref.spec; return s && s.encyclopedia ? mdbSplit(s) : null; }
+  // 2026-11-10: '수술비'를 질병수술(1~5종·N대 질병수술) / 뇌·심장 수술(2대수술)로 나눠 보여 줌 (자료 원본은 그대로)
+  var MDB_2D = /뇌|허혈|허\b|심근|심장|심뇌|2대|혈관/;
+  function mdbSplit(s){
+    if (s._split) return s;
+    var E = (s.encyclopedia || []).find(function(e){ return e.coverage === '수술비'; });
+    if (E) {
+      var is2 = function(x){ return MDB_2D.test([x.why, x.criterion, x.product, (x.points || []).join(' ')].join(' ')); };
+      var part = function(name, want){ var o = {}; Object.keys(E).forEach(function(k){ o[k] = Array.isArray(E[k]) && k !== 'notes' ? E[k].filter(function(x){ return typeof x !== 'object' || is2(x) === want; }) : E[k]; }); o.coverage = name; return o; };
+      s.encyclopedia = s.encyclopedia.filter(function(e){ return e !== E; }).concat([part('질병수술비', false), part('2대수술비', true)]);
+    }
+    s._split = 1; return s;
+  }
   function mdbCovOf(label){ var m = MDB_SYN.find(function(x){ return x[1].test(label); }); return m ? m[0] : ''; }
   function mdbEntry(spec, name){ return (spec.encyclopedia || []).find(function(e){ return e.coverage === name; }); }
   function mdbMonth(spec){ var m = String(spec.month || ''); return m ? m.slice(0, 4) + '년 ' + (+m.slice(5, 7)) + '월' : '기준월 모름'; }
@@ -16222,6 +16235,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="b4128eac91cb";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="b38302737a29";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
