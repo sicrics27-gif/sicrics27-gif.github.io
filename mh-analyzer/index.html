@@ -2858,6 +2858,17 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .rxb.now{background:rgba(229,72,77,.12);color:#e5484d;border-color:rgba(229,72,77,.35);font-weight:700}
 .rxb.rc{color:#c99a1a;border-color:rgba(201,154,26,.4)}
 .hbar .hsort{white-space:nowrap;flex-shrink:0}
+/* 2026-11-10 고객 줄: 성별·나이 안 잘리게, 주요 병력은 이름 줄 아래 따로, 휴대폰에선 ⋯ 없앰(밀기·길게 누르기로) */
+.citem .r1 small{flex:none!important;overflow:visible!important;text-overflow:clip!important}
+.citem .r1 .pk{padding:5px 7px}
+.citem .rkdx{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px}
+.citem .rkdx .kdxs{margin:0}
+@media (hover:none){.citem .r1 .qmore{display:none!important}}
+.cswt .swb{width:84px}
+/* 2026-11-10 보장분석 한꺼번에 결과 */
+.cbres .cbs{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px;font-size:13px;line-height:1.6}
+.cbres .cbs b{display:block;margin-bottom:2px}.cbres .cbs.ok{border-color:rgba(46,180,110,.45)}.cbres .cbs.miss{border-color:rgba(232,150,30,.5)}
+.cbres .cbm{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}.cbres .cbm select{flex:1;min-width:150px}
 
 </style>
 </head>
@@ -6763,7 +6774,19 @@ function HealthUI(root, H) {
     try {
       var c = await otpAdminCtx(); if (!c) return;
       var j = await (await fetch(c.u + '?a=otpreq&k=' + encodeURIComponent(c.key) + '&t=' + Date.now())).json(); if (!j.ok) return;
-      OTPR.rows = j.rows || []; otpBar();
+      OTPR.rows = j.rows || [];
+      // 2026-11-10: 이미 발급된 계정(access.json에 사용 중)은 알아서 '처리됨'으로 → 위쪽 알림이 계속 뜨지 않게. 내 기기에 OTP가 남아 있으면 그 OTP를 요청한 동료 화면에 넣어 줌
+      if (OTPR.rows.length) { try {
+        var L = await Access.fetchList(), on = {}; Object.keys(L.users || {}).forEach(function(h){ var x = L.users[h]; if (x && x.s === 1 && x.e) on[x.e] = 1; });
+        var keep = [];
+        for (var i = 0; i < OTPR.rows.length; i++) { var r = OTPR.rows[i], eh = await Access.mailHash(r.m);
+          if (!on[eh]) { keep.push(r); continue; }
+          var mine = (c.adm.users || []).filter(function(u){ return u.email === String(r.m).toLowerCase(); }).pop();
+          try { await teamPost(c.u, { a: 'otp_done', k: c.key, rid: r.rid, code: mine ? mine.code : '' }); } catch(e){ keep.push(r); }
+        }
+        OTPR.rows = keep;
+      } catch(e){} }
+      otpBar();
       var fresh = OTPR.rows.filter(function(r){ return !OTPR.seen[r.rid]; });
       fresh.forEach(function(r){ OTPR.seen[r.rid] = 1; });
       if (fresh.length) { toast('🔔 OTP 요청 ' + fresh.length + '건 · ' + fresh.map(function(r){ return r.n; }).join(', '));
@@ -6773,11 +6796,12 @@ function HealthUI(root, H) {
   function otpBar(){
     var b = $('otpBar'), n = OTPR.rows.length; $('shell').classList.toggle('has-otp', !!n);
     var g = $('gearBtn'); if (g) g.classList.toggle('dot', !!n);
-    if (!n) { if (b) b.remove(); return; }
+    var sig = OTPR.rows.map(function(r){ return r.rid; }).join(','); var hid = ''; try { hid = sessionStorage.getItem('mhs_otphide') || ''; } catch(e){}
+    if (!n || hid === sig) { if (b) b.remove(); return; } // × 누른 요청은 새 요청이 올 때까지 다시 안 띄움 (톱니 빨간 점은 남음)
     if (!b) { b = document.createElement('div'); b.id = 'otpBar'; b.className = 'otpbar'; document.body.appendChild(b); }
     b.innerHTML = '<span>🔔 <b>OTP 요청 ' + n + '건</b> · ' + OTPR.rows.slice(0, 3).map(function(r){ return esc(r.n); }).join(', ') + '</span><button type="button" class="go" id="otpGo">바로 발급</button><button type="button" class="x" id="otpLater" aria-label="나중에">×</button>';
     $('otpGo').onclick = function(){ try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch(e){} openAdmin(); };
-    $('otpLater').onclick = function(){ b.remove(); };
+    $('otpLater').onclick = function(){ try { sessionStorage.setItem('mhs_otphide', sig); } catch(e){} b.remove(); };
   }
   setInterval(function(){ try { if (Store.isOpen() && document.visibilityState === 'visible') otpPoll(); } catch(e){} }, 120000);
   document.addEventListener('visibilitychange', function(){ try { if (document.visibilityState === 'visible' && Store.isOpen()) setTimeout(otpPoll, 2000); } catch(e){} });
@@ -7590,7 +7614,7 @@ function HealthUI(root, H) {
     openDlg('<h4>📄 ' + esc(c.name) + ' · 안 받은 병력 서류 ' + mi.length + '개</h4><p class="note">병력 분석에 쓰는 서류 중 아직 첨부하지 않은 것입니다. 받으면 고지 판정이 더 정확해집니다.</p><ul class="kkg">' + mi.map(function(x){ return '<li><b>' + esc(x[1]) + '</b> — ' + esc(x[2]) + '</li>'; }).join('') + '</ul><p class="note">받을 필요 없는 서류는 고객 화면 → 상품별 판정의 <b>걸린 진료 보기</b> → 아래 \'자료 점검\' 표에서 <b>따로 받음</b>이나 <b>해당 없음</b>을 누르면 이 표시가 사라집니다.</p><div class="mrow"><button class="btn lg" type="button" id="hxmX" style="margin-right:auto">닫기</button><button class="go" type="button" id="hxmGo">고객 화면 열기</button></div>');
     $('hxmX').onclick = closeDlg; $('hxmGo').onclick = function(){ closeDlg(); openCustomer(c.id); };
   }, true);
-  function docTags(c){ var D = docOf(c), mi = hxMiss(c); return kdxChips(c) + '<span class="dtg">' + (mi && mi.length ? '<i class="mid" data-hxmid="' + esc(c.id) + '" title="안 받은 병력 서류: ' + esc(mi.map(function(x){ return x[1]; }).join(', ')) + '">서류 ' + mi.length + '개 빠짐</i>' : '') + '<i class="' + (D.hx ? 'ok' : 'no') + '" title="병력(병원 자료) ' + (D.hx ? '분석 완료' : '아직 없음') + '">병력' + (D.hx ? '✓' : '✕') + '</i><i class="' + (D.cv ? 'ok' : 'no') + '" title="보장분석(메리츠·KB) ' + (D.cv ? '있음' : '아직 없음') + '">보장' + (D.cv ? '✓' : '✕') + '</i></span>'; }
+  function docTags(c){ var D = docOf(c), mi = hxMiss(c); return '<span class="dtg">' + (mi && mi.length ? '<i class="mid" data-hxmid="' + esc(c.id) + '" title="안 받은 병력 서류: ' + esc(mi.map(function(x){ return x[1]; }).join(', ')) + '">서류 ' + mi.length + '개 빠짐</i>' : '') + '<i class="' + (D.hx ? 'ok' : 'no') + '" title="병력(병원 자료) ' + (D.hx ? '분석 완료' : '아직 없음') + '">병력' + (D.hx ? '✓' : '✕') + '</i><i class="' + (D.cv ? 'ok' : 'no') + '" title="보장분석(메리츠·KB) ' + (D.cv ? '있음' : '아직 없음') + '">보장' + (D.cv ? '✓' : '✕') + '</i></span>'; }
   function moreMenu(c){
     var ph = normPhone(c.phone);
     return '<div class="qtitle"><b>' + esc(c.name) + '</b><small>' + stageTxt(c.stage) + (chOf(c) ? ' · ' + chTxt(chOf(c)) : '') + '</small></div>' +
@@ -10069,7 +10093,7 @@ function HealthUI(root, H) {
         var r2 = c.status === 'done' ? '<span class="r2 ' + (c.sumOk ? 'ok' : '') + '">' + esc(c.summary || '') + '</span>' : '';
         var lo = lastOf(c), ph2 = normPhone(c.phone), r5 = (c.consLast && c.consLast.t ? '<span class="cs1">📝 ' + esc(String(c.consLast.t).slice(0, 46)) + ' <small>' + ago(c.consLast.d) + '</small></span>' : '') + '<span class="r5">' + (ph2 ? '<span class="ph">' + phoneTxt(ph2) + '</span>' : '<span class="ph none">번호 없음</span>') + (lo.any ? '<span class="lc' + (dayDiff(lo.any, todayStr()) > 60 ? ' old' : '') + '">' + ago(lo.any) + ' 연락</span>' : '<span class="lc old">연락 기록 없음</span>') + '</span>';
         var DOC = docOf(c);
-        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + docTags(c) + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
+        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + docTags(c) + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + (c.kdx && c.kdx.length ? '<span class="rkdx">' + kdxChips(c, 4) + '</span>' : '') + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
       }).join('');
     });
     var nShow = 0; Object.keys(groups).forEach(function(g){ nShow += groups[g].length; });
@@ -10084,7 +10108,7 @@ function HealthUI(root, H) {
   function openAddMenu(anchor){
     qpop(anchor, '<div class="qh">고객 추가</div>' + qItem('add:form', '✍️ 직접 입력', false, '이름·생년월일·번호') + qItem('add:paste', '📋 붙여넣기', false, '메모·SMemo·카톡 글 → 자동 등록') + (ocrOn() ? qItem('add:cam', '📷 사진', false, '명함·메모 사진 글자 읽기') : '') +
       (pickContactsOk() ? qItem('add:pick', '📇 연락처에서 고르기', false, '휴대폰 연락처 · 고른 사람만') : '') + qItem('add:vcf', '📇 연락처 파일', false, '.vcf · 메모 .txt · SMemo .zip') +
-      '<div class="qh">한꺼번에 가져오기</div>' + qItem('add:db', '🗂️ 회사 DB', false, 'AFG DB 사이트') + qItem('add:xlsx', '📊 엑셀', false, '고객표 .xlsx') + qItem('add:emm', '🧠 알마인드', false, '.emm 마인드맵') + qItem('add:reg', '🏢 보험사 고객등록', false, '보험사별 등록 현황'), function(v){
+      '<div class="qh">한꺼번에 가져오기</div>' + qItem('add:db', '🗂️ 회사 DB', false, 'AFG DB 사이트') + qItem('add:xlsx', '📊 엑셀', false, '고객표 .xlsx') + qItem('add:emm', '🧠 알마인드', false, '.emm 마인드맵') + qItem('add:cov', '🛡️ 보장분석', false, '메리츠·KB PDF 여러 명 한 번에') + qItem('add:reg', '🏢 보험사 고객등록', false, '보험사별 등록 현황'), function(v){
       qclose();
       if (v === 'add:form') openCustForm(null);
       else if (v === 'add:paste') pasteFromClip();
@@ -10094,6 +10118,7 @@ function HealthUI(root, H) {
       else if (v === 'add:db') openDbImport();
       else if (v === 'add:xlsx') openXlsxImport();
       else if (v === 'add:emm') openEmmImport();
+      else if (v === 'add:cov') openCovBatch();
       else if (v === 'add:reg') showReg();
     });
   }
@@ -10111,7 +10136,7 @@ function HealthUI(root, H) {
     openPaste(t && (parsePeople(t).length || parseLoose(t).length) ? cleanKakao(t) : '');
   }
 
-  // ↔ 고객 줄 옆으로 밀기 (휴대폰, 2026-11-04) → 📞 전화 · 💬 문자 · 📅 일정 · 📝 메모. 위아래 스크롤·누르면 열기는 그대로, ⋯·길게 누르기도 그대로
+  // ↔ 고객 줄 옆으로 밀기 (휴대폰, 2026-11-04 · 11-10 나눔) → 오른쪽: 📞 전화 · 💬 문자 / 왼쪽: 📅 일정 · 📝 메모. 위아래 스크롤·누르면 열기는 그대로, ⋯·길게 누르기도 그대로
   var SW = { el: null, tray: null, off: 0, at: 0 };
   function swW(){ var w = 0; if (SW.tray) [].forEach.call(SW.tray.children, function(b){ w += b.offsetWidth; }); return w; }
   function swClose(){ if (SW.el) { SW.el.style.transform = ''; SW.el.classList.remove('swo'); } if (SW.tray) SW.tray.remove(); SW.el = SW.tray = null; SW.off = 0; }
@@ -10119,7 +10144,9 @@ function HealthUI(root, H) {
     var c = S.list.find(function(x){ return x.id === it.dataset.cid; }); if (!c || c.sample) return null;
     var ph = normPhone(c.phone), t = document.createElement('div');
     t.className = 'cswt ' + (dir < 0 ? 'R' : 'L'); t.dataset.swcid = c.id; t.setAttribute('role', 'group'); t.setAttribute('aria-label', c.name + '님 빠른 동작');
-    t.innerHTML = (ph && IS_MOBILE ? '<a class="swb s-call" href="tel:' + ph + '" data-swa="call">📞<small>전화</small></a>' : '') + '<button type="button" class="swb s-sms" data-swa="sms"' + (ph ? '' : ' disabled') + '>💬<small>문자</small></button><button type="button" class="swb s-todo" data-swa="todo">📅<small>일정</small></button><button type="button" class="swb s-memo" data-swa="memo">📝<small>메모</small></button>';
+    // 2026-11-10: 오른쪽으로 밀기(→) = 연락 📞 전화 · 💬 문자 / 왼쪽으로 밀기(←) = 기록 📅 일정 · 📝 메모 (겹치지 않게 둘씩)
+    t.innerHTML = dir > 0 ? ((ph && IS_MOBILE ? '<a class="swb s-call" href="tel:' + ph + '" data-swa="call">📞<small>전화</small></a>' : '') + '<button type="button" class="swb s-sms" data-swa="sms"' + (ph ? '' : ' disabled') + '>💬<small>' + (ph ? '문자' : '번호 없음') + '</small></button>')
+      : '<button type="button" class="swb s-todo" data-swa="todo">📅<small>일정</small></button><button type="button" class="swb s-memo" data-swa="memo">📝<small>메모</small></button>';
     t.style.top = it.offsetTop + 'px'; t.style.height = it.offsetHeight + 'px';
     it.parentNode.insertBefore(t, it); return t;
   }
@@ -15814,6 +15841,8 @@ function HealthUI(root, H) {
     if (ics.length) { window.__sharedFiles = fs.filter(function(f){ return ics.indexOf(f) < 0; }); Promise.all(ics.map(function(f){ return f.text(); })).then(async function(a){ var ev = [].concat.apply([], a.map(icsParse)); closeDlg(); await planLoad(); openCalImport('', ev); }); return; }
     if (txt.length) { window.__sharedFiles = fs.filter(function(f){ return txt.indexOf(f) < 0; }); Promise.all(txt.map(function(f){ return f.text(); })).then(async function(a){ var j = a.join('\n\n'); closeDlg(); if (/BEGIN:VCARD/i.test(j)) { var vl = vcfParse(j); if (vl.length) { openPaste('', null, null, vl); return; } } if (/BEGIN:VEVENT/.test(j)) { await planLoad(); openCalImport('', icsParse(j)); return; } if (j.length < 600 && ciRaw(j.replace(/\n/g, ' '))) { await planLoad(); openCalImport(j); return; } openPaste(cleanKakao(j)); }); return; }
     // 보험사 고객등록 서류(동의서 등) PDF → 팩스로 보내기 창 (2026-11-09)
+    var cvs = fs.filter(function(f){ return covIsName(f.name); });
+    if (cvs.length >= 2 && !$('fdrop')) { window.__sharedFiles = fs.filter(function(f){ return cvs.indexOf(f) < 0; }); toast('보장분석 ' + cvs.length + '개 · 고객별로 나눠 넣는 중…', 4000); covBatch(cvs); return; }
     var fax = fs.filter(function(f){ return /고객\s*등록|등록\s*신청|동의서|팩스|fax/i.test(f.name || ''); });
     if (fax.length) { window.__sharedFiles = fs.filter(function(f){ return fax.indexOf(f) < 0; }); openFaxSend(fax); return; }
     if ($('fdrop')) { window.__sharedFiles = []; takeFiles(fs).then(autoGo); toast('공유받은 파일 ' + fs.length + '개를 넣었습니다'); return; }
@@ -15978,6 +16007,101 @@ function HealthUI(root, H) {
     if (cv.sex && S.cur.sex && cv.sex !== S.cur.sex) w.push('보장분석 성별이 등록한 성별과 다릅니다.');
     return w.join(' ');
   }
+
+  // ================= 🛡️ 보장분석 한꺼번에 (2026-11-10) =================
+  // 메리츠·KB 보장분석 PDF 여러 개(드라이브에서 여러 개 고르기·zip·공유)를 한 번에 → PDF 속 이름·생년월일로 고객을 찾아 각자 반영.
+  // 같은 날짜(또는 더 오래된) 보장분석은 건너뜀 → 폴더 파일을 통째로 다시 골라도 새로 바뀐 것만 반영됨. 이 기기 안에서만 읽음.
+  var CB = { on: false };
+  function covIsName(n){ return /보장\s*분석|보험\s*가입\s*현황|가입현황|보장현황|KB.*분석|메리츠.*분석/i.test(n || ''); }
+  function covMatch(cv){
+    var nm = String(cv.name || '').replace(/\s/g, ''), re = nm ? new RegExp('^' + nm.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.') + '$') : null;
+    var L0 = S.list.filter(function(x){ return !x.sample && !x.hidden && x.name; });
+    var c1 = L0.filter(function(x){ return re && re.test(x.name.replace(/\s/g, '')) && (!cv.birth || !x.birth || x.birth === cv.birth); });
+    if (c1.length > 1 && cv.birth) c1 = c1.filter(function(x){ return x.birth === cv.birth; });
+    if (c1.length > 1 && cv.sex) c1 = c1.filter(function(x){ return !x.sex || x.sex === cv.sex; });
+    if (c1.length > 1 && cv.age) c1 = c1.filter(function(x){ var a = ageOf(x.birth); return a === '' || Math.abs(a - cv.age) <= 1; });
+    if (!c1.length && cv.birth) c1 = L0.filter(function(x){ return x.birth === cv.birth && (!nm || x.name.replace(/\s/g, '')[0] === nm[0]); });
+    return c1;
+  }
+  async function covRead(f){
+    var R = null; try { R = await Ingest.ingest(L, [f], '', null); } catch(e){}
+    if (R && R.coverage) return R.coverage;
+    if (!R || !R.needPw) return null;
+    var custs = S.list.filter(function(c){ return !c.sample && !c.hidden && c.birth; });
+    for (var q = 0; q < custs.length; q++) { var pws = Ingest.pwList(custs[q].birth);
+      for (var w = 0; w < pws.length; w++) { try { await L.pdfjsLib.getDocument({ data: f.data.slice(0), password: pws[w], isEvalSupported: false }).promise; } catch(e){ continue; }
+        try { R = await Ingest.ingest(L, [f], custs[q].birth, null); } catch(e){ R = null; } if (R && R.coverage) { R.coverage._cid = custs[q].id; return R.coverage; } return null; } }
+    return null;
+  }
+  async function covBatch(list){
+    var files = [];
+    for (var i = 0; i < list.length; i++) { var f = list[i], u; try { u = f.data || new Uint8Array(await f.arrayBuffer()); } catch(e){ continue; }
+      var k = Ingest.sniff(u);
+      if (k === 'zip') { try { var z = await JSZip.loadAsync(u, { decodeFileName: decodeName }); var ns = Object.keys(z.files).filter(function(n){ return !z.files[n].dir && !/__MACOSX|\/\._/.test(n); }); for (var j = 0; j < ns.length; j++) { var iu = await z.files[ns[j]].async('uint8array'); if (Ingest.sniff(iu) === 'pdf') files.push({ name: ns[j].split('/').pop(), data: iu }); } } catch(e){} }
+      else if (k === 'pdf') files.push({ name: f.name, data: u });
+    }
+    if (!files.length) { toast('PDF가 없습니다'); return; }
+    var by = {}, miss = [], skip = [], bad = [];
+    for (var n = 0; n < files.length; n++) {
+      toast('보장분석 읽는 중… ' + (n + 1) + ' / ' + files.length, 3000);
+      var cv = await covRead(files[n]); if (!cv) { bad.push(files[n].name); continue; }
+      var cid = cv._cid || ''; if (!cid) { var m = covMatch(cv); if (m.length === 1) cid = m[0].id; }
+      if (!cid) { miss.push({ cv: cv, f: files[n] }); continue; }
+      (by[cid] = by[cid] || { cv: [], f: [] }).cv.push(cv); by[cid].f.push(files[n]);
+    }
+    var done = [], ids = Object.keys(by); CB.on = true;
+    try {
+      for (var x = 0; x < ids.length; x++) {
+        var id = ids[x], g = by[id], cv2 = g.cv.length > 1 ? L.Coverage.merge(g.cv) : g.cv[0];
+        if (!cv2.kinds) cv2.kinds = g.cv.map(function(c){ return c.kind; });
+        var old = null; try { old = await Store.loadData(id); } catch(e){}
+        var oc = old && old.coverage, c0 = S.list.find(function(c){ return c.id === id; }) || {};
+        var na = cv2.asOf || g.cv.map(function(c){ return c.asOf || ''; }).sort().pop() || '';
+        if (oc && oc.asOf && na && na <= oc.asOf && (oc.contracts || []).length === cv2.contracts.length) { skip.push(c0.name + ' (' + dot(oc.asOf) + ' 그대로)'); continue; }
+        if (oc && oc.asOf && na && na < oc.asOf) { skip.push(c0.name + ' (더 최신 ' + dot(oc.asOf) + ' 있음)'); continue; }
+        await covApply(id, cv2, g.f);
+        done.push(c0.name + ' · ' + cv2.kinds.map(function(k){ return k === 'kb' ? 'KB' : '메리츠'; }).join('+') + ' · 계약 ' + cv2.contracts.length + '건' + (na ? ' · ' + dot(na) : ''));
+      }
+    } finally { CB.on = false; }
+    covBatchReport(done, skip, miss, bad);
+  }
+  async function covApply(id, cv, fs){
+    await openCustomer(id); FILES = (fs || []).slice();
+    await finishCoverage(cv); FILES = [];
+    (cv.kinds || []).forEach(function(k){ (S.cur.covReq = S.cur.covReq || {})[k] = { st: 'done', at: todayStr() }; });
+    if (S.cur.next && /보장분석/.test(S.cur.next.t || '')) S.cur.next = null;
+    (S.cur.notes = S.cur.notes || []).push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5), at: Date.now(), d: todayStr(), k: 'note', t: '보장분석 한꺼번에 넣기로 반영 · 계약 ' + cv.contracts.length + '건' });
+    S.cur = await Store.saveHead(S.cur);
+  }
+  function covBatchReport(done, skip, miss, bad){
+    S.list && Store.list().then(function(l){ S.list = l; renderList(); });
+    var opts = S.list.filter(function(c){ return !c.sample && !c.hidden; }).sort(function(a, b){ return a.name < b.name ? -1 : 1; }).map(function(c){ return '<option value="' + c.id + '">' + esc(c.name) + (c.birth ? ' (' + birthTxt(c.birth) + ')' : '') + '</option>'; }).join('');
+    openDlg('<h4>🛡️ 보장분석 한꺼번에 넣기 결과</h4><div class="form cbres">' +
+      (done.length ? '<div class="cbs ok"><b>✅ 반영 ' + done.length + '명</b>' + done.map(function(t){ return '<div>' + esc(t) + '</div>'; }).join('') + '</div>' : '') +
+      (miss.length ? '<div class="cbs miss"><b>❓ 누구인지 못 찾음 ' + miss.length + '건</b> <small>고객을 골라 주세요</small>' + miss.map(function(m, i){ var cv = m.cv; return '<div class="cbm"><span>' + esc(cv.name || '이름 없음') + (cv.birth ? ' · ' + birthTxt(cv.birth) : cv.age ? ' · ' + cv.age + '세' : '') + ' · 계약 ' + cv.contracts.length + '건</span><select data-cbm="' + i + '"><option value="">고객 고르기</option>' + (cv.name && !/\*/.test(cv.name) ? '<option value="new">＋ ' + esc(cv.name) + '님 새로 등록</option>' : '') + opts + '</select></div>'; }).join('') + '</div>' : '') +
+      (skip.length ? '<div class="cbs skip"><b>⏭ 이미 최신이라 건너뜀 ' + skip.length + '명</b><div>' + esc(skip.join(', ')) + '</div></div>' : '') +
+      (bad.length ? '<div class="cbs bad"><b>⚠️ 보장분석이 아닌 파일 ' + bad.length + '개</b><div>' + esc(bad.join(', ')) + '</div><small>병원 자료는 고객 화면 [병력파악]으로 넣어 주세요.</small></div>' : '') +
+      (!done.length && !miss.length && !skip.length ? '<p class="note">읽을 수 있는 메리츠·KB 보장분석 PDF가 없었습니다.</p>' : '') +
+      '</div><div class="mrow">' + (miss.length ? '<button class="go" type="button" id="cbGo">고른 고객에 넣기</button>' : '') + '<button class="btn lg" type="button" id="cbX">닫기</button></div>');
+    $('cbX').onclick = closeDlg;
+    if ($('cbGo')) $('cbGo').onclick = async function(){
+      var sel = [].slice.call(document.querySelectorAll('[data-cbm]')).map(function(s){ return { m: miss[+s.dataset.cbm], v: s.value }; }).filter(function(x){ return x.v; });
+      if (!sel.length) { toast('고객을 먼저 골라 주세요'); return; }
+      closeDlg(); var ok = []; CB.on = true;
+      try { for (var i = 0; i < sel.length; i++) { var it = sel[i], id = it.v;
+        if (id === 'new') { var cv = it.m.cv, c = await Store.saveHead({ status: 'wait', name: cv.name, sex: cv.sex || '', birth: cv.birth || '', memo: '', from: 'cov' }); id = c.id; S.list = await Store.list(); }
+        await covApply(id, it.m.cv, [it.m.f]); ok.push(S.cur.name); } } finally { CB.on = false; }
+      S.list = await Store.list(); renderList(); toast('보장분석 반영: ' + ok.join(', '));
+    };
+  }
+  async function openCovBatch(){
+    var inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.accept = 'application/pdf,.pdf,.zip,application/zip';
+    inp.onchange = function(){ var fs = [].slice.call(inp.files || []); if (fs.length) covBatch(fs); };
+    openDlg('<h4>🛡️ 보장분석 한꺼번에 넣기</h4><div class="form"><p class="note" style="margin:0 0 8px">메리츠·KB 보장분석 PDF를 <b>여러 개 한 번에</b> 고르세요(zip도 됩니다). PDF 속 이름·생년월일로 고객을 찾아 각자 넣습니다.</p>' +
+      '<p class="note">휴대폰: 파일 선택 창 → <b>구글 드라이브</b> → 보장분석 폴더 → 파일 하나를 <b>길게 눌러</b> 여러 개 선택(또는 ⋮ → 모두 선택) → 선택.<br>폴더 전체를 다시 골라도 <b>새로 바뀐 고객만</b> 반영되고 나머지는 건너뜁니다.</p></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="cbX0">닫기</button><button class="go" type="button" id="cbPick">📂 파일 고르기</button></div>');
+    $('cbX0').onclick = closeDlg; $('cbPick').onclick = function(){ closeDlg(); inp.click(); };
+  }
   async function finishCoverage(cv, props){
     var gfs = FILES.slice();
     var d = S.data || { input: {}, meta: { kinds: {} }, base: todayStr(), analyzedAt: Date.now(), excluded: [], files: [], covOnly: true };
@@ -15990,7 +16114,7 @@ function HealthUI(root, H) {
     renderList(); renderCustomer();
     if (!S.cur.sample) gdAfter(gfs);
     toast(cv ? '보장분석을 반영했습니다 · 계약 ' + cv.contracts.length + '건' + (S.BN.plan.length ? ' · 실손 ' + S.BN.plan.map(function(p){ return p.gen + '세대'; }).join(',') : '') + (props ? ' · 가입제안서 ' + props.length + '건' : '') : '가입제안서 ' + props.length + '건을 넣었습니다 · 보장분석표(후)에 들어갑니다');
-    if (d.coverage && !S.cur.sample) bsAuto();
+    if (d.coverage && !S.cur.sample && !CB.on) bsAuto();
   }
   function showChoice(html, buttons, foot){
     var box = $('fChoice'); if (!box) return;
@@ -16080,6 +16204,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="4d7fb3a98fa4";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="e8d202b59c9a";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
