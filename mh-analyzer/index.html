@@ -4760,8 +4760,8 @@ function HealthUI(root, H) {
 
   // 특약 분류 규칙: rider 이름 패턴 → 진료 조건
   var RULES = [
-    { id: 'dxCancer', label: '암 진단비', grp: '진단', r: /암.*진단|통합암|일반암/, x: /유사암|소액암|갑상선|기타피부|제자리|경계성|재진단|전이암/, ev: function (v) { return firstCode(v, CANCER); }, once: true, note: '최초 1회 지급 · 이미 받았는지 확인' },
-    { id: 'dxMini', label: '유사암 진단비', grp: '진단', r: /유사암|소액암|갑상선암.*진단|기타피부암|제자리암|경계성종양/, x: /치료|약물|호르몬/, ev: function (v) { return firstCode(v, MINI); }, once: true, note: '최초 1회 · 갑상선·제자리암 등' },
+    { id: 'dxCancer', label: '암 진단비', grp: '진단', r: /암.*진단|통합암|일반암/, x: /유사암(?!\s*제외)|소액암(?!\s*제외)|갑상선(?!\s*제외)|기타피부(?!암?\s*제외)|제자리(?!암?\s*제외)|경계성(?!종양?\s*제외)|재진단|전이암/, ev: function (v) { return firstCode(v, CANCER); }, once: true, note: '최초 1회 지급 · 이미 받았는지 확인' },
+    { id: 'dxMini', label: '유사암 진단비', grp: '진단', r: /유사암|소액암|갑상선암.*진단|기타피부암|제자리암|경계성종양/, x: /치료|약물|호르몬|유사암\s*제외|소액암\s*제외/, ev: function (v) { return firstCode(v, MINI); }, once: true, note: '최초 1회 · 갑상선·제자리암 등' },
     { id: 'dxHemo', label: '뇌출혈 진단비', grp: '진단', r: /뇌출혈/, ev: function (v) { return firstCode(v, HEMO); }, once: true, note: '최초 1회' },
     { id: 'dxStroke', label: '뇌졸중·뇌혈관 진단비', grp: '진단', r: /뇌졸중|뇌경색|뇌혈관/, x: /혈전|치료비/, ev: function (v) { return firstCode(v, /뇌혈관/.test(this._n) ? CEREBRO : STROKE); }, once: true, note: '최초 1회 · 영상검사 확진 필요' },
     { id: 'dxAmi', label: '급성심근경색 진단비', grp: '진단', r: /급성심근경색|특정Ⅱ/, x: /혈전|치료비/, ev: function (v) { return firstCode(v, AMI); }, once: true, note: '최초 1회' },
@@ -4777,8 +4777,10 @@ function HealthUI(root, H) {
     { id: 'inpCare', label: '간병인 지원 입원일당', grp: '입원', r: /간병인.*입원일당/, ev: function (v) { return v.inp && v.codes[0]; }, perDay: true, note: '간병인 사용 시에만 · 질병/상해 구분 확인' }
   ];
   var COND = /5대|특정|\d+대|중대한|기타수술|간병|재해|강력|보복|최초1회|연간1회/;
+  // 2026-11-10: 진단비는 진단비로만 — 이름에 수술·치료·입원·통원·간병이 들어간 특약은 진단비 대조에서 뺌 (예: 뇌혈관질환수술비가 '뇌혈관 진단비'로 잡히던 것)
+  var DX_NOT = /수술|치료비|치료|입원|통원|간병|혈전/;
   function ruleOf(name) {
-    for (var i = 0; i < RULES.length; i++) { var R = RULES[i]; if (R.r.test(name) && !(R.x && R.x.test(name))) return R; }
+    for (var i = 0; i < RULES.length; i++) { var R = RULES[i]; if (R.r.test(name) && !(R.x && R.x.test(name)) && !(/^dx/.test(R.id) && DX_NOT.test(name))) return R; }
     return null;
   }
 
@@ -5974,9 +5976,9 @@ function HealthUI(root, H) {
 
   // ---------- 보장 종류 (캠페인 대상 조건과 같은 이름) ----------
   var CATS = {
-    cancer: { t: '암 진단', fn: function (n) { return /암/.test(n) && /진단/.test(n) && !(/유사암|소액암|제자리암|경계성/.test(n) && !/유사암\s*제외/.test(n)); } },
-    brain: { t: '뇌혈관 진단', re: /(뇌혈관|뇌졸중|뇌출혈|뇌경색).*진단/ },
-    heart: { t: '심장 진단', re: /(허혈성|심근경색|심장질환|심혈관).*진단/ },
+    cancer: { t: '암 진단', fn: function (n) { return /암/.test(n) && /진단/.test(n) && !/수술|치료|입원|통원|간병/.test(n) && !(/유사암|소액암|제자리암|경계성/.test(n) && !/유사암\s*제외/.test(n)); } },
+    brain: { t: '뇌혈관 진단', fn: function (n) { return /(뇌혈관|뇌졸중|뇌출혈|뇌경색).*진단/.test(n) && !/수술|치료|입원|통원|간병|혈전/.test(n); } },
+    heart: { t: '심장 진단', fn: function (n) { return /(허혈성|심근경색|심장질환|심혈관).*진단/.test(n) && !/수술|치료|입원|통원|간병|혈전/.test(n); } },
     surgery: { t: '수술비', re: /수술/ },
     death: { t: '사망', re: /사망/ },
     driver: { t: '운전자', re: /(교통사고\s*처리|변호사선임|벌금)/ },
@@ -14771,7 +14773,7 @@ function HealthUI(root, H) {
     var h = '';
     if (!cv) return ((S.data.proposals || []).length ? propCard() + '<div class="mrow"><button class="btn lg" type="button" data-act="bsx">📊 보장분석표 엑셀</button></div>' : '') + '<div class="welcome" style="margin-top:2vh"><h2>보장분석 PDF를 넣어 보세요</h2><p>메리츠 <b>M보장분석</b> 또는 KB <b>보장분석</b> PDF를 넣으면 고객이 가진 계약·특약을 정리하고, 진료 기록과 대조해 <b>청구할 만한 건</b>과 <b>실손 세대</b>를 자동으로 찾습니다. 병원 자료를 다시 넣을 필요는 없습니다.</p><div><button class="go" type="button" data-act="files" style="padding:0 26px">' + IC.clip + ' 보장분석 PDF 첨부</button>' + (ocrOn() ? ' <button class="btn lg" type="button" data-act="capUpd">📷 보험사 앱 캡처로 넣기</button>' : '') + '</div></div>' + renderPathRevs();
     var cs = cv.contracts, prem = cs.reduce(function(s, c){ return s + (c.premium || 0); }, 0), plan = Benefit.silsonPlan(cv);
-    var cnt = function(re){ return cs.reduce(function(s, c){ return s + c.riders.filter(function(r){ return re.test(r.name); }).reduce(function(a, r){ return a + (r.type === '정액' ? r.amount : 0); }, 0); }, 0); };
+    var cnt = function(re){ return cs.reduce(function(s, c){ return s + c.riders.filter(function(r){ return re.test(r.name) && !/수술|치료|입원|통원|간병|혈전/.test(r.name); }).reduce(function(a, r){ return a + (r.type === '정액' ? r.amount : 0); }, 0); }, 0); };
     var kpi = [['암 진단', cnt(/암.*진단|통합암|일반암/)], ['뇌 진단', cnt(/뇌출혈|뇌졸중|뇌경색|뇌혈관/)], ['심장 진단', cnt(/심근경색|허혈성|심장질환/)], ['질병·상해 사망', cnt(/사망/)]];
     h += '<section class="cvhero"><div><span class="eyebrow">보유 계약 · ' + esc((cv.kinds || []).map(function(k){ return k === 'kb' ? 'KB 보장분석' : k === 'capture' ? '앱 캡처' : '메리츠 M보장분석'; }).join(' + ')) + (cv.asOf ? ' · ' + dot(cv.asOf) + ' 기준' : '') + '</span><b class="kh-num">' + cs.length + '<small>건</small></b><span class="kh-sub">월 보험료 합계 <b>' + won(prem) + '</b> · 실손 ' + (plan.length ? plan.map(function(p){ return '<i class="gen">' + p.gen + '세대</i> ' + esc(p.company); }).join(', ') : '없음') + '</span></div>' +
       '<div class="cvk">' + kpi.map(function(k){ return '<div><small>' + k[0] + '</small><b>' + (k[1] ? man(k[1]) : '—') + '</b></div>'; }).join('') + '</div>' +
@@ -16204,6 +16206,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="e8d202b59c9a";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="26a83125c1fe";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
