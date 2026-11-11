@@ -76,9 +76,14 @@
    "s": 1,
    "e": "a905c11673096ee319a22afb",
    "t": "2026-11-09"
+  },
+  "73a1897faf11594278c7b4b7": {
+   "s": 1,
+   "e": "72be0c5eecfba37eefdc342a",
+   "t": "2026-11-11"
   }
  },
- "updated": "2026-11-09T04:59:56.390Z",
+ "updated": "2026-11-11T11:59:04.429Z",
  "league": "https://script.google.com/macros/s/AKfycbzJmc5aGcRiOHitrg-3bBR-j5byJEVnX7Nk2dbhNdgT50DB04rcOIkwvg9x2Of5NzsAsQ/exec",
  "sched": {
   "2026-11": {
