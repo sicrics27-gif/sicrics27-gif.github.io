@@ -7845,13 +7845,22 @@ function HealthUI(root, H) {
   function planTpl(d){ var w = wdOf(d); if (w === 6) return PLAN_WD[6]; if (w === 0) return [['0855', '출근']];
     var a = PLAN_TPL.slice(); a.splice(1, 1, PLAN_WD[w][0] || PLAN_TPL[1]); if (PLAN_WD[w][1]) a.splice(2, 0, PLAN_WD[w][1]); if (holiOf(d)) a[0] = ['0855', '출근']; return a; }
   // 회사 교육일정표 한 칸 → 시간별로 나눔 (8:10 한 줄로 오던 것을 실제 시간으로)
+  var COPERSON = /(AP|TL|SM|BM|ABM|FC|CA|팀장|지점장|본부장|대표)\s*님?\s*(교육|강의|특강)?$/;
+  // 이미 0920으로 들어간 회사 일정 중 '사람 교육'만 0800으로 한 번 바로잡음 (내가 손글씨로 쓴 것·원수사 교육은 그대로)
+  function coFix0800(){
+    if (!PL.d || PL.d.coFix0800) return []; var ds = [];
+    Object.keys(PL.d.days || {}).forEach(function(d){ (PL.d.days[d].items || []).forEach(function(x){
+      if (x.co && x.t === '0920' && !x.hand && COPERSON.test(String(x.x || '').trim()) && !/(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시/i.test(x.x || '')) { x.t = '0800'; x.at = Date.now(); if (ds.indexOf(d) < 0) ds.push(d); } }); });
+    PL.d.coFix0800 = 1; ds.forEach(function(d){ (PL.d.mt = PL.d.mt || {})[d] = Date.now(); }); return ds;
+  }
   function coSplit(x){
     var parts = String(x.x || '').split(/\s*·\s*/).filter(Boolean), by = {}, order = [];
     parts.forEach(function(p){ var t;
       if (/석회/.test(p)) t = '1900'; else if (/weekly|위클리/i.test(p)) { t = '0930'; p = '위클리'; } else if (/주마감/.test(p)) t = '0900'; else if (/마감식/.test(p)) t = '1900';
       else if (/관리자\s*교차|워킹\s*공유|팀별\s*미팅|팀\s*미팅/.test(p)) t = '0800';
-      else if (/(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시|교육$/i.test(p)) t = '0920';
-      else if (/(AP|TL|SM|BM|ABM)$/.test(p)) t = '0800'; else t = x.t || '';
+      else if (/(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시/i.test(p)) t = '0920';   // 원수사(보험사) 교육만 0920
+      else if (COPERSON.test(p)) t = '0800';   // 2026-11-11 대표님: 'OOO SM님 교육' 같은 사람 교육은 보통 0800
+      else if (/교육$/.test(p)) t = '0920'; else t = x.t || '';
       p = p.replace(/(AP|TL|SM|BM|ABM)(?!님)(?=\s|$)/g, '$1님'); if (/(AP|TL|SM|BM|ABM)님$/.test(p)) p += ' 교육';   // 강사는 'OOO AP님 교육'처럼
       if (!by[t]) { by[t] = []; order.push(t); } by[t].push(p); });
     return order.map(function(t){ return { d: x.d, t: t, x: by[t].join(' · '), big: x.big }; });
@@ -13001,6 +13010,7 @@ function HealthUI(root, H) {
       var sc = Object.assign({}, (l && l.sched) || {}), tm = await teamSchedGet(); Object.keys(tm || {}).forEach(function(ym){ sc['T' + ym] = tm[ym]; }); // 팀원 누구나 올린 회사 일정(팀 서버)도 같이
       if (!Object.keys(sc).length) return 0;
       await planLoad(); var seen = PL.d.coSeen = PL.d.coSeen || {}, days = {}, n = 0; PL.d.mt = PL.d.mt || {}; PL.d.gdel = PL.d.gdel || [];
+      coFix0800().forEach(function(d){ days[d] = 1; });
       Object.keys(sc).forEach(function(ym){
         var S1 = sc[ym]; if (!S1 || !S1.items || seen[ym] === S1.at) return;
         S1 = { at: S1.at, items: [].concat.apply([], S1.items.map(function(x){ return x.big ? [x] : coSplit(x); })) };
@@ -16235,6 +16245,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="b38302737a29";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="c4e07b899488";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
