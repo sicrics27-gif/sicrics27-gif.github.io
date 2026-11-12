@@ -2885,6 +2885,12 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .citem .cav{width:46px;height:46px;font-size:19px}
 .citem>.cav{grid-row:1/span 7!important}
 .citem .r1{flex-wrap:wrap!important;row-gap:4px}
+/* 2026-11-12 🎂 보험나이·상령일 */
+.sang{font-style:normal;font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:rgba(120,140,255,.14);color:#aab8ff;border:1px solid rgba(120,140,255,.35)}
+.sang.soon{background:rgba(245,166,35,.14);color:#f5b544;border-color:rgba(245,166,35,.45)}
+.sang.hot{background:rgba(229,72,77,.18);color:#ff8589;border-color:rgba(229,72,77,.5)}
+.sang.past{background:rgba(127,127,127,.15);color:var(--side-mute,#999);border-color:rgba(127,127,127,.35)}
+.chead .sang{margin-left:6px;vertical-align:middle}
 
 </style>
 </head>
@@ -10081,6 +10087,22 @@ function HealthUI(root, H) {
     var d = (base || todayStr()).replace(/-/g,'');
     var a = +d.slice(0,4) - +b.slice(0,4); if (d.slice(4) < b.slice(4)) a--; return a;
   }
+  // 🎂 보험나이·상령일 (2026-11-12): 보험나이 = 만 나이 + (생일 지나 6개월이 넘었으면 1). 상령일 = 생일 + 6개월 → 이날부터 보험나이 1살 올라 보험료가 바뀜
+  function ymdAdd(y, m, d, addM){ var t = new Date(Date.UTC(y, m - 1 + addM, 1)), last = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 0)).getUTCDate(); t.setUTCDate(Math.min(d, last)); return t.toISOString().slice(0, 10); }
+  function sangInfo(birth, base){
+    var b = String(birth || '').replace(/\D/g, ''); if (b.length !== 8) return null;
+    base = base || todayStr(); var by = +b.slice(0, 4), bm = +b.slice(4, 6), bd = +b.slice(6, 8), Y = +base.slice(0, 4);
+    var man = ageOf(b, base); if (man === '' || man < 0) return null;
+    var lastB = ymdAdd(by + man, bm, bd, 0), sang = ymdAdd(by + man, bm, bd, 6), ia, next, prevS;
+    if (base >= sang) { ia = man + 1; prevS = sang; next = ymdAdd(by + man + 1, bm, bd, 6); } else { ia = man; prevS = ymdAdd(by + man - 1, bm, bd, 6); next = sang; }
+    return { age: ia, next: next, left: dayDiff(base, next), since: dayDiff(prevS, base), prev: prevS };
+  }
+  function sangChip(c){
+    var A = sangInfo(c.birth); if (!A) return '';
+    var recent = A.since >= 0 && A.since <= 30, cls = recent ? 'past' : A.left <= 30 ? 'hot' : A.left <= 60 ? 'soon' : '';
+    var dd = recent ? 'D+' + A.since : A.left === 0 ? 'D-DAY' : 'D-' + A.left;
+    return '<i class="sang ' + cls + '" title="보험나이 ' + A.age + '세 · ' + (recent ? '상령일 ' + dot(A.prev) + '에 지남(보험료 오름)' : '다음 상령일 ' + dot(A.next) + ' (이날부터 보험나이 ' + (A.age + 1) + '세)') + '">🎂보험 ' + A.age + '세 · 상령 ' + dd + '</i>';
+  }
   function birthTxt(b){ b = String(b||'').replace(/\D/g,''); return b.length === 8 ? b.slice(0,4)+'. '+b.slice(4,6)+'. '+b.slice(6) : b; }
   function sexTxt(s){ return s === 'F' ? '여' : s === 'M' ? '남' : ''; }
   // 고객 목록 정렬 (목록 오른쪽 위 ↕ 칸)
@@ -10127,7 +10149,7 @@ function HealthUI(root, H) {
         var r2 = c.status === 'done' ? '<span class="r2 ' + (c.sumOk ? 'ok' : '') + '">' + esc(c.summary || '') + '</span>' : '';
         var lo = lastOf(c), ph2 = normPhone(c.phone), r5 = (c.consLast && c.consLast.t ? '<span class="cs1">📝 ' + esc(String(c.consLast.t).slice(0, 46)) + ' <small>' + ago(c.consLast.d) + '</small></span>' : '') + '<span class="r5">' + (ph2 ? '<span class="ph">' + phoneTxt(ph2) + '</span>' : '<span class="ph none">번호 없음</span>') + (lo.any ? '<span class="lc' + (dayDiff(lo.any, todayStr()) > 60 ? ' old' : '') + '">' + ago(lo.any) + ' 연락</span>' : '<span class="lc old">연락 기록 없음</span>') + '</span>';
         var DOC = docOf(c);
-        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + kdxChips(c, 4) + docTags(c) + '</span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
+        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + sangChip(c) + kdxChips(c, 4) + docTags(c) + '</span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
       }).join('');
     });
     var nShow = 0; Object.keys(groups).forEach(function(g){ nShow += groups[g].length; });
@@ -14254,7 +14276,7 @@ function HealthUI(root, H) {
   function renderCustomer(){
     var c = S.cur, d = S.data;
     var base = d ? d.base : '';
-    var h = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="' + esc(String(c.name || '?').slice(0, 1)) + '">' + esc(c.name) + '</h2><span class="cmeta">' + sexTxt(c.sex) + (c.birth ? ' / ' + ageOf(c.birth, base) + '세(' + birthTxt(c.birth) + ')' : '') + '</span>' +
+    var h = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="' + esc(String(c.name || '?').slice(0, 1)) + '">' + esc(c.name) + '</h2><span class="cmeta">' + sexTxt(c.sex) + (c.birth ? ' / ' + ageOf(c.birth, base) + '세(' + birthTxt(c.birth) + ')' : '') + '</span>' + (c.sample ? '' : sangChip(c)) +
       '<div class="cact">' + cnsBadge(c) + (d ? (d.covOnly ? '<span class="stbadge w">보장분석만</span>' : '<span class="stbadge">' + IC.ok + '분석완료</span>') : '<span class="stbadge w">파일 첨부 대기</span>') +
       (c.sample ? '' : '<button class="btn lg" type="button" data-act="docs">' + IC.doc + '서류 받기</button>') +
       (c.sample ? '' : '<button class="btn lg pri" type="button" data-act="files">' + IC.clip + (d ? '다시 분석' : '병력파악 (파일 첨부)') + '</button>') +
@@ -16251,6 +16273,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="97ffb22441f1";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="5b21751ab4f8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
