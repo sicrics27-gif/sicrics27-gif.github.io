@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AOB9 PC 프로그램 받기</title><meta name="theme-color" content="#090B10"><link rel="icon" href="icon-192.png">
+<style>
+:root{color-scheme:dark}
+body{margin:0;min-height:100dvh;background:#0b0d12;color:#eceff4;font-family:"Pretendard Variable",-apple-system,"Malgun Gothic",sans-serif;display:flex;justify-content:center}
+main{width:min(520px,100%);padding:36px 20px 32px;box-sizing:border-box}
+.ic{width:84px;height:84px;border-radius:22px;display:block;margin:0 auto 14px}
+h1{text-align:center;font-size:24px;margin:0 0 6px}p.sub{text-align:center;color:#8b93a3;margin:0 0 22px;font-size:14.5px;line-height:1.6}
+a.dl{display:block;text-align:center;background:linear-gradient(135deg,#4f7dff,#2f5fe0);color:#fff;font-weight:800;font-size:19px;padding:17px;border-radius:16px;text-decoration:none}
+ol{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 16px 16px 36px;line-height:1.8;font-size:15px;margin:20px 0}
+li+li{margin-top:6px}b{color:#fff}.note{color:#8b93a3;font-size:13px;line-height:1.6;text-align:center}
+</style></head><body><main>
+<img class="ic" src="icon-512.png" alt="">
+<h1>AOB9 PC 프로그램 받기</h1>
+<p class="sub" id="msg">윈도우 PC용 설치 파일입니다.<br>아래 파란 버튼을 눌러 받아 주세요.</p>
+<a class="dl" id="dl" href="https://github.com/sicrics27-gif/sicrics27-gif.github.io/releases/latest/download/MH-Analyzer-setup.exe">💻 PC 프로그램 받기 (윈도우)</a>
+<ol>
+<li>받은 <b>MH-Analyzer-setup.exe</b>를 엽니다. (크롬 오른쪽 위 ⬇ 다운로드 목록에서 누르면 됩니다)</li>
+<li>파란 창 <b>“Windows의 PC 보호”</b>가 뜨면 <b>추가 정보</b> 글자 → 아래 <b>실행</b> 버튼.</li>
+<li>설치가 끝나면 바탕화면 <b>AOB9</b>을 열고, 관리자에게 받은 <b>OTP</b>를 넣으면 끝입니다.</li>
+</ol>
+<p class="note">처음 한 번만 설치하면 됩니다. 새 버전은 프로그램을 켤 때 자동으로 안내됩니다.<br>휴대폰 앱은 휴대폰에서 이 주소를 열면 자동으로 안내됩니다.</p>
+</main>
+<script>
+(function(){
+  var ua = navigator.userAgent || '';
+  // 휴대폰에서 열면 휴대폰 앱 안내로
+  if (/Android|iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) { location.replace('apk.html'); return; }
+  if (/Macintosh|Mac OS X/i.test(ua)) document.getElementById('msg').innerHTML = 'PC 프로그램은 윈도우용만 있습니다.<br>맥에서는 크롬으로 앱 화면을 열어 쓰세요: <a style="color:#9fb6ff" href="./">sicrics27-gif.github.io/mh-analyzer</a>';
+})();
+</script>
+</body></html>

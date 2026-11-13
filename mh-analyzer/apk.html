@@ -32,7 +32,7 @@ li+li{margin-top:6px}b{color:#fff}.note{color:#8b93a3;font-size:13px;line-height
   // 네이버·인스타 등 다른 앱 안 브라우저면 크롬으로
   if (/Android/i.test(ua) && /NAVER|Instagram|FBAN|FBAV|Line\//i.test(ua)) { location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end'; return; }
   if (/Android/i.test(ua)) setTimeout(function(){ location.href = document.getElementById('dl').href; }, 400);
-  else document.getElementById('msg').innerHTML = '휴대폰(안드로이드)에서 이 주소를 열어 주세요.<br>PC용은 관리자에게 받은 안내문의 PC 주소를 쓰세요.';
+  else location.replace('pc.html'); // PC에서 열면 PC 프로그램 받기로
 })();
 </script>
 </body></html>

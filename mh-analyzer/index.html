@@ -5001,9 +5001,10 @@ function HealthUI(root, H) {
     var R = ctx[p.run];
     if (p.id === 'silSick') {
       var A2 = ctx.sick2;
-      var cards = A2.main.concat(A2.check).map(function (c) { return cloneCard(c, K_INS7); });
+      var cards = A2.main.concat(A2.check).map(function (c) { return cloneCard(c, K_INS7, function (d) { return d.pharm; }); }); // 2026-11-13 MHS 대조: 약국 조제 상병 '확인 요망'도 유병자 실손에 남김(고지 쪽)
       var seen = {}; cards.forEach(function (c) { seen[c.code] = 1; });
       ctx.std.main.concat(ctx.std.check, ctx.std.extra).forEach(function (c) {
+        if (!seen[c.code] && c.disc.some(function (d) { return d.pharm; })) { var pc = cloneCard(c, [], function (d) { return d.pharm; }); if (pc.disc.length) { cards.push(pc); seen[c.code] = 1; return; } }
         if (seen[c.code] || !(isCancer(c) || cancerSus(c))) return;
         var cc = cloneCard(c, [], function (d) { return d.k === '질병'; });
         if (!cc.disc.length) cc = Object.assign({}, cc, { disc: [{ lv: isCancer(c) ? 'y' : 'c', k: '질병', t: isCancer(c) ? '암(5년 이내)' : '암 관련 확인 — ' + A.majorSuspect(c.code), q: c.name + ' 진단 이후 암 확진이나 추적검사를 받으신 적이 있나요?' }] });
@@ -6864,7 +6865,7 @@ function HealthUI(root, H) {
   var ADM = { id: '__admin' };
   async function admLoad(){ try { return (await Store.loadData(ADM.id)) || null; } catch(e){ return null; } }
   async function admSave(d){ await Store.saveHead({ id: ADM.id, hidden: true, name: '__admin', status: 'admin', created: d.created || Date.now() }); await Store.saveData(ADM.id, d); }
-  function invite(u){ return '[AOB9 사용 안내]\n' + u.name + '님, AOB9(어센틱 오션브랜치 9팀) 프로그램 OTP입니다.\n\nOTP: ' + u.code + '\n등록할 구글 계정: ' + u.email + '\n\n① 앱 설치 (안드로이드 · 누르면 바로 다운로드)\nhttps://sicrics27-gif.github.io/mh-analyzer/apk.html\n→ 다운로드 알림 "열기" → "출처를 알 수 없는 앱"이 뜨면 설정에서 허용 → 설치\n· 아이폰도 위 주소를 사파리로 열면 설치 방법이 나옵니다\n· PC: https://github.com/sicrics27-gif/sicrics27-gif.github.io/releases/latest 에서 MH-Analyzer-setup.exe 설치\n② 앱을 열고 위 OTP를 넣은 뒤, 위 구글 계정으로 본인 확인\n③ 잠금 비밀번호를 만들고 시작'; }
+  function invite(u){ return '[AOB9 사용 안내]\n' + u.name + '님, AOB9(어센틱 오션브랜치 9팀) 프로그램 OTP입니다.\n\nOTP: ' + u.code + '\n등록할 구글 계정: ' + u.email + '\n\n① 휴대폰 앱 설치 (안드로이드)\nhttps://sicrics27-gif.github.io/mh-analyzer/apk.html\n→ 다운로드 알림 "열기" → "출처를 알 수 없는 앱"이 뜨면 설정에서 허용 → 설치\n· 아이폰은 위 주소를 사파리로 열면 설치 방법이 나옵니다\n\n② PC 프로그램 설치 (윈도우 · 필요할 때만)\nhttps://sicrics27-gif.github.io/mh-analyzer/pc.html\n→ 파란 버튼으로 받아 실행 → "Windows의 PC 보호" 창이 뜨면 \'추가 정보\' → \'실행\'\n\n③ 앱(또는 PC 프로그램)을 열고 위 OTP를 넣은 뒤, 위 구글 계정으로 본인 확인\n④ 잠금 비밀번호를 만들고 시작'; }
   async function openAdmin(){
     var d = await admLoad();
     if (!d || !d.token) { admSetup(d); return; }
@@ -16285,6 +16286,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="dc8df0156eb7";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="8c3f7f542db7";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
