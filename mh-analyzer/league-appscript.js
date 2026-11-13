@@ -1,5 +1,7 @@
-// AOB9 · 9팀 팀 서버 (리그전 + 건의사항·오류 신고(자동 개선) + MD's PICK + OTP 요청 + 보험사 연락처 팀 공유) · 버전 2026-11-07 — 구글 Apps Script, 관리자(강남혁) 구글 계정에서 한 번 배포
+// AOB9 · 9팀 팀 서버 (리그전 + 건의사항·오류 신고(자동 개선) + MD's PICK + OTP 요청 + 보험사 연락처 팀 공유) · 버전 2026-11-13 — 구글 Apps Script, 관리자(강남혁) 구글 계정에서 한 번 배포
 // 저장하는 것: 리그(별명·주간 숫자), 건의사항(이름·제목·내용·상태·답변). 고객 정보는 받지 않습니다.
+// 👥 팀원(2026-11-13): 팀원에게 보일 이름·마지막 접속 시각(숨기면 저장 안 함)·한마디·공개 열쇠 + 교환 게시판 글(지역·나이대 같은 요약만) + 팀원끼리 보내는 '잠긴 글'.
+//   잠긴 글 = 보내는 사람 기기에서 받는 사람의 공개 열쇠로 잠근 것 → 이 서버와 관리자는 내용을 열 수 없음. 받으면 지우고, 안 받은 글은 14일 뒤 지움.
 // OTP가 '사용 중'인 사람만 글을 올릴 수 있습니다 (access.json 확인). 건의사항 검토는 관리자 열쇠가 있어야 합니다.
 const ACCESS = 'https://raw.githubusercontent.com/sicrics27-gif/sicrics27-gif.github.io/main/mh-analyzer/access.json'; // 2026-11-04: 코드 저장소 비공개 → 공개 배포 저장소의 입장 목록
 function allowed(c) {
@@ -36,6 +38,39 @@ function out(o) { return ContentService.createTextOutput(JSON.stringify(o)).setM
 function props() { return PropertiesService.getScriptProperties(); }
 function isAdmin(k) { const a = props().getProperty('ADMIN_KEY'); return !!(a && k && k === a); }
 
+// ---------- 팀 서버를 새 프로젝트로 다시 만들었을 때 (주소가 바뀜) ----------
+// 예전 서버가 쓰던 'AOB 건의사항' 시트(건의 · MD픽 · 보험사 연락처 · 회사 일정 …)가 내 드라이브에 있으면 그 시트를 이어서 씀 → 자료가 비지 않음.
+// 그 사이 새 시트에 들어온 줄은 예전 시트로 옮겨 담음. 프로젝트마다 한 번만 확인(스크립트 속성 ADOPT). 바꾸기 전 시트 번호는 SUG_SHEET_WAS 에 남김.
+function adoptOld() {
+  const p = props(); if (p.getProperty('ADOPT')) return;
+  const lk = LockService.getScriptLock(); if (!lk.tryLock(10000)) return;
+  try {
+    if (p.getProperty('ADOPT')) return;
+    const cur = p.getProperty('SUG_SHEET') || '', size = ss => ss.getSheets().reduce((n, sh) => n + sh.getLastRow(), 0);
+    let best = null, bestN = -1, n = 0; const it = DriveApp.getFilesByName('AOB 건의사항');
+    while (it.hasNext() && n++ < 15) {
+      const f = it.next(); if (f.isTrashed()) continue;
+      let ss = null; try { ss = SpreadsheetApp.openById(f.getId()); } catch (e) { ss = null; }
+      if (!ss) continue; const k = size(ss); if (k > bestN) { best = ss; bestN = k; }
+    }
+    if (best && best.getId() !== cur) {
+      if (cur) p.setProperty('SUG_SHEET_WAS', cur);
+      p.setProperty('SUG_SHEET', best.getId());
+      if (cur) { try { adoptRows(SpreadsheetApp.openById(cur), best); } catch (e) { p.setProperty('ADOPT_ERR', String(e).slice(0, 200)); } }
+    }
+    p.setProperty('ADOPT', String(Date.now()));
+  } catch (e) { try { p.setProperty('ADOPT', 'err ' + String(e).slice(0, 150)); } catch (e2) { } }
+  finally { lk.releaseLock(); }
+}
+function adoptRows(from, to) {
+  from.getSheets().forEach(sh => {
+    const v = sh.getDataRange().getValues(); if (v.length < 2) return;
+    const name = sh.getName(); let t = to.getSheetByName(name);
+    if (!t) { t = to.insertSheet(name); t.appendRow(v[0]); t.setFrozenRows(1); }
+    const have = {}; t.getDataRange().getValues().forEach(r => { have[String(r[0])] = 1; });
+    v.slice(1).forEach(r => { const id = String(r[0]); if (!id || have[id]) return; t.appendRow(r); have[id] = 1; });
+  });
+}
 // ---------- 건의사항: 관리자 구글 드라이브의 시트 'AOB 건의사항'에 저장 ----------
 const COLS = ['id', 'at', 'c', 'n', 'title', 'desc', 'st', 'reply', 'rat', 'likes', 'kind', 'img', 'diag', 'fix', 'pr', 'fsum', 'ft'];
 // ---------- 오류·개선 신고 → GitHub 자동 개선 (2026-10-31) ----------
@@ -81,8 +116,11 @@ function sugList(me, admin) {
 function doPost(e) { try { return doPost_(e); } catch (err) { return out({ ok: false, error: '팀 서버 오류: ' + err }); } }
 function doPost_(e) {
   const b = JSON.parse(e.postData.contents || '{}');
+  adoptOld();
+  if (b.a === 'mt_sync') return mtSync(b);   // 접속 표시는 자주 오므로 줄 세우지 않음 (자기 칸만 고침)
   const lock = LockService.getScriptLock(); lock.waitLock(8000);
   try {
+    if (/^mt_(send|ack|recall|post|unpost)$/.test(b.a || '')) return mtBox(b);
     // 관리자 열쇠 받기 (처음 한 번만 · 그다음부터는 아무도 못 받음)
     if (b.a === 'claim') {
       if (props().getProperty('ADMIN_KEY')) return out({ ok: false, error: '이미 관리자가 정해져 있습니다' });
@@ -290,6 +328,71 @@ function piSheet(name, cols) {
   let sh = ss.getSheetByName(name); if (!sh) { sh = ss.insertSheet(name); sh.appendRow(cols); sh.setFrozenRows(1); }
   return sh;
 }
+// ---------- 👥 팀원: 접속 상태 · 잠긴 글(고객 보내기·교환) · 교환 게시판 (2026-11-13) ----------
+// 팀원 번호 = OTP 코드를 한 번 더 섞은 값(다른 팀원에게 OTP 코드가 보이지 않게). 접속 표시는 스크립트 속성 'mt_<번호>' 한 칸씩, 잠긴 글·게시판은 시트.
+const MTB = ['id', 'at', 'to', 'from', 'fn', 'kind', 'meta', 'ct', 'ref'], MTP = ['id', 'at', 'by', 'n', 'meta'];
+const MT_NO = { ok: false, error: 'member', msg: 'OTP와 같은 구글 계정으로 로그인한 팀원만 쓸 수 있습니다' };
+function mtActive() {   // 지금 OTP가 살아 있는 팀원 번호 목록 (10분 캐시)
+  const cache = CacheService.getScriptCache(); let s = cache.get('mtact');
+  if (!s) { const u = accUsers(); s = Object.keys(u).filter(c => u[c] && u[c].s === 1).map(c => hex24('mt:' + c)).join(','); if (s) cache.put('mtact', s, 600); }
+  return s || '';
+}
+function mtScrub(t) { return String(t == null ? '' : t).replace(/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g, '(전화번호)').replace(/\d{6}[-\s]?[1-4]\d{6}/g, '(주민번호)').replace(/[\r\n\t]+/g, ' '); }
+// 시트에 글자로만 넣기: 앞에 ' 를 붙여 숫자·날짜·수식으로 바뀌지 않게 (=, +, - 로 시작하는 글이 수식이 되는 것도 막음). 읽을 때는 ' 를 뗌
+function mtT(s) { return "'" + String(s == null ? '' : s); }
+function mtU(s) { return String(s == null ? '' : s).replace(/^'/, ''); }
+function mtRows(sh, cols) { const v = sh.getDataRange().getValues(); v.shift(); return v.map((r, i) => { const o = { row: i + 2 }; cols.forEach((k, j) => { o[k] = k === 'at' ? (+r[j] || 0) : mtU(r[j]); }); return o; }).filter(o => o.id); }
+function mtDel(sh, list) { list.slice().sort((a, b) => b.row - a.row).forEach(o => sh.deleteRow(o.row)); }
+function mtBump() { const p = props(), cur = +p.getProperty('mtv') || 0; p.setProperty('mtv', String(Math.max(Date.now(), cur + 1))); }   // 받은함·게시판이 바뀔 때마다 올라가는 번호 (앱이 같은 번호면 다시 안 읽음)
+function mtId(p) { return p + Utilities.getUuid().replace(/-/g, '').slice(0, 13); }
+// 내 접속 시각을 남기고 팀원 목록(+ 바뀐 게 있으면 내 받은함·게시판)을 받음
+function mtSync(b) {
+  if (!member(b.c, b.g)) return out(MT_NO);
+  const me = hex24('mt:' + b.c), now = Date.now(), P = props().getProperties();
+  let old = {}; try { old = JSON.parse(P['mt_' + me] || '{}') || {}; } catch (e) { old = {}; }
+  const rec = { n: mtScrub(b.n || old.n || '팀원').slice(0, 12), at: b.hide ? 0 : now, pub: String(b.pub || old.pub || '').slice(0, 200), hide: b.hide ? 1 : 0, say: b.say === undefined || b.say === null ? String(old.say || '') : mtScrub(b.say).slice(0, 40) };
+  props().setProperty('mt_' + me, JSON.stringify(rec));
+  const act = mtActive(), rows = [];
+  Object.keys(P).forEach(k => {
+    if (k.indexOf('mt_') !== 0 || k.length !== 27) return; const id = k.slice(3); if (id === me || act.indexOf(id) < 0) return;
+    try { const o = JSON.parse(P[k]); rows.push({ id: id, n: String(o.n || '팀원'), at: o.hide ? 0 : (+o.at || 0), hide: o.hide ? 1 : 0, pub: String(o.pub || ''), say: String(o.say || '') }); } catch (e) { }
+  });
+  rows.push({ id: me, me: 1, n: rec.n, at: now, hide: rec.hide, pub: rec.pub, say: rec.say });
+  const v = String(P.mtv || '0');
+  if (String(b.v || '') === v) return out({ ok: true, mt: 2, me: me, now: now, v: v, same: 1, rows: rows });
+  const all = mtRows(piSheet('팀원함', MTB), MTB), lim = now - 14 * 864e5;
+  const box = all.filter(o => o.to === me && o.at >= lim).map(o => ({ id: o.id, at: o.at, from: o.from, fn: o.fn, kind: o.kind, meta: o.meta, ct: o.ct, ref: o.ref }));
+  const sent = all.filter(o => o.from === me && o.at >= lim).map(o => o.id);
+  const posts = mtRows(piSheet('교환글', MTP), MTP).filter(o => o.at >= now - 30 * 864e5 && (o.by === me || act.indexOf(o.by) >= 0)).map(o => ({ id: o.id, at: o.at, by: o.by, n: o.n, meta: o.meta, mine: o.by === me ? 1 : 0 })).sort((x, y) => y.at - x.at).slice(0, 200);
+  return out({ ok: true, mt: 2, me: me, now: now, v: v, rows: rows, box: box, sent: sent, posts: posts });
+}
+// 잠긴 글 보내기(mt_send) · 받은 글 지우기(mt_ack) · 보낸 글 되찾기(mt_recall) · 교환 게시판 올리기/내리기(mt_post / mt_unpost) — 한 번에 하나씩(잠금 안에서)
+function mtBox(b) {
+  if (!member(b.c, b.g)) return out(MT_NO);
+  const me = hex24('mt:' + b.c), now = Date.now();
+  if (b.a === 'mt_post' || b.a === 'mt_unpost') {
+    const sh = piSheet('교환글', MTP), all = mtRows(sh, MTP);
+    if (b.a === 'mt_unpost') { const hit = all.filter(o => o.id === String(b.id) && o.by === me); mtDel(sh, hit); if (hit.length) mtBump(); return out({ ok: true, n: hit.length }); }
+    const meta = mtScrub(b.meta).trim().slice(0, 160); if (meta.length < 2) return out({ ok: false, error: '내용이 없습니다' });
+    const old = all.filter(o => o.at < now - 30 * 864e5);
+    if (all.filter(o => o.by === me && o.at >= now - 30 * 864e5).length >= 10) return out({ ok: false, error: '내놓은 글은 10개까지입니다. 먼저 내린 뒤 올려 주세요' });
+    if (old.length) mtDel(sh, old);
+    const id = mtId('p'); sh.appendRow([mtT(id), now, mtT(me), mtT(mtScrub(b.n || '팀원').slice(0, 12)), mtT(meta)]);
+    mtBump(); return out({ ok: true, id: id });
+  }
+  const sh = piSheet('팀원함', MTB), all = mtRows(sh, MTB);
+  if (b.a === 'mt_ack') { const ids = (Array.isArray(b.ids) ? b.ids : []).slice(0, 100).map(String), hit = all.filter(o => o.to === me && ids.indexOf(o.id) >= 0); mtDel(sh, hit); if (hit.length) mtBump(); return out({ ok: true, n: hit.length }); }
+  if (b.a === 'mt_recall') { const hit = all.filter(o => o.from === me && o.id === String(b.id)); mtDel(sh, hit); if (hit.length) mtBump(); return out({ ok: true, n: hit.length }); }
+  const to = String(b.to || ''), kind = String(b.kind || ''), ct = String(b.ct || '');
+  if (!/^[0-9a-f]{24}$/.test(to) || to === me || !/^[a-z]{2,12}$/.test(kind)) return out({ ok: false, error: '받는 사람을 다시 골라 주세요' });
+  if (mtActive().indexOf(to) < 0 || !props().getProperty('mt_' + to)) return out({ ok: false, error: '받는 팀원이 아직 팀원 화면을 시작하지 않았습니다' });
+  if (ct.length > 30000 || !/^[A-Za-z0-9_.\-]*$/.test(ct)) return out({ ok: false, error: '내용을 보낼 수 없습니다' });
+  if (all.filter(o => o.from === me && o.at > now - 864e5).length >= 80) return out({ ok: false, error: '오늘 보낸 글이 너무 많습니다' });
+  const old = all.filter(o => o.at < now - 14 * 864e5); if (old.length) mtDel(sh, old);
+  const id = mtId('m');
+  sh.appendRow([mtT(id), now, mtT(to), mtT(me), mtT(mtScrub(b.n || '팀원').slice(0, 12)), mtT(kind), mtT(mtScrub(b.meta).slice(0, 200)), mtT(ct), mtT(String(b.ref || '').replace(/[^a-z0-9]/g, '').slice(0, 14))]);
+  mtBump(); return out({ ok: true, id: id });
+}
 // OTP 요청 시트
 const OTC = ['rid', 'at', 'n', 'm', 'dev', 'note', 'st', 'code', 'dt'];
 function otpSheet() {
@@ -365,8 +468,10 @@ function mdList(me) {
 function doGet(e) { try { return doGet_(e); } catch (err) { return out({ ok: false, error: '팀 서버 오류: ' + err }); } }
 function doGet_(e) {
   const prm = Object.assign({}, e.parameter || {});
+  adoptOld();
   // 'c' 는 구글이 예약한 이름이라 주소에 쓰면 '파일을 열 수 없습니다' 가 남 → 앱은 uid 로 보냄
   if (prm.uid) prm.c = prm.uid;
+  if (prm.a === 'mt') return out({ ok: true, mt: 2 });   // 👥 팀원 기능이 있는 서버인지 앱이 확인
   if (prm.a === 'otpreq') { if (!isAdmin(prm.k)) return out({ ok: false, error: '관리자만' }); return out({ ok: true, rows: otpRows(otpSheet()).filter(o => o.st === 'new').map(o => ({ rid: String(o.rid), at: +o.at, n: String(o.n), m: String(o.m), dev: String(o.dev || ''), note: String(o.note || '') })) }); }
   if (prm.a === 'otpstat') { const o = otpRows(otpSheet()).find(x => String(x.rid) === String(prm.rid) && x.m === String(prm.m || '').toLowerCase()); if (!o) return out({ ok: false }); return out({ ok: true, st: String(o.st), code: o.st === 'done' ? String(o.code || '') : '' }); }
   // 자동 개선 워크플로가 신고 내용·사진을 받아 감 (신고마다 한 번 쓰는 열쇠)
