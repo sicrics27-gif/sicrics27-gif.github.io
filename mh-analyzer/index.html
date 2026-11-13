@@ -10980,12 +10980,14 @@ function HealthUI(root, H) {
         var m; try { m = await bsDec(c.bisa.k, it); } catch(e){ continue; }
         var id = 'b' + it.id.replace(/[^0-9a-z]/g, '').slice(-14), imgs = m.imgs || [];
         if (imgs.length) { var d = (await Store.loadData(c.id)) || { input: {}, meta: { kinds: {} }, base: todayStr(), analyzedAt: Date.now(), excluded: [], files: [], covOnly: true }; d.bisaImg = d.bisaImg || {}; d.bisaImg[id] = imgs; await Store.saveData(c.id, d); if (S.cur && S.cur.id === c.id) S.data = d; }
-        var txt = m.t === 'claim' ? '💰 보험금 청구 요청 · ' + (m.kind || '') + (m.date ? ' · ' + m.date : '') + (m.hosp ? ' · ' + m.hosp : '') + (m.memo ? '\n' + m.memo : '') : '💬 ' + (m.kind || '문의') + (m.way ? ' (' + m.way + ')' : '') + '\n' + (m.memo || '');
-        bsLog(c, { id: id, at: m.at || it.at, dir: 'in', t: m.t, text: txt, nimg: imgs.length });
+        var pdfs = m.t === 'med' ? (m.files || []).filter(function(f){ return f && f.b64 && /\.pdf$/i.test(f.name || ''); }).slice(0, 8) : [];   // 🩺 고객이 직접 보낸 진료기록 PDF (동의 받은 것) — 이 기기의 고객 자료에만 보관
+        if (pdfs.length) { var d2 = (await Store.loadData(c.id)) || { input: {}, meta: { kinds: {} }, base: todayStr(), analyzedAt: Date.now(), excluded: [], files: [], covOnly: true }; d2.bisaPdf = d2.bisaPdf || {}; d2.bisaPdf[id] = pdfs; await Store.saveData(c.id, d2); if (S.cur && S.cur.id === c.id) S.data = d2; if (m.agree && m.agree.at) c.medAgree = { at: m.agree.at, v: m.agree.v || 1 }; }
+        var txt = m.t === 'med' ? '🩺 진료기록 PDF ' + pdfs.length + '개 (고객 동의 받음)' + (m.memo ? '\n' + m.memo : '') : m.t === 'claim' ? '💰 보험금 청구 요청 · ' + (m.kind || '') + (m.date ? ' · ' + m.date : '') + (m.hosp ? ' · ' + m.hosp : '') + (m.memo ? '\n' + m.memo : '') : '💬 ' + (m.kind || '문의') + (m.way ? ' (' + m.way + ')' : '') + '\n' + (m.memo || '');
+        bsLog(c, { id: id, at: m.at || it.at, dir: 'in', t: m.t, text: txt, nimg: imgs.length, npdf: pdfs.length });
         (c.notes = c.notes || []).push({ id: id + 'n', at: Date.now(), d: todayStr(), k: 'note', t: '[보험비서] ' + txt });
-        c.next = { d: todayStr(), t: m.t === 'claim' ? '📨 보험비서 청구 요청 확인' : '📨 보험비서 문의 답하기' };
+        c.next = { d: todayStr(), t: m.t === 'med' ? '📨 보험비서 진료기록 도착 → 병력파악' : m.t === 'claim' ? '📨 보험비서 청구 요청 확인' : '📨 보험비서 문의 답하기' };
         c.bisaNew = (c.bisaNew || 0) + 1; await Store.saveHead(c); n++;
-        try { if (window.Notification && Notification.permission === 'granted') new Notification('📨 ' + c.name + '님 ' + (m.t === 'claim' ? '보험금 청구 요청' : '문의'), { body: String(m.memo || m.kind || '').slice(0, 80) }); } catch(e){}
+        try { if (window.Notification && Notification.permission === 'granted') new Notification('📨 ' + c.name + '님 ' + (m.t === 'med' ? '진료기록 PDF' : m.t === 'claim' ? '보험금 청구 요청' : '문의'), { body: String(m.memo || m.kind || '').slice(0, 80) }); } catch(e){}
       }
       if (ack.length) await bsApi('/v1/inbox/ack', { method: 'POST', body: JSON.stringify({ ids: ack }) }, true);
       if (n) { S.list = await Store.list(); renderList(); toast('📨 보험비서 요청 ' + n + '건이 왔습니다'); if (S.cur) { var cur = S.list.find(function(x){ return x.id === S.cur.id; }); if (cur) { S.cur = cur; var y = window.scrollY; renderCustomer(); window.scrollTo(0, y); } } }
@@ -11000,11 +11002,14 @@ function HealthUI(root, H) {
     var L = (c.bisaLog || []).slice().reverse();
     return '<div class="pcard bsbar"><div class="dsc-h"><b>📲 보험비서 (고객 앱)</b><small>' + (c.bisa ? '초대함 · ' + dot(new Date(c.bisa.at).toISOString().slice(0, 10)) + (c.bisaNew ? ' · <b style="color:#e5484d">새 요청 ' + c.bisaNew + '</b>' : '') : '고객에게 링크 하나로 보장 보기 · 청구 요청 · 문의 창구를 열어 드립니다') + '</small></div>' +
       '<div class="rqcos">' + (c.bisa ? '<button type="button" data-bs="resend">🔄 보장 내용 새로 맞추기</button><button type="button" data-bs="invite">📤 링크 다시 보내기</button>' : '<button type="button" data-bs="invite">📲 보험비서 초대 (카톡)</button>') + '<button type="button" data-bs="me">👤 내 명함</button></div>' +
-      (L.length ? '<div class="bslog">' + L.slice(0, 6).map(function(e){ return '<div class="bsm ' + e.dir + '"><small>' + (e.dir === 'in' ? c.name + '님' : '나') + ' · ' + new Date(e.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</small>' + esc(e.text) + (e.nimg ? '<button type="button" class="pb" data-bsimg="' + e.id + '">🖼 사진 ' + e.nimg + '장 보기</button>' : '') + '</div>'; }).join('') + '</div>' : '') +
+      (L.length ? '<div class="bslog">' + L.slice(0, 6).map(function(e){ return '<div class="bsm ' + e.dir + '"><small>' + (e.dir === 'in' ? c.name + '님' : '나') + ' · ' + new Date(e.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</small>' + esc(e.text) + (e.nimg ? '<button type="button" class="pb" data-bsimg="' + e.id + '">🖼 사진 ' + e.nimg + '장 보기</button>' : '') + (e.npdf ? '<button type="button" class="pb" data-bspdf="' + e.id + '">🩺 병력파악에 넣기 (PDF ' + e.npdf + '개)</button>' : '') + '</div>'; }).join('') + '</div>' : '') +
       (c.bisa ? '<div class="bsrep"><textarea id="bsR" placeholder="' + esc(c.name) + '님 보험비서로 답장 (예: 서류 잘 받았습니다. 내일 청구해 드릴게요)"></textarea><button type="button" class="go" data-bs="reply">답장 보내기</button></div>' : '') + '</div>';
   }
   document.addEventListener('click', async function(e){
-    var b = e.target.closest && e.target.closest('[data-bs],[data-bsimg]'); if (!b || !S.cur) return; var c = S.cur;
+    var b = e.target.closest && e.target.closest('[data-bs],[data-bsimg],[data-bspdf]'); if (!b || !S.cur) return; var c = S.cur;
+    if (b.dataset.bspdf) { var dp = S.data || await Store.loadData(c.id), pf = dp && dp.bisaPdf && dp.bisaPdf[b.dataset.bspdf] || []; if (!pf.length) { toast('PDF가 없습니다 (이미 분석에 넣었거나 다른 기기에서 받은 요청)'); return; }
+      var fl = pf.map(function(x){ var bin = atob(x.b64), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return new File([u8], x.name || '진료기록.pdf', { type: 'application/pdf' }); });
+      openFiles(); takeFiles(fl).then(autoGo); toast(c.name + '님이 보낸 진료기록 ' + fl.length + '개를 넣었습니다 · 바로 분석합니다'); return; }
     if (b.dataset.bsimg) { var d = S.data || await Store.loadData(c.id), ims = d && d.bisaImg && d.bisaImg[b.dataset.bsimg] || []; if (!ims.length) { toast('사진이 없습니다'); return; }
       openDlg('<h4>🖼 ' + esc(c.name) + '님이 보낸 사진</h4><div class="bsims">' + ims.map(function(x, i){ return '<a href="data:image/jpeg;base64,' + x + '" download="' + esc(c.name) + '_청구_' + (i + 1) + '.jpg"><img src="data:image/jpeg;base64,' + x + '" alt=""></a>'; }).join('') + '</div><p class="note">사진을 누르면 저장됩니다. 병리 결과지·진단서면 보험금 검토(🩺)에 넣어 확인할 수 있습니다.</p><div class="mrow"><button class="go" type="button" id="bsiX" style="margin-left:auto">닫기</button></div>', 'wide'); $('bsiX').onclick = closeDlg; return; }
     var a = b.dataset.bs;
@@ -16149,6 +16154,47 @@ function HealthUI(root, H) {
   }
   function addFile(name, buf){ var d = buf instanceof Uint8Array ? buf : new Uint8Array(buf); FILES = FILES.filter(function(x){ return x.name !== name; }); FILES.push({ name: name, data: d }); delete FSTATE[name]; }
   // 다른 앱(메리츠·KB·카톡·내 파일)에서 '공유 → AOB9'로 보낸 파일: 열려 있는 고객의 병력파악 창으로
+  // 📎 공유받은 글 → 기존 고객 기록에 (2026-11-13): 카톡 대화 내보내기(.txt) · 문자 · 통화 요약 글에서 고객을 찾아 기록에 붙이고,
+  //    약속 날짜가 보이면 다음 할 일(싯플랜에도 보임) · 답장 문구까지. 이 기기 안에서만 읽고 AI·서버로 보내지 않음. 보내기는 직접 누름.
+  function shareWho(raw){
+    var L = S.list.filter(function(c){ return !c.sample && !c.hidden && c.name; }), hit = {}, add = function(c, w){ hit[c.id] = { c: c, w: Math.max(w, (hit[c.id] || {}).w || 0) }; };
+    var uniq = function(n){ var cs = L.filter(function(c){ return c.name === n; }); return cs.length === 1 ? cs[0] : null; };
+    var tm = raw.match(/^\s*﻿?(.{1,20}?)\s*님과 카카오톡 대화/m), u; if (tm && (u = uniq(tm[1].trim()))) add(u, 3);
+    (raw.match(/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g) || []).forEach(function(p){ var n = normPhone(p); if (n) L.forEach(function(c){ if (normPhone(c.phone) === n) add(c, 3); }); });
+    var sp = {}; raw.split(/\r?\n/).forEach(function(l){ var m = l.match(/^\[([^\]]{2,12})\]\s*\[(?:오전|오후)\s*\d{1,2}:\d{2}\]/) || l.match(/^\d{4}[.년]\s*\d{1,2}[.월]\s*\d{1,2}[.일]?\s*(?:오전|오후)?\s*\d{1,2}:\d{2},?\s*([^:：]{2,12})\s*[:：]/); if (m) sp[m[1].trim()] = 1; });
+    Object.keys(sp).forEach(function(n){ var c = uniq(n); if (c) add(c, 2); });
+    var head = raw.slice(0, 500); L.forEach(function(c){ if (c.name.length >= 2 && (head.indexOf(c.name + '님') >= 0 || head.indexOf(c.name + ' 고객') >= 0)) { var c1 = uniq(c.name); if (c1) add(c1, 1); } });
+    var a = Object.keys(hit).map(function(k){ return hit[k]; }).sort(function(x, y){ return y.w - x.w; });
+    return a.length === 1 || (a.length > 1 && a[0].w > a[1].w) ? a[0].c : null;
+  }
+  // 카톡 내보내기 글을 '이름: 말' 줄로 (시간은 빼고 날짜 구분만 남김)
+  function chatLines(raw){ return String(raw || '').split(/\r?\n/).map(function(l){ var m;
+    if ((m = l.match(/^\[([^\]]{1,20})\]\s*\[(?:오전|오후)\s*\d{1,2}:\d{2}\]\s*(.*)$/))) return m[1] + ': ' + m[2];
+    if ((m = l.match(/^\d{4}[.년]\s*\d{1,2}[.월]\s*\d{1,2}[.일]?\s*(?:오전|오후)?\s*\d{1,2}:\d{2},?\s*([^:：]{1,20}?)\s*[:：]\s*(.*)$/))) return m[1] + ': ' + m[2];
+    if ((m = l.match(/^-+\s*\d{4}년\s*(\d{1,2})월\s*(\d{1,2})일.*-+$/))) return '— ' + m[1] + '/' + m[2] + ' —';
+    if (/^(저장한 날짜|.*님과 카카오톡 대화)\s*:?.*$/.test(l)) return '';
+    return l.trim(); }).filter(Boolean); }
+  function openShareNote(c, raw){
+    var kk = /카카오톡 대화|\[(오전|오후)\s*\d{1,2}:\d{2}\]/.test(raw), lines = chatLines(raw), tail = lines.slice(-40).join('\n').slice(-2000), t = todayStr();
+    var ap = null; for (var i = lines.length - 1; i >= Math.max(0, lines.length - 30) && !ap; i--) { var d = ciDate(lines[i]), tt = ciTime(lines[i]); if (d && d.d >= t) ap = { d: d.d, t: tt ? tt.t : '' }; }
+    var hasNext = c.next && c.next.d && c.next.d >= t, W = '일월화수목금토';
+    openDlg('<h4>📎 받은 글 → ' + esc(c.name) + ' 고객</h4><div class="form"><p class="note">' + (kk ? '카톡 대화' : '받은 글') + ' ' + lines.length + '줄 · 이 기기 안에서만 읽었습니다</p><pre class="wkt" style="max-height:160px;overflow:auto">' + esc(lines.slice(-10).join('\n')) + '</pre>' +
+      '<label class="ck"><input type="checkbox" id="snLog" checked> 상담 기록에 붙이기 <small class="note">(최근 ' + Math.min(40, lines.length) + '줄)</small></label>' +
+      (ap ? '<label class="ck"><input type="checkbox" id="snNext"' + (hasNext ? '' : ' checked') + '> 다음 할 일로 등록 <small class="note">(싯플랜에도 보입니다' + (hasNext ? ' · 지금 할 일: ' + esc(dot(c.next.d) + ' ' + (c.next.t || '')) : '') + ')</small></label><div class="frow2"><div><input type="date" id="snD" value="' + ap.d + '"></div><div><input type="time" id="snT" value="' + (ap.t ? ap.t.slice(0, 2) + ':' + ap.t.slice(2) : '') + '"></div></div>' : '<p class="note">약속 날짜는 찾지 못했습니다. 필요하면 고객 화면 "기록 · 할 일 추가"에서 넣어 주세요.</p>') +
+      '<button type="button" class="lnk" id="snOther">다른 사람이에요 → 새 고객으로 가져오기</button></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="snX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="snGo">저장</button><button class="go" type="button" id="snRe">저장 + 답장 문구</button></div>', 'wide');
+    var save = async function(reply){
+      var log = $('snLog').checked, nx = $('snNext') && $('snNext').checked, d = $('snD') ? $('snD').value : '', tm = $('snT') ? $('snT').value : '';
+      closeDlg(); await openCustomer(c.id); if (!S.cur || S.cur.id !== c.id) return;
+      if (nx && d) S.cur.next = { d: d, t: (tm ? tm + ' ' : '') + '상담 약속' };
+      if (log) await addNote(kk ? 'kakao' : 'note', (kk ? '[카톡 대화]' : '[받은 글]') + '\n' + tail); else await saveCur();
+      toast('✅ ' + c.name + ' 고객 기록에 넣었습니다' + (nx && d ? ' · 다음 할 일 ' + dot(d) : ''));
+      if (reply) { var h = tm ? +tm.slice(0, 2) : -1, mi = tm ? +tm.slice(3, 5) : 0;
+        S.preTxt = nx && d ? '네, {이름}님. ' + (+d.slice(5, 7)) + '월 ' + (+d.slice(8, 10)) + '일(' + W[wdOf(d)] + ')' + (h >= 0 ? ' ' + (h < 12 ? '오전' : '오후') + ' ' + (h % 12 || 12) + '시' + (mi ? ' ' + mi + '분' : '') : '') + '에 뵙겠습니다. 변동 있으시면 편하게 연락 주세요.' : '네, {이름}님. 보내 주신 내용 잘 확인했습니다. 정리해서 곧 다시 연락드리겠습니다.';
+        openMsg(kk ? 'kakao' : 'sms', 'raw'); } };
+    $('snX').onclick = closeDlg; $('snGo').onclick = function(){ save(false); }; $('snRe').onclick = function(){ save(true); };
+    $('snOther').onclick = function(){ closeDlg(); openPaste(cleanKakao(raw)); };
+  }
   function sharedIn(){
     var fs = window.__sharedFiles || []; if (!fs.length) return;
     if (!$('lock').hidden || $('shell').hidden) { clearTimeout(sharedIn._t); sharedIn._t = setTimeout(sharedIn, 2500); return; }
@@ -16158,7 +16204,7 @@ function HealthUI(root, H) {
     var vcf = fs.filter(function(f){ return /\.(vcf|vcard)$/i.test(f.name || '') || /vcard/i.test(f.type || ''); });
     if (vcf.length) { window.__sharedFiles = fs.filter(function(f){ return vcf.indexOf(f) < 0; }); peopleFiles(vcf); return; }
     if (ics.length) { window.__sharedFiles = fs.filter(function(f){ return ics.indexOf(f) < 0; }); Promise.all(ics.map(function(f){ return f.text(); })).then(async function(a){ var ev = [].concat.apply([], a.map(icsParse)); closeDlg(); await planLoad(); openCalImport('', ev); }); return; }
-    if (txt.length) { window.__sharedFiles = fs.filter(function(f){ return txt.indexOf(f) < 0; }); Promise.all(txt.map(function(f){ return f.text(); })).then(async function(a){ var j = a.join('\n\n'); closeDlg(); if (/BEGIN:VCARD/i.test(j)) { var vl = vcfParse(j); if (vl.length) { openPaste('', null, null, vl); return; } } if (/BEGIN:VEVENT/.test(j)) { await planLoad(); openCalImport('', icsParse(j)); return; } if (j.length < 600 && ciRaw(j.replace(/\n/g, ' '))) { await planLoad(); openCalImport(j); return; } openPaste(cleanKakao(j)); }); return; }
+    if (txt.length) { window.__sharedFiles = fs.filter(function(f){ return txt.indexOf(f) < 0; }); Promise.all(txt.map(function(f){ return f.text(); })).then(async function(a){ var j = a.join('\n\n'); closeDlg(); if (/BEGIN:VCARD/i.test(j)) { var vl = vcfParse(j); if (vl.length) { openPaste('', null, null, vl); return; } } if (/BEGIN:VEVENT/.test(j)) { await planLoad(); openCalImport('', icsParse(j)); return; } if (j.length < 600 && ciRaw(j.replace(/\n/g, ' '))) { await planLoad(); openCalImport(j); return; } var who = shareWho(j); if (who) { openShareNote(who, j); return; } openPaste(cleanKakao(j)); }); return; }
     // 보험사 고객등록 서류(동의서 등) PDF → 팩스로 보내기 창 (2026-11-09)
     var cvs = fs.filter(function(f){ return covIsName(f.name); });
     if (cvs.length >= 2 && !$('fdrop')) { window.__sharedFiles = fs.filter(function(f){ return cvs.indexOf(f) < 0; }); toast('보장분석 ' + cvs.length + '개 · 고객별로 나눠 넣는 중…', 4000); covBatch(cvs); return; }
@@ -16881,6 +16927,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="757cdc5ce50d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="19a8feabc4ce";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>

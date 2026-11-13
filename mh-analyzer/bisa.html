@@ -37,6 +37,7 @@ textarea{min-height:110px;resize:vertical}
 .chips button[aria-pressed="true"]{background:var(--ac);border-color:var(--ac);color:#fff}
 .go{width:100%;border:0;border-radius:14px;background:var(--ac);color:#fff;font-weight:800;padding:16px;margin-top:16px;cursor:pointer;font-size:16px}
 .go:disabled{opacity:.5}.btn2{width:100%;border:1px solid var(--line);border-radius:14px;background:var(--card);padding:13px;margin-top:8px;cursor:pointer;font-weight:700}
+ol.steps{margin:12px 0 8px;padding-left:22px;line-height:1.8;font-size:14.5px}ol.steps a{font-weight:700}
 .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
 .note{color:var(--sub);font-size:13px}.safe{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--sub);background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:12px}
 .ct{border-top:1px solid var(--line);padding:12px 0}.ct:first-child{border-top:0;padding-top:0}
@@ -99,6 +100,7 @@ textarea{min-height:110px;resize:vertical}
       '<button class="tile" data-go="cov"><i>🛡️</i><b>내 보장 보기</b><small>가입하신 보험과 특약</small></button>' +
       '<button class="tile" data-go="ask"><i>💬</i><b>문의 · 상담 요청</b><small>전화가 부담스러우면 여기로</small></button>' +
       '<button class="tile" data-go="inbox">' + (unread ? '<span class="badge">' + unread + '</span>' : '') + '<i>📨</i><b>받은 답장</b><small>설계사가 보낸 안내</small></button>' +
+      '<button class="tile" data-go="med"><i>🩺</i><b>내 진료기록 보내기</b><small>가입 전 확인 · 놓친 보험금 찾기</small></button>' +
       '<button class="tile" data-go="hosp"><i>🏥</i><b>내 주변 병원</b><small>진료과별로 찾기</small></button>' +
       '<button class="tile" data-go="docs"><i>📋</i><b>청구 서류 안내</b><small>무엇을 떼어야 하나요?</small></button>' +
       '<button class="tile" data-go="about"><i>🔒</i><b>개인정보 · 앱 정보</b><small>내 정보는 이렇게 지켜집니다</small></button>' +
@@ -124,6 +126,36 @@ textarea{min-height:110px;resize:vertical}
       try { await send({ t: 'claim', kind: CL.kind, date: $('clD').value, hosp: $('clH').value.trim(), memo: $('clM').value.trim(), imgs: CL.photos });
         mine({ t: 'claim', text: '💰 청구 요청 · ' + CL.kind + ' · ' + $('clD').value + (CL.photos.length ? ' · 사진 ' + CL.photos.length + '장' : '') });
         done('청구 요청을 보냈습니다', '담당 설계사가 확인하고 연락드릴게요. 보통 하루 안에 답장이 옵니다.'); }
+      catch(e){ b.disabled = false; b.textContent = '다시 보내기'; toast(e.message || '보내지 못했습니다'); } };
+  }
+  // 🩺 내 진료기록 보내기 (2026-11-13): 고객이 직접 받은 심평원 PDF를 잠가서 담당 설계사에게만 — 이 전송에 대한 민감정보 동의를 따로 받음
+  var MD = { files: [] }, MD_MAX = 4 * 1024 * 1024;
+  function fileB64(f){ return new Promise(function(res, rej){ var r = new FileReader(); r.onload = function(){ var s2 = String(r.result || ''); res(s2.slice(s2.indexOf(',') + 1)); }; r.onerror = function(){ rej(new Error('파일을 읽지 못했습니다')); }; r.readAsDataURL(f); }); }
+  function med(){
+    app.innerHTML = shell('<div class="card"><h3 style="margin:0">🩺 내 진료기록 보내기</h3><p class="note">보험 가입 전에 알려야 할 내용을 정확히 확인하고, 놓친 보험금이 있는지 찾아 드릴 때 씁니다. 고객님이 직접 받으신 파일만 보내시면 됩니다.</p>' +
+      '<ol class="steps"><li><b>심평원 "내 진료정보 열람"</b>을 엽니다. <a href="https://www.hira.or.kr/dummy.do?pgmid=HIRAA030009200000" target="_blank" rel="noopener">심평원 열기 ↗</a></li>' +
+      '<li>간편인증(카카오 · 네이버 · PASS)으로 <b>본인 인증</b>을 합니다.</li>' +
+      '<li>조회 기간을 <b>가장 길게(5년)</b> 고르고 <b>"민감상병 표시"</b>에 체크합니다.</li>' +
+      '<li><b>기본진료 · 세부진료 · 처방조제</b>를 각각 PDF로 저장합니다. (파일 비밀번호는 생년월일)</li>' +
+      '<li>아래에서 저장한 PDF를 골라 보냅니다.</li></ol>' +
+      '<p class="note">휴대폰에서 저장이 잘 안 되면 PC에서 저장한 파일을 카카오톡 "나에게 보내기"로 옮긴 뒤 여기서 고르셔도 됩니다. 어려우시면 담당 설계사에게 편하게 물어보세요.</p>' +
+      '<label class="l">PDF 파일 (여러 개 가능 · 한 번에 4MB까지)</label><input type="file" id="mdF" accept="application/pdf,.pdf" multiple><div class="note" id="mdL"></div>' +
+      '<label class="l">하실 말씀 (선택)</label><textarea id="mdM" placeholder="예: 최근 3개월 안에 병원에 다녀왔어요"></textarea>' +
+      '<label class="ck"><input type="checkbox" id="mdC"><span><b>[필수] 진료 · 투약 내역(민감정보) 제공 동의</b><br><small class="note">보내는 정보: 위 PDF 속 진료 · 처방 내역 / 목적: 가입 전 알릴 사항 확인 · 놓친 보험금 찾기 / 받는 사람: 담당 설계사 한 명 / 보관: 상담이 끝나거나 삭제를 요청하실 때까지 (최대 1년)</small></span></label>' +
+      '<button class="go" id="mdGo">담당 설계사에게 보내기</button>' +
+      '<div class="safe">🔒<span>파일은 이 휴대폰에서 잠근 뒤 보내져 <b>담당 설계사만</b> 열 수 있습니다. 중간 서버에는 잠긴 글만 잠시 머물다 지워집니다. 동의하지 않으셔도 다른 기능은 그대로 쓰실 수 있습니다.</span></div></div>', true);
+    MD.files = [];
+    var draw = function(){ var tot = MD.files.reduce(function(a, f){ return a + f.size; }, 0); $('mdL').innerHTML = MD.files.length ? MD.files.map(function(f){ return '📄 ' + esc(f.name) + ' (' + Math.max(1, Math.round(f.size / 1024)) + 'KB)'; }).join('<br>') + '<br><b>합계 ' + (tot / 1048576).toFixed(1) + 'MB</b>' + (tot > MD_MAX ? ' — 4MB를 넘습니다. 파일을 나눠서 두 번에 보내 주세요.' : '') : ''; };
+    $('mdF').onchange = function(){ MD.files = [].slice.call(this.files || []).filter(function(f){ return /pdf$/i.test(f.type || '') || /\.pdf$/i.test(f.name || ''); }).slice(0, 8); if (this.files.length && !MD.files.length) toast('PDF 파일만 보낼 수 있습니다'); draw(); };
+    $('mdGo').onclick = async function(){
+      if (!MD.files.length) { toast('PDF 파일을 골라 주세요'); return; }
+      if (!$('mdC').checked) { toast('동의에 체크해 주세요'); return; }
+      if (MD.files.reduce(function(a, f){ return a + f.size; }, 0) > MD_MAX) { toast('한 번에 4MB까지입니다. 파일을 나눠 보내 주세요'); return; }
+      var b = this; b.disabled = true; b.textContent = '안전하게 보내는 중…';
+      try { var fl = []; for (var i = 0; i < MD.files.length; i++) fl.push({ name: MD.files[i].name.slice(0, 80), b64: await fileB64(MD.files[i]) });
+        await send({ t: 'med', memo: $('mdM').value.trim(), files: fl, agree: { at: Date.now(), v: 1 } });
+        mine({ t: 'med', text: '🩺 진료기록 PDF ' + fl.length + '개 보냄' });
+        done('진료기록을 보냈습니다', '담당 설계사가 확인하고 연락드릴게요. 보낸 파일은 담당 설계사만 열 수 있습니다.'); }
       catch(e){ b.disabled = false; b.textContent = '다시 보내기'; toast(e.message || '보내지 못했습니다'); } };
   }
   var ASK = { kind: '상담 요청' };
@@ -209,7 +241,7 @@ textarea{min-height:110px;resize:vertical}
     var g = t.dataset.go, a = t.dataset.act;
     if (a === 'ext') { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href); return; }
     if (a === 'inst' && DEFER) { DEFER.prompt(); DEFER = null; t.hidden = true; return; }
-    ({ home: home, claim: claim, ask: ask, cov: cov, hosp: hosp, docs: docs, about: about, inbox: inbox })[g] && ({ home: home, claim: claim, ask: ask, cov: cov, hosp: hosp, docs: docs, about: about, inbox: inbox })[g]();
+    var GO = { home: home, claim: claim, ask: ask, med: med, cov: cov, hosp: hosp, docs: docs, about: about, inbox: inbox }; GO[g] && GO[g]();
     window.scrollTo(0, 0); });
   document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && B) pollReplies(); });
   load();
