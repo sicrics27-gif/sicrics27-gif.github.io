@@ -3702,7 +3702,18 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
       var d = pd(x.date); if (!d || d < d3m || d > base || seen[x.hosp + '|' + x.date] || isPharm(x.hosp, '')) return;
       seen[x.hosp + '|' + x.date] = 1;
       var prev = basic.filter(function (b) { return b.hosp === x.hosp && b.code && b.date < x.date; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
-      r3.push({ date: x.date, hosp: x.hosp, type: '외래', days: 1, rxDays: x.days, code: prev ? prev.code : '', name: prev ? prev.name + ' (같은 병원 이전 진단으로 추정)' : '', src: x.src === '투약이력' ? '내가 먹는 약(투약이력)' : '심평원 처방조제', guessed: true });
+      // 2026-11-13 MHS 대조: 진단명이 아직 안 나온 최근 방문은 이전 상병 카드에 섞지 않고 '진단명 파악 불가' 카드로 따로 (MHS '근접이력'과 같게 · 고지 쪽으로)
+      r3.push({ date: x.date, hosp: x.hosp, type: '외래', days: 1, rxDays: x.days, code: '', name: '', hint: prev ? prev.code + ' ' + prev.name : '', src: x.src === '투약이력' ? '내가 먹는 약(투약이력)' : '심평원 처방조제', guessed: true });
+    });
+    // 세부진료(주사·처치)에만 있는 최근 병원 방문도 같은 방식으로 (2026-11-13 MHS '근접이력' 대조: 10/19 정형외과 주사처럼 진단명이 아직 안 나온 방문)
+    var hn = function (h) { return String(h || '').replace(/\s|\(.*?\)|의원$|병원$|의료법인|재단법인/g, '').slice(0, 6); };
+    var seenN = {}; basic.concat(recent).forEach(function (r) { seenN[hn(r.hosp) + '|' + r.date] = 1; }); rx.forEach(function (r) { seenN[hn(r.hosp) + '|' + r.date] = 1; });
+    detail.forEach(function (x) {
+      var d = pd(x.date); if (!d || d < d3m || d > base || !x.hosp || seen[x.hosp + '|' + x.date] || seenN[hn(x.hosp) + '|' + x.date] || isPharm(x.hosp, '')) return;
+      seen[x.hosp + '|' + x.date] = 1;
+      var prev = basic.filter(function (b) { return b.hosp === x.hosp && b.code && b.date < x.date; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
+      var med = /주사|투약|약제|조제/.test((x.cat || '') + ' ' + (x.item || ''));
+      r3.push({ date: x.date, hosp: x.hosp, type: '외래', days: 1, rxDays: med ? 1 : 0, code: '', name: '', hint: prev ? prev.code + ' ' + prev.name : '', src: '심평원 세부진료', guessed: true });
     });
     r3.forEach(function (x) {
       var pharm = /약국/.test(x.type);
@@ -3731,6 +3742,7 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
       }
       var key = target.code ? target.code : '?' + (target.hosp || x.hosp);
       var g = g3[key] = g3[key] || { code: target.code || '', name: target.code ? target.name : '', hosps: {}, dates: {}, rx: false, src: {}, first: x.date, last: x.date };
+      if (!g.code && x.hint) g.hint = x.hint;
       if (!pharm || target === x) { g.hosps[target.hosp] = 1; g.dates[target.date] = 1; }
       if (pharm || x.rxDays > 1) g.rx = true;
       g.src[x.src] = 1;
@@ -3757,11 +3769,11 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
       }
       var judge;
       if (mode === 'std') judge = '3개월 이내 진단·치료' + (g.rx ? '·투약' : '');
-      else if (!g.code) judge = '진단명 확인 필요 — 병원·처방일자로 고객에게 확인';
+      else if (!g.code) judge = g.rx ? '3개월 이내 투약 신규 또는 증가(' + g.first.slice(5).replace('-', '/') + ' 발생) — 진단명 확인 필요' : '3개월 이내 신규 진료 — 진단명 확인 필요(병원·날짜로 고객에게 확인)';
       else if (knownCodes[g.code] && !newDrug) judge = '3개월 이내 기왕증 단순 통원 처방(처방약품 유지/감소·진료 유지 고지)';
       else if (knownCodes[g.code]) judge = '3개월 이내 투약 신규 또는 증가(' + newDrug.date.slice(5).replace('-', '/') + ' 발생)';
-      else judge = '3개월 이내 신규 진료' + (g.rx ? '·투약' : '') + ' — 진단명·추가검사 소견 확인';
-      return { code: g.code, name: g.name, hosps: hs, days: dates.length, first: g.first, last: g.last, rx: g.rx, judge: judge, major: majorFn(g.code), src: Object.keys(g.src).join(', ') };
+      else judge = g.rx ? '3개월 이내 투약 신규 또는 증가(' + g.first.slice(5).replace('-', '/') + ' 발생) — 신규 진료, 추가검사 소견 확인' : '3개월 이내 신규 진료 — 진단명·추가검사 소견 확인';
+      return { code: g.code, name: g.name, hint: g.hint || '', hosps: hs, days: dates.length, first: g.first, last: g.last, rx: g.rx, judge: judge, major: majorFn(g.code), src: Object.keys(g.src).join(', ') };
     }).sort(function (a, b) { return a.last < b.last ? 1 : -1; });
 
     var counts = { 입원: 0, 수술: 0, '7일이상': 0, '30일이상': 0, 질병: 0, 정밀: 0, 시술: 0, 만성: 0 };
@@ -14914,7 +14926,7 @@ function HealthUI(root, H) {
 
     var m3P = '<div class="sec-h"><h3>3개월 이내 진료</h3><span>' + R.from3m + ' ~ ' + R.base + (R.mode === 'std' ? ' · 표준체: 진료·투약 모두 고지' : ' · 간편: 신규·증량 투약 및 추가검사 소견 확인') + '</span></div>';
     m3P += !R.recent3mCards.length ? '<div class="empty">해당되는 진료 정보가 없습니다.</div>' : '<div class="tw"><table class="t"><thead><tr><th>상병</th><th>의료기관</th><th>기간</th><th>투약</th><th>판단</th></tr></thead><tbody>' +
-      R.recent3mCards.map(function(x){ return '<tr><td>' + (x.code ? '<span class="mono">' + esc(x.code) + '</span> ' + esc(x.name) : '<b>진단명 파악 불가</b> <small class="note">(약국 조제만 확인됨)</small>') + (x.major ? ' <span class="chip">' + esc(x.major) + '</span>' : '') + '</td><td>' + esc(x.hosps.join(', ')) + '</td><td class="n">' + yy(x.first) + (x.first !== x.last ? ' ~ ' + yy(x.last) : '') + '<br><small class="note">' + x.days + '일</small></td><td>' + (x.rx ? '있음' : '-') + '</td><td>' + esc(x.judge) + '<br><small class="note">' + esc(x.src) + '</small></td></tr>'; }).join('') + '</tbody></table></div>';
+      R.recent3mCards.map(function(x){ return '<tr><td>' + (x.code ? '<span class="mono">' + esc(x.code) + '</span> ' + esc(x.name) : '<b>진단명 파악 불가</b> <small class="note">' + (x.hint ? '(진단명 아직 안 나옴 · 같은 병원 이전 진단 ' + esc(x.hint) + ')' : '(약국 조제만 확인됨)') + '</small>') + (x.major ? ' <span class="chip">' + esc(x.major) + '</span>' : '') + '</td><td>' + esc(x.hosps.join(', ')) + '</td><td class="n">' + yy(x.first) + (x.first !== x.last ? ' ~ ' + yy(x.last) : '') + '<br><small class="note">' + x.days + '일</small></td><td>' + (x.rx ? '있음' : '-') + '</td><td>' + esc(x.judge) + '<br><small class="note">' + esc(x.src) + '</small></td></tr>'; }).join('') + '</tbody></table></div>';
     var discP = '<div class="sec-h"><h3>고지 대상</h3><span>' + esc(t5) + ' · ' + R.main.length + '건 · <b class="red">빨강</b> 고지 / <b class="amber">주황</b> 추가 확인</span></div>' + (R.main.length ? R.main.map(function(c, i){ return cardHtml(c, 'm' + i, R); }).join('') : '<div class="empty">고지 대상에 해당하는 진료가 없습니다.</div>');
     var chkP = '<div class="sec-h"><h3>확인 필요</h3><span>보험사·상품에 따라 고지 대상이 될 수 있는 진료 · ' + R.check.length + '건</span></div>' + (R.check.length ? R.check.map(function(c, i){ return cardHtml(c, 'k' + i, R); }).join('') : '<div class="empty">없음</div>');
     var noneP = '<div class="sec-h"><h3>미해당 상병</h3><span>고지 기준에 걸리지 않는 진료와 사유 · ' + R.extra.length + '건</span></div>' + (R.extra.length ? '<div class="card">' + R.extra.map(function(c, idx){
@@ -16273,6 +16285,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="5b21751ab4f8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="dc8df0156eb7";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
