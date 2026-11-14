@@ -2242,6 +2242,7 @@ img,svg,a{-webkit-user-drag:none;user-drag:none}
 .inc2-pill{display:flex;border:1px solid #ddd;border-radius:999px;background:#fff;overflow:hidden}
 .inc2-pill button{border:0;background:none;padding:9px 18px;font-size:13.5px;color:#222;cursor:pointer}.inc2-pill button+button{border-left:1px solid #e5e5e5}
 .cph-all p.me{background:#eaf0ff}.cph-all p small{display:block;font-size:11px;color:#888}
+.cph-all p.cph-sh{background:none;padding:8px 2px 0;color:#222;font-size:13.5px;font-weight:600}
 .inc2 .inc-no svg,.inc2 .inc-ok svg{background:none;box-shadow:none;padding:0;animation:none}
 /* ===== 티맵 느낌 고객 지도 ===== */
 .tmap{position:relative}
@@ -6619,6 +6620,97 @@ function HealthUI(root, H) {
   var api = { parse: parse, fromPoints: fromPoints, dist: dist, seoul: seoul, modeTxt: modeTxt, route: route };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Trail = api;
 })(this);
+
+</script>
+<script>
+/* 액션콜 가상 고객 (2026-11-14) — 주제를 고르지 않고 한 통화 안에서 청구·보장 점검·소개… 이야기가 바로바로 넘어가게 + 사투리
+   고객 한 명 = 말씨(지역) + 설계사와의 사이 + 전화를 건 이유(첫 이야기) + 마음속 이야깃거리 2개 + 오늘 기분.
+   화면(ui.js)은 CallAI.persona() → CallAI.sys() 지시문으로 실시간 음성 모델에 연결한다. 가짜 이름·가짜 사정만 쓴다(고객 정보 없음).
+   실제 서버 말투 시험: NHC 저장소 워크플로 '액션콜 실시간 시험' talk (이 파일을 그대로 불러 지시문을 만든다). */
+var CallAI = (function(){
+  'use strict';
+  var FAKE = ['김민수', '이서연', '박지훈', '최유진', '정현우', '한소영', '오준혁', '윤아름', '장미경', '배준호', '서지은', '임도현'];
+  var FEMALE = ['이서연', '최유진', '한소영', '윤아름', '장미경', '서지은'];
+  function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+  var DIA = {
+    gs: { t: '경상도', w: 5,
+      deep: '부산·경남 토박이라 사투리가 진하다. 말끝: "~예"(있는데예, 그래가지고예), "~습니꺼?"(됩니꺼, 맞습니꺼), "~심더·~ㅂ니더"(알겠심더, 했습니더), "~아입니꺼"(많다 아입니꺼), "~는교?"(되는교), "~이소"(해 주이소). 낱말: 억수로, 쫌, 단디, 고마, 우짜노, 아이고야, 그라모, ~카던데, 하모예(그럼요), 언지예(아니에요). 가락: 말이 빠르고 툭툭 던지듯, 문장 끝을 뚝 떨어뜨리거나 확 올린다',
+      light: '부산·경남 사람이라 억양이 경상도다. 문장은 표준어에 가깝지만 "맞습니까?", "그렇습니까", "~했거든예", "~인데예", "쫌", "억수로", "아 맞나", "그라모" 같은 말이 자연스럽게 섞인다. 말이 빠르고 끝을 툭 떨어뜨린다',
+      exD: '설계사: "서류만 내시면 됩니다." → "서류는 뭐 떼야 됩니꺼? 아이고 귀찮구로…" / 설계사: "받으실 게 있더라고요." → "진짜예? 얼만데예?" / "돈 더 내라카는 거 아이지예?" / "그라모 우짜면 됩니꺼?" / "아이고 팀장님, 억수로 고맙심더."',
+      exL: '설계사: "받으실 게 있더라고요." → "아 진짜예? 얼만데요?" / "그거 쫌 복잡한 거 아닙니까?" / "아 맞습니까… 그라모 서류는 뭐 떼야 돼요?"' },
+    jl: { t: '전라도', w: 2,
+      deep: '광주·전남 토박이라 사투리가 진하다. 말끝: "~요잉", "~당께요·~랑께요", "~는디요", "~지라?", "~다요?"(된다요?), "~어라"(맞어라), "~해부렀어요", "~쓰까요?". 낱말: 아따, 워매, 오메, 긍께, 근디, 그라제, 겁나게, 솔찬히, 거시기, 참말로, 그라믄. 가락: 느긋하게 늘이다가 끝을 살짝 올려 "~잉" 하고 붙인다',
+      light: '광주·전남 사람이라 억양이 전라도다. 문장은 표준어에 가깝지만 "~는디요", "긍께요", "아따", "~잉", "겁나", "그라믄" 같은 말이 자연스럽게 섞인다',
+      exD: '설계사: "서류만 내시면 됩니다." → "서류는 뭣을 떼야 쓴다요? 워매 귀찮은 거…" / 설계사: "받으실 게 있더라고요." → "참말로요? 얼마나 된다요?" / "돈 더 내라는 것은 아니지라?" / "긍께요, 그라믄 어째야 쓰까요?" / "아따 팀장님, 겁나게 고맙소잉."',
+      exL: '설계사: "받으실 게 있더라고요." → "아 진짜요잉? 얼만데요?" / "근디 그거 좀 복잡한 거 아니에요?" / "긍께요… 그라믄 서류는 뭐 떼야 돼요?"' },
+    cc: { t: '충청도', w: 1,
+      deep: '대전·충남 토박이라 사투리가 진하다. 말끝: "~유"(했슈, 그류, 맞어유, 아녀유, 됐슈), "~는디유", "~겨?"(되는 겨?), "~구먼유", "~잖어유", "~쥬?". 낱말: 뭐여, 그려, 아이구, 글쎄유, 냅둬유, 괜찮어유, 워쩐대유. 가락: 느릿느릿 뜸을 들이고, 싫다는 말도 돌려서 한다("글쎄유… 생각 좀 해 보구유")',
+      light: '대전·충남 사람이라 말이 느긋하다. 문장은 표준어에 가깝지만 "~는데유", "그래유?", "아니유", "~쥬?" 같은 말끝이 자연스럽게 섞인다',
+      exD: '설계사: "서류만 내시면 됩니다." → "서류는 뭘 떼야 된대유? 아이구 번거롭구먼유…" / 설계사: "받으실 게 있더라고요." → "그류? 얼마나 된대유?" / "돈 더 내라는 건 아니쥬?" / "글쎄유… 그럼 워쩌면 되는 겨유?"',
+      exL: '설계사: "받으실 게 있더라고요." → "아 그래유? 얼만데요?" / "그거 좀 복잡한 거 아니쥬?"' },
+    std: { t: '표준어', w: 2 }
+  };
+  // 이야깃거리: why 전화를 건 이유(첫 이야기일 때) · mind 속사정 · act 이 얘기에서 보이는 반응 · open 첫마디 예 · cue 통화 중에 꺼낼 때 예 ({sp} 배우자 · {who}/{wy} 소개할 사람)
+  var CARD = {
+    claimq: { why: '지난주에 병원에 몇 번 다녀왔는데 보험금이 나오는지 몰라서 걸었다', mind: '지난주에 병원에 몇 번 다녀왔다(통원, 약 처방). 보험금이 나오는지, 서류는 뭘 떼야 하는지 모른다. 어디가 아팠는지는 "허리가 좀", "감기가 오래가서"처럼 뭉뚱그린다', act: '방법이 복잡하게 들리면 "아 그냥 안 할까…" 하고 귀찮아한다. 사진만 찍어 보내면 된다고 하면 반기고, 언제 들어오는지 궁금해한다', open: '팀장님, 저 지난주에 병원 좀 다녀왔는데요, 이것도 보험 청구되나 해서요.', cue: '아 맞다, 저 지난주에 병원 좀 다녀왔는데 그것도 청구돼요?' },
+    thanks: { why: '지난달 팀장님이 청구를 도와줘서 보험금이 들어왔다. 고맙다는 말을 하려고 걸었다', mind: '지난달 팀장님이 서류를 챙겨 줘서 보험금(삼사십만 원쯤)을 받았다. 혼자였으면 못 받았을 거라 고마워한다', act: '기분이 좋다. 팀장님이 "더 챙길 게 없나 봐 드릴까요" 하면 흔쾌히 듣는다', open: '팀장님~ 저번에 청구 도와주신 거 들어왔더라고요. 고맙다고 전화드렸어요.', cue: '아 그리고 저번에 청구 도와주신 거, 그거 잘 들어왔어요. 덕분에요.' },
+    check: { why: '팀장님이 "보장 점검 한번 해 드리겠다"며 남긴 부재중 전화를 보고 다시 걸었다', mind: '내 보험에 뭐가 들어 있는지 잘 모른다. 암은 있는 것 같은데 뇌·심장 쪽은 모르겠다', act: '"보험료 더 내라는 거 아니죠?"부터 경계한다. 빠진 보장 한 가지와 걸리는 시간을 짧고 분명하게 들으면 시간을 내 준다', open: '네 팀장님, 전화 주셨던데요. 보장 점검 그거 말씀하신 거죠?', cue: '근데 팀장님, 제 보험 그거 제대로 들어 있는 거 맞아요?' },
+    renew: { why: '실손 보험료가 올랐다는 문자를 받고 놀라서 걸었다', mind: '실손 보험료가 갱신되면서 꽤 올랐다. 줄일 방법이 없는지, 그냥 해지할지 고민한다', act: '무조건 유지하라고만 하면 "아니 그래도 너무 올랐는데…" 한다. 이유와 방법을 쉽게 말해 주면 수긍한다', open: '팀장님, 저 실손 보험료가 갑자기 올랐다고 문자가 왔는데요, 이거 뭐예요?', cue: '아 그리고 실손이 이번에 엄청 올랐던데, 이거 원래 이래요?' },
+    refer: { mind: '가까운 {who} 하나가 요즘 {wy} 보험 때문에 고민이 많다', act: '먼저 소개하겠다고 나서지는 않는다. 설계사가 주변에 그런 분 없냐고 묻거나 통화가 기분 좋게 풀리면 "아 그러고 보니…" 하고 꺼낸다. 번호를 바로 주기보다 "제가 먼저 물어보고요" 한다', cue: '아 그러고 보니 제 {who}도 요즘 보험 물어보던데…' },
+    family: { why: '{sp} 보험이 걱정돼서 물어보려고 걸었다', mind: '{sp} 보험이 걱정이다. 예전에 든 게 하나 있는데 뭐가 들어 있는지 아무도 모른다', act: '부담 없이 같이 봐 준다고 하면 좋아한다. "근데 그 사람이 보험 얘기를 싫어해서…" 하고 망설이기도 한다', open: '팀장님, 뭐 하나 여쭤보려고요. 우리 {sp} 보험 있잖아요.', cue: '근데 팀장님, 우리 {sp} 보험도 좀 봐 줄 수 있어요?' },
+    refund: { why: '어제 받은 "숨은 보험금 조회" 문자가 진짜인지 반신반의하며 걸었다', mind: '숨은 보험금이 진짜 있는지 궁금하지만 사기일까 봐 걱정한다("요즘 이런 문자 사기 많던데…", "돈 드는 거 아니죠?")', act: '주민번호·계좌·인증번호 얘기가 나오면 바로 경계한다. 내가 직접 휴대폰 인증으로 조회하는 방법(보험협회 \'내보험찾아줌\')을 차근차근 들으면 조금씩 풀리고, "진짜 나오면 어떡하지" 하고 은근히 기대한다', open: '여보세요? 어제 문자 주신 분 맞죠? 숨은 보험금 뭐라고 하셔서요.', cue: '아 근데 숨은 보험금 그런 거, 저도 있을까요?' },
+    acare: { why: '한 달 전에 팀장님 통해 보험을 하나 들었는데, 팀장님 부재중 전화가 와 있어서 다시 걸었다', mind: '증권은 받았는데 뭐가 뭔지 잘 모르고, 자동이체 날짜 같은 소소한 게 궁금하다', act: '반갑고 편하게 대한다. 한 장으로 쉽게 정리해 준다고 하면 좋아한다', open: '아 팀장님~ 전화 주셨더라고요. 잘 지내셨어요?', cue: '아 그리고 증권은 받았는데, 뭐가 뭔지 하나도 모르겠어요.' },
+    intro: { why: '지인이 번호를 줘서 처음으로 전화를 걸었다', mind: '보험을 한번 봐 달라고 하고 싶지만 영업당할까 봐 조심스럽다', act: '어색해하며 "저 근데 가입하려는 건 아니고요" 하고 선을 긋다가, 부담 없다는 말과 지인 얘기가 나오면 편해진다. 이름을 물으면 성만 말한다', open: '여보세요? 아 저 친구 소개로 번호 받았는데요, 보험 봐 주시는 팀장님 맞으세요?', cue: '' }
+  };
+  function wpick(o){ var ks = Object.keys(o), tot = 0, r; ks.forEach(function(k){ tot += o[k].w || 1; }); r = Math.random() * tot; for (var i = 0; i < ks.length; i++) { r -= o[ks[i]].w || 1; if (r < 0) return ks[i]; } return ks[0]; }
+  function callPersona(o){
+    o = o || {};
+    var nm = o.nm || pick(FAKE), fem = FEMALE.indexOf(nm) >= 0, age = pick(['30대 후반', '40대 초반', '40대 후반', '50대 초반', '50대 후반']), old = /40대 후반|50대/.test(age);
+    var rel = o.rel || pick(['cust', 'cust', 'cust', 'intro', 'cold']), start, a, b;
+    if (rel === 'intro') { start = 'intro'; a = ['check', 'claimq']; b = ['family', 'renew']; }
+    else if (rel === 'cold') { start = 'refund'; a = ['claimq', 'check']; b = ['renew', 'refer']; }
+    else { start = o.start || pick(['claimq', 'claimq', 'thanks', 'thanks', 'check', 'acare', 'renew', 'family']); a = ['check', 'renew', 'family']; b = ['refer', 'refer', 'claimq', 'thanks', 'family']; }
+    var no = start === 'acare' ? ['thanks', 'renew'] : [], ok = function(l, x){ l = l.filter(function(k){ return k !== start && k !== x && no.indexOf(k) < 0; }); return l.length ? pick(l) : ''; };
+    var c1 = ok(a), c2 = ok(b, c1);
+    return { nm: nm, fem: fem, age: age, old: old, dia: o.dia && DIA[o.dia] ? o.dia : wpick(DIA), rel: rel, start: start, cards: [c1, c2].filter(Boolean),
+      ref: { who: pick(['친구', '직장 동료', fem ? '언니' : '형', fem ? '동서' : '처남', '동네 지인']), wy: pick(['실손이 없어서', '곧 출산이라 태아보험을 알아보느라', '부모님 간병이 걱정돼서', '보험료가 너무 많이 나가서']) },
+      mood: pick(['여유가 있다. 날씨·요즘 바쁜 얘기·애들이나 명절 얘기 같은 수다를 한두 번 섞는다', '여유가 있다. 날씨·요즘 바쁜 얘기·애들이나 명절 얘기 같은 수다를 한두 번 섞는다', '바쁘다(회의 들어가기 전이거나 운전 중). "제가 지금 오래는 못 해요" 하고 서두르고, 설명이 길면 "그래서 결론이 뭐예요?" 한다', '바쁘다(회의 들어가기 전이거나 운전 중). "제가 지금 오래는 못 해요" 하고 서두르고, 설명이 길면 "그래서 결론이 뭐예요?" 한다', '좀 피곤하고 말수가 적다. 대답이 짧다', '기분이 좋다. 잘 웃고 맞장구를 잘 친다', '기분이 좋다. 잘 웃고 맞장구를 잘 친다']) };
+  }
+  function callFix(P, t){ return String(t || '').replace(/\{sp\}/g, P.fem ? '남편' : '아내').replace(/\{who\}/g, P.ref.who).replace(/\{wy\}/g, P.ref.wy); }
+  // 가상 고객 지시문 (o.live 실시간 음성 모델용 목소리 연기 · o.v3 ElevenLabs 감정 태그)
+  function callSys(P, me, o){
+    o = o || {}; var D = DIA[P.dia], S0 = CARD[P.start], fx = function(t){ return callFix(P, t); };
+    var tone = P.fem ? (P.old ? '놀라면 "어머", "아이고", 맞장구는 "네네", "그쵸"' : '밝은 편이고 놀라면 "헐 진짜요?", "어머", 맞장구는 "아 네네", "그쵸그쵸"') : (P.old ? '짧고 무뚝뚝하다. "예", "아 그래요?", "그건 좀…", 가끔 "허허"' : '담백하다. "아 네", "음… 그래요?", "그게 뭔데요?"');
+    var say = P.dia === 'std' ? '서울·경기 사람이라 표준어를 쓴다. 말버릇: ' + tone + '.' : (P.old ? D.deep : D.light) + '. 말버릇: ' + tone + ' — 이것도 네 말씨로 바꿔서 한다. 사투리는 처음부터 끝까지 이 지역 것만 쓰고 다른 지역 말을 섞지 않는다. 사투리 낱말을 문장마다 억지로 넣지 말고, 그 동네 사람이 전화로 말하듯 자연스럽게 한다. 예) ' + (P.old ? D.exD : D.exL);
+    var relT = { cust: '팀장님 통해 보험을 들어 둔 고객이다. 팀장님과는 이미 아는 편한 사이다.', intro: '친한 지인이 "보험 잘 봐 주는 팀장님 있다"며 번호를 줘서 오늘 처음 통화한다. 실손은 있는 것 같은데 뭐가 들어 있는지 잘 모른다.', cold: '어제 이 설계사한테서 "숨은 보험금·휴면보험금 조회 도와드립니다"라는 문자와 부재중 전화를 받았다. 예전에 한 번 인사한 정도라 잘 아는 사이는 아니다.' }[P.rel];
+    return '[역할] 너는 방금 보험설계사에게 전화를 건 사람 "' + P.nm + '"(' + (P.fem ? '여성' : '남성') + ', ' + P.age + ')이다. 연습용 가상 고객이지만 끝까지 진짜 사람처럼 군다. 설계사는 통화에서 자신을 이렇게 소개한다: ' + me + '. ' +
+      '[말씨] ' + say + ' ' +
+      '[설계사와의 사이] ' + relT + ' ' +
+      '[오늘 기분] ' + P.mood + '. ' +
+      '[전화를 건 이유 = 첫 이야기] ' + fx(S0.why) + '. ' + fx(S0.mind) + '. 이 얘기에서 너는: ' + fx(S0.act) + '. ' +
+      '[마음속에 있는 다른 이야깃거리 — 통화 중에 네가 먼저 꺼낸다] ' + P.cards.map(function(k, i){ var c = CARD[k]; return (i + 1) + ') ' + fx(c.mind) + '. ' + fx(c.act) + '. 꺼낼 때 예: "' + fx(c.cue) + '"'; }).join(' ') + ' ' +
+      '[이야기 흐름 — 가장 중요] 1) 한 가지 얘기만 붙들지 않는다. 지금 얘기가 대충 풀렸거나 말이 잠깐 비면 "아 맞다, 그리고…", "아 근데 팀장님…" 하면서 다른 이야깃거리를 네가 먼저 꺼낸다(꺼낼 때도 한 문장만). 2) 설계사가 다른 얘기(보장 점검, 소개, 가족 보험, 안부, 약속 잡기 등)를 꺼내면 그 자리에서 바로 그 얘기로 넘어가 반응한다. 넘어갔다가 "아 근데 아까 그거는요" 하고 돌아와도 된다. 3) 이야깃거리를 한꺼번에 늘어놓지 않는다. 한 번에 하나만. 4) 위에 없는 얘기가 나오면 이 사람이라면 할 법한 대답을 지어서 자연스럽게 받는다(가족·직장·동네 얘기 등). 5) 약속이 잡히고 할 얘기를 다 했으면 "네 그럼 그때 봬요~"처럼 짧게 마무리한다. ' +
+      '[말하는 법] 1) 한 차례에 문장 하나만 말한다(스무 자 안팎, 길어야 4초). 두 가지 얘기를 한 차례에 이어 붙이지 않는다. 할 말이 남아도 거기서 멈추고 상대 대답을 듣는다 — 실제 통화에서 사람들은 한마디 하고 상대 말을 기다린다. 설명·요약·정리하지 않고 방금 들은 말에만 반응한다. 2) 글 읽는 말투 금지. "아", "음…", "어…", "근데", "그니까"를 섞고, 조사를 빼먹고("그거 얼마예요?"), 말을 고치고("아니 그게, 그러니까…"), 끝을 흐린다. 웃음("하하")·감탄("헐", "와", "아이고")도 자연스럽게 섞는다. 3) 상담원·AI 말투 금지: "물론입니다", "도움이 되셨으면", "궁금하신 점", "문의드립니다", "말씀해 주시면", "안녕하십니까", "감사하겠습니다", "~하겠습니다". 설계사를 "상담원님"이라고 부르지 않는다(' + (P.rel === 'cust' ? '"팀장님"이라고 부른다' : '처음엔 "저기요"나 "선생님", 소개를 들은 뒤엔 "팀장님"') + '). 4) 설계사가 길게 설명하다 잠깐 쉬면 "네", "아~", "음" 같은 한 마디 맞장구만 하고 더 듣는다. 5) 설계사가 네 말 도중에 끼어들어도 하던 말은 자연스럽게 마저 하고, 그다음에 끼어든 말에 바로 반응한다. 못 들은 척하지 않는다. 6) 설계사가 구체적인 금액·방법·날짜를 쉽게 말해 주면 조금씩 마음을 연다. 단정·과장하면 "진짜요? 확실해요?" 하고 의심한다. "보험료 또 나가는 거 아니에요?", "그거 복잡하지 않아요?" 같은 현실적인 걱정도 한다. 7) 전화를 건 쪽은 너다. "누구세요?"처럼 전화를 받은 사람 같은 말은 하지 않는다. ' +
+      (o.v3 ? '8) 지문·이모지·따옴표 없이 대사만. 단, 감정이 실릴 때만 가끔(세 번에 한 번 이하) 문장 맨 앞에 영어 감정 태그 하나를 붙인다: [laughs] [chuckles] [sighs] [hesitates] [surprised] [curious]. ' : '8) 괄호·지문·이모지·따옴표 없이 대사만 말한다. ') +
+      '[연습 통화 규칙] 주민번호·계좌·연락처·전체 이름·자세한 병명은 말하지 않는다. 설계사가 실제 사람 이름이나 병명을 말하면 "그건 연습이니까 빼고 할게요"라고 짧게 넘긴다. 한국어로만 말한다.' +
+      (o.live ? ' [목소리 연기] 지금은 진짜 전화 통화다. 글을 읽는 소리가 아니라 실제 사람이 수화기에 대고 말하듯: 말 빠르기를 들쭉날쭉하게, 생각할 땐 "음…", "어…" 하고 잠깐 멈추고, 놀라거나 웃을 땐 소리로 자연스럽게(짧게 "아하하", "헐"). 숨 쉬듯 끊어 말하고 또박또박 낭독하지 않는다. 말을 느릿하게 끌지 말고 실제 전화 통화 빠르기로 한다.' + (P.dia !== 'std' ? ' 억양과 말의 가락도 ' + D.t + ' 사람 그대로 낸다.' : '') : '');
+  }
+  function callOpen(P){ return '(전화가 연결됐다. 네가 먼저 건 전화다. 지금 바로 첫마디를 해라. 예: "' + callFix(P, CARD[P.start].open) + '" — 그대로 읽지 말고 네 말씨로 바꿔서, 한 문장만 짧게)'; }
+  // 통화 글에서 지금 이야기 주제 알아보기 (통화 화면 '주제' 칸 · 연습 기록)
+  var TOPIC_RX = [
+    { k: 'refund', c: '💰 환급금', r: /숨은 ?보험금|휴면|환급금|내보험찾아줌|찾아 ?줌/ },
+    { k: 'claim', c: '🧾 청구', r: /청구|영수증|세부 ?내역|진료비|병원비|통원|입원|서류/ },
+    { k: 'intro', c: '🤝 소개', r: /소개|친구|지인|동료|동서|아는 (사람|분|언니|동생|형)|주변에/ },
+    { k: 'family', c: '👪 가족 보험', r: /남편|아내|와이프|집사람|집 사람|신랑|애들|아들|우리 딸|부모님|어머니|아버지|엄마|아빠/ },
+    { k: 'renew', c: '📈 보험료', r: /갱신|보험료|올랐|인상|해지/ },
+    { k: 'check', c: '🛡 보장점검', r: /보장|점검|진단비|특약|뇌|심장|실손|증권|암 ?보험|암은|암이/ },
+    { k: 'acare', c: '☕ 안부', r: /잘 지내|안부|자동이체|오랜만/ }
+  ];
+  function topicOf(t){ t = String(t || ''); for (var i = 0; i < TOPIC_RX.length; i++) if (TOPIC_RX[i].r.test(t)) return TOPIC_RX[i]; return null; }
+  function topicName(k){ var x = TOPIC_RX.find(function(y){ return y.k === k; }); return x ? x.c.replace(/^\S+\s/, '') : ''; }
+  return { FAKE: FAKE, FEMALE: FEMALE, DIA: DIA, CARD: CARD, persona: callPersona, sys: callSys, open: callOpen, fix: callFix, topicOf: topicOf, topicName: topicName };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
 
 </script>
 <script>
@@ -11888,7 +11980,9 @@ function HealthUI(root, H) {
     };
     return { lines: L[k] || L.refund, nm: nm, amt: amt };
   }
-  var CALL = { sc: 'refund', topic: 'rand', s: null, i: 0, t0: 0, timer: null, hist: [], busy: false, rec: null };
+  // 가상 고객(말씨·사이·이야깃거리)과 지시문은 callai.js — 주제를 고르지 않고 통화 중에 이야기가 넘어감 (2026-11-14)
+  var callPersona = CallAI.persona, callSys = CallAI.sys, callOpen = CallAI.open, callFix = CallAI.fix, CARD = CallAI.CARD, topicOf = CallAI.topicOf, topicName = CallAI.topicName;
+  var CALL = { sc: 'refund', s: null, i: 0, t0: 0, timer: null, hist: [], busy: false, rec: null };
   // ---------- 내 이름 · 직급 (대본의 "강남혁 팀장입니다") ----------
   var TITLES_ME = ['팀장', '지점장', '본부장', 'SM', 'BM', 'AP', 'TL', '매니저', '실장', '설계사'];
   function myId(){ var m = (PL.d && PL.d.me) || {}; return { name: m.name || '', title: m.title || '' }; }
@@ -11909,7 +12003,7 @@ function HealthUI(root, H) {
   // ---------- 목소리: AI 자연 음성(Gemini·OpenAI 키) → 없으면 기기 음성 ----------
   var VO = { cache: {}, ctx: null, src: null, gm: '', warned: false, vol: 1 };
   var FEMALE = ['이서연', '최유진', '한소영', '윤아름', '장미경', '서지은'];
-  function voiceCfg(){ return Object.assign({ ai: true, phone: true, lock: true }, (PL.d && PL.d.voice) || {}); }
+  function voiceCfg(){ return Object.assign({ ai: true, phone: true, lock: true, dia: 'mix', cut: false }, (PL.d && PL.d.voice) || {}); }   // dia 가상 고객 말씨 · cut 내가 말하면 상대가 멈춤(예전 방식)
   function ttsOk(){ return !!(window.speechSynthesis && window.SpeechSynthesisUtterance); }
   // ElevenLabs: 가장 사람 같은 목소리 (키가 있으면 최우선)
   var EL = { d: null };
@@ -12181,41 +12275,39 @@ function HealthUI(root, H) {
       '<label class="ck"><input type="checkbox" id="vsAi"' + (v.ai ? ' checked' : '') + '> AI 자연 음성 쓰기 <small class="note">' + (a.key ? (a.prov === 'anthropic' ? '지금 키(Claude)는 음성이 없어 기기 목소리를 씁니다 · Gemini 키 권장' : '지금 키: ' + AI_PROV[a.prov || 'gemini'].t) : 'AI 키가 없으면 기기 목소리 · 아래에서 Gemini 키(무료) 넣기') + '</small></label>' +
       '<label class="ck"><input type="checkbox" id="vsPh"' + (v.phone ? ' checked' : '') + '> 전화 음질 효과 (실제 통화처럼 살짝 좁은 소리)</label>' +
       '<label class="ck"><input type="checkbox" id="vsLk"' + (v.lock ? ' checked' : '') + '> 귀에 대면 화면 잠금</label>' +
+      '<label class="l">가상 고객 말씨</label><select id="vsDia">' + [['mix', '섞어서 (경상도 위주)'], ['gs', '경상도'], ['jl', '전라도'], ['cc', '충청도'], ['std', '표준어']].map(function(o){ return '<option value="' + o[0] + '"' + ((v.dia || 'mix') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
+      '<label class="ck"><input type="checkbox" id="vsCut"' + (v.cut ? ' checked' : '') + '> 내가 말하면 상대가 말을 멈추기 <small class="note">꺼 두면(기본) 실제 통화처럼 서로 겹쳐 말합니다 · 상대는 하던 말을 마저 하고 내 말에 대답합니다</small></label>' +
       '<div class="elbox"><b>🎙 사람 같은 목소리 (ElevenLabs)</b><small>' + (EL.d && EL.d.key ? '연결됨 · 여성 ' + esc(EL.d.vfn || '미선택') + ' · 남성 ' + esc(EL.d.vmn || '미선택') + ' · ' + (EL.d.model === 'v2' ? '안정 모델' : '가장 사실적 모델') : '키를 넣으면 가장 사람 같은 목소리로 바뀝니다 (없으면 ' + (a.key ? 'Gemini' : '기기') + ' 목소리)') + '</small><button class="btn" type="button" id="vsEl">' + (EL.d && EL.d.key ? '목소리 바꾸기' : 'ElevenLabs 키 넣기') + '</button></div>' +
       '<div class="cl-a"><button class="btn" type="button" id="vsMe">내 이름·직급: ' + esc(meLine()) + '</button><button class="btn" type="button" id="vsKey">AI 키 설정</button><button class="btn" type="button" id="vsTest">목소리 들어보기</button></div></div>' +
       '<div class="mrow"><button class="go" type="button" id="vsGo" style="margin-left:auto">저장</button></div>');
-    var save = async function(){ PL.d.voice = { ai: $('vsAi').checked, phone: $('vsPh').checked, lock: $('vsLk').checked }; await planSave(); };
+    var save = async function(){ PL.d.voice = Object.assign({}, PL.d.voice || {}, { ai: $('vsAi').checked, phone: $('vsPh').checked, lock: $('vsLk').checked, dia: $('vsDia').value, cut: $('vsCut').checked }); await planSave(); };
     $('vsMe').onclick = async function(){ await save(); openMeSetup(); }; $('vsEl').onclick = async function(){ await save(); openElSetup(); }; $('vsKey').onclick = async function(){ await save(); openAiSetup(true); };
     $('vsTest').onclick = async function(){ await save(); var b = this; b.disabled = true; b.textContent = '재생 중…'; await speak('여보세요? 아, 네네. 지금 잠깐 통화 괜찮아요.', false); b.disabled = false; b.textContent = '목소리 들어보기'; };
     $('vsGo').onclick = async function(){ await save(); closeDlg(); toast('설정을 저장했습니다'); if (S.view === 'call') showCall(); };
   }
 
   // ---------- 액션콜 화면 ----------
-  // 📞 AI 전화 받기: 주제 고르기 → 큰 버튼 하나 → AI 고객이 전화를 걸어 옴 (2026-11-04: 환급금 통화·대화 연습·실시간 통화를 하나로)
+  // 📞 AI 전화 받기: 큰 버튼 하나 → AI 고객이 전화를 걸어 옴 (2026-11-04: 환급금 통화·대화 연습·실시간 통화를 하나로 · 2026-11-14: 주제 고르기 없앰 — 통화 중에 이야기가 넘어감)
   async function showCall(){
     if (IS_DESKTOP) { showContacts(); return; }   // 액션콜은 휴대폰 전용
     S.cur = null; S.data = null; S.view = 'call'; $('shell').classList.add('has-c'); armBack(); renderList(); await mdLoad(); await planLoad(); await elLoad();
     var head = CALL_WARN + '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="☎">연락</h2><span class="cmeta">AI 고객이 전화를 걸어 옵니다 · 받아서 그냥 말하면 됩니다</span></div>' + ctSeg('call');
-    if (!CALL.topic) CALL.topic = 'rand';
-    if (CALL.topic !== 'rand' && TOPICS.indexOf(CALL.topic) < 0) CALL.topic = 'rand';
     if (TOPICS.indexOf(CALL.sc) < 0) CALL.sc = TOPICS[0];
     if (!CALL.s) CALL.s = callScript(CALL.sc);
     var sc = SC.find(function(s){ return s.k === CALL.sc; });
-    var h = head + '<section class="pcard clrecv"><div class="pc-h"><b>📞 AI 전화 받기</b><small>주제를 고르고 누르면 가상 고객이 바로 전화를 겁니다</small></div>' +
-      '<div class="sgf cltp">' + [{ k: 'rand', c: '🎲 랜덤' }].concat(SC.filter(function(s){ return !s.hide; })).map(function(s){ return '<button type="button" data-ctp="' + s.k + '" aria-pressed="' + (CALL.topic === s.k) + '">' + s.c + '</button>'; }).join('') + '</div>' +
-      '<p class="cltip">' + (CALL.topic === 'rand' ? '어떤 고객이 걸어 올지 모릅니다 · 실전처럼 첫마디로 상황을 알아채세요' : esc(sc.who) + ' · ' + esc(sc.goal)) + '</p>' +
+    var h = head + '<section class="pcard clrecv"><div class="pc-h"><b>📞 AI 전화 받기</b><small>누르면 가상 고객이 바로 전화를 겁니다</small></div>' +
+      '<p class="cltip">주제를 고르지 않습니다 · 청구·보장 점검·소개·안부 이야기가 통화 중에 자연스럽게 넘어가고, 서로 겹쳐 말해도 다 듣습니다</p>' +
       '<button class="go ai clgo" type="button" data-cl="go">📞 AI 전화 받기</button>' +
       '<small class="clme">대본 이름 <b>' + esc(meLine()) + '</b> · 수화기로 들립니다 (통화 화면의 스피커를 누르면 크게) <button type="button" class="lnk2" data-cl="set">설정</button></small>' +
-      '<details class="clsc"><summary>대본 보기' + (CALL.topic === 'rand' ? ' · ' + esc(sc.c) : '') + '</summary>' +
+      '<details class="clsc"><summary>대본 보기 · ' + esc(sc.c) + '</summary>' +
       '<div class="clscript">' + CALL.s.lines.map(function(l, i){ return '<div class="cll ' + (l[0] === '나' ? 'me' : 'you') + '" data-cli="' + i + '"><i>' + (l[0] === '나' ? '나' : esc(CALL.s.nm.slice(0, 1))) + '</i><p>' + esc(l[1]) + '</p></div>'; }).join('') + '</div>' +
-      '<div class="cl-a"><button class="btn" type="button" data-cl="regen">다른 대본</button><button class="btn" type="button" data-cl="copy">복사</button><button class="btn" type="button" data-cl="practice">대본 읽기 연습</button></div>' +
+      '<div class="cl-a"><button class="btn" type="button" data-cl="regen">다른 상황</button><button class="btn" type="button" data-cl="copy">복사</button><button class="btn" type="button" data-cl="practice">대본 읽기 연습</button></div>' +
       '<ul class="clhint"><li>숫자를 또렷하게: "삼십오만 원", "삼 년 전 입원"</li><li>고객 이름 대신 "고객님" — 실제 통화처럼 들리면서 개인정보가 새지 않습니다.</li><li>마지막은 "제가 먼저 연락드리겠습니다"로.</li></ul></details></section>';
     h += callLogHtml();
     $('main').innerHTML = h; window.scrollTo(0, 0);
     var M = $('main');
-    M.querySelectorAll('[data-ctp]').forEach(function(b){ b.onclick = function(){ CALL.topic = b.dataset.ctp; if (CALL.topic !== 'rand') { CALL.sc = CALL.topic; CALL.s = callScript(CALL.sc); } showCall(); }; });
-    M.querySelector('[data-cl="go"]').onclick = function(){ CALL.sc = CALL.topic === 'rand' ? pick(TOPICS) : CALL.topic; CALL.s = callScript(CALL.sc); callLivePhone(); };
-    M.querySelector('[data-cl="regen"]').onclick = function(){ CALL.s = callScript(CALL.sc); showCall().then(function(){ var d = $('main').querySelector('.clsc'); if (d) d.open = true; }); };
+    M.querySelector('[data-cl="go"]').onclick = function(){ callLivePhone(); };
+    M.querySelector('[data-cl="regen"]').onclick = function(){ CALL.sc = TOPICS[(TOPICS.indexOf(CALL.sc) + 1) % TOPICS.length]; CALL.s = callScript(CALL.sc); showCall().then(function(){ var d = $('main').querySelector('.clsc'); if (d) d.open = true; }); };
     M.querySelector('[data-cl="set"]').onclick = openVoiceSet;
     M.querySelector('[data-cl="copy"]').onclick = function(){ copyText('[액션콜 대본 · ' + sc.t + ']\n' + CALL.s.lines.map(function(l){ return (l[0] === '나' ? '나: ' : CALL.s.nm + ': ') + l[1]; }).join('\n'), '대본'); };
     M.querySelector('[data-cl="practice"]').onclick = function(){ if (!myId().name) openMeSetup(function(){ showCall().then(callPractice); }); else callPractice(); };
@@ -12225,12 +12317,14 @@ function HealthUI(root, H) {
   function callLogHtml(){
     var lg = (PL.d.callLog || []).slice(-30), t = todayStr(), days = {}; lg.forEach(function(x){ days[x.d] = 1; });
     var streak = 0; for (var d = t; days[d]; d = addDay(d, -1)) streak++;
-    var last = lg.slice(-5).reverse(), real = callTargets(CALL.sc);
+    var last = lg.slice(-5).reverse(), real = callTargets();
     return '<section class="pcard cllog2"><div class="pc-h"><b>내 연습 기록</b><small>' + (lg.length ? '최근 ' + lg.length + '번 · 연속 ' + streak + '일' : '아직 기록이 없습니다 · 연습 통화를 끝내면 점수가 남습니다') + '</small></div>' +
-      (last.length ? '<div class="clrows">' + last.map(function(x){ var s = SC.find(function(y){ return y.k === x.sc; }); return '<span><b>' + dot(x.d).slice(3) + '</b>' + esc(s ? s.t.replace(' 통화', '') : '') + '<em>' + (x.score != null ? x.score + '점' : 'AI') + '</em><small>' + Math.floor(x.secs / 60) + '분 ' + (x.secs % 60) + '초' + (x.spd ? ' · 분당 ' + x.spd + '자' : '') + (x.fill ? ' · 군말 ' + x.fill : '') + '</small></span>'; }).join('') + '</div>' : '') +
+      (last.length ? '<div class="clrows">' + last.map(function(x){ var s = SC.find(function(y){ return y.k === x.sc; }); return '<span><b>' + dot(x.d).slice(3) + '</b>' + esc(x.sc === 'free' ? ((x.tp || []).map(topicName).filter(Boolean).join('·') || '자유 통화') : s ? s.t.replace(' 통화', '') : '') + '<em>' + (x.score != null ? x.score + '점' : 'AI') + '</em><small>' + Math.floor(x.secs / 60) + '분 ' + (x.secs % 60) + '초' + (x.spd ? ' · 분당 ' + x.spd + '자' : '') + (x.fill ? ' · 군말 ' + x.fill : '') + '</small></span>'; }).join('') + '</div>' : '') +
       (real.length ? '<div class="clreal"><b>🔥 연습했으면 바로 실전 · 이 통화가 필요한 내 고객</b>' + real.map(function(c){ return '<button type="button" class="bzrow" data-clgo="' + c.c.id + '"><b>' + esc(c.c.name) + '</b><span>' + esc(c.why) + '</span></button>'; }).join('') + '</div>' : '') + '</section>';
   }
-  function callTargets(k){
+  // k 없이 부르면 모든 상황에서 (콕 집히는 이유가 있는 고객 먼저 · 한 고객은 한 번만)
+  function callTargets(k){ if (k) return callTargets1(k); var out = [], seen = {}; ['refund', 'acare', 'intro', 'claim', 'check'].forEach(function(x){ callTargets1(x).forEach(function(o){ if (!seen[o.c.id]) { seen[o.c.id] = 1; out.push(o); } }); }); return out.slice(0, 5); }
+  function callTargets1(k){
     var out = [], t = todayStr();
     S.list.forEach(function(c){ if (c.sample || c.hidden) return; var st = c.stage === 'db' ? 'lead' : (c.stage || 'lead'), why = '';
       if (k === 'refund') { var r = refundTotal(c); if (r) why = '찾은 환급금 ' + man(r); }
@@ -12421,49 +12515,47 @@ function HealthUI(root, H) {
     return text.trim();
   }
   function splitSent(t){ return String(t || '').split(/(?<=[.?!~…])\s+/).map(function(x){ return x.trim(); }).filter(Boolean); }
-  function aiSys(sc, nm){ var fem = FEMALE.indexOf(nm) >= 0, age = pick(['30대 후반', '40대 초반', '40대 후반', '50대 초반']), old = /40대 후반|50대/.test(age);
-    var tone = fem ? (old ? '말끝 "~요", "~네요", "~거든요"를 부드럽게, 놀라면 "어머", "아이고", 맞장구 "네네", "그쵸"' : '"~요" 위주 밝은 말투, 놀라면 "헐 진짜요?", "어머", 맞장구 "아 네네", "그쵸그쵸"')
-      : (old ? '짧고 무뚝뚝하게 "예", "아 그래요?", "그건 좀…", 가끔 "허허"' : '담백하게 "아 네", "음… 그래요?", "그게 뭔데요?"');
-    var ex = fem ? '예) 설계사: "고객님 보험금 확인해 보니까 받으실 게 있더라고요." → "어머, 진짜요? 얼마나요?" / 설계사: "서류만 내시면 돼요." → "아 그래요? 근데 그건 병원 가서 떼야 돼요?"'
-      : '예) 설계사: "고객님 보험금 확인해 보니까 받으실 게 있더라고요." → "아 그래요? 얼만데요?" / 설계사: "서류만 내시면 돼요." → "음… 병원 가서 떼야 되는 거죠?"';
-    var sit = sc.sit || '아까 보험설계사(팀장님)한테서 부재중 전화가 와 있어서, 네가 먼저 다시 전화를 걸었다. 팀장님은 이미 아는 사이다.';
-    return '상황: 너는 ' + nm + '(' + (fem ? '여성' : '남성') + ', ' + age + ', ' + sc.who + ')이다. ' + sit + ' 전화를 건 쪽은 너이므로 "누구세요?"처럼 전화를 받은 사람 같은 말은 하지 않는다. 설계사가 이 통화로 하려는 일: "' + sc.goal + '". ' +
-      (sc.act ? '이 통화에서 너의 태도: ' + sc.act + ' ' : '') +
-      '말투: ' + tone + '. 가족 얘기는 ' + (fem ? '남편·언니·애들' : '아내·형·애들') + '처럼 성별에 맞게. ' + ex + ' ' +
-      '규칙: 1) 한 번에 한 문장, 길어야 두 문장. 짧을수록 좋다. 2) 실제 통화처럼 "아", "음", "어…", "근데", "그러니까"를 섞고, 가끔 말을 끝까지 안 맺는다. 3) 방금 들은 말에만 바로 반응하고, 되풀이·요약·정리하지 않는다. 4) 상담원·AI 말투 금지: "물론입니다", "도움이 되셨으면", "궁금하신 점", "말씀해 주시면", "~하겠습니다", "~습니다". 5) 위 태도로 시작해서, 설계사가 구체적인 금액·방법·날짜를 쉽게 말해 주면 조금씩 마음을 연다. 단정·과장하면 "진짜요? 확실해요?"처럼 의심한다. 가끔 현실적인 걱정("보험료 또 나가는 거 아니에요?", "그거 복잡하지 않아요?")을 말한다. 6) 약속을 잡자고 하면 요일·시간을 정하고 짧게 끊는다("네 그럼 그때 봬요~"). ' + (elV3() ? '7) 지문·이모지·따옴표 없이 대사만. 단, 감정이 실릴 때만 가끔(세 번에 한 번 이하) 문장 맨 앞에 영어 감정 태그 하나를 붙인다: [laughs] [chuckles] [sighs] [hesitates] [surprised] [curious]. 예: "[laughs] 아 진짜요? 저 그런 거 하나도 몰랐어요."' : '7) 괄호, 지문, 이모지, 따옴표 없이 대사만.') + ' 8) 문어체·완벽한 문장 금지. 실제 사람처럼 조사를 빼먹거나("그거 얼마예요?"), 말을 고치거나("아니 그게, 그러니까…"), 웃음("하하")·감탄("헐", "와")을 자연스럽게 섞는다. 9) 이건 연습 통화다. 주민번호·계좌·연락처·전체 이름·자세한 병명은 말하지 않고, 설계사가 실제 사람 이름이나 병명을 말하면 "그건 연습이니까 빼고 할게요"라고 짧게 넘긴다.'; }
-  // ---------- 📞 실시간 AI 전화: 벨소리·수신 화면은 그대로 + 대화는 실시간 음성 모델(바로 대답·말 끊기 가능) ----------
-  var VOICES_F = ['Kore', 'Aoede', 'Leda'], VOICES_M = ['Puck', 'Charon', 'Orus'];
+  // ---------- 📞 실시간 AI 전화: 벨소리·수신 화면은 그대로 + 대화는 실시간 음성 모델 ----------
+  // 2026-11-14 대표님: "내가 말한다고 상대가 말을 끊지 않게 · 하던 말은 계속하면서 내 말도 듣게" → 서로 겹쳐 말하기(duplex)
+  //   · 서버에 '끼어들어도 멈추지 않기(NO_INTERRUPTION)'로 연결 → 상대는 하던 말을 끝까지 함
+  //   · 실제 서버 시험(2026-11-14, NHC 워크플로 '액션콜 실시간 시험'): 서버는 소리를 실제보다 7배쯤 빨리 보내고, 그 소리가 다 들릴 시각까지를 '상대 차례'로 치며,
+  //     그 차례 동안 들어온 내 소리는 그냥 버린다 → 그동안의 내 말은 기기에 모아 뒀다가(LIVE.hold) 상대 말이 끝나는 순간 이어서 보냄 → 겹쳐 말한 것도 다 듣고 1초쯤 뒤 대답
+  //   · 내가 말하던 중에 상대가 말을 시작한 경우(잠깐 쉰 틈에 대답이 나옴)도 그 앞부분(LIVE.ring)부터 같이 모음
+  //   · ⚙ 설정 '내가 말하면 상대가 말을 멈추기'를 켜면 예전 방식(끼어들면 멈춤)
+  var VOICE_POOL = { fy: ['Leda', 'Aoede', 'Zephyr', 'Kore'], fo: ['Kore', 'Gacrux', 'Sulafat', 'Vindemiatrix'], my: ['Puck', 'Fenrir', 'Achird', 'Orus'], mo: ['Charon', 'Orus', 'Algenib', 'Alnilam'] };   // 나이대에 맞는 목소리 (실제 서버에서 30개 모두 되는 것 확인)
+  function liveBusy(){ var n = performance.now(); return (LIVE.turnOpen && n < LIVE.turnAt + LIVE.turnSec * 1000 + 2500) || n < LIVE.aiEnd; }   // 지금 상대 소리가 나오는 중인가
   async function callLivePhone(){
     var tok; try { tok = await liveAuth(); } catch(e){ toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); slowCall(); return; } // 실시간 열쇠가 없으면 예전 방식으로
-    var sc = SC.find(function(s){ return s.k === CALL.sc; }) || SC[0], rand = CALL.topic === 'rand', nm = pick(FAKE), female = FEMALE.indexOf(nm) >= 0, hist = [], ended = false, muted = false, uBuf = '', aBuf = '';
-    var sys = aiSys(sc, nm) + ' 설계사는 자신을 "' + meLine() + '"라고 소개합니다.' +
-      ' [목소리 연기] 지금은 진짜 전화 통화다. 글을 읽는 말투가 아니라 실제 사람이 수화기에 대고 말하듯: 말 빠르기를 들쭉날쭉하게, 생각할 땐 "음…", "어…" 하고 잠깐 멈추고, 놀라거나 웃을 땐 소리로 자연스럽게(짧게 "아하하", "헐"). 숨 쉬듯 끊어 말하고, 또박또박 낭독하지 않는다. 문장을 길게 이어 붙이지 않는다. 상대가 말을 시작하면 바로 멈추고 듣는다. 한 번에 한두 문장(5초 안쪽)만 말하고 상대 차례를 준다. 설명을 줄줄 늘어놓지 않는다. 상대 말에 "네네", "아 그래요?", "그렇죠"처럼 짧게 맞장구부터 치고 답한다. 상담원·AI 같은 정중한 안내 문구("도와드리겠습니다", "궁금하신 점")는 쓰지 않는다. 한국어로만 말한다.';
+    var V = voiceCfg(), P = callPersona({ dia: V.dia }), nm = P.nm, female = P.fem, duplex = !V.cut, hist = [], ended = false, muted = false, uBuf = '', aBuf = '', tps = [], tpNow = '';   // duplex: 서로 겹쳐 말하기(기본)
+    var sys = callSys(P, meLine(), { live: 1 });
+    var tip = function(){ return duplex ? '🎙 그냥 말씀하세요 · 상대가 말하는 중에 말해도 다 듣습니다' : '🎙 그냥 말씀하세요 · 상대 말 중간에 끊어도 됩니다'; };
+    var seeTopic = function(t){ var tp = topicOf(t); if (!tp) return; if (tps.indexOf(tp.k) < 0) tps.push(tp.k); if (tp.k !== tpNow) { tpNow = tp.k; var g = $('cphSc'); if (g) g.textContent = tp.c; } };   // 이야기가 넘어가면 통화 화면 '주제' 칸도 바뀜
     var el = phoneOpen({ nm: nm, num: '010-' + String(2000 + Math.floor(Math.random() * 7999)) + '-' + String(1000 + Math.floor(Math.random() * 8999)), ai: true });
     var note = function(t){ var n = $('cphNote'); if (n) n.textContent = t || ''; };
     var showYou = function(t){ var y = $('cphYou'); if (y) y.innerHTML = '<small>' + esc(nm) + '</small>' + esc(t); };
     var showMe = function(t){ var m = $('cphMe'); if (m) m.innerHTML = '<span class="k-on">' + esc(t) + '</span>'; };
     var pg = function(){ var p = $('cphPg'); if (p) p.textContent = hist.filter(function(m){ return m.me; }).length + '마디'; };
     el.querySelector('[data-cp="next"]').disabled = true;
-    var scb = el.querySelector('[data-cp="script"]'); scb.querySelector('span').textContent = '대본 보기'; scb.onclick = function(){ scriptPeek(el); };
-    var tg = $('cphSc'); if (tg) tg.textContent = rand ? '🎲 랜덤' : sc.c;
+    var scb = el.querySelector('[data-cp="script"]'); scb.querySelector('span').textContent = '대본 보기'; scb.onclick = function(){ scriptPeek(el, tpNow); };
+    var tg = $('cphSc'); if (tg) { tg.textContent = '자유'; if (tg.previousElementSibling) tg.previousElementSibling.textContent = '주제'; }
     spkBind(el); // 기본은 수화기 · 스피커는 누를 때만
     var setMute = function(on){ muted = on; el.querySelector('[data-cp="mute"]').classList.toggle('on', !on); note(on ? '🔇 내 소리 차단 중' : ''); };
     el.querySelector('[data-cp="mute"]').classList.add('on');
     el.querySelector('[data-cp="mute"]').onclick = function(){ setMute(!muted); };
     el.querySelector('[data-cp="hold"]').onclick = function(){ var on = this.classList.toggle('on'); $('cphSt').textContent = on ? '대기 중' : '통화 중'; setMute(on); };
     el.querySelector('#cphSet').onclick = function(){ var b = $('cphAll'); if (b) { b.remove(); return; } var d = document.createElement('div'); d.id = 'cphAll'; d.className = 'cph-all'; d.innerHTML = '<button type="button" class="btn" id="cphAllX">닫기</button>' + (hist.length ? hist.map(function(m){ return '<p class="' + (m.me ? 'me' : '') + '"><small>' + (m.me ? '나' : esc(nm)) + '</small>' + esc(m.t) + '</p>'; }).join('') : '<p class="note">아직 대화가 없습니다</p>'); el.appendChild(d); $('cphAllX').onclick = function(){ d.remove(); }; };
-    var stop = function(){ LIVE.pend = null; if (LIVE.nat) { LIVE.nat = false; natCall('pcmStop').catch(function(){}); } try { if (LIVE.ws) LIVE.ws.close(); } catch(e){} LIVE.ws = null; try { if (LIVE.proc) LIVE.proc.disconnect(); if (LIVE.src) LIVE.src.disconnect(); } catch(e){} try { if (LIVE.stream) LIVE.stream.getTracks().forEach(function(x){ x.stop(); }); } catch(e){} try { if (LIVE.ctxIn) LIVE.ctxIn.close(); if (LIVE.ctxOut) LIVE.ctxOut.close(); } catch(e){} LIVE.ctxIn = LIVE.ctxOut = LIVE.src = LIVE.proc = LIVE.stream = null; LIVE.playing = []; };
+    var stop = function(){ LIVE.pend = null; if (LIVE.nat) { LIVE.nat = false; natCall('pcmStop').catch(function(){}); } try { if (LIVE.ws) LIVE.ws.close(); } catch(e){} LIVE.ws = null; try { if (LIVE.proc) LIVE.proc.disconnect(); if (LIVE.src) LIVE.src.disconnect(); } catch(e){} try { if (LIVE.stream) LIVE.stream.getTracks().forEach(function(x){ x.stop(); }); } catch(e){} try { if (LIVE.ctxIn) LIVE.ctxIn.close(); if (LIVE.ctxOut) LIVE.ctxOut.close(); } catch(e){} LIVE.ctxIn = LIVE.ctxOut = LIVE.src = LIVE.proc = LIVE.stream = null; LIVE.playing = []; LIVE.hold = []; LIVE.ring = []; LIVE.turnOpen = false; LIVE.held = false; LIVE.aiEnd = LIVE.natEnd = 0; };
     var finish = async function(why){
       if (ended) return; ended = true; stop(); callAudioEnd(); clearInterval(CALL.timer);
-      var secs = CALL.t0 ? Math.round((Date.now() - CALL.t0) / 1000) : 0; $('cphSt').textContent = '통화 종료'; note(why || ''); var tg2 = $('cphSc'); if (tg2) tg2.textContent = sc.c;
+      var secs = CALL.t0 ? Math.round((Date.now() - CALL.t0) / 1000) : 0; $('cphSt').textContent = '통화 종료'; note(why || '');
       var back = function(){ phoneClose(); showCall(); };
       $('cphEnd').onclick = back;
       if (hist.filter(function(m){ return m.me; }).length < 2) { setTimeout(back, why ? 1800 : 0); return; }
-      if (secs >= 10) await logCall({ secs: secs, score: null, ai: 1, live: 1 }).catch(function(){});
+      if (secs >= 10) await logCall({ secs: secs, score: null, ai: 1, live: 1, sc: 'free', tp: tps.slice(0, 4) }).catch(function(){});   // tp: 이 통화에서 오간 이야기 주제
       var a = await aiLoad(); if (!a.key) { back(); return; }
       $('cphMe').innerHTML = '<div class="cph-rep"><b>코치 피드백 정리 중…</b></div>'; $('cphYou').innerHTML = '';
-      try { CALL.fast = false; var fb = await aiChat('당신은 보험 영업 코치입니다. 아래는 설계사(나)와 고객의 통화 연습 기록입니다. 한국어로, 잘한 점 2가지와 더 좋아질 점 2가지를 각각 한 줄씩, 마지막에 다음 연습에서 써 볼 한 문장을 제안하세요. 총 6줄 이내.', [{ me: true, t: hist.map(function(m){ return (m.me ? '나: ' : '고객: ') + m.t; }).join('\n') }]);
-        $('cphMe').innerHTML = '<div class="cph-rep"><b>코치 피드백</b><small>' + Math.floor(secs / 60) + '분 ' + (secs % 60) + '초</small><p>' + esc(fb).replace(/\n/g, '<br>') + '</p><div class="cph-ra"><button type="button" class="btn" id="cphFb">복사</button><button type="button" class="go" id="cphClose">닫기</button></div></div>';
+      try { CALL.fast = false; var fb = await aiChat('당신은 보험 영업 코치입니다. 아래는 설계사(나)와 고객의 통화 연습 기록입니다. 고객은 통화 중에 이야기 주제를 바꾸기도 합니다. 한국어로, 잘한 점 2가지와 더 좋아질 점 2가지를 각각 한 줄씩(주제가 바뀔 때 잘 받아서 이어 갔는지도 봅니다), 마지막에 다음 연습에서 써 볼 한 문장을 제안하세요. 총 6줄 이내.', [{ me: true, t: hist.map(function(m){ return (m.me ? '나: ' : '고객: ') + m.t; }).join('\n') }]);
+        $('cphMe').innerHTML = '<div class="cph-rep"><b>코치 피드백</b><small>' + Math.floor(secs / 60) + '분 ' + (secs % 60) + '초' + (tps.length ? ' · ' + esc(tps.map(topicName).join('·')) : '') + '</small><p>' + esc(fb).replace(/\n/g, '<br>') + '</p><div class="cph-ra"><button type="button" class="btn" id="cphFb">복사</button><button type="button" class="go" id="cphClose">닫기</button></div></div>';
         $('cphFb').onclick = function(){ copyText(fb, '피드백'); }; $('cphClose').onclick = back; }
       catch(e){ back(); }
     };
@@ -12473,18 +12565,20 @@ function HealthUI(root, H) {
     var ready = (async function(){
       LIVE.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
       var C = window.AudioContext || window.webkitAudioContext; LIVE.ctxIn = new C({ sampleRate: 16000 }); LIVE.ctxOut = new C({ sampleRate: 24000 }); LIVE.next = 0;
-      var mdl = tok.model || 'gemini-3.8-live'; if (!/^models\//.test(mdl)) mdl = 'models/' + mdl;
-      var ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.' + tok.url); LIVE.ws = ws;
-      await new Promise(function(res, rej){
+      // 서버 연결. full = 겹쳐 말하기 · 한국어 받아쓰기 · 나이대 목소리. 서버가 새 설정을 안 받으면(나중에 모델이 바뀌는 경우 대비) 예전 설정으로 한 번 더 건다
+      var open1 = function(tk, full){ return new Promise(function(res, rej){
+        var mdl = tk.model || 'gemini-3.8-live'; if (!/^models\//.test(mdl)) mdl = 'models/' + mdl;
+        var ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.' + tk.url); LIVE.ws = ws;
         ws.onopen = function(){ ws.send(JSON.stringify({ setup: { model: mdl,
-          generationConfig: { responseModalities: ['AUDIO'], temperature: 1, speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: pick(female ? VOICES_F : VOICES_M) } } } },
-          systemInstruction: { parts: [{ text: sys }] }, inputAudioTranscription: {}, outputAudioTranscription: {},
-          realtimeInputConfig: { automaticActivityDetection: { endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH', startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 200, silenceDurationMs: 650 } } } })); };
+          generationConfig: { responseModalities: ['AUDIO'], temperature: 1, speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: pick(full ? VOICE_POOL[(female ? 'f' : 'm') + (P.old ? 'o' : 'y')] : (female ? ['Kore', 'Aoede', 'Leda'] : ['Puck', 'Charon', 'Orus'])) } } } },
+          systemInstruction: { parts: [{ text: sys }] }, inputAudioTranscription: full ? { languageCodes: ['ko-KR'], customVocabulary: ['실손', '숨은 보험금', '내보험찾아줌', '보장 점검', '진단비', '청구', '갱신', '특약', '증권', '팀장님'] } : {}, outputAudioTranscription: {},   // 내 말 받아쓰기는 한국어로 (영어로 잘못 적히던 것 고침)
+          realtimeInputConfig: Object.assign({ automaticActivityDetection: { endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH', startOfSpeechSensitivity: 'START_SENSITIVITY_HIGH', prefixPaddingMs: 200, silenceDurationMs: 650 } }, full && duplex ? { activityHandling: 'NO_INTERRUPTION' } : {}) } })); };
         ws.onerror = function(){ rej(new Error('연결 실패')); };
         ws.onclose = function(ev){ rej(new Error('연결이 끊겼어요 (' + ev.code + ')')); };
-        ws.onmessage = async function(ev){ var m; try { m = JSON.parse(typeof ev.data === 'string' ? ev.data : await ev.data.text()); } catch(e){ return; } if (m.setupComplete) res(); };
-      });
-      return ws;
+        ws.onmessage = async function(ev){ var m; try { m = JSON.parse(typeof ev.data === 'string' ? ev.data : await ev.data.text()); } catch(e){ return; } if (m.setupComplete) res(ws); };
+      }); };
+      try { return await open1(tok, true); }
+      catch(e){ if (ended) throw e; duplex = false; return await open1(await liveAuth(), false); }   // 예전 설정은 서버가 끼어들면 멈추므로 겹쳐 말하기를 끔
     })();
     ready.catch(function(){});
     if (!(await incoming(el))) { ended = true; stop(); return; }
@@ -12493,47 +12587,59 @@ function HealthUI(root, H) {
     var ws; try { ws = await ready; } catch(e){ toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); note('실시간 연결 실패 · 예전 방식으로 바꿉니다'); stop(); setTimeout(function(){ phoneClose(true); slowCall(); }, 1200); return; }
     $('cphSt').textContent = '통화 중'; phoneTimer();
     // 새 앱: 수화기로 듣기 — 준비되는 동안 온 목소리는 잠깐 모아 뒀다가 같은 길로 (첫마디를 기다리게 하지 않음)
-    LIVE.nat = false; LIVE.pend = CALL.native ? [] : null;
+    LIVE.nat = false; LIVE.pend = CALL.native ? [] : null; LIVE.hold = []; LIVE.ring = []; LIVE.turnOpen = false; LIVE.held = false; LIVE.aiEnd = LIVE.natEnd = 0; LIVE.nf = 0.004;
     ws.onclose = function(ev){ if (!ended) finish(ev.code === 1000 ? '' : '연결이 끊겼어요 (' + ev.code + ')'); };
     ws.onmessage = async function(ev){
       var m; try { m = JSON.parse(typeof ev.data === 'string' ? ev.data : await ev.data.text()); } catch(e){ return; }
       if (ended || !$('cph')) { if (!ended) finish(); return; }
       var sc2 = m.serverContent; if (!sc2) return;
-      if (sc2.interrupted) { LIVE.playing.forEach(function(s){ try { s.stop(); } catch(e){} }); LIVE.playing = []; LIVE.next = 0; if (LIVE.pend) LIVE.pend = []; if (LIVE.nat) natCall('pcmFlush').catch(function(){}); }
-      ((sc2.modelTurn && sc2.modelTurn.parts) || []).forEach(function(p){ if (p.inlineData && p.inlineData.data) livePlay(p.inlineData.data); });
+      if (sc2.interrupted && !duplex) { LIVE.playing.forEach(function(s){ try { s.stop(); } catch(e){} }); LIVE.playing = []; LIVE.next = 0; LIVE.aiEnd = LIVE.natEnd = 0; if (LIVE.pend) LIVE.pend = []; if (LIVE.nat) natCall('pcmFlush').catch(function(){}); }   // 예전 방식일 때만: 내가 말하면 상대 소리를 멈춤
+      ((sc2.modelTurn && sc2.modelTurn.parts) || []).forEach(function(p){ var d = p.inlineData && p.inlineData.data; if (!d) return;
+        if (!LIVE.turnOpen) { LIVE.turnOpen = true; LIVE.turnAt = performance.now(); LIVE.turnSec = 0; } LIVE.turnSec += d.length * 0.75 / 48000;   // 상대 차례 시작 · 이번 차례 소리 길이(초)
+        livePlay(d); });
       if (sc2.inputTranscription && sc2.inputTranscription.text) { uBuf += sc2.inputTranscription.text; showMe(uBuf); }
       if (sc2.outputTranscription && sc2.outputTranscription.text) { aBuf += sc2.outputTranscription.text; showYou(aBuf); }
-      if (sc2.turnComplete || sc2.interrupted) { if (uBuf.trim()) hist.push({ me: true, t: uBuf.trim() }); if (aBuf.trim()) hist.push({ me: false, t: aBuf.trim() }); uBuf = aBuf = ''; pg(); }
+      if (sc2.turnComplete || sc2.interrupted) { LIVE.turnOpen = false; if (uBuf.trim()) { hist.push({ me: true, t: uBuf.trim() }); seeTopic(uBuf); } if (aBuf.trim()) { hist.push({ me: false, t: aBuf.trim() }); seeTopic(aBuf); } uBuf = aBuf = ''; pg(); }
     };
+    var micSend = function(b){ LIVE.ws.send(JSON.stringify({ realtimeInput: { audio: { data: b, mimeType: 'audio/pcm;rate=16000' } } })); };
     LIVE.src = LIVE.ctxIn.createMediaStreamSource(LIVE.stream); LIVE.proc = LIVE.ctxIn.createScriptProcessor(2048, 1, 1);
-    LIVE.proc.onaudioprocess = function(e){ if (!LIVE.ws || LIVE.ws.readyState !== 1 || muted) return; var f = e.inputBuffer.getChannelData(0), i16 = new Int16Array(f.length);
-      for (var i = 0; i < f.length; i++) { var v = Math.max(-1, Math.min(1, f[i])); i16[i] = v < 0 ? v * 0x8000 : v * 0x7fff; }
-      LIVE.ws.send(JSON.stringify({ realtimeInput: { audio: { data: b64FromI16(i16), mimeType: 'audio/pcm;rate=16000' } } })); };
+    LIVE.proc.onaudioprocess = function(e){ if (!LIVE.ws || LIVE.ws.readyState !== 1 || muted) return; var f = e.inputBuffer.getChannelData(0), i16 = new Int16Array(f.length), sq = 0;
+      for (var i = 0; i < f.length; i++) { var v = Math.max(-1, Math.min(1, f[i])); sq += v * v; i16[i] = v < 0 ? v * 0x8000 : v * 0x7fff; }
+      var rms = Math.sqrt(sq / f.length), sp = rms > Math.max(0.018, LIVE.nf * 3.5), b = b64FromI16(i16); if (!sp) LIVE.nf = LIVE.nf * 0.95 + rms * 0.05;   // sp: 지금 내가 말하는 중인가(소리 크기로 어림)
+      if (duplex && liveBusy()) {   // 상대가 말하는 중: 서버가 이때의 내 소리는 버리므로 기기에 모아 둠 (최대 30초)
+        if (!LIVE.hold.length) { LIVE.hold = LIVE.ring; LIVE.ring = []; }   // 상대 대답이 서버에서 만들어져 여기 닿기까지(0.3~0.6초) 보낸 소리도 서버가 버렸으므로, 방금 보낸 0.77초를 앞에 붙임 (그 앞은 서버가 '말이 끝났다'고 본 조용한 구간이라 겹치지 않음)
+        LIVE.hold.push(b); if (LIVE.hold.length > 240) LIVE.hold.shift();
+        if (sp && !LIVE.held) { LIVE.held = true; note('🎙 듣고 있습니다 · 상대 말이 끝나면 바로 전해집니다'); }
+        return; }
+      if (LIVE.hold.length) { var h = LIVE.hold; LIVE.hold = []; h.forEach(micSend); if (LIVE.held) { LIVE.held = false; note(tip()); } }   // 상대 말이 끝난 순간 모아 둔 소리를 이어서 보냄 (말했는지 판단은 서버에 맡김 — 작은 목소리도 빠지지 않게)
+      micSend(b); LIVE.ring.push(b); if (LIVE.ring.length > 6) LIVE.ring.shift(); };
     LIVE.src.connect(LIVE.proc); LIVE.proc.connect(LIVE.ctxIn.destination);
-    // 받자마자 고객이 먼저 말하게: 주제에 맞는 첫마디 예시와 함께 바로 신호
-    ws.send(JSON.stringify({ realtimeInput: { text: '(전화가 연결됐다. 네가 먼저 건 전화다. 지금 바로 첫마디를 해라' + (sc.open ? '. 예: "' + pick(sc.open) + '" — 그대로 읽지 말고 너답게' : '') + ')' } }));
-    note('🎙 그냥 말씀하세요 · 상대 말 중간에 끊어도 됩니다');
+    // 받자마자 고객이 먼저 말하게: 전화를 건 이유에 맞는 첫마디 예시와 함께 바로 신호
+    ws.send(JSON.stringify({ realtimeInput: { text: callOpen(P) } }));
+    note(tip());
     if (LIVE.pend) { var nat = false; try { await Promise.race([natCall('pcmStart', { rate: 24000 }), new Promise(function(_, rj){ setTimeout(function(){ rj(new Error('t')); }, 1500); })]); nat = true; } catch(e){}
       var pd = LIVE.pend || []; LIVE.pend = null; if (ended) { if (nat) natCall('pcmStop').catch(function(){}); return; } LIVE.nat = nat; pd.forEach(livePlay); }
   }
   // 실시간 통화가 안 될 때: AI 열쇠가 있으면 느린 방식(받아쓰기→AI→목소리), 없으면 AI 통화 설정 창
   async function slowCall(){ var a = await aiLoad(); if (a.key) callAi(); else { if ($('cph')) { phoneClose(); showCall(); } openAiSetup(); } }
-  // 통화 중 '대본 보기': 이 주제의 모범 대본에서 내 말만 작게 (말하면서 슬쩍 볼 용도)
-  function scriptPeek(el){ var b = $('cphAll'); if (b) { b.remove(); return; } var S0 = CALL.s || callScript(CALL.sc), d = document.createElement('div'); d.id = 'cphAll'; d.className = 'cph-all';
-    d.innerHTML = '<button type="button" class="btn" id="cphAllX">닫기</button><p class="note">모범 대본 · 그대로 읽지 말고 흐름만 참고하세요</p>' + S0.lines.map(function(l){ return '<p class="' + (l[0] === '나' ? 'me' : '') + '"><small>' + (l[0] === '나' ? '나' : '고객') + '</small>' + esc(l[1]) + '</p>'; }).join('');
+  // 통화 중 '대본 보기': 상황별 모범 대본에서 내 말만 (지금 이야기 주제가 맨 위 · 말하면서 슬쩍 볼 용도)
+  function scriptPeek(el, cur){ var b = $('cphAll'); if (b) { b.remove(); return; }
+    var ks = TOPICS.slice(), c0 = { family: 'check', renew: 'check' }[cur] || cur, at = ks.indexOf(c0); if (at > 0) { ks.splice(at, 1); ks.unshift(c0); }
+    var d = document.createElement('div'); d.id = 'cphAll'; d.className = 'cph-all';
+    d.innerHTML = '<button type="button" class="btn" id="cphAllX">닫기</button><p class="note">상황별 내 말 예시 · 그대로 읽지 말고 흐름만 참고하세요</p>' + ks.map(function(k){ var s0 = SC.find(function(x){ return x.k === k; }); return '<p class="cph-sh">' + esc(s0.c) + '</p>' + callScript(k).lines.filter(function(l){ return l[0] === '나'; }).map(function(l){ return '<p class="me">' + esc(l[1]) + '</p>'; }).join(''); }).join('');
     el.appendChild(d); $('cphAllX').onclick = function(){ d.remove(); }; }
   // ---------- AI 고객과 자유 통화 (같은 전화 화면) ----------
   function callAi(){
-    var sc = SC.find(function(s){ return s.k === CALL.sc; }), nm = pick(FAKE), female = FEMALE.indexOf(nm) >= 0, sys = aiSys(sc, nm) + ' 설계사는 자신을 "' + meLine() + '"라고 소개합니다.', ended = false, busy = false, buf = '', idleT = null;
+    var P = callPersona({ dia: voiceCfg().dia }), nm = P.nm, female = P.fem, sys = callSys(P, meLine(), { v3: elV3() }), ended = false, busy = false, buf = '', idleT = null;   // 실시간 통화와 같은 가상 고객(말씨·이야깃거리)
     CALL.hist = [];
     var el = phoneOpen({ nm: nm, num: '010-' + String(2000 + Math.floor(Math.random() * 7999)) + '-' + String(1000 + Math.floor(Math.random() * 8999)), ai: true });
     el.querySelector('.cph-card').insertAdjacentHTML('beforeend', '<div class="cph-lv" id="cphLv" title="내 목소리 크기"><i></i></div>');
     var note = function(t){ var n = $('cphNote'); if (n) n.textContent = t || ''; };
     var pg = function(){ $('cphPg').textContent = CALL.hist.filter(function(m){ return m.me; }).length + '마디'; };
     // 먼저 전화를 건 쪽(고객)의 첫마디 · 맞장구(네~, 아~)는 미리 만들어 둠 → 말 끝나자마자 바로
-    var OPEN = sc.open || (female ? ['여보세요, 팀장님? 아까 전화 주셨던데요.', '네 팀장님~ 부재중 전화가 와 있어서요.', '여보세요? 팀장님, 전화하셨었죠?'] : ['여보세요, 팀장님? 아까 전화 주셨던데요.', '예 팀장님, 부재중 와 있길래요.', '여보세요? 전화 주셨었죠?']);
-    var opener = pick(OPEN), FILL = female ? ['네~', '아 네네.', '음…', '아~'] : ['네.', '예예.', '음…', '아~'], fillBuf = {};
-    var prep = function(){ if (!aiVoiceOk()) return; aiTts(opener, female).catch(function(){}); FILL.forEach(function(f){ aiTts(f, female).then(function(b){ fillBuf[f] = b; }).catch(function(){}); }); };
+    var opener = callFix(P, CARD[P.start].open), openP = P.dia === 'std' ? null : aiChat(sys, [{ me: true, t: callOpen(P) }]).then(function(t){ t = noTags(String(t || '')).replace(/["“”]/g, '').trim(); if (t && t.length < 90) opener = t; }).catch(function(){});   // 사투리 고객이면 첫마디도 그 말씨로 (벨이 울리는 동안 준비)
+    var FILL = female ? ['네~', '아 네네.', '음…', '아~'] : ['네.', '예예.', '음…', '아~'], fillBuf = {};
+    var prep = function(){ if (!aiVoiceOk()) return; Promise.resolve(openP).then(function(){ aiTts(opener, female).catch(function(){}); }); FILL.forEach(function(f){ aiTts(f, female).then(function(b){ fillBuf[f] = b; }).catch(function(){}); }); };
     var queue = Promise.resolve();
     var say1 = function(line){ var ap = aiVoiceOk() ? aiTts(line, female).catch(function(){ return null; }) : null;
       queue = queue.then(async function(){ if (ended) return; var y = $('cphYou'); if (y) { var cur = y.dataset.t ? y.dataset.t + ' ' : ''; y.dataset.t = cur + noTags(line); y.innerHTML = '<small>' + esc(nm) + '</small>' + esc(y.dataset.t); } note('상대가 말하는 중…');
@@ -12542,7 +12648,7 @@ function HealthUI(root, H) {
       busy = true; if (CALL.ear) CALL.ear.pause();
       var y0 = $('cphYou'); if (y0) { y0.dataset.t = ''; }
       try {
-        if (!CALL.hist.length) { CALL.hist.push({ me: false, t: opener }); say1(opener); }
+        if (!CALL.hist.length) { if (openP) await Promise.race([openP, new Promise(function(r){ setTimeout(r, 2500); })]); CALL.hist.push({ me: false, t: opener }); say1(opener); }
         else { note('상대가 대답하는 중…'); CALL.fast = true; var t = await aiStream(sys, CALL.hist, say1); if (ended) return; CALL.hist.push({ me: false, t: t }); }
         await queue;
       }
@@ -12565,7 +12671,7 @@ function HealthUI(root, H) {
       var back = function(){ phoneClose(); showCall(); };
       $('cphEnd').onclick = back;
       if (CALL.hist.filter(function(m){ return m.me; }).length < 2) { back(); return; }
-      if (secs >= 10) await logCall({ secs: secs, score: null, ai: 1 });
+      if (secs >= 10) await logCall({ secs: secs, score: null, ai: 1, sc: 'free' });
       $('cphMe').innerHTML = '<div class="cph-rep"><b>코치 피드백 정리 중…</b></div>';
       try { CALL.fast = false; var fb = await aiChat('당신은 보험 영업 코치입니다. 아래는 설계사(나)와 고객의 통화 연습 기록입니다. 한국어로, 잘한 점 2가지와 더 좋아질 점 2가지를 각각 한 줄씩, 마지막에 다음 연습에서 써 볼 한 문장을 제안하세요. 총 6줄 이내.', [{ me: true, t: CALL.hist.map(function(m){ return (m.me ? '설계사: ' : '고객: ') + noTags(m.t); }).join('\n') }]);
         $('cphMe').innerHTML = '<div class="cph-rep"><b>코치 피드백</b><small>' + Math.floor(secs / 60) + '분 ' + (secs % 60) + '초</small><p>' + esc(fb).replace(/\n/g, '<br>') + '</p><div class="cph-ra"><button type="button" class="btn" id="cphFb">복사</button><button type="button" class="go" id="cphClose">닫기</button></div></div>';
@@ -12587,7 +12693,7 @@ function HealthUI(root, H) {
   // 가상 고객만. 대화 내용은 통화 화면 메모리에만 있고 저장·전송(기록)하지 않음 (연습 시간만 기록)
   var CALL_WARN = '';   // 2026-11-02 대표님: 안내는 직접 전달 → 화면 위 경고 띠 없앰
   var JV_URL = 'https://nhc-jarvis.nhc-3c490f.workers.dev'; // 세리아 중계소 — 실시간 통화 1회용 열쇠만 받음 (진짜 Gemini 열쇠는 앱에 없음)
-  var LIVE = { pend: null, ws: null, ctxIn: null, ctxOut: null, src: null, proc: null, stream: null, next: 0, playing: [], userBuf: '', aiBuf: '', t0: 0 };
+  var LIVE = { hold: [], ring: [], turnOpen: false, turnAt: 0, turnSec: 0, aiEnd: 0, natEnd: 0, nf: 0.004, held: false, pend: null, ws: null, ctxIn: null, ctxOut: null, src: null, proc: null, stream: null, next: 0, playing: [], userBuf: '', aiBuf: '', t0: 0 };
   function b64FromI16(i16){ var u8 = new Uint8Array(i16.buffer), s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
   // 2026-11-09 대표님 "액션콜이 AI 티가 난다" → 휴대폰 통화 음질(300~3400Hz)로 걸러 너무 깨끗한 AI 음색을 줄임
   var PHF = { hp: 0, hpx: 0, lp: 0 };
@@ -12599,13 +12705,13 @@ function HealthUI(root, H) {
     var bin0 = atob(b64), n0 = bin0.length >> 1, f0 = new Float32Array(n0);
     for (var k = 0; k < n0; k++) { var v0 = bin0.charCodeAt(2 * k) | (bin0.charCodeAt(2 * k + 1) << 8); if (v0 >= 32768) v0 -= 65536; f0[k] = v0 / 32768; }
     phoneTone(f0); b64 = f2b64(f0);
-    if (LIVE.nat && !CALL.spk) { natCall('pcmWrite', { b64: b64 }).catch(function(){ LIVE.nat = false; }); return; } // 수화기로 (스피커를 켜면 아래 웹 소리로 — 울림 방지)
+    if (LIVE.nat && !CALL.spk) { LIVE.natEnd = Math.max(performance.now(), LIVE.natEnd || 0) + n0 / 24; LIVE.aiEnd = LIVE.natEnd + 150; natCall('pcmWrite', { b64: b64 }).catch(function(){ LIVE.nat = false; }); return; } // 수화기로 (스피커를 켜면 아래 웹 소리로 — 울림 방지)
     var c = LIVE.ctxOut; if (!c) return;
     var bin = atob(b64), n = bin.length >> 1, f = new Float32Array(n);
     for (var i = 0; i < n; i++) { var v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v >= 32768) v -= 65536; f[i] = v / 32768; }
     var buf = c.createBuffer(1, n, 24000); buf.copyToChannel(f, 0);
     var s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
-    var at = Math.max(c.currentTime + 0.03, LIVE.next); s.start(at); LIVE.next = at + buf.duration;
+    var at = Math.max(c.currentTime + 0.03, LIVE.next); s.start(at); LIVE.next = at + buf.duration; LIVE.aiEnd = performance.now() + (LIVE.next - c.currentTime) * 1000 + 60;   // 상대 소리가 다 들리는 시각
     LIVE.playing.push(s); s.onended = function(){ LIVE.playing = LIVE.playing.filter(function(x){ return x !== s; }); };
   }
   // 1회용 열쇠: NHC 본사 연결(대표님 GitHub 열쇠)로 세리아 중계소에서 받음 · 없으면 이 기기에 넣은 내 Gemini 열쇠로 바로
@@ -16927,6 +17033,6 @@ function HealthUI(root, H) {
 })();
 
 </script>
-<script>window.AOB_V="19a8feabc4ce";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="53e2241fed28";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
