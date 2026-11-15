@@ -1541,7 +1541,8 @@ table.act td{vertical-align:top}table.act td small{color:var(--mute)}table.act t
   .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:61;width:58px;height:58px;border-radius:18px;border:0;background:linear-gradient(135deg,#4f7dff,#2f5fe0);color:#fff;box-shadow:0 10px 24px -6px rgba(47,95,224,.6),0 2px 6px rgba(0,0,0,.3);cursor:pointer}
   .fab svg{width:26px;height:26px}
   .shell.has-c .fab{display:none}
-  .side,.main{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  /* 2026-11-16: 맨 아래까지 내려도 마지막 단추(예: 파일 첨부하고 분석 시작)가 왼쪽 😣불편해·오른쪽 ＋ 단추에 가리지 않게 여백을 그 높이만큼 */
+  .side,.main{padding-bottom:calc(144px + env(safe-area-inset-bottom))!important}
   #newCust,.snav,.smenu{display:none!important}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom))!important}
   /* 검색창은 위에 붙어 있게 */
@@ -2642,6 +2643,8 @@ html.is-pc .toast{bottom:calc(24px + var(--pccut,0px))!important}
 .fbbtn{position:fixed;left:10px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:900;display:flex;align-items:center;gap:4px;height:34px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--ink2,var(--ink));font:inherit;font-size:12.5px;box-shadow:0 2px 10px rgba(0,0,0,.18);opacity:.85;cursor:pointer}
 .fbbtn span{font-weight:600}.fbbtn:hover{opacity:1}
 html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
+/* 2026-11-16: PC 넓은 화면은 왼쪽 메뉴 칸이 늘 펼쳐져 있어 왼쪽 아래 단추가 '👥 팀원' 항목을 덮었음 → 오른쪽 아래로 */
+@media (min-width:1180px){.fbbtn{left:auto;right:16px;bottom:16px}}
 .mdl-on .fbbtn,body:has(#cph) .fbbtn,body:has(#lock:not([hidden])) .fbbtn,body:has(#shell[hidden]) .fbbtn{display:none}
 /* 👥 고객 목록 정리 (2026-11-04): 🔽 필터 한 버튼 · ＋ 추가 · 👁 보기 · 옆으로 밀기 · 알마인드 색 */
 .sfilt.fbar{display:flex!important;gap:6px;background:transparent;padding:0;border-radius:0;grid-template-columns:none}
@@ -14059,7 +14062,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
     var MENU = [
       ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
-      ['🌱 성장 · 소통', [['#mateBtn', '👥', '팀원', mtMenuDesc()], ['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류 신고', '한 줄 적으면 AI가 고침 (사진 안 보냄)'], ['#sugBtn', '💡', '건의사항', '기능 아이디어'], ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
+      ['🌱 성장 · 소통', [['#mateBtn', '👥', '팀원', mtMenuDesc()], ['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류·건의', '오류·불편·아이디어 한 줄 → AI가 고침 (사진 안 보냄)'], /* 2026-11-16: '💡 건의사항'은 같은 화면을 열어 하나로 합침 */ ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
     var SET = [
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
@@ -17033,6 +17036,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
 })();
 
 </script>
-<script>window.AOB_V="53e2241fed28";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="84827412b110";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
