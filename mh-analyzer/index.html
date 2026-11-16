@@ -3049,6 +3049,149 @@ tr.pol-g .pb{height:26px;font-size:12px;margin-left:auto}
   table.pol tr.pol-none{display:block}table.pol tr.pol-none td{display:block;border:0}
 }
 
+/* ===== 2026-11-17 🔍 통합 검색 · 🧭 진행 현황 · 빠른 거르기 · 고객 줄 간단히 (대표님 요청) ===== */
+/* 🔍 단추: 휴대폰 = ☰ 바로 왼쪽 · PC = ☰ 바로 아래(본문 오른쪽 여백 안) */
+.topmenu.topfind{right:60px}
+@media (min-width:901px){.topmenu.topfind{right:14px;top:calc(env(safe-area-inset-top) + 62px)}}
+/* 검색 창: 글자판이 올라와도 결과가 보이게 화면 위쪽에 붙임 */
+.modal:has(>.mbox.fnd){align-items:flex-start}
+.mbox.fnd{width:min(620px,100%);padding:12px;gap:6px;overflow:hidden}
+.fnd-top{display:flex;align-items:center;gap:6px;flex:none}
+.fnd-q{flex:1;position:relative;display:flex;align-items:center;min-width:0}
+.fnd-q svg{position:absolute;left:13px;width:19px;height:19px;color:var(--mute);pointer-events:none}
+.fnd-q input{width:100%;height:48px;border-radius:14px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);font:inherit;font-size:16px;padding:0 12px 0 40px;outline:none;-webkit-appearance:none;appearance:none}
+.fnd-q input:focus{border-color:var(--ocean2,#4f7dff)}
+.fnd-q input::-webkit-search-cancel-button{-webkit-appearance:none}
+.fnd-x{flex:none;height:44px;padding:0 10px;border:0;border-radius:12px;background:transparent;color:var(--ink2);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.fnd-r{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 2px 8px}
+.fnd-h{font-size:12px;font-weight:800;color:var(--mute);padding:14px 4px 6px}
+.fnd-h:first-child{padding-top:6px}
+.fnd-l{display:flex;flex-direction:column;gap:3px}
+.fnd-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:6px}
+.fnd-i{display:flex;align-items:center;gap:10px;width:100%;min-width:0;min-height:50px;padding:6px 10px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.fnd-g .fnd-i{border-color:var(--line);background:var(--soft);min-height:44px;padding:6px 9px;gap:8px}
+.fnd-i>i{flex:none;width:28px;text-align:center;font-style:normal;font-size:19px;line-height:1}
+.fnd-g .fnd-i>i{width:22px;font-size:17px}
+.fnd-i>span{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.fnd-i b{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fnd-g .fnd-i b{font-size:13.5px;font-weight:600}
+.fnd-i small{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fnd-g .fnd-i small{display:none}
+.fnd-i>em{flex:none;font-style:normal;font-size:11px;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.fnd-i:hover,.fnd-i.on{background:color-mix(in srgb,var(--ocean2,#4f7dff) 14%,transparent);border-color:color-mix(in srgb,var(--ocean2,#4f7dff) 45%,transparent)}
+.fnd-i:focus-visible{outline:2px solid var(--ocean2,#4f7dff);outline-offset:1px}
+.fnd-i>i.fnd-av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#f0a43a,#e8862a);color:#fff;font-size:14px;font-weight:800}
+.fnd-c{display:flex;align-items:center;gap:6px}
+.fnd-c .fnd-i{flex:1}
+.fnd-call{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;text-decoration:none;font-size:19px;border:1px solid var(--line);background:var(--soft)}
+.fnd-now{display:flex;flex-wrap:wrap;gap:6px}
+.fnd-now button{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--ink);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.fnd-now button i{font-style:normal}
+.fnd-now button b{font-weight:800;font-variant-numeric:tabular-nums}
+.fnd-now button.w{border-color:rgba(242,194,48,.6);background:rgba(242,194,48,.12)}
+.fnd-now button.r{border-color:rgba(229,83,75,.6);background:rgba(229,83,75,.12)}
+.mbox .fnd-0{margin:26px 8px;text-align:center;font-size:14.5px;color:var(--ink2)}
+.fnd-0 small{display:block;margin-top:6px;font-size:12.5px;color:var(--mute);line-height:1.5}
+.fnd-new>i{color:var(--ocean2,#4f7dff);font-weight:800}
+/* ☰ 메뉴 · ⚙ 환경설정 맨 위 검색 칸 / PC 왼쪽 메뉴의 검색 줄 */
+.msfind{display:flex;align-items:center;gap:10px;width:100%;height:46px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--soft);color:var(--mute);font:inherit;font-size:15px;text-align:left;cursor:pointer;flex:none}
+.msfind svg{width:19px;height:19px;flex:none}
+.msfind:hover{border-color:var(--ocean2,#4f7dff);color:var(--ink)}
+.msheet.fav button{border-color:rgba(226,194,126,.5)}
+.pcmenu .pmfind{border:1px solid rgba(255,255,255,.14);margin:2px 0 4px;opacity:1}
+.pcmenu .pmfind svg{width:15px;height:15px;flex:none;margin:0 2px 0 3px}
+.pcmenu .pmfind kbd{margin-left:auto;font:inherit;font-size:10.5px;opacity:.6;border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:0 5px}
+:root[data-theme="light"] .pcmenu .pmfind,:root[data-theme="light"] .pcmenu .pmfind kbd{border-color:rgba(0,0,0,.16)}
+
+/* 🧭 진행 현황: 고객 이름 줄 오른쪽 — 지금 단계 글자 + 7칸 띠(연락·상담·병력·보장·제안·계약·증권) */
+.citem .r1 .pfl{margin-left:auto;flex:none;display:inline-flex;flex-direction:column;align-items:stretch;gap:3px;min-width:62px;font-style:normal;line-height:1;padding:4px 8px 5px;border-radius:10px;border:1px solid color-mix(in srgb,currentColor 18%,transparent);background:color-mix(in srgb,currentColor 5%,transparent);cursor:pointer}
+.citem .r1 .pfl b{font-size:12px!important;font-weight:700;white-space:nowrap;text-align:center;opacity:.9}
+.citem .r1 .pfl span{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.citem .r1 .pfl u{height:3px;border-radius:2px;text-decoration:none;background:color-mix(in srgb,currentColor 18%,transparent)}
+.citem .r1 .pfl u.on{background:#6F9BFF}
+.citem .r1 .pfl.z b{opacity:.55}
+.citem .r1 .pfl.d u.on{background:#D9BC86}
+.citem .r1 .pfl.w{border-color:rgba(242,194,48,.65);background:rgba(242,194,48,.14)}
+.citem .r1 .pfl.w b{color:#F2C230;opacity:1}.citem .r1 .pfl.w u.on{background:#F2C230}
+.citem .r1 .pfl.g{border-color:rgba(31,169,113,.65);background:rgba(31,169,113,.15)}
+.citem .r1 .pfl.g b{color:#5fd39a;opacity:1}.citem .r1 .pfl.g u.on{background:#1FA971}
+.citem .r1 .pfl:active{transform:scale(.96)}
+.selm .citem .r1 .pfl{pointer-events:none}
+.citem .rtg .polr{font-style:normal;font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:rgba(229,72,77,.18);color:#ff8589;border:1px solid rgba(229,72,77,.5)}
+.fp-lg .lg-pf{width:24px;height:4px;border-radius:2px;background:linear-gradient(90deg,#6F9BFF 0 58%,rgba(127,140,170,.4) 58%)}
+/* 진행 현황 펼친 창 (이름 옆 띠를 눌렀을 때) */
+.qflow{display:flex;flex-direction:column;padding:2px 10px 6px;min-width:250px}
+.qflow>div{display:grid;grid-template-columns:22px auto 1fr;align-items:center;gap:9px;min-height:32px;font-size:14px;opacity:.6}
+.qflow>div.on,.qflow>div.w{opacity:1}
+.qflow i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;border:1.5px solid currentColor;opacity:.75}
+.qflow .on i{background:#1FA971;border-color:#1FA971;color:#fff;opacity:1}
+.qflow .w i{background:#F2C230;border-color:#F2C230;color:#2a1c00;opacity:1}
+.qflow b{font-weight:700}
+.qflow small{justify-self:end;text-align:right;font-size:12px;color:#8E97A8}
+.qnote{margin:2px 10px 6px;padding:7px 10px;border-radius:9px;font-size:12.5px}
+.qnote.r{background:rgba(229,83,75,.14);color:#e5534b}
+/* 고객 화면 맨 위 진행 한 줄 */
+.flowbar{display:flex;align-items:center;gap:5px 7px;flex-wrap:wrap;margin:0 0 12px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:12.5px}
+.flowbar small{font-weight:800;color:var(--mute);margin-right:3px}
+.flowbar span{display:inline-flex;align-items:center;gap:5px;color:var(--mute);white-space:nowrap}
+.flowbar span i{width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:800;border:1.5px solid currentColor}
+.flowbar span.on{color:var(--ink);font-weight:600}
+.flowbar span.on i{background:#1FA971;border-color:#1FA971;color:#fff}
+.flowbar span.w{color:#b88a00;font-weight:700}.flowbar span.w i{background:#F2C230;border-color:#F2C230;color:#2a1c00}
+:root[data-theme="dark"] .flowbar span.w{color:#F2C230}
+.flowbar em{font-style:normal;color:var(--mute);opacity:.55}
+
+/* 빠른 거르기: 고객 수 옆 ⏰ 할 일 · 📑 미전달 · 💳 밀림 */
+.lsort>span:first-child{flex:none;white-space:nowrap}
+.lsort .lqs{flex:1;min-width:0;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:0 2px}
+.lsort .lqs::-webkit-scrollbar{display:none}
+.lsort label{flex:none}
+.lq{flex:none;display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 10px;border-radius:999px;border:1px solid color-mix(in srgb,currentColor 24%,transparent);background:transparent;color:var(--side-ink);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.lq em{font-style:normal}
+.lq b{font-weight:800;font-variant-numeric:tabular-nums;color:inherit}
+.lq.w{border-color:rgba(242,194,48,.6)}.lq.r{border-color:rgba(229,83,75,.65)}
+.lq[aria-pressed="true"]{background:#3D63D6;border-color:#3D63D6;color:#fff}
+.lq.w[aria-pressed="true"]{background:#F2C230;border-color:#F2C230;color:#2a1c00}
+.lq.r[aria-pressed="true"]{background:#e5534b;border-color:#e5534b;color:#fff}
+
+/* 고객 줄 간단히 (👁 보기 → ↕ 고객 줄 간단히): 이름 줄 · 전화/마지막 연락 · 다음 할 일만 */
+html.dense .citem .rtg,html.dense .citem .r3,html.dense .citem .cs1,html.dense .citem .r2{display:none!important}
+html.dense .citem{padding-top:7px!important;padding-bottom:7px!important}
+html.dense .citem .cav{width:38px;height:38px;font-size:16px}
+/* 계약 뒤 고객의 띠 = '계약 후 프로세스' 칸 (초록 완료 · 노랑 7일 안 · 빨강 지남) */
+.citem .r1 .pfl.pc u.on{background:#1FA971}
+.citem .r1 .pfl.pc u.w{background:#F2C230}
+.citem .r1 .pfl.pc u.late{background:#e5534b}
+.qfl1{display:flex;flex-wrap:wrap;gap:5px;padding:0 10px 8px}
+.qfl1 span{font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid rgba(127,140,170,.3);color:#8E97A8;white-space:nowrap}
+.qfl1 span.on{border-color:rgba(31,169,113,.55);color:#1FA971;font-weight:700}
+.qflow>div.late{opacity:1}
+.qflow .late i{border-color:#e5534b;color:#e5534b;opacity:1}.qflow .late small{color:#e5534b}
+.qflow .w small{color:#c99700}
+.pcard.flash{animation:pcflash 1.1s ease-in-out 2}
+@keyframes pcflash{50%{box-shadow:0 0 0 3px rgba(79,125,255,.55)}}
+/* 좁은 휴대폰: 이름 줄에 띠가 같이 들어가게 — 단계·채널 칩의 그림 글자를 빼고, 안 쓰는 오른쪽 여백(⋯ 자리)을 돌려줌 */
+@media (hover:none) and (max-width:520px){
+  .citem{padding-right:12px!important}
+  .citem .r1 .pk em{display:none}
+  .citem .r1 .pfl{min-width:56px;padding:4px 6px 5px}
+}
+/* 고객 수 줄이 좁으면 빠른 거르기는 그림+숫자만 (누른 것은 글자도) */
+.lsort{container-type:inline-size}
+.lsort>span:first-child i{font-style:normal}
+@container (max-width:420px){.lqs:has(.lq:nth-child(3)) .lq:not([aria-pressed="true"]) em{display:none}}
+@container (max-width:350px){.lq:not([aria-pressed="true"]) em{display:none}.lq{padding:0 8px}.lsort>span:first-child i{display:none}.lsort .lqs{gap:4px}}
+/* 아주 좁은 휴대폰(380 이하): 띠 글자를 짧게(미전달 · 증권 ✓) → 이름 줄에 같이 들어감 */
+html.narrow .citem .r1 .pfl{min-width:44px}
+html.narrow .citem .r1 .pfl b{font-size:0!important}
+html.narrow .citem .r1 .pfl b::after{content:attr(data-s);font-size:11.5px}
+/* 밝은 화면에서도 고객 목록 칸은 어두운 바탕 그대로라 — 고객 수 줄도 어둡게 맞춤(예전엔 밝은 바탕에 흰 글자라 숫자가 안 보였음) */
+:root[data-theme="light"] .lsort{background:rgba(18,20,26,.82)}
+:root[data-theme="light"] .lsort select{border-color:rgba(255,255,255,.14);background-color:rgba(255,255,255,.06)}
+.pcmenu .pmfind kbd{background:transparent;color:inherit;box-shadow:none}
+@media (max-width:900px){html:not(.split)[data-theme="light"] .sqw{background:linear-gradient(#1b1d21 70%,transparent)}}
+:root[data-theme="light"] .clist .cgrp{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+
 </style>
 </head>
 <body>
@@ -7165,7 +7308,7 @@ var Policy = (function () {
         var as = $('polAs').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(as)) { $('polErr').textContent = '자료 기준일을 골라 주세요'; return; }
         this.disabled = true; this.textContent = '넣는 중…';
         try {
-          await load(); var res = apply(P.d, p.rows, { asOf: as, name: file.name, now: Date.now() }); P.d = res.doc; await save();
+          await load(); var res = apply(P.d, p.rows, { asOf: as, name: file.name, now: Date.now() }); P.d = res.doc; await save(); await recon();
           C.closeDlg(); var R = res.R;
           C.toast(R.first ? '계약 ' + R.added.length + '건을 장부에 넣었습니다' : '새 계약 ' + R.added.length + '건 · 수납 갱신 ' + R.paid.length + '건 · 증권 전달 표시는 그대로');
           P.f = !R.first && R.added.length ? 'new' : 'all'; P.q = ''; C.enter(); draw();
@@ -7188,7 +7331,7 @@ var Policy = (function () {
       $('polX').onclick = C.closeDlg;
       $('polWipe').onclick = async function () {
         if (!confirm('계약 장부를 전부 비웁니다. 증권 전달 표시도 같이 지워지고 되돌릴 수 없습니다.\n(고객 목록·싯플랜은 그대로입니다) 비울까요?')) return;
-        await load(); P.d = wipe(P.d, Date.now()); await C.hidSave(ID, ID, P.d); C.closeDlg(); P.f = 'all'; P.q = ''; draw(); C.toast('계약 장부를 비웠습니다');
+        await load(); P.d = wipe(P.d, Date.now()); await C.hidSave(ID, ID, P.d); C.closeDlg(); P.f = 'all'; P.q = ''; draw(); relist(); C.toast('계약 장부를 비웠습니다');
       };
     }
     function openAddCust() {
@@ -7209,6 +7352,7 @@ var Policy = (function () {
       draw(true);
       C.toast(keys.length > 1 ? last.holder + ' · ' + keys.length + '건 증권 전달 ✓' : last.holder + ' · ' + last.co + (last.dv ? ' 증권 전달 ✓' : ' 미전달로 되돌림'));
       try { await save(); } catch (e) { C.toast('저장하지 못했습니다 · 다시 눌러 주세요'); }
+      relist();
     }
     document.addEventListener('click', function (e) {
       var t = e.target.closest && e.target.closest('[data-pol],[data-poldv],[data-polf],[data-polk],[data-polall],[data-polname]'); if (!t) return;
@@ -7222,22 +7366,190 @@ var Policy = (function () {
       if (a === 'imp') pick(); else if (a === 'xls') exportXlsx(); else if (a === 'log') openLog(); else if (a === 'addc') openAddCust();
     });
     document.addEventListener('input', function (e) { if (e.target && e.target.id === 'polQ' && C.isView()) { P.q = e.target.value; drawBody(); } });
-    function of(name) { var n = norm(name); return n ? all(P.d).filter(function (x) { return norm(x.holder) === n || norm(x.insured) === n; }) : []; }
+    function relist() { if (C.relist) { try { C.relist(); } catch (e) { } } }
+    // 이름 → 계약 찾기표 (고객 목록 줄마다 물어보므로 한 번 만들어 둠 · 장부 문서가 바뀌면 다시 만듦)
+    function index() {
+      if (P.ix && P.ixd === P.d) return P.ix;
+      var ix = {}; all(P.d).forEach(function (x) { var a = norm(x.holder), b = norm(x.insured); if (a) (ix[a] = ix[a] || []).push(x); if (b && b !== a) (ix[b] = ix[b] || []).push(x); });
+      P.ix = ix; P.ixd = P.d; return ix;
+    }
+    function of(name) { var n = norm(name); return n ? (index()[n] || []) : []; }
+    // 장부를 아직 안 읽었으면 읽기 시작하고 false — 다 읽으면 고객 목록·고객 화면을 한 번 다시 그림
+    function ready() { if (P.d) return true; if (!P.loading) P.loading = load().then(recon).then(function () { relist(); if (C.curId()) C.rerender(); }).catch(function () { }); return false; }
+    // 예전에 '계약 후 프로세스'에서 증권 전달을 체크해 둔 고객 → 그날까지 맺은 계약은 장부에도 '전달'로 맞춘다.
+    // 장부에서 직접 눌러 본 적이 있는 계약(dvAt)은 건드리지 않는다. C.procDates() = [{ name, d }] (이름이 하나뿐인 고객만)
+    async function recon() {
+      if (!C.procDates || !P.d || !all(P.d).length) return 0;
+      var L = C.procDates() || [], now = Date.now(), n = 0;
+      L.forEach(function (p) { of(p.name).forEach(function (x) { if (inactive(x) || x.own || x.dv || x.dvAt) return; if (x.cDate && x.cDate > p.d) return; setDv(P.d, x.k, true, now, p.d); n++; }); });
+      if (n) { try { await save(); } catch (e) { } }
+      return n;
+    }
+    // 고객 목록 줄·진행 현황: 이름이 같은 계약 요약 { n 유지 계약, dv 전달, need 미전달, late 수납 밀림, off 철회·반송, keys 미전달 계약 }
+    function info(name) {
+      if (!ready()) return null; var L = of(name); if (!L.length) return null;
+      var bm = (P.d.asOf || '').slice(0, 7), o = { n: 0, dv: 0, need: 0, own: 0, late: 0, off: 0, keys: [], last: '' };
+      L.forEach(function (x) { if (inactive(x)) { o.off++; return; } o.n++; if (x.own) o.own++; else if (x.dv) { o.dv++; if ((x.dvD || '') > o.last) o.last = x.dvD; } else { o.need++; o.keys.push(x.k); } if (behind(x, bm)) o.late++; });
+      return o;
+    }
+    function sum() { return ready() && all(P.d).length ? stats(P.d) : null; }
+    // 이 이름의 미전달 증권을 모두 '전달'로 (고객 목록 줄 → 진행 현황에서 한 번에)
+    async function markName(name) {
+      await load(); var I = info(name); if (!I || !I.keys.length) return 0;
+      var now = Date.now(), td = C.today(); I.keys.forEach(function (k) { setDv(P.d, k, true, now, td); });
+      await save(); if (C.isView() && $('dlg').hidden) draw(true); relist(); return I.keys.length;
+    }
     // 고객 화면 이름 옆: 📑 계약 N건 · 증권 미전달 n (이름이 같은 계약)
     function chip(c) {
       if (!c || !c.name) return '';
-      if (!P.d) { if (!P.loading) P.loading = load().then(function () { if (of(c.name).length && C.curId() === c.id) C.rerender(); }).catch(function () { }); return ''; }
+      if (!ready()) return '';
       var L = of(c.name); if (!L.length) return '';
       var need = L.filter(needDv).length;
       return '<button type="button" class="pol-chip' + (need ? ' w' : '') + '" data-polname="' + esc(c.name) + '" title="이름이 같은 계약 · 누르면 계약 장부에서 봅니다">📑 계약 ' + L.length + '건' + (need ? ' · 증권 미전달 ' + need : '') + '</button>';
     }
-    async function synced() { await load(); if (C.isView() && $('dlg').hidden) draw(true); }
-    return { show: show, pick: pick, take: take, chip: chip, synced: synced, isSheetName: isSheetName };
+    async function synced() { await load(); await recon(); if (C.isView() && $('dlg').hidden) draw(true); relist(); }
+    return { show: show, pick: pick, take: take, chip: chip, synced: synced, isSheetName: isSheetName, info: info, sum: sum, markName: markName };
   }
 
   return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
+
+</script>
+<script>
+// 🔍 통합 검색 (2026-11-17 대표님 요청): 화면 오른쪽 위 🔍 → 모든 메뉴·환경설정·고객 추가/보기 항목과 고객 이름을 한 칸에서 찾는다.
+// · 찾기는 이 기기 안에서만 한다 — 검색어·고객 이름은 어디로도 보내지 않는다.
+// · '자주 쓰는 메뉴'는 메뉴 이름표(id)와 누른 횟수만 기기에 기억한다(aob_find · 고객 정보 없음).
+// · 한글은 치는 도중에도 찾는다: 초성(ㅅㅍㄹ → 싯플랜) · 받침이 다음 글자로 넘어가는 중(싯 → 시스…) · 끝 글자를 다 안 쳤을 때(실저 → 실적).
+var Finder = (function () {
+  'use strict';
+  var KEY = 'aob_find';
+  var CHO = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+  var JONG = { 1: 'ㄱ', 2: 'ㄲ', 4: 'ㄴ', 7: 'ㄷ', 8: 'ㄹ', 16: 'ㅁ', 17: 'ㅂ', 19: 'ㅅ', 20: 'ㅆ', 21: 'ㅇ', 22: 'ㅈ', 23: 'ㅊ', 24: 'ㅋ', 25: 'ㅌ', 26: 'ㅍ', 27: 'ㅎ' };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function norm(s) { return String(s == null ? '' : s).toLowerCase().replace(/[\s·.,\-_\/()'’"…:~|→]+/g, ''); }
+  function syl(ch) { var c = ch ? ch.charCodeAt(0) - 0xAC00 : -1; return c < 0 || c > 11171 ? null : { i: Math.floor(c / 588), m: Math.floor((c % 588) / 28), f: c % 28 }; }
+  function cho(s) { var o = ''; s = String(s == null ? '' : s); for (var i = 0; i < s.length; i++) { var y = syl(s[i]); if (y) o += CHO[y.i]; else if (/[ㄱ-ㅎa-z0-9]/i.test(s[i])) o += s[i].toLowerCase(); } return o; }
+  function isCho(q) { return /^[ㄱ-ㅎ]+$/.test(q); }
+  // text 안에서 q 가 시작하는 자리(-1 = 없음). 끝 글자는 '치는 중'일 수 있어 느슨하게 본다.
+  function find(text, q) {
+    var i = text.indexOf(q); if (i >= 0 || !q) return i;
+    var n = q.length, head = q.slice(0, n - 1), last = q[n - 1], at = [], k;
+    if (head) { for (k = text.indexOf(head); k >= 0; k = text.indexOf(head, k + 1)) at.push(k); } else { for (k = 0; k < text.length; k++) at.push(k); }
+    var jamo = /[ㄱ-ㅎ]/.test(last), sq = jamo ? null : syl(last);
+    if (!jamo && !sq) return -1;
+    if (jamo && !head) return -1;                      // 낱자음만 친 것은 초성 검색 쪽에서 본다
+    for (k = 0; k < at.length; k++) {
+      var st = syl(text[at[k] + head.length]); if (!st) continue;
+      if (jamo) { if (CHO[st.i] === last) return at[k]; continue; }   // '싯ㅍ' → 싯플랜
+      if (st.i !== sq.i || st.m !== sq.m) continue;
+      if (sq.f === 0) return at[k];                                   // '실저' → 실적
+      if (st.f === 0) { var nx = syl(text[at[k] + head.length + 1]); if (nx && JONG[sq.f] === CHO[nx.i]) return at[k]; }   // '싯' → 시스템
+    }
+    return -1;
+  }
+  function prep(it) { if (it._t == null) { it._t = norm(it.t); it._c = cho(it.t); it._k = norm([it.s, it.kw, it.g].join(' ')); } return it; }
+  function score1(it, q) {
+    var i = find(it._t, q);
+    if (i === 0) return 100 - Math.min(20, it._t.length - q.length);   // 이름이 검색어로 시작 (짧은 이름 먼저)
+    if (i > 0) return 78 - Math.min(18, i);
+    if (isCho(q)) { i = it._c.indexOf(q); return i === 0 ? 70 : i > 0 && q.length >= 2 ? 54 - Math.min(10, i) : 0; }
+    i = find(it._k, q); return i >= 0 ? 40 - Math.min(15, Math.floor(i / 4)) : 0;   // 설명·다른 이름(찾는 말)
+  }
+  function score(it, raw) {
+    prep(it); var q = norm(raw); if (!q) return 0;
+    var s = score1(it, q); if (s) return s;
+    var T = String(raw).toLowerCase().split(/\s+/).map(norm).filter(Boolean); if (T.length < 2) return 0;
+    var sum = 0; for (var i = 0; i < T.length; i++) { var x = score1(it, T[i]); if (!x) return 0; sum += x; }
+    return Math.max(1, Math.round(sum / T.length) - 5);
+  }
+  function menus(items, raw, max) {
+    return items.map(function (it, i) { return { it: it, s: score(it, raw), i: i }; }).filter(function (x) { return x.s > 0; })
+      .sort(function (a, b) { return b.s - a.s || a.i - b.i; }).slice(0, max || 10).map(function (x) { return x.it; });
+  }
+  // list = [{ id, name, phone, sub, tel, at }]  (at = 최근 활동 시각 — 같은 점수면 최근 고객 먼저)
+  function people(list, raw, max) {
+    var q = norm(raw), qd = String(raw == null ? '' : raw).replace(/\D/g, ''), c = isCho(q), out = []; if (!q) return out;
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i], n = norm(p.name), s = 0, j = find(n, q);
+      if (j === 0) s = 100 - Math.min(10, n.length - q.length); else if (j > 0) s = 80;
+      else if (c && q.length >= 2) { j = cho(p.name).indexOf(q); if (j === 0) s = 70; else if (j > 0) s = 50; }
+      if (!s && qd.length >= 4 && String(p.phone || '').replace(/\D/g, '').indexOf(qd) >= 0) s = 60;
+      if (s) out.push({ p: p, s: s });
+    }
+    out.sort(function (a, b) { return b.s - a.s || (b.p.at || 0) - (a.p.at || 0); });
+    return out.slice(0, max || 8).map(function (x) { return x.p; });
+  }
+
+  // ---------- 자주 쓰는 메뉴 (이름표·횟수만 기억) ----------
+  function stat() { try { var s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; return { n: s.n || {}, r: s.r || [] }; } catch (e) { return { n: {}, r: [] }; } }
+  function used(id) { if (!id) return; try { var s = stat(); s.n[id] = (s.n[id] || 0) + 1; s.r = [id].concat(s.r.filter(function (x) { return x !== id; })).slice(0, 12); localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { } }
+  function favs(items, max) {
+    var s = stat(), by = {}; items.forEach(function (it) { if (!it.tab) by[it.id] = it; });
+    var L = Object.keys(s.n).filter(function (id) { return by[id] && s.n[id] >= 2; }).sort(function (a, b) { return s.n[b] - s.n[a] || s.r.indexOf(a) - s.r.indexOf(b); });
+    s.r.forEach(function (id) { if (by[id] && L.indexOf(id) < 0) L.push(id); });
+    return L.slice(0, max || 6).map(function (id) { return by[id]; });
+  }
+
+  // ---------- 화면 ----------
+  // C = { $, openDlg, closeDlg, toast, items()→[{id, ic, t, s, g, kw, run, tab}], custs()→[{id,name,phone,sub,tel,at}], openCust(id), onCall(id), now()→[{ic,t,n,cls,run}], newCust(name) }
+  var IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>';
+  function ui(C) {
+    var $ = C.$, P = { items: [], now: [], on: -1 };
+    function itemBtn(it, grp) { return '<button type="button" class="fnd-i" data-fi="' + esc(it.id) + '"' + (grp ? '' : ' title="' + esc(it.s || it.t) + '"') + '><i>' + esc(it.ic || '•') + '</i><span><b>' + esc(it.t) + '</b>' + (it.s ? '<small>' + esc(it.s) + '</small>' : '') + '</span>' + (grp && it.g ? '<em>' + esc(it.g) + '</em>' : '') + '</button>'; }
+    function custRow(p) { return '<div class="fnd-c"><button type="button" class="fnd-i" data-fc="' + esc(p.id) + '"><i class="fnd-av">' + esc(String(p.name || '?').slice(0, 1)) + '</i><span><b>' + esc(p.name) + '</b>' + (p.sub ? '<small>' + esc(p.sub) + '</small>' : '') + '</span></button>' + (p.tel ? '<a class="fnd-call" href="tel:' + esc(p.tel) + '" data-fcall="' + esc(p.id) + '" aria-label="' + esc(p.name) + '님께 전화">📞</a>' : '') + '</div>'; }
+    function home() {
+      var h = '', F = favs(P.items, 6); P.now = (C.now && C.now()) || [];
+      if (P.now.length) h += '<div class="fnd-h">지금 챙길 것</div><div class="fnd-now">' + P.now.map(function (x, i) { return '<button type="button" data-fn="' + i + '" class="' + esc(x.cls || '') + '"><i>' + esc(x.ic) + '</i>' + esc(x.t) + '<b>' + esc(x.n) + '</b></button>'; }).join('') + '</div>';
+      if (F.length) h += '<div class="fnd-h">⭐ 자주 쓰는 메뉴</div><div class="fnd-g">' + F.map(function (it) { return itemBtn(it); }).join('') + '</div>';
+      var G = {}, order = []; P.items.forEach(function (it) { if (!G[it.g]) { G[it.g] = []; order.push(it.g); } G[it.g].push(it); });
+      order.forEach(function (g) { h += '<div class="fnd-h">' + esc(g) + '</div><div class="fnd-g">' + G[g].map(function (it) { return itemBtn(it); }).join('') + '</div>'; });
+      return h;
+    }
+    function results(q) {
+      var M = menus(P.items, q, 10), U = people((C.custs && C.custs()) || [], q, 8), h = '';
+      if (M.length) h += '<div class="fnd-h">메뉴</div><div class="fnd-l">' + M.map(function (it) { return itemBtn(it, 1); }).join('') + '</div>';
+      if (U.length) h += '<div class="fnd-h">고객</div><div class="fnd-l">' + U.map(custRow).join('') + '</div>';
+      if (!h) h = '<p class="fnd-0">찾는 것이 없습니다<small>다른 말로 찾아보세요 — 예: 증권 · 백업 · 통화 연습 · 알림. 초성(ㅅㅍㄹ)도 됩니다.</small></p>';
+      var nm = String(q).trim();
+      if (!M.length && !U.length && C.newCust && /^[가-힣]{2,5}$/.test(nm)) h += '<div class="fnd-l"><button type="button" class="fnd-i fnd-new" data-fnew="' + esc(nm) + '"><i>＋</i><span><b>‘' + esc(nm) + '’ 새 고객으로 등록</b><small>고객 목록에 없는 이름입니다</small></span></button></div>';
+      return h;
+    }
+    function rows() { var b = $('fndR'); return b ? [].slice.call(b.querySelectorAll('.fnd-i')) : []; }
+    function mark(i) { var R = rows(); if (!R.length) { P.on = -1; return; } i = Math.max(0, Math.min(R.length - 1, i)); R.forEach(function (b, k) { b.classList.toggle('on', k === i); }); P.on = i; try { R[i].scrollIntoView({ block: 'nearest' }); } catch (e) { } }
+    function draw() { var inp = $('fndQ'), box = $('fndR'); if (!inp || !box) return; var q = inp.value.trim(); box.innerHTML = q ? results(q) : home(); box.scrollTop = 0; P.on = -1; if (q) mark(0); }
+    function go(it) { C.closeDlg(); if (!it) return; if (!it.tab && String(it.id).indexOf('px:') !== 0) used(it.id); try { it.run(); } catch (e) { if (C.toast) C.toast('열지 못했습니다 · ' + (e && e.message || e)); } }
+    function fit() {   // 휴대폰 글자판이 올라오면 보이는 높이만큼만 쓴다
+      var inp = $('fndQ'); if (!inp) { try { window.visualViewport.removeEventListener('resize', fit); } catch (e) { } return; }
+      var vv = window.visualViewport, box = inp.closest('.mbox'); if (box) box.style.maxHeight = Math.max(220, Math.round((vv ? vv.height : window.innerHeight) - 20)) + 'px';
+    }
+    function open(q0) {
+      P.items = (C.items() || []).map(prep);
+      C.openDlg('<div class="fnd-top"><label class="fnd-q">' + IC + '<input id="fndQ" type="search" enterkeyhint="search" placeholder="메뉴 · 고객 이름 검색" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="메뉴와 고객 검색"></label><button type="button" class="fnd-x" id="fndX">닫기</button></div><div class="fnd-r" id="fndR"></div>', 'fnd');
+      var inp = $('fndQ'); if (q0) inp.value = q0;
+      inp.oninput = draw;
+      inp.onkeydown = function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); mark(P.on + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); mark(P.on - 1); }
+        else if (e.key === 'Enter') { if (e.isComposing || e.keyCode === 229) return; e.preventDefault(); var b = rows()[Math.max(0, P.on)]; if (b && inp.value.trim()) b.click(); }
+      };
+      $('fndX').onclick = C.closeDlg;
+      $('fndR').onclick = function (e) {
+        var t = e.target.closest('[data-fcall]'); if (t) { var cid = t.dataset.fcall; setTimeout(function () { C.closeDlg(); if (C.onCall) C.onCall(cid); }, 60); return; }   // tel: 링크가 먼저 열리게 잠깐 뒤에 닫음
+        t = e.target.closest('[data-fn]'); if (t) { var x = P.now[+t.dataset.fn]; C.closeDlg(); if (x && x.run) x.run(); return; }
+        t = e.target.closest('[data-fnew]'); if (t) { var nm = t.dataset.fnew; C.closeDlg(); C.newCust(nm); return; }
+        t = e.target.closest('[data-fc]'); if (t) { var id = t.dataset.fc; C.closeDlg(); C.openCust(id); return; }
+        t = e.target.closest('[data-fi]'); if (t) go(P.items.filter(function (it) { return it.id === t.dataset.fi; })[0]);
+      };
+      draw(); fit(); try { window.visualViewport.addEventListener('resize', fit); } catch (e) { }
+      setTimeout(function () { try { inp.focus(); } catch (e) { } }, 40);
+    }
+    return { open: open, go: go, used: used, favs: function (max) { return favs((C.items() || []), max); }, icon: IC };
+  }
+
+  return { norm: norm, cho: cho, find: find, score: score, menus: menus, people: people, favs: favs, used: used, ui: ui, KEY: KEY };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 
 </script>
 <script>
@@ -8167,6 +8479,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
     if (S.ch) a.push(S.ch === 'mine' ? '보유고객' : S.ch === 'none' ? '미분류' : chTxt(S.ch));
     if (S.stage) a.push(stageTxt(S.stage));
     if (S.doc) a.push({ '0': '자료 없음', '1': '자료 하나만', '2': '자료 완료', nohx: '병력 없음', nocv: '보장 없음', hxmiss: '자료 누락' }[S.doc] || '자료');
+    if (S.pol) a.push(S.pol === 'dvn' ? '증권 미전달' : '수납 밀림');
     return a;
   }
   function drawChips(){
@@ -8180,7 +8493,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
       (isBiz ? '' : row('영업 채널', chTabs().map(function(t){ var n = chCount(t[0]); if (t[0] === 'none' && !n) return ''; return chip('data-chf="' + t[0] + '"', (t[0] === 'all' ? '전체' : t[1]) + ' <b>' + n + '</b>', (S.ch || 'all') === t[0], t[0] === 'all' || t[0] === 'mine' ? '' : 'cg-' + chGrp(t[0])); }).join(''))) +
       row('진행', chip('data-ff="st:"', '전체', !S.stage) + STAGES.map(function(s){ return chip('data-ff="st:' + s[0] + '"', '<span class="qd" style="background:' + STG_DOT[s[0]] + '"></span>' + s[1], S.stage === s[0]); }).join('')) +
       row('자료', DOC_F.map(function(x){ return chip('data-ff="doc:' + x[0] + '"', x[1], (S.doc || '') === x[0]); }).join('')) +
-      '<div class="fp-lg" aria-label="색 보는 법"><span><i class="lg-av g"></i>계약자</span><span><i class="lg-av o"></i>계약 전</span><span><i class="lg-av bz"></i>사업</span><span><i class="lg-ch db"></i>DB</span><span><i class="lg-ch ji"></i>지인·가족·소개</span><span><i class="lg-ch op"></i>개척</span><span><i class="lg-bar"></i>왼쪽 줄: 병력·보장 자료 (빨강 없음·노랑 하나·초록 둘 다)</span>' + (IS_MOBILE ? '<span>↔ 고객 줄을 옆으로 밀면 📞 💬 📅 📝</span>' : '') + '</div>' +
+      (POL.sum() || polCnt('dvn') || S.pol ? row('계약', chip('data-ff="pol:"', '전체', !S.pol) + chip('data-ff="pol:dvn"', '📑 증권 미전달 <b>' + polCnt('dvn') + '</b>', S.pol === 'dvn') + chip('data-ff="pol:late"', '💳 수납 밀림 <b>' + polCnt('late') + '</b>', S.pol === 'late')) : '') +
+      '<div class="fp-lg" aria-label="색 보는 법"><span><i class="lg-pf"></i>이름 옆 작은 띠: 진행 현황 (연락·상담·병력·보장·제안·계약·증권 · 누르면 자세히)</span><span><i class="lg-av g"></i>계약자</span><span><i class="lg-av o"></i>계약 전</span><span><i class="lg-av bz"></i>사업</span><span><i class="lg-ch db"></i>DB</span><span><i class="lg-ch ji"></i>지인·가족·소개</span><span><i class="lg-ch op"></i>개척</span><span><i class="lg-bar"></i>왼쪽 줄: 병력·보장 자료 (빨강 없음·노랑 하나·초록 둘 다)</span>' + (IS_MOBILE ? '<span>↔ 고객 줄을 옆으로 밀면 📞 💬 📅 📝</span>' : '') + '</div>' +
       (filtLabel().length ? '<div class="fp-x"><button type="button" class="btn" data-ff="reset">↺ 모두 풀기</button></div>' : '');
     var L = filtLabel(), b = $('fBtn');
     if (b) { b.classList.toggle('on', !!L.length); $('fLbl').textContent = L.length ? L.join(' · ') : '필터'; b.title = L.length ? '거르는 중: ' + L.join(' · ') : '거르기 (채널·진행·자료)'; }
@@ -8193,7 +8507,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
     var v = t.dataset.ff;
     if (v != null) {
       e.stopPropagation();
-      if (v === 'reset') { S.filter = 'all'; S.stage = ''; S.ch = ''; S.doc = ''; S.big = 'sales'; }
+      if (v === 'reset') { S.filter = 'all'; S.stage = ''; S.ch = ''; S.doc = ''; S.pol = ''; S.big = 'sales'; }
+      else if (v.indexOf('pol:') === 0) S.pol = v.slice(4);
       else if (v.indexOf('f:') === 0) S.filter = v.slice(2);
       else if (v.indexOf('st:') === 0) S.stage = v.slice(3);
       else if (v.indexOf('doc:') === 0) S.doc = v.slice(4);
@@ -8331,10 +8646,17 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   }
   function openQuick(id, anchor, kind){
     var c = S.list.find(function(x){ return x.id === id; }); if (!c) return;
-    var html = kind === 'stage' ? stageMenu(c.stage === 'db' ? 'lead' : c.stage || 'lead') : kind === 'ch' ? chMenu(chOf(c)) : kind === 'todo' ? todoMenu() : moreMenu(c);
+    var html = kind === 'stage' ? stageMenu(c.stage === 'db' ? 'lead' : c.stage || 'lead') : kind === 'ch' ? chMenu(chOf(c)) : kind === 'todo' ? todoMenu() : kind === 'flow' ? flowMenu(c) : moreMenu(c);
     qpop(anchor, html, async function(v){
       if (/^(stage|ch|todo):/.test(v)) { if (await qApply([id], v) !== false) qclose(); return; }
       qclose();
+      if (v === 'flow:dv') {
+        try { if (dvState(c).src === 'pol') { var nDv = await POL.markName(c.name); toast(nDv ? c.name + '님 · 증권 ' + nDv + '건 전달 ✓' : '표시할 미전달 증권이 없습니다'); } else if (await procMark(id, 'policy')) toast(c.name + '님 · 증권 전달 ✓'); }
+        catch(e){ toast('저장하지 못했습니다 · 다시 눌러 주세요'); }
+        return;
+      }
+      if (v === 'flow:pol') { POL.show({ q: c.name }); return; }
+      if (v === 'flow:proc') { await openCustomer(id); setTimeout(function(){ var el = [].slice.call(document.querySelectorAll('#main .pcard')).filter(function(x){ return /계약 후 프로세스/.test(x.textContent); })[0]; if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('flash'); setTimeout(function(){ el.classList.remove('flash'); }, 2200); } }, 350); return; }
       if (v === 'sub:todo') { openQuick(id, anchor, 'todo'); return; }
       if (v === 'sub:sel') { selMode(true); toggleSel(id); return; }
       if (v === 'sub:mate') { openMateFor(S.list.find(function(x){ return x.id === id; })); return; }
@@ -10902,6 +11224,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
     L2 = L2.filter(function(c){ return bigMatch(c, S.big); });
     if (S.ch) L2 = L2.filter(function(c){ return chMatch(c, S.ch); });
     if (S.doc) L2 = L2.filter(function(c){ var D = docOf(c); return S.doc === '0' ? D.n === 0 : S.doc === '1' ? D.n === 1 : S.doc === '2' ? D.n === 2 : S.doc === 'nohx' ? !D.hx : S.doc === 'nocv' ? !D.cv : S.doc === 'hxmiss' ? !!(hxMiss(c) || []).length : true; });
+    if (S.pol) L2 = L2.filter(function(c){ return polHit(c, S.pol); });   // 증권 미전달(계약 장부·계약 후 프로세스) · 수납 밀림(계약 장부)
     drawChips();
     var now = new Date(todayStr()).getTime(), groups = { '오늘': [], '최근 7일': [], '지난 기록': [] }, so = listSort();
     if (so !== 'recent') { groups = {}; groups[(SORTS.find(function(x){ return x[0] === so; }) || ['', ''])[1]] = sortList(L2, so); L2 = []; }
@@ -10916,12 +11239,16 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
         var nd = nextDue(c), r4 = nd != null ? '<span class="r4' + (nd < 0 ? ' late' : nd === 0 ? ' due' : nd <= 2 ? ' soon' : '') + '"><i>' + (nd < 0 ? 'D+' + (-nd) : nd === 0 ? '오늘' : 'D-' + nd) + '</i>' + esc(c.next.t || '할 일') + '</span>' : '';
         var r2 = c.status === 'done' ? '<span class="r2 ' + (c.sumOk ? 'ok' : '') + '">' + esc(c.summary || '') + '</span>' : '';
         var lo = lastOf(c), ph2 = normPhone(c.phone), r5 = (c.consLast && c.consLast.t ? '<span class="cs1">📝 ' + esc(String(c.consLast.t).slice(0, 46)) + ' <small>' + ago(c.consLast.d) + '</small></span>' : '') + '<span class="r5">' + (ph2 ? '<span class="ph">' + phoneTxt(ph2) + '</span>' : '<span class="ph none">번호 없음</span>') + (lo.any ? '<span class="lc' + (dayDiff(lo.any, todayStr()) > 60 ? ' old' : '') + '">' + ago(lo.any) + ' 연락</span>' : '<span class="lc old">연락 기록 없음</span>') + '</span>';
-        var DOC = docOf(c);
-        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + sangChip(c) + kdxChips(c, 4) + mtChip(c) + docTags(c) + '</span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
+        var DOC = docOf(c), FL = flowOf(c);
+        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + flowPill(c, FL) + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + sangChip(c) + (FL.late ? '<i class="polr" title="계약 장부: 수납이 밀렸거나 연체인 계약 ' + FL.late + '건">💳 수납 밀림</i>' : '') + kdxChips(c, 4) + mtChip(c) + docTags(c) + '</span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
       }).join('');
     });
     var nShow = 0; Object.keys(groups).forEach(function(g){ nShow += groups[g].length; });
-    var bar = '<div class="lsort"><span>고객 <b>' + nShow + '</b>명</span><label><select id="fSort" aria-label="고객 목록 정렬" title="정렬">' + SORTS.map(function(x){ return '<option value="' + x[0] + '"' + (x[0] === so ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label></div>';
+    // 빠른 거르기 (2026-11-17): 고객 수 옆에서 한 번 눌러 바로 — ⏰ 오늘·지난 할 일 · 📑 증권 미전달 · 💳 수납 밀림 (해당 고객이 있을 때만 보임 · 다시 누르면 풀림)
+    var nTd = S.list.filter(function(c){ var n = nextDue(c); return n != null && n <= 0; }).length, nDv = polCnt('dvn'), nLt = polCnt('late');
+    var lq = function(k, ic, tx, full, n, on, cls){ return n || on ? '<button type="button" class="lq' + (cls ? ' ' + cls : '') + '" data-lq="' + k + '" aria-pressed="' + !!on + '" aria-label="' + full + ' ' + n + '명" title="' + full + ' ' + n + '명 · 누르면 이 고객만, 다시 누르면 전체">' + ic + '<em>' + tx + '</em><b>' + n + '</b></button>' : ''; };
+    var quick = '<span class="lqs">' + lq('todo', '⏰', '할 일', '오늘·지난 할 일', nTd, S.filter === 'todo') + lq('dvn', '📑', '미전달', '증권 미전달', nDv, S.pol === 'dvn', 'w') + lq('late', '💳', '밀림', '수납 밀림·연체', nLt, S.pol === 'late', 'r') + '</span>';
+    var bar = '<div class="lsort"><span><i>고객 </i><b>' + nShow + '</b>명</span>' + quick + '<label><select id="fSort" aria-label="고객 목록 정렬" title="정렬">' + SORTS.map(function(x){ return '<option value="' + x[0] + '"' + (x[0] === so ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label></div>';
     if (!S.list.length) h = '<div class="cempty">등록된 고객이 없습니다.<br><span class="phonly"><button type="button" class="btn pri" data-rail="new" style="margin-top:10px">＋ 첫 고객 등록</button></span></div>';
     else if (!h) h = bar + '<div class="cempty">검색 결과가 없습니다.</div>';
     else h = bar + h;
@@ -10929,38 +11256,111 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   }
   $('q').addEventListener('input', function(){ S.q = this.value; renderList(); });
   // ＋ 추가 · 👁 보기 (2026-11-04): 메뉴 곳곳에 흩어져 있던 고객 기능을 고객 탭 한곳으로
+  // 항목 목록(…Defs)과 실행(…Go)을 나눠 둠 → 🔍 통합 검색(finder.js)이 같은 목록을 그대로 씀 (2026-11-17)
+  function addDefs(){
+    var A = [['add:form', '✍️ 직접 입력', '이름·생년월일·번호'], ['add:paste', '📋 붙여넣기', '메모·SMemo·카톡 글 → 자동 등록']];
+    if (ocrOn()) A.push(['add:cam', '📷 사진', '명함·메모 사진 글자 읽기']);
+    if (pickContactsOk()) A.push(['add:pick', '📇 연락처에서 고르기', '휴대폰 연락처 · 고른 사람만']);
+    A.push(['add:vcf', '📇 연락처 파일', '.vcf · 메모 .txt · SMemo .zip']);
+    return [A, [['add:db', '🗂️ 회사 DB', 'AFG DB 사이트'], ['add:xlsx', '📊 엑셀', '고객표 .xlsx'], ['add:emm', '🧠 알마인드', '.emm 마인드맵'], ['add:cov', '🛡️ 보장분석', '메리츠·KB PDF 여러 명 한 번에'], ['add:pol', '📑 계약 리스트', '회사 전산 보유계약 엑셀 → 수납·증권 전달'], ['add:reg', '🏢 보험사 고객등록', '보험사별 등록 현황']]];
+  }
+  function addGo(v){
+    if (v === 'add:pol') { POL.pick(); return; }
+    if (v === 'add:form') openCustForm(null);
+    else if (v === 'add:paste') pasteFromClip();
+    else if (v === 'add:cam') ocrPick(function(t){ openPaste(t); });
+    else if (v === 'add:pick') pickContacts();
+    else if (v === 'add:vcf') pickFiles('.vcf,.vcard,text/vcard,text/x-vcard,.txt,text/plain,.zip', true).then(peopleFiles);
+    else if (v === 'add:db') openDbImport();
+    else if (v === 'add:xlsx') openXlsxImport();
+    else if (v === 'add:emm') openEmmImport();
+    else if (v === 'add:cov') openCovBatch();
+    else if (v === 'add:reg') showReg();
+  }
   function openAddMenu(anchor){
-    qpop(anchor, '<div class="qh">고객 추가</div>' + qItem('add:form', '✍️ 직접 입력', false, '이름·생년월일·번호') + qItem('add:paste', '📋 붙여넣기', false, '메모·SMemo·카톡 글 → 자동 등록') + (ocrOn() ? qItem('add:cam', '📷 사진', false, '명함·메모 사진 글자 읽기') : '') +
-      (pickContactsOk() ? qItem('add:pick', '📇 연락처에서 고르기', false, '휴대폰 연락처 · 고른 사람만') : '') + qItem('add:vcf', '📇 연락처 파일', false, '.vcf · 메모 .txt · SMemo .zip') +
-      '<div class="qh">한꺼번에 가져오기</div>' + qItem('add:db', '🗂️ 회사 DB', false, 'AFG DB 사이트') + qItem('add:xlsx', '📊 엑셀', false, '고객표 .xlsx') + qItem('add:emm', '🧠 알마인드', false, '.emm 마인드맵') + qItem('add:cov', '🛡️ 보장분석', false, '메리츠·KB PDF 여러 명 한 번에') + qItem('add:pol', '📑 계약 리스트', false, '회사 전산 보유계약 엑셀 → 수납·증권 전달') + qItem('add:reg', '🏢 보험사 고객등록', false, '보험사별 등록 현황'), function(v){
-      qclose();
-      if (v === 'add:pol') { POL.pick(); return; }
-      if (v === 'add:form') openCustForm(null);
-      else if (v === 'add:paste') pasteFromClip();
-      else if (v === 'add:cam') ocrPick(function(t){ openPaste(t); });
-      else if (v === 'add:pick') pickContacts();
-      else if (v === 'add:vcf') pickFiles('.vcf,.vcard,text/vcard,text/x-vcard,.txt,text/plain,.zip', true).then(peopleFiles);
-      else if (v === 'add:db') openDbImport();
-      else if (v === 'add:xlsx') openXlsxImport();
-      else if (v === 'add:emm') openEmmImport();
-      else if (v === 'add:cov') openCovBatch();
-      else if (v === 'add:reg') showReg();
-    });
+    var D = addDefs(), it = function(x){ return qItem(x[0], x[1], false, x[2]); };
+    qpop(anchor, '<div class="qh">고객 추가</div>' + D[0].map(it).join('') + '<div class="qh">한꺼번에 가져오기</div>' + D[1].map(it).join(''), function(v){ qclose(); addGo(v); });
+  }
+  function denseOn(v){ try { if (v != null) localStorage.setItem('aob_dense', v ? '1' : ''); return localStorage.getItem('aob_dense') === '1'; } catch(e){ return !!v; } }
+  function denseApply(){ document.documentElement.classList.toggle('dense', denseOn()); }
+  denseApply();
+  function viewDefs(){ return [['v:chan', '👥 채널별 고객관리', '표 · 단계 · 마지막 연락', S.view === 'chan'], ['v:tree', '🌳 영업 트리', '알마인드 모양 · 계약자 초록/계약 전 주황', S.view === 'tree'], ['v:pol', '📑 계약 · 수납 · 증권 전달', '회사 계약 리스트 · 증권 줬는지 초록/노랑', S.view === 'pol'], ['v:sel', '☑ 여러 명 선택', '채널·단계·할 일 한 번에 바꾸기', !!QS.sel], ['v:dense', '↕ 고객 줄 간단히', '이름·연락·할 일만 · 한 화면에 더 많이', denseOn()]]; }
+  function viewGo(v){
+    if (v === 'v:chan') showChan(S.ch || 'all'); else if (v === 'v:tree') showTree(); else if (v === 'v:pol') POL.show(); else if (v === 'v:sel') selMode(!QS.sel);
+    else if (v === 'v:dense') { var on = denseOn(!denseOn()); denseApply(); toast(on ? '고객 줄을 간단히 보여 줍니다 · 👁 보기에서 다시 누르면 자세히' : '고객 줄을 자세히 보여 줍니다'); }
   }
   function openViewMenu(anchor){
-    qpop(anchor, '<div class="qh">다르게 보기</div>' + qItem('v:chan', '👥 채널별 고객관리', S.view === 'chan', '표 · 단계 · 마지막 연락') + qItem('v:tree', '🌳 영업 트리', S.view === 'tree', '알마인드 모양 · 계약자 초록/계약 전 주황') + qItem('v:pol', '📑 계약 · 수납 · 증권 전달', S.view === 'pol', '회사 계약 리스트 · 증권 줬는지 초록/노랑') + qItem('v:sel', '☑ 여러 명 선택', !!QS.sel, '채널·단계·할 일 한 번에 바꾸기'), function(v){
-      qclose();
-      if (v === 'v:chan') showChan(S.ch || 'all'); else if (v === 'v:tree') showTree(); else if (v === 'v:pol') POL.show(); else if (v === 'v:sel') selMode(!QS.sel);
-    });
+    qpop(anchor, '<div class="qh">다르게 보기</div>' + viewDefs().map(function(x){ return qItem(x[0], x[1], x[3], x[2]); }).join(''), function(v){ qclose(); viewGo(v); });
   }
   // 📑 계약 장부 (policy.js · 2026-11-16): 회사 전산 '보유계약' 엑셀 → 수납·증권 전달. 고객 탭 👁 보기 / ＋ 추가 / 공유 → AOB9. 기기와 본인 드라이브에만 저장
   var POL = Policy.ui({ $: $, openDlg: openDlg, closeDlg: closeDlg, toast: toast, hidLoad: hidLoad, hidSave: hidSave, pickFiles: pickFiles, today: todayStr, saveXlsx: bsSave, lock: IC.lock,
     enter: function(){ S.cur = null; S.data = null; S.view = 'pol'; $('shell').classList.add('has-c'); armBack(); renderList(); },
-    isView: function(){ return S.view === 'pol' && !S.cur; }, curId: function(){ return S.cur ? S.cur.id : ''; }, rerender: function(){ if (S.cur && $('dlg').hidden) renderCustomer(); },
+    isView: function(){ return S.view === 'pol' && !S.cur; }, curId: function(){ return S.cur ? S.cur.id : ''; }, rerender: function(){ if (S.cur && $('dlg').hidden) renderCustomer(); }, relist: function(){ if (Store.isOpen() && !$('shell').hidden) renderList(); }, procDates: function(){ return procDvDates(); },
     custOf: function(n){ var k = String(n || '').replace(/\s+/g, ''), L = S.list.filter(function(c){ return !c.sample && !c.hidden && String(c.name || '').replace(/\s+/g, '') === k; }); return L.length === 1 ? L[0].id : ''; },
     custNames: function(){ return S.list.filter(function(c){ return !c.sample && !c.hidden; }).map(function(c){ return c.name; }); },
     addCusts: async function(names){ for (var i = 0; i < names.length; i++) await Store.saveHead({ status: 'wait', name: names[i], stage: 'contract', from: 'pol' }); S.list = await Store.list(); renderList(); } });
   Store.setMerger(Policy.ID, Policy.merge);
+  // 🧭 진행 현황 (2026-11-17 대표님 요청): 고객 이름 줄 오른쪽 빈칸에 지금 어디까지 왔는지 + 증권 전달 여부. 따로 입력받지 않고 이미 있는 기록으로만 판단한다
+  //   연락(통화·문자·만남 기록) → 상담(상담 기록·단계) → 병력(병원 자료 분석) → 보장(보장분석) → 제안(설계 기록) → 계약(단계·계약 장부) → 증권(계약 장부의 증권 전달 표시)
+  var FLOW = [['call', '연락'], ['cons', '상담'], ['hx', '병력'], ['cv', '보장'], ['prop', '제안'], ['deal', '계약'], ['dv', '증권']];
+  // 증권 전달 여부는 한 곳만 본다: 이름이 같은 계약이 계약 장부에 있으면 장부가 기준, 없으면 '계약 후 프로세스'의 증권 전달 체크
+  function dvState(c){
+    var I = c.sample ? null : POL.info(c.name), pd = (c.proc && c.proc.policy && c.proc.policy.d) || '';
+    if (I && I.n) return { src: 'pol', done: !I.need, need: I.need, I: I, d: I.need ? '' : (I.last || pd) };
+    return { src: 'proc', done: !!pd, need: 0, I: I, d: pd };
+  }
+  // 미전달이 '확실한' 건수: 장부에 안 준 계약 수, 장부가 없으면 막 계약한(계약 단계) 고객인데 증권 전달 체크가 없을 때 1. 오래된 관리 고객은 장부가 없으면 세지 않음
+  function dvNeed(c, V){ V = V || dvState(c); return V.src === 'pol' ? V.need : (!V.done && c.stage === 'contract' ? 1 : 0); }
+  function flowOf(c){
+    var D = docOf(c), L = lastOf(c), V = dvState(c), I = V.I, st = c.stage === 'db' ? 'lead' : c.stage || 'lead', np = (c.props || []).length;
+    var deal = /^(contract|care)$/.test(st) || !!(I && I.n), on = { call: !!L.any, cons: !!(c.consLast && c.consLast.t) || !!L.meet || st !== 'lead', hx: D.hx, cv: D.cv, prop: np > 0, deal: deal, dv: deal && V.done };
+    var need = dvNeed(c, V), cnt = V.src === 'pol' ? V.need : 0;
+    var why = { call: L.any ? ago(L.any) + ' 연락' : L.miss ? ago(L.miss) + ' 부재' : '연락 기록 없음', cons: c.consLast && c.consLast.t ? ago(c.consLast.d) + ' 상담 기록' : L.meet ? ago(L.meet) + ' 만남' : st !== 'lead' ? stageTxt(st) + ' 단계' : '상담 기록 없음',
+      hx: D.hx ? (c.asOf ? '자료 ' + dot(c.asOf) : '분석 완료') : '병원 자료 없음', cv: D.cv ? '있음' : '보장분석 없음', prop: np ? '설계 기록 ' + np + '건' : '설계 기록 없음',
+      deal: I && I.n ? '계약 ' + I.n + '건' : deal ? stageTxt(st) + ' 단계' : '아직 계약 전', dv: V.src === 'pol' ? (V.need ? V.need + '건 미전달' + (I.dv ? ' · ' + I.dv + '건 전달' : '') : '모두 전달') : V.done ? dot(V.d) + ' 전달' : deal ? '아직 표시 없음' : '' };
+    var hi = -1, n = 0; FLOW.forEach(function(f, i){ if (on[f[0]]) { hi = i; n++; } });
+    var PI = deal && !c.sample ? procItems(c) : null, pn = PI ? PI.filter(function(x){ return x.done; }).length : 0;
+    var cls = deal ? (need ? 'w' : V.done ? 'g' : 'd') : hi < 0 ? 'z' : '';
+    var label = deal ? (need ? '증권 미전달' + (cnt > 1 ? ' ' + cnt : '') : V.done ? (PI && PI.length && pn === PI.length ? '프로세스 완료 ✓' : '증권 전달 ✓') : '⑥ 계약') : hi < 0 ? '연락 전' : '①②③④⑤⑥⑦'[hi] + ' ' + FLOW[hi][1];
+    var short = deal ? (need ? '미전달' + (cnt > 1 ? ' ' + cnt : '') : V.done ? (PI && PI.length && pn === PI.length ? '완료 ✓' : '증권 ✓') : label) : label;   // 좁은 휴대폰용 짧은 글자
+    return { on: on, why: why, hi: hi, n: n, cls: cls, label: label, short: short, V: V, I: I, need: need, cnt: cnt, late: I ? I.late : 0, deal: deal, PI: PI, pn: pn };
+  }
+  function procCls(x){ return x.done ? 'on' : x.n != null && x.n < 0 ? 'late' : x.n != null && x.n <= 7 ? 'w' : ''; }
+  function procSub(x, F){ return x.k === 'policy' && F.V.src === 'pol' ? F.why.dv : x.done ? (x.weekly ? '이번 주 완료' : x.d ? dot(x.d) : '완료') : x.weekly ? '이번 주' : x.n != null ? (x.n < 0 ? (-x.n) + '일 지남' : x.n === 0 ? '오늘까지' : 'D-' + x.n) : ''; }
+  function flowTip(F){ return F.PI ? '계약 후 프로세스 ' + F.pn + '/' + F.PI.length + ' · ' + F.PI.map(function(x){ return x.t + (x.done ? '✓' : '–'); }).join(' ') : '진행 현황 · ' + FLOW.map(function(f){ return f[1] + (F.on[f[0]] ? '✓' : '–'); }).join(' '); }
+  // 이름 줄 오른쪽 띠: 계약 전 = 지금 단계 + 7칸(연락…증권) · 계약 뒤 = 증권 전달 여부 + '계약 후 프로세스' 칸(초록 완료·노랑 임박·빨강 지남)
+  function flowPill(c, F){
+    F = F || flowOf(c); var segs = F.PI && F.PI.length ? F.PI.map(function(x){ return '<u class="' + procCls(x) + '"></u>'; }) : FLOW.map(function(f){ return '<u class="' + (F.on[f[0]] ? 'on' : '') + '"></u>'; });
+    return '<i class="pfl ' + F.cls + (F.PI ? ' pc' : '') + '" data-q="flow" title="' + esc(flowTip(F)) + ' (누르면 자세히)"><b data-s="' + esc(F.short) + '">' + F.label + '</b><span style="grid-template-columns:repeat(' + segs.length + ',1fr)">' + segs.join('') + '</span></i>';
+  }
+  function flowSteps(F){ return '<div class="qflow">' + FLOW.map(function(f, i){ var ok = F.on[f[0]]; return '<div class="' + (ok ? 'on' : '') + (f[0] === 'dv' && F.need ? ' w' : '') + '"><i>' + (ok ? '✓' : i + 1) + '</i><b>' + (f[0] === 'cv' ? '보장분석' : f[0] === 'dv' ? '증권 전달' : f[1]) + '</b><small>' + esc(F.why[f[0]] || '') + '</small></div>'; }).join('') + '</div>'; }
+  function flowMenu(c){
+    var F = flowOf(c), h = '<div class="qtitle"><b>' + esc(c.name) + '</b><small>' + (F.PI ? '계약 후 프로세스 ' + F.pn + ' / ' + F.PI.length : '진행 현황 ' + F.n + ' / ' + FLOW.length) + '</small></div>';
+    if (F.PI) h += '<div class="qfl1">' + FLOW.slice(0, 5).map(function(f){ return '<span class="' + (F.on[f[0]] ? 'on' : '') + '">' + f[1] + (F.on[f[0]] ? ' ✓' : '') + '</span>'; }).join('') + '</div><div class="qflow">' +
+      F.PI.map(function(x, i){ var cl = x.k === 'policy' && F.need ? 'w' : procCls(x); return '<div class="' + cl + '"><i>' + (x.done ? '✓' : i + 1) + '</i><b>' + esc(x.t) + '</b><small>' + esc(procSub(x, F)) + '</small></div>'; }).join('') + '</div>';
+    else h += flowSteps(F);
+    return h + (F.late ? '<div class="qnote r">💳 수납이 밀렸거나 연체인 계약 ' + F.late + '건</div>' : '') + '<div class="qsep"></div>' +
+      (F.deal && !F.V.done ? qItem('flow:dv', '✅ 증권 ' + (F.cnt ? F.cnt + '건 ' : '') + '전달 완료로 표시') : '') + (F.I ? qItem('flow:pol', '📑 계약 장부에서 보기', false, '계약 ' + (F.I.n + F.I.off) + '건') : '') +
+      (F.PI ? qItem('flow:proc', '📋 프로세스 체크하러 가기', false, '고객 화면') : '') + qItem('flow:open', IC.user + '고객 화면 열기');
+  }
+  // 고객 화면 맨 위: 같은 진행 현황을 글자로 한 줄
+  function flowBar(c){ var F = flowOf(c); return '<div class="flowbar" data-flowbar title="이미 있는 기록으로 자동 표시됩니다"><small>진행</small>' + FLOW.map(function(f, i){ var ok = F.on[f[0]]; return '<span class="' + (ok ? 'on' : '') + (f[0] === 'dv' && F.need ? ' w' : '') + '" title="' + esc(F.why[f[0]] || '') + '"><i>' + (ok ? '✓' : i + 1) + '</i>' + (f[0] === 'dv' ? (F.need ? '증권 미전달' + (F.cnt > 1 ? ' ' + F.cnt : '') : '증권 전달') : f[0] === 'cv' ? '보장분석' : f[1]) + '</span>'; }).join('<em>›</em>') + '</div>'; }
+  // 목록에서 바로: 계약 장부가 없는 고객의 '증권 전달' 체크 (계약 후 프로세스에 오늘 날짜로)
+  async function procMark(id, k){
+    var c = S.list.find(function(x){ return x.id === id; }); if (!c || c.sample) return false;
+    var h = Object.assign({}, c); h.proc = Object.assign({}, c.proc || {}); h.proc[k] = Object.assign({}, h.proc[k] || {}, { d: todayStr() }); gameMark(h, 'proc');
+    await Store.saveHead(h); S.list = await Store.list(); if (S.cur && S.cur.id === id) { S.cur = S.list.find(function(x){ return x.id === id; }) || S.cur; if (!S.view && $('dlg').hidden) renderCustomer(); } renderList(); return true;
+  }
+  // 예전에 '계약 후 프로세스'에서 증권 전달을 체크해 둔 고객(이름이 하나뿐인 고객만) → 계약 장부에도 같은 표시가 되게 맞춤 (두 번 누르지 않게)
+  function procDvDates(){ var cnt = {}, L = S.list.filter(function(c){ return !c.sample && !c.hidden; }); L.forEach(function(c){ cnt[c.name] = (cnt[c.name] || 0) + 1; });
+    return L.filter(function(c){ return cnt[c.name] === 1 && c.proc && c.proc.policy && c.proc.policy.d; }).map(function(c){ return { name: c.name, d: c.proc.policy.d }; }); }
+  function polHit(c, k){ if (c.sample || c.hidden) return false; if (k === 'dvn') return dvNeed(c) > 0; var I = POL.info(c.name); return !!I && I.late > 0; }
+  function polCnt(k){ var n = 0; S.list.forEach(function(c){ if (polHit(c, k)) n++; }); return n; }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest && e.target.closest('[data-lq]'); if (!t) return; var k = t.dataset.lq;
+    if (k === 'todo') S.filter = S.filter === 'todo' ? 'all' : 'todo'; else S.pol = S.pol === k ? '' : k;
+    renderList();
+  });
   if ($('fAddB')) $('fAddB').addEventListener('click', function(){ filtOpen(false); openAddMenu(this); });
   if ($('fViewB')) $('fViewB').addEventListener('click', function(){ filtOpen(false); openViewMenu(this); });
   // 복사해 둔 글을 바로 읽어 등록 창으로 (못 읽으면 빈 붙여넣기 창)
@@ -11051,9 +11451,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   }
   // 고객 한 명의 프로세스 상태 목록
   function procItems(c, t){
-    t = t || todayStr(); var base = contractDate(c), p = c.proc || {}, mon = mondayOf(t);
+    t = t || todayStr(); var base = contractDate(c), p = c.proc || {}, mon = mondayOf(t), V = dvState(c);
     return procTpl().map(function(x){
       var s = p[x.k] || {}, done, dd = null, n = null;
+      if (x.k === 'policy' && V.src === 'pol') s = { d: V.done ? (V.d || s.d || t) : '', n: s.n };   // 2026-11-17: 증권 전달은 계약 장부가 있으면 장부 표시를 그대로 따름(두 군데 따로 누르지 않게)
       if (x.wk) { done = s.w === mon; n = done ? null : dayDiff(t, mon) - 7 + 7; n = done ? null : 0; }
       else { done = !!s.d; if (!done && x.due > 0 && base) { dd = addDay(base, x.due); n = dayDiff(t, dd); } }
       return { k: x.k, t: x.t, weekly: !!x.wk, done: done, d: s.d || s.w || '', dd: dd, n: n, note: s.n || '' };
@@ -11071,6 +11472,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   async function procToggle(k){
     var c = S.cur, tpl = procTpl().find(function(x){ return x.k === k; }); if (!c || !tpl) return;
     c.proc = c.proc || {}; var s = c.proc[k] || {}, t = todayStr();
+    // 증권 전달: 이름이 같은 계약이 계약 장부에 있으면 장부에 표시한다(계약 장부·고객 목록·여기가 늘 같게)
+    if (k === 'policy' && dvState(c).src === 'pol') {
+      var V = dvState(c);
+      if (V.done) { toast('증권 전달 표시는 계약 장부에서 계약별로 바꿉니다'); POL.show({ q: c.name }); return; }
+      try { var nd = await POL.markName(c.name); } catch(e){ toast('저장하지 못했습니다 · 다시 눌러 주세요'); return; }
+      s.d = t; c.proc[k] = s; gameMark(c, 'proc'); await addNote('note', '[프로세스] ' + tpl.t + ' 완료' + (nd > 1 ? ' (' + nd + '건)' : '')); toast(tpl.t + ' 완료 · 계약 장부에도 표시했습니다'); return;
+    }
     var was = tpl.wk ? s.w === mondayOf(t) : !!s.d;
     if (was) { if (tpl.wk) delete s.w; else delete s.d; if (!s.w && !s.d && !s.n) delete c.proc[k]; else c.proc[k] = s; await saveCur(tpl.t + ' 완료를 취소했습니다'); return; }
     if (tpl.wk) s.w = mondayOf(t); else s.d = t; c.proc[k] = s; gameMark(c, 'proc');
@@ -14768,7 +15176,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
     var b = e.target.closest('[data-pick]'); if (b && !b.disabled) piConfirm(b.dataset.pick, +b.dataset.pv, b);
   });
   setTimeout(function(){ try { if (ROLE.admin) nhcLoad().then(function(cfg){ if (cfg && cfg.token) piRelay(cfg).catch(function(){}); }); } catch(e){} }, 45000);
-  function openSheet(kind, into){
+  // 메뉴·환경설정 항목 목록 — ☰ 메뉴 · ⚙ 환경설정 · PC 왼쪽 메뉴 · 🔍 통합 검색이 모두 이 목록 하나를 씀 (2026-11-17 · 목록을 두 군데 두면 한쪽만 고쳐져서)
+  function sheetDefs(){
     var MENU = [
       ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
@@ -14779,26 +15188,68 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
       ['🖥 화면 · 앱', [['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
       ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
     ];
-    var G = kind === 'set' ? SET : MENU;
     if (IS_MOBILE) SET[1][1] = SET[1][1].filter(function(x){ return x[0] !== '#keysBtn'; });
     if (IS_DESKTOP) { MENU[0][1] = MENU[0][1].filter(function(x){ return x[0] !== '#callBtn'; }); SET[1][1] = SET[1][1].map(function(x){ return x[0] === '#apkBtn' ? ['#apkBtn', '📱', '휴대폰 앱 설치', 'QR로 팀원 휴대폰에 설치'] : x; }); SET[0][1] = SET[0][1].map(function(x){ return x[0] === '#connBtn' ? ['#connBtn', '🔗', '연결 · 설정', '구글·알림·AI·지도 키'] : x; }); }
-    var AD = kind === 'set' && ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
-    var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; }, btn = function(x){ return '<button type="button" data-px=\'' + x[0] + '\'><i>' + x[1] + '</i><b>' + esc(x[2]) + '</b>' + (x[3] ? '<small>' + esc(x[3]) + '</small>' : '') + '</button>'; };
+    var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
+    var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; };
+    return { MENU: MENU, SET: SET, AD: AD, vis: vis };
+  }
+  function openSheet(kind, into){
+    var D = sheetDefs(), MENU = D.MENU, SET = D.SET, G = kind === 'set' ? SET : MENU, AD = kind === 'set' ? D.AD : [], vis = D.vis;
+    var btn = function(x){ return '<button type="button" data-px=\'' + x[0] + '\'><i>' + x[1] + '</i><b>' + esc(x[2]) + '</b>' + (x[3] ? '<small>' + esc(x[3]) + '</small>' : '') + '</button>'; };
     // PC 넓은 화면: 왼쪽 메뉴 칸에 늘 펼쳐 둠 (⚙·☰ 안 열어도 보이게 · 2026-11-04) — 위 전화·고객관리·싯플랜·지도 버튼과 겹치는 건 뺌
     if (into) {
       var dup = { '.scm': 1, '#mapBtn': 1 };
-      into.innerHTML = G.map(function(g){ var l = g[1].filter(function(x){ return !dup[x[0]] && vis(x); }); return l.length ? '<div class="pmh">' + g[0] + '</div>' + l.map(function(x){ return '<button type="button" data-px=\'' + x[0] + '\' title="' + esc(x[3] || x[2]) + '"><i>' + x[1] + '</i><b>' + esc(x[2]) + '</b></button>'; }).join('') : ''; }).join('');
+      into.innerHTML = '<button type="button" class="pmfind" data-find="open" title="메뉴 · 고객 검색 (Ctrl + K)">' + FIND.icon + '<b>검색</b><kbd>Ctrl K</kbd></button>' + G.map(function(g){ var l = g[1].filter(function(x){ return !dup[x[0]] && vis(x); }); return l.length ? '<div class="pmh">' + g[0] + '</div>' + l.map(function(x){ return '<button type="button" data-px=\'' + x[0] + '\' title="' + esc(x[3] || x[2]) + '"><i>' + x[1] + '</i><b>' + esc(x[2]) + '</b></button>'; }).join('') : ''; }).join('');
       into.querySelectorAll('[data-px]').forEach(function(b){ b.onclick = function(){ sheetGo(b.dataset.px); }; });
       return;
     }
     var top = kind === 'set' ? '<div class="ssync shs">' + ($('ssync') ? $('ssync').innerHTML : '') + '</div>' : '';
     var foot = kind === 'set' ? '<span class="note shv">고객 정보는 잠금 비밀번호로 암호화 저장 · ' + esc(($('verTag') && $('verTag').textContent) || '') + '</span>' : '';
-    openDlg('<h4>' + (kind === 'set' ? '⚙️ 환경설정' : '☰ 메뉴') + '</h4>' + top + G.map(function(g){ var l = g[1].filter(vis); return l.length ? '<div class="msh">' + g[0] + '</div><div class="msheet">' + l.map(btn).join('') + '</div>' : ''; }).join('') + (AD.length ? '<div class="msh">🛡️ 관리자 전용 <small>팀원 화면에는 보이지 않습니다</small></div><div class="msheet adm">' + AD.filter(vis).map(btn).join('') + '</div>' : '') +
+    // 2026-11-17: 맨 위에 🔍 검색 칸 + ⭐ 자주 쓰는 메뉴(자주 누른 순서대로 자동)
+    var fav = kind === 'set' ? [] : FIND.favs(4), find = '<button type="button" class="msfind" data-find="open">' + FIND.icon + '<span>메뉴 · 고객 검색</span></button>';
+    var favH = fav.length ? '<div class="msh">⭐ 자주 쓰는 메뉴</div><div class="msheet fav">' + fav.map(function(it, i){ return '<button type="button" data-fav="' + i + '"><i>' + esc(it.ic) + '</i><b>' + esc(it.t) + '</b>' + (it.s ? '<small>' + esc(it.s) + '</small>' : '') + '</button>'; }).join('') + '</div>' : '';
+    openDlg('<h4>' + (kind === 'set' ? '⚙️ 환경설정' : '☰ 메뉴') + '</h4>' + find + top + favH + G.map(function(g){ var l = g[1].filter(vis); return l.length ? '<div class="msh">' + g[0] + '</div><div class="msheet">' + l.map(btn).join('') + '</div>' : ''; }).join('') + (AD.length ? '<div class="msh">🛡️ 관리자 전용 <small>팀원 화면에는 보이지 않습니다</small></div><div class="msheet adm">' + AD.filter(vis).map(btn).join('') + '</div>' : '') +
       '<div class="mrow">' + foot + '<button class="btn lg" type="button" id="msSw" style="margin-left:auto">' + (kind === 'set' ? '☰ 메뉴' : '⚙️ 환경설정') + '</button><button class="btn lg" type="button" id="msX">닫기</button></div>');
     $('msX').onclick = closeDlg; $('msSw').onclick = function(){ closeDlg(); openSheet(kind === 'set' ? 'menu' : 'set'); };
     $('dlgBox').querySelectorAll('[data-px]').forEach(function(b){ b.onclick = function(){ closeDlg(); sheetGo(b.dataset.px); }; });
+    $('dlgBox').querySelectorAll('[data-fav]').forEach(function(b){ b.onclick = function(){ FIND.go(fav[+b.dataset.fav]); }; });
   }
-  function sheetGo(px){ var el = document.querySelector(px); if (px === '#wkMenu') { showWeek(0); return; } if (px === '#bugMenu') { bugReport(); return; } if (px === '#treeMenu') { showTree(); return; } if (el) { if (el.hidden && el.id === 'gchip') { showGame && showGame(); return; } el.click(); } }
+  // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
+  var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
+    '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
+    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
+    'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
+    'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
+  function finderItems(){
+    var D = sheetDefs(), L = [], add = function(id, ic, t, s, g, run, tab){ L.push({ id: id, ic: ic, t: t, s: s || '', g: g, kw: FIND_KW[id.replace(/^px:/, '')] || '', run: run, tab: tab }); };
+    var tap = function(sel){ return function(){ var b = document.querySelector(sel); if (b) b.click(); }; }, split = function(lb){ var m = /^(\S+)\s+(.*)$/.exec(lb); return m ? [m[1], m[2]] : ['•', lb]; };
+    add('tab:plan', '🗓', '싯플랜', 'ACFP 목표 · 일정', '바로 가기', tap('#tabbar [data-tb="plan"]'), 1); L[L.length - 1].kw = '달력 일정 캘린더 월납 목표 주간 계획';
+    add('tab:list', '👤', '고객 목록', '고객 홈 · 첫 화면', '바로 가기', function(){ showWelcome(); }, 1); L[L.length - 1].kw = '고객관리 리스트 홈 처음';
+    add('tab:call', '📞', '전화', '고객 · 보험사 연락처 · 챙길 연락', '바로 가기', tap('#tabbar [data-tb="contacts"]'), 1); L[L.length - 1].kw = '통화 연락 현황 부재 상령일 다이얼 안부';
+    add('tab:map', '🗺', '지도', '고객 지도 · 내 동선', '바로 가기', tap('#tbMap'), 1); L[L.length - 1].kw = '지역 동선 위치 주소 카페';
+    add('act:new', '➕', '신규 고객 등록', '이름 · 생년월일 · 번호', '고객', function(){ $('newCust').click(); }); L[L.length - 1].kw = '새 고객 추가 등록';
+    add('act:filter', '🔽', '필터', '채널 · 진행 · 자료 · 계약으로 거르기', '고객', function(){ showWelcome(); filtOpen(true); }); L[L.length - 1].kw = '거르기 분류 채널 단계 할 일';
+    var AD2 = addDefs(); AD2[0].concat(AD2[1]).forEach(function(x){ var p = split(x[1]); add(x[0], p[0], p[1], x[2], '고객 추가 · 가져오기', function(){ addGo(x[0]); }); });
+    viewDefs().forEach(function(x){ var p = split(x[1]); add(x[0], p[0], p[1], x[2], '고객 보기', function(){ viewGo(x[0]); }); });
+    D.MENU.forEach(function(g){ g[1].filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], g[0].replace(/^\S+\s+/, ''), function(){ sheetGo(x[0]); }); }); });
+    D.SET.forEach(function(g){ g[1].filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], '환경설정', function(){ sheetGo(x[0]); }); }); });
+    D.AD.filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], '관리자 전용', function(){ sheetGo(x[0]); }); });
+    return L;
+  }
+  var FIND = Finder.ui({ $: $, openDlg: openDlg, closeDlg: closeDlg, toast: toast, items: finderItems,
+    custs: function(){ return S.list.filter(function(c){ return !c.sample && !c.hidden; }).map(function(c){ var ph = normPhone(c.phone); return { id: c.id, name: c.name, phone: ph, tel: ph && IS_MOBILE ? ph : '', at: c.updated || 0, sub: [sexTxt(c.sex) + (ageOf(c.birth) !== '' ? (sexTxt(c.sex) ? '·' : '') + ageOf(c.birth) + '세' : ''), stageTxt(c.stage), ph ? phoneTxt(ph) : ''].filter(Boolean).join(' · ') }; }); },
+    openCust: function(id){ openCustomer(id); }, onCall: function(id){ try { setPend({ cid: id, k: 'call', at: Date.now() }); } catch(e){} },
+    newCust: function(name){ openCustForm(null); setTimeout(function(){ var el = $('dlgBox').querySelector('#fName, input[name="name"], input[placeholder*="이름"]'); if (el && !el.value) { el.value = name; el.dispatchEvent(new Event('input', { bubbles: true })); } }, 60); },
+    now: function(){ var a = [], nT = S.list.filter(function(c){ var n = nextDue(c); return n != null && n <= 0; }).length, ps = POL.sum();
+      var nC = ps && ps.dvN ? 0 : polCnt('dvn');
+      if (nT) a.push({ ic: '⏰', t: '오늘·지난 할 일', n: nT + '명', run: function(){ S.filter = 'todo'; showWelcome(); renderList(); } });
+      if (ps && ps.dvN) a.push({ ic: '📑', t: '증권 미전달', n: ps.dvN + '건', cls: 'w', run: function(){ POL.show({ f: 'dvn' }); } });
+      else if (nC) a.push({ ic: '📑', t: '증권 미전달', n: nC + '명', cls: 'w', run: function(){ S.pol = 'dvn'; showWelcome(); renderList(); } });
+      if (ps && ps.behind) a.push({ ic: '💳', t: '수납 밀림·연체', n: ps.behind + '건', cls: 'r', run: function(){ POL.show({ f: 'late' }); } });
+      return a; } });
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-find]'); if (t && !$('shell').hidden) FIND.open(); });
+  function sheetGo(px){ try { FIND.used('px:' + px); } catch(e){} var el = document.querySelector(px); if (px === '#wkMenu') { showWeek(0); return; } if (px === '#bugMenu') { bugReport(); return; } if (px === '#treeMenu') { showTree(); return; } if (el) { if (el.hidden && el.id === 'gchip') { showGame && showGame(); return; } el.click(); } }
   // PC: 왼쪽 메뉴 칸(넓은 화면)에 메뉴를 늘 펼쳐 두기 + 창이 화면(작업 표시줄)보다 길어 아래가 가려지면 보이는 높이만 쓰기
   (function(){
     if (IS_MOBILE) return;
@@ -14815,7 +15266,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   $('tbMore').onclick = function(){ openSheet('menu'); };
   if ($('snMenu')) $('snMenu').onclick = function(){ openSheet('menu'); };
   (function(){ if ($('topMenu')) return; var b = document.createElement('button'); b.type = 'button'; b.id = 'topMenu'; b.className = 'topmenu'; b.title = '메뉴'; b.setAttribute('aria-label', '메뉴'); b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'; b.onclick = function(){ openSheet('menu'); }; document.body.appendChild(b);
-    var sync = function(){ b.hidden = $('shell').hidden; }; sync(); try { new MutationObserver(sync).observe($('shell'), { attributes: true, attributeFilter: ['hidden'] }); } catch(e){} })();
+    // 🔍 통합 검색 단추 (2026-11-17 대표님 요청): 휴대폰은 ☰ 바로 왼쪽, PC는 ☰ 바로 아래
+    var f = document.createElement('button'); f.type = 'button'; f.id = 'topFind'; f.className = 'topmenu topfind'; f.title = '메뉴 · 고객 검색 (Ctrl + K)'; f.setAttribute('aria-label', '메뉴와 고객 검색'); f.innerHTML = FIND.icon; f.onclick = function(){ FIND.open(); }; document.body.appendChild(f);
+    var sync = function(){ b.hidden = f.hidden = $('shell').hidden; }; sync(); try { new MutationObserver(sync).observe($('shell'), { attributes: true, attributeFilter: ['hidden'] }); } catch(e){} })();
 
   $('connBtn').onclick = function(){ openConnCenter(); };
   $('teamSetBtn').onclick = async function(){ var a = await admLoad(); if (a && a.token) teamServerDlg(a); };
@@ -15267,11 +15720,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   document.addEventListener('click', function(e){
     var b = e.target.closest('[data-hd]'); if (!b) return; var a = b.dataset.hd;
     if (a === 'new') $('newCust').click(); else if (a === 'keys') openKeys(); else if (a === 'plan') showPlan(); else if (a === 'reg') showReg();
-    else if (a === 'all') { S.filter = 'all'; S.stage = ''; S.ch = ''; S.doc = ''; if ($('fStage')) $('fStage').value = ''; if ($('fDoc')) $('fDoc').value = ''; renderList(); $('q').focus(); }
+    else if (a === 'all') { S.filter = 'all'; S.stage = ''; S.ch = ''; S.doc = ''; S.pol = ''; if ($('fStage')) $('fStage').value = ''; if ($('fDoc')) $('fDoc').value = ''; renderList(); $('q').focus(); }
     else if (a === 'todo') { S.filter = 'todo'; renderList(); }
     else if (a.indexOf('st:') === 0) { S.filter = 'all'; S.stage = a.slice(3); if ($('fStage')) $('fStage').value = S.stage; renderList(); }
   });
-  var KEYS = [['Tab', '왼쪽 메뉴 접기 / 펼치기'], ['Ctrl + K  또는  /', '고객 검색'], ['N', '신규 고객 등록'], ['↑ ↓  (또는 J K)', '목록에서 이전·다음 고객 열기'], ['Esc', '창 닫기 · 뒤로'], ['1', '고객 홈'], ['2', '싯플랜'], ['3', '지도'], ['4', '연락 현황'], ['5', '고객관리 (영업 채널별)'], ['6', '보험사 고객등록'], ['T', '목록: 할 일만 보기 / 다시 누르면 전체'], ['Ctrl + L', '잠그기'], ['?', '이 단축키 안내'], ['마우스 오른쪽 클릭', '목록의 고객: 빠른 메뉴 (단계·채널·할 일)']];
+  var KEYS = [['Tab', '왼쪽 메뉴 접기 / 펼치기'], ['Ctrl + K', '🔍 메뉴 · 고객 통합 검색'], ['/', '고객 목록 검색칸'], ['N', '신규 고객 등록'], ['↑ ↓  (또는 J K)', '목록에서 이전·다음 고객 열기'], ['Esc', '창 닫기 · 뒤로'], ['1', '고객 홈'], ['2', '싯플랜'], ['3', '지도'], ['4', '연락 현황'], ['5', '고객관리 (영업 채널별)'], ['6', '보험사 고객등록'], ['T', '목록: 할 일만 보기 / 다시 누르면 전체'], ['Ctrl + L', '잠그기'], ['?', '이 단축키 안내'], ['마우스 오른쪽 클릭', '목록의 고객: 빠른 메뉴 (단계·채널·할 일)']];
   function openKeys(){ openDlg('<h4>⌨ 단축키</h4><div class="form"><table class="t keyt">' + KEYS.map(function(k){ return '<tr><td><kbd>' + esc(k[0]) + '</kbd></td><td>' + esc(k[1]) + '</td></tr>'; }).join('') + '</table><p class="note">글을 입력하는 칸에 있을 때는 단축키가 동작하지 않습니다 (검색칸에서 ↓ 를 누르면 목록으로 내려갑니다).</p></div><div class="mrow"><button class="go" type="button" id="kyX" style="margin-left:auto">닫기</button></div>'); $('kyX').onclick = closeDlg; }
   function moveSel(d){
     var items = Array.prototype.slice.call($('clist').querySelectorAll('.citem')); if (!items.length) return;
@@ -15281,7 +15734,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
   document.addEventListener('keydown', function(e){
     if (!$('lock').hidden || $('shell').hidden || $('cph')) return;
     var ae = document.activeElement, typing = ae && (/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) || ae.isContentEditable), dlg = !$('dlg').hidden || !$('modal').hidden, k = e.key, mod = e.ctrlKey || e.metaKey;
-    if (mod && (k === 'k' || k === 'K')) { e.preventDefault(); $('q').focus(); $('q').select(); return; }
+    if (mod && (k === 'k' || k === 'K' || k === 'ㅏ')) { e.preventDefault(); if ($('fndQ')) { $('fndQ').focus(); $('fndQ').select(); } else if ($('dlg').hidden && $('modal').hidden) FIND.open(); return; }   // 2026-11-17: 고객 검색 → 메뉴·고객 통합 검색
     if (mod && (k === 'l' || k === 'L')) { e.preventDefault(); $('lockBtn').click(); return; }
     if (ae === $('q') && k === 'ArrowDown') { e.preventDefault(); $('q').blur(); moveSel(1); return; }
     if (typing || dlg || mod || e.altKey) return;
@@ -15356,6 +15809,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
       (c.sample ? '' : '<button class="btn lg" type="button" data-act="docs">' + IC.doc + '서류 받기</button>') +
       (c.sample ? '' : '<button class="btn lg pri" type="button" data-act="files">' + IC.clip + (d ? '다시 분석' : '병력파악 (파일 첨부)') + '</button>') +
       (c.sample ? '' : '<button class="btn lg cmore" type="button" data-act="cmore" aria-label="더보기 (정보 수정 · 삭제)">⋯</button>') + '</div></div>';
+    if (!c.sample) h += flowBar(c);
     h += renderCard();
     if (d && !d.covOnly) {
       var DD = S.DD, F = freshOf(DD.asOf);
@@ -17790,6 +18244,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 })();
 
 </script>
-<script>window.AOB_V="c662cb007d9f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="ab02bd1b468c";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
