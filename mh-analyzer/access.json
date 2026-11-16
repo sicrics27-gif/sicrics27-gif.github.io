@@ -58,7 +58,7 @@
    "t": "2026-11-02"
   },
   "42c2ac6f17b5a90fb58c7817": {
-   "s": 1,
+   "s": 0,
    "e": "a229c1c99e3cb1f0f50172fa",
    "t": "2026-11-02"
   },
@@ -101,9 +101,14 @@
    "s": 1,
    "e": "0362a67f22c1e8b2d116898a",
    "t": "2026-11-16"
+  },
+  "a6ce894e90f6fa8a778355bd": {
+   "s": 1,
+   "e": "417c0fa3b943350ac3052afc",
+   "t": "2026-11-16"
   }
  },
- "updated": "2026-11-16T01:01:51.640Z",
+ "updated": "2026-11-16T01:39:14.760Z",
  "league": "https://script.google.com/macros/s/AKfycbzINOV21CdEes--kzj0Wj7QA9d12-HGV_D5Z3VhT_Xpfyr2qdUC4umCf6-CS_DEbEDNIA/exec",
  "sched": {
   "2026-11": {
