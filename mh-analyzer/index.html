@@ -2950,6 +2950,26 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .fc-i small.tr em{font-style:normal;font-weight:700;color:var(--ink2)}
 .fc-i small.tr em.q{color:var(--amber)}
 .fc-i .trb{border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline dotted;cursor:pointer}
+/* 2026-11-16 진료이력: 머리글 눌러 정렬 + 칸 너비 정리(진단·투약·입원·수술·검사가 한 화면에) */
+table.ht{table-layout:fixed;width:100%;min-width:700px}
+table.ht.ht-d{min-width:800px}
+table.ht td{padding:6px 8px;word-break:keep-all;overflow-wrap:anywhere}
+table.ht thead th{padding:10px 8px;white-space:nowrap}
+table.ht th.hk{cursor:pointer;user-select:none;-webkit-user-select:none}
+table.ht th.hk i{font-style:normal;font-size:9px;margin-left:2px;opacity:.35}
+table.ht th.hk.on{color:var(--accent)}
+table.ht th.hk.on i{opacity:1}
+table.ht th.hk:hover i{opacity:.8}
+table.ht th.k-code{width:72px}
+table.ht th.k-dept{width:80px}
+table.ht th.k-date{width:146px}
+table.ht.ht-d th.k-date{width:84px}
+table.ht th.k-cost{width:132px}
+table.ht th.k-days{width:48px}
+table.ht th:is(.k-dx,.k-rx,.k-inp,.k-surg,.k-exam){width:42px;text-align:center;padding-left:0;padding-right:0}
+table.ht td.c{padding-left:2px;padding-right:2px}
+table.ht small.hos{display:block;font-size:11.5px;color:var(--mute);margin-top:1px}
+.hbar .note .lnk{font:inherit;padding:0}
 
 </style>
 </head>
@@ -14789,29 +14809,46 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
   // ================= 진료이력 =================
   function ck(b, t){ return '<span class="ckm ' + (b ? 'y' : 'n') + '" title="' + t + (b ? ' 있음' : ' 없음') + '">' + (b ? '✓' : '✕') + '</span>'; }
   var UNK = '진단명 파악 불가 — 고객 또는 병원에 확인하세요.';
+  // 2026-11-16 대표님 요청: 표 머리글을 누르면 엑셀처럼 오름차순·내림차순 정렬. 날짜 정렬은 병원별 묶음 그대로, 다른 칸 정렬은 병원 묶음을 풀고 한 줄씩(병원 이름은 상병명 아래 작게)
+  var H_COLS = {
+    code: [['code','진단코드','t'],['name','상병명','t'],['dept','진료과','t'],['date','진료기간','d'],['days','일수','n'],['dx','진단','f'],['rx','투약','f'],['inp','입원','f'],['surg','수술','f'],['exam','검사','f']],
+    day: [['code','진단코드','t'],['name','상병명','t'],['cost','진료비용','n'],['dept','진료과','t'],['date','진료일','d'],['days','일수','n'],['dx','진단','f'],['rx','투약','f'],['inp','입원','f'],['surg','수술','f'],['exam','검사','f']]
+  };
   function renderHistory(){
-    var day = S.hmode === 'day', asc = S.hsort === 'asc';
-    var G = !asc ? S.HI.groups : S.HI.groups.map(function(g){
-      var vs = g.visits.slice().sort(function(x, y){ return x.date < y.date ? -1 : x.date > y.date ? 1 : 0; });
-      var bc = g.byCode.slice().sort(function(x, y){ return x.first < y.first ? -1 : x.first > y.first ? 1 : 0; });
-      return Object.assign({}, g, { visits: vs, byCode: bc, _f: vs.length ? vs[0].date : (bc.length ? bc[0].first : '') });
-    }).sort(function(x, y){ return x._f < y._f ? -1 : x._f > y._f ? 1 : 0; });
-    var h = '<div class="hbar"><div class="seg" role="group"><button type="button" data-hm="code" aria-pressed="' + !day + '">진단별 요약</button><button type="button" data-hm="day" aria-pressed="' + day + '">일자별 상세</button></div><button type="button" class="btn hsort" data-hs title="날짜 순서 바꾸기">' + (asc ? '↑ 오래된순' : '↓ 최근순') + '</button><span class="note">최근 5년 · 병원별 묶음 (같은 날 약국 조제 포함)</span><button class="btn lg pri sp" type="button" data-ptab="claim">' + IC.won + '미청구 보험금 예상액 조회</button></div>';
-    if (!G.length) return h + '<div class="empty">진료 기록이 없습니다.</div>';
-    var cols = day ? ['진단코드','상병명','진료비용','진료과','진료일','일수','진단','투약','입원','수술','검사'] : ['진단코드','상병명','진료과','진료기간','일수','진단','투약','입원','수술','검사'];
-    h += '<div class="tw ht-w"><table class="t ht"><thead><tr>' + cols.map(function(c){ return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
-    G.forEach(function(g){
-      h += '<tr class="grp"><td colspan="' + cols.length + '">' + IC.hosp + esc(g.name) + (g.pharmList.length ? ' / ' + esc(g.pharmList.join(', ')) : '') + '</td></tr>';
-      if (!day) g.byCode.forEach(function(r){
-        var kn = kdxName(r.code);
-        h += '<tr' + (kn ? ' class="kdxr"' : '') + '><td class="n">' + (r.code ? esc(r.code) : '-') + '</td><td' + (r.code ? '' : ' class="unk"') + '>' + (kn ? '<span class="kdxb">' + esc(kn) + '</span>' : '') + (r.code ? esc(r.name) : UNK) + rxTag(r, S.data && S.data.base) + '</td><td>' + (esc(r.deptList.join(', ')) || '-') + '</td><td class="n">' + yy(r.first) + (r.first !== r.last ? ' ~ ' + yy(r.last) : '') + '</td><td class="n">' + r.days + '일</td><td class="c">' + ck(r.dx,'진단') + '</td><td class="c">' + ck(r.rx,'투약') + '</td><td class="c">' + ck(r.inp,'입원') + '</td><td class="c">' + ck(r.surg,'수술') + '</td><td class="c">' + ck(r.exam,'검사') + '</td></tr>';
-      });
-      else g.visits.forEach(function(v){
-        var c0 = v.codes[0], pp = v.pharm.reduce(function(s, p){ return s + p.pay; }, 0);
-        var cost = v.pharmOnly ? '약국 : ' + won(pp) : '병원 : ' + won(v.pay) + (v.pharm.length ? ' / 약국 : ' + won(pp) : '');
-        h += '<tr><td class="n">' + (c0 ? esc(c0.code) : '-') + '</td><td' + (c0 ? '' : ' class="unk"') + '>' + (c0 ? esc(c0.name) + (v.codes.length > 1 ? ' <small class="note">외 ' + (v.codes.length - 1) + '</small>' : '') : UNK) + '</td><td class="n">' + cost + '</td><td>' + (esc(Object.keys(v.depts).filter(Boolean).join(', ')) || '-') + '</td><td class="n">' + yy(v.date) + '</td><td class="n">' + (v.inp ? v.inDays : 1) + '일</td><td class="c">' + ck(!!c0,'진단') + '</td><td class="c">' + ck(v.rx || v.pharm.length,'투약') + '</td><td class="c">' + ck(v.inp,'입원') + '</td><td class="c">' + ck(v.surg.length,'수술') + '</td><td class="c">' + ck(v.exam.length,'검사') + '</td></tr>';
-      });
-    });
+    if (!S.hsk) { try { S.hsk = localStorage.getItem('mhs_hsk') || 'date'; } catch(e){ S.hsk = 'date'; } }
+    var day = S.hmode === 'day', asc = S.hsort === 'asc', cols = H_COLS[day ? 'day' : 'code'];
+    var key = cols.some(function(c){ return c[0] === S.hsk; }) ? S.hsk : 'date', dir = asc ? 1 : -1;
+    var cmp = function(a, b){ var ea = a === '' || a == null, eb = b === '' || b == null; if (ea || eb) return ea && eb ? 0 : ea ? 1 : -1; return (a < b ? -1 : a > b ? 1 : 0) * dir; };
+    var ppOf = function(v){ return v.pharm.reduce(function(s, p){ return s + p.pay; }, 0); };
+    var valR = function(r){ return key === 'code' ? r.code : key === 'name' ? (r.code ? r.name : '') : key === 'dept' ? r.deptList.join(', ') : key === 'date' ? (asc ? r.first : r.last) : key === 'days' ? r.days : +!!r[key]; };
+    var valV = function(v){ var c0 = v.codes[0]; return key === 'code' ? (c0 ? c0.code : '') : key === 'name' ? (c0 ? c0.name : '') : key === 'cost' ? (v.pay || 0) + ppOf(v) : key === 'dept' ? Object.keys(v.depts).filter(Boolean).join(', ') : key === 'date' ? v.date : key === 'days' ? (v.inp ? v.inDays : 1) : key === 'dx' ? +!!c0 : key === 'rx' ? +!!(v.rx || v.pharm.length) : key === 'inp' ? +!!v.inp : key === 'surg' ? +!!v.surg.length : +!!v.exam.length; };
+    var val = day ? valV : valR, tie = function(x){ return day ? x.date : x.last; };
+    var srt = function(list){ return list.map(function(x, i){ return [x, i]; }).sort(function(a, b){ return cmp(val(a[0]), val(b[0])) || (tie(a[0]) < tie(b[0]) ? 1 : tie(a[0]) > tie(b[0]) ? -1 : 0) || a[1] - b[1]; }).map(function(x){ return x[0]; }); };
+    var h = '<div class="hbar"><div class="seg" role="group"><button type="button" data-hm="code" aria-pressed="' + !day + '">진단별 요약</button><button type="button" data-hm="day" aria-pressed="' + day + '">일자별 상세</button></div><span class="note">최근 5년 · ' + (key === 'date' ? '병원별 묶음' : '<b>' + cols.filter(function(c){ return c[0] === key; })[0][1] + '</b> 순 · <button type="button" class="lnk" data-hk="date">병원별로 다시 묶기</button>') + ' · 표 머리글을 누르면 정렬</span><button class="btn lg pri sp" type="button" data-ptab="claim">' + IC.won + '미청구 보험금 예상액 조회</button></div>';
+    if (!S.HI.groups.length) return h + '<div class="empty">진료 기록이 없습니다.</div>';
+    h += '<div class="tw ht-w"><table class="t ht ' + (day ? 'ht-d' : 'ht-c') + '"><thead><tr>' + cols.map(function(c){ var on = c[0] === key; return '<th class="hk k-' + c[0] + (on ? ' on' : '') + '" data-hk="' + c[0] + '" data-hd="' + (c[2] === 't' ? 'asc' : 'desc') + '" role="button" tabindex="0" aria-sort="' + (on ? (asc ? 'ascending' : 'descending') : 'none') + '" title="누르면 정렬 · 한 번 더 누르면 반대로">' + c[1] + '<i>' + (on ? (asc ? '▲' : '▼') : '↕') + '</i></th>'; }).join('') + '</tr></thead><tbody>';
+    var rowR = function(r, hosp){
+      var kn = kdxName(r.code);
+      return '<tr' + (kn ? ' class="kdxr"' : '') + '><td class="n">' + (r.code ? esc(r.code) : '-') + '</td><td' + (r.code ? '' : ' class="unk"') + '>' + (kn ? '<span class="kdxb">' + esc(kn) + '</span>' : '') + (r.code ? esc(r.name) : UNK) + rxTag(r, S.data && S.data.base) + (hosp ? '<small class="hos">' + esc(hosp) + '</small>' : '') + '</td><td>' + (esc(r.deptList.join(', ')) || '-') + '</td><td class="n">' + yy(r.first) + (r.first !== r.last ? ' ~ ' + yy(r.last) : '') + '</td><td class="n">' + r.days + '일</td><td class="c">' + ck(r.dx,'진단') + '</td><td class="c">' + ck(r.rx,'투약') + '</td><td class="c">' + ck(r.inp,'입원') + '</td><td class="c">' + ck(r.surg,'수술') + '</td><td class="c">' + ck(r.exam,'검사') + '</td></tr>';
+    };
+    var rowV = function(v, hosp){
+      var c0 = v.codes[0], pp = ppOf(v);
+      var cost = v.pharmOnly ? '약국 ' + won(pp) : '병원 ' + won(v.pay) + (v.pharm.length ? '<br>약국 ' + won(pp) : '');
+      return '<tr><td class="n">' + (c0 ? esc(c0.code) : '-') + '</td><td' + (c0 ? '' : ' class="unk"') + '>' + (c0 ? esc(c0.name) + (v.codes.length > 1 ? ' <small class="note">외 ' + (v.codes.length - 1) + '</small>' : '') : UNK) + (hosp ? '<small class="hos">' + esc(hosp) + '</small>' : '') + '</td><td class="n">' + cost + '</td><td>' + (esc(Object.keys(v.depts).filter(Boolean).join(', ')) || '-') + '</td><td class="n">' + yy(v.date) + '</td><td class="n">' + (v.inp ? v.inDays : 1) + '일</td><td class="c">' + ck(!!c0,'진단') + '</td><td class="c">' + ck(v.rx || v.pharm.length,'투약') + '</td><td class="c">' + ck(v.inp,'입원') + '</td><td class="c">' + ck(v.surg.length,'수술') + '</td><td class="c">' + ck(v.exam.length,'검사') + '</td></tr>';
+    };
+    var row = day ? rowV : rowR, listOf = function(g){ return day ? g.visits : g.byCode; };
+    if (key === 'date') {
+      S.HI.groups.map(function(g){ var l = srt(listOf(g)); return { g: g, l: l, k: l.length ? val(l[0]) : '' }; })
+        .sort(function(a, b){ return cmp(a.k, b.k); })
+        .forEach(function(x){
+          h += '<tr class="grp"><td colspan="' + cols.length + '">' + IC.hosp + esc(x.g.name) + (x.g.pharmList.length ? ' / ' + esc(x.g.pharmList.join(', ')) : '') + '</td></tr>';
+          x.l.forEach(function(r){ h += row(r, ''); });
+        });
+    } else {
+      var all = []; S.HI.groups.forEach(function(g){ listOf(g).forEach(function(r){ all.push({ r: r, g: g }); }); });
+      var gOf = function(r){ for (var i = 0; i < all.length; i++) if (all[i].r === r) return all[i].g; };
+      srt(all.map(function(x){ return x.r; })).forEach(function(r){ h += row(r, gOf(r).name); });
+    }
     h += '</tbody></table></div>' + NOTES_HTML;
     return h;
   }
@@ -15554,7 +15591,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
     if ((t = e.target.closest('[data-gen]'))) { S.data.silGen = t.dataset.gen ? +t.dataset.gen : 0; await saveClaimState(); var y2 = window.scrollY; renderCustomer(); window.scrollTo(0, y2); toast(S.data.silGen ? S.data.silGen + '세대 기준으로 계산했습니다' : '보장분석 가입일 기준(자동)으로 계산했습니다'); return; }
     if ((t = e.target.closest('[data-ptab]'))) { S.tab = t.dataset.ptab; S.pv = null; renderCustomer(); return; }
     if ((t = e.target.closest('[data-dt]'))) { setDTab(t.dataset.dt); return; }
-    if ((t = e.target.closest('[data-hs]'))) { S.hsort = S.hsort === 'asc' ? 'desc' : 'asc'; try { localStorage.setItem('mhs_hsort', S.hsort); } catch(er){} renderCustomer(); return; }
+    if ((t = e.target.closest('[data-hk]'))) { var hk = t.dataset.hk, wsx = document.querySelector('.ht-w'), sx = wsx ? wsx.scrollLeft : 0; if (S.hsk === hk && t.tagName === 'TH') S.hsort = S.hsort === 'asc' ? 'desc' : 'asc'; else { S.hsk = hk; S.hsort = t.dataset.hd || 'desc'; } try { localStorage.setItem('mhs_hsort', S.hsort); localStorage.setItem('mhs_hsk', S.hsk); } catch(er){} renderCustomer(); wsx = document.querySelector('.ht-w'); if (wsx) wsx.scrollLeft = sx; return; }
     if ((t = e.target.closest('[data-hm]'))) { S.hmode = t.dataset.hm; try { localStorage.setItem('mhs_hmode', S.hmode); } catch(er){} renderCustomer(); return; }
     if ((t = e.target.closest('[data-pvj]'))) { var r0 = document.getElementById('pv2-' + t.dataset.pvj); if (r0) { r0.open = true; r0.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
     if ((t = e.target.closest('[data-pv]'))) { S.pv = t.dataset.pv; S.pvTab = 'sum'; renderCustomer(); window.scrollTo(0, 0); return; }
@@ -17091,6 +17128,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
 })();
 
 </script>
-<script>window.AOB_V="ec743011a464";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="9f29304ebe1d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
