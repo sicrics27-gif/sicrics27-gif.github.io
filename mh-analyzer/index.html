@@ -2945,6 +2945,11 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 #coOut .tkl{margin:0 0 5px;font-size:14px;line-height:1.6;padding-left:10px;border-left:3px solid var(--accent-soft);color:var(--ink)}
 .cot{min-width:0!important;width:100%;table-layout:fixed}.cot th,.cot td{padding:8px 4px!important;font-size:13px}.cot td.n,.cot th{text-align:center}.cot td:first-child,.cot th:first-child{text-align:left;width:34%;padding-left:10px!important}.cot td small{display:block;color:var(--mute);font-size:11.5px;font-weight:400}
 .wkbox .mact{flex-wrap:wrap}
+/* 2026-11-16 종수술비: 몇 종 추정 + 종별 금액표 */
+.fc-i small.tr{display:block;margin-top:2px;font-size:12px;color:var(--mute);line-height:1.5}
+.fc-i small.tr em{font-style:normal;font-weight:700;color:var(--ink2)}
+.fc-i small.tr em.q{color:var(--amber)}
+.fc-i .trb{border:0;background:none;padding:0;font:inherit;color:inherit;text-decoration:underline dotted;cursor:pointer}
 
 </style>
 </head>
@@ -4873,7 +4878,33 @@ function HealthUI(root, H) {
     return null;
   }
 
-  // 1~N종 수술처럼 종별로 나뉜 특약은 수술 1건에 한 종만 지급 → 평균 한 줄로 (규칙 5-1)
+  // ---------- 종수술비(1~N종): 최고 금액이 아니라 '그 수술이 몇 종인지'로 (2026-11-16 대표님 요청) ----------
+  // 보장분석 PDF에는 종수술 특약이 한 줄(최고 종 금액)로만 나온다 → ① 종별 금액표: 대표님이 증권을 보고 넣은 값(기기에 기억) > PDF에 종별로 따로 나온 값 > 최고액 기준 추정
+  // ② 몇 종인지: 흔한 수술만 일반적인 1~5종 수술분류표 기준으로 추정(회사·가입 시기에 따라 다를 수 있어 화면에 '추정'으로 표시), 모르면 1종 금액만 예상에 넣고 범위를 보여 줌
+  var TIER_RATIO = { 5: [0.02, 0.04, 0.2, 0.5, 1], 3: [0.2, 0.4, 1] };
+  var TIER_SURG = [ // [상병코드, 종(1~5종 기준), 이름]
+    [/^H2[5-8]/, 1, '백내장·수정체 수술'], [/^(I84|K64)/, 1, '치핵 수술'], [/^O82/, 1, '제왕절개'],
+    [/^K3[5-7]/, 2, '충수절제술'], [/^(K635|D12)/, 2, '위·대장 용종 제거'],
+    [/^(E0[4-5]|D34)/, 3, '갑상선 관혈수술'], [/^K8[01]/, 3, '담낭 수술'], [/^H40/, 3, '녹내장 관혈수술']
+  ];
+  function tierN(name) { var m = String(name).match(/1\s*[~\-–]\s*(\d)\s*종/); return m ? +m[1] : (/종수술/.test(name) ? 5 : 0); }
+  function tierKey(company, name) { return (String(company || '') + '|' + String(name || '')).replace(/\s+/g, ''); }
+  function tierMap() { try { return JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem('aob_tier')) || '{}') || {}; } catch (e) { return {}; } }
+  function tierSet(key, list) { var m = tierMap(); if (list && list.length) m[key] = list; else delete m[key]; try { localStorage.setItem('aob_tier', JSON.stringify(m)); } catch (e) {} }
+  function tierGuess(v) { for (var i = 0; i < TIER_SURG.length; i++) if (anyCode(v, TIER_SURG[i][0])) return { t: TIER_SURG[i][1], why: TIER_SURG[i][2] }; return null; }
+  // 종수술 특약 한 줄 → { n, sched[], src: 'mine'|'pdf'|'est'|'', t, why, est, max, key }
+  function tierEst(company, rd, v, map) {
+    var n = rd.tierList ? rd.tierList.length : tierN(rd.name); if (!n) return null;
+    var key = tierKey(company, rd.name), mine = map[key], sched, src;
+    if (mine && mine.length) { sched = mine.slice(); src = 'mine'; n = sched.length; }
+    else if (rd.tierList) { sched = rd.tierList.slice(); src = 'pdf'; }
+    else if (TIER_RATIO[n]) { sched = TIER_RATIO[n].map(function (r) { return Math.round(rd.amount * r / 1e4) * 1e4; }); src = 'est'; }
+    else { sched = null; src = ''; }
+    var g = n === 5 ? tierGuess(v) : null;
+    var est = sched ? sched[g ? g.t - 1 : 0] : 0;
+    return { n: n, sched: sched, src: src, t: g ? g.t : 0, why: g ? g.why : '', est: est || 0, max: sched ? sched[sched.length - 1] : rd.amount, key: key };
+  }
+  // PDF에 (1종)(2종)…으로 따로 나온 특약은 한 줄로 묶어 종별 금액표로 씀
   function tierRiders(c) {
     if (c._tier) return c._tier;
     var out = [], grp = {};
@@ -4881,11 +4912,11 @@ function HealthUI(root, H) {
       var m = r.name.match(/\((\d+)종\)/);
       if (r.type === '정액' && m && /수술/.test(r.name)) {
         var k = r.name.replace(/\(\d+종\)/, '').replace(/\s+/g, ' ');
-        if (!grp[k]) { grp[k] = { type: '정액', name: k + ' (종별 평균)', list: [] }; out.push(grp[k]); }
+        if (!grp[k]) { grp[k] = { type: '정액', name: k + ' 종수술', list: [] }; out.push(grp[k]); }
         grp[k].list.push(r.amount);
       } else out.push(r);
     });
-    out.forEach(function (g) { if (g.list) { g.amount = Math.round(g.list.reduce(function (a, b) { return a + b; }, 0) / g.list.length); g.amtText = (g.amount / 1e4) + '만'; g.tier = g.list.length; } });
+    out.forEach(function (g) { if (g.list) { g.tierList = g.list.slice().sort(function (a, b) { return a - b; }); g.amount = g.tierList[g.tierList.length - 1]; g.amtText = (g.amount / 1e4) + '만'; } });
     Object.defineProperty(c, '_tier', { value: out, enumerable: false });
     return out;
   }
@@ -4917,7 +4948,7 @@ function HealthUI(root, H) {
     var flat = [];
     if (cov) {
       var vs = Object.keys(visitsMap).map(function (k) { return visitsMap[k]; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-      var onceSeen = {};
+      var onceSeen = {}, tmap = tierMap();
       vs.slice().reverse().forEach(function (v) { // 오래된 순으로 진단비 첫 진단만
         var hits = {};
         cov.contracts.forEach(function (c, ci) {
@@ -4930,14 +4961,16 @@ function HealthUI(root, H) {
             var h = hits[R.id] = hits[R.id] || { R: R, code: code, byC: {} };
             var per = R.perDay ? rd.amount * Math.max(1, v.inDays || 1) : rd.amount;
             var cond = COND.test(rd.name), k = ci + (cond ? 'c' : ''), cur = h.byC[k];
-            if (!cur || per > cur.est) h.byC[k] = { company: c.company, product: c.product, start: c.start, name: rd.name, amount: rd.amount, est: per, cond: cond, others: cur ? (cur.others || 0) + 1 : 0 };
+            var T = (R.id === 'surgDis' || R.id === 'surgInj') && !cond ? tierEst(c.company, rd, v, tmap) : null;
+            if (T) { per = T.est; k = ci + 't'; cur = h.byC[k]; }
+            if (!cur || per > cur.est) h.byC[k] = { company: c.company, product: c.product, start: c.start, name: rd.name, amount: rd.amount, est: per, cond: cond, tier: T, others: cur ? (cur.others || 0) + 1 : 0 };
             else cur.others = (cur.others || 0) + 1;
           });
         });
         Object.keys(hits).forEach(function (id) {
           var h = hits[id], items = Object.keys(h.byC).map(function (k) { return h.byC[k]; }).sort(function (a, b) { return a.cond - b.cond || b.est - a.est; });
           var dl = addYears(v.date, 3);
-          flat.push({ key: id + '|' + v.key, kind: 'flat', cat: id, grp: h.R.grp, label: h.R.label, date: v.date, hosp: v.hospDisp, code: h.code.code, cname: h.code.name, inDays: v.inDays, inp: v.inp, items: items, amt: items.reduce(function (s, x) { return s + (x.cond ? 0 : x.est); }, 0), condAmt: items.reduce(function (s, x) { return s + (x.cond ? x.est : 0); }, 0), note: h.R.note, perDay: !!h.R.perDay, once: !!h.R.once, deadline: dl, left: days(today, dl) });
+          flat.push({ key: id + '|' + v.key, kind: 'flat', cat: id, grp: h.R.grp, label: h.R.label, date: v.date, hosp: v.hospDisp, code: h.code.code, cname: h.code.name, inDays: v.inDays, inp: v.inp, items: items, amt: items.reduce(function (s, x) { return s + (x.cond ? 0 : x.est); }, 0), condAmt: items.reduce(function (s, x) { return s + (x.cond ? x.est : x.tier && !x.tier.t ? Math.max(0, x.tier.max - x.est) : 0); }, 0), note: h.R.note, perDay: !!h.R.perDay, once: !!h.R.once, deadline: dl, left: days(today, dl) });
         });
       });
       flat.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -4945,7 +4978,7 @@ function HealthUI(root, H) {
     return { plan: plan, silson: silson, flat: flat, hasCov: !!cov };
   }
 
-  var api = { match: match, silsonPlan: silsonPlan, ruleOf: ruleOf, RULES: RULES, addYears: addYears };
+  var api = { match: match, silsonPlan: silsonPlan, ruleOf: ruleOf, tierSet: tierSet, tierMap: tierMap, tierN: tierN, RULES: RULES, addYears: addYears };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Benefit = api;
 })(this);
 
@@ -14845,7 +14878,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
         var dc = ddCls(x.left);
         return '<article class="fcard st-' + (x.st || 'o') + '"><div class="fc-h"><span class="tag ' + x.grp + '">' + esc(x.grp) + '</span><b>' + esc(x.label) + '</b><span class="dd ' + dc + '">' + ddTxt(x.left) + '</span></div>' +
           '<div class="fc-m"><span class="mono">' + yy(x.date) + '</span> ' + esc(x.hosp) + (x.inp ? ' · 입원 ' + x.inDays + '일' : '') + '</div><div class="fc-c"><span class="mono">' + esc(x.code) + '</span> ' + esc(x.cname) + '</div>' +
-          '<ul class="fc-i">' + x.items.map(function(i){ return '<li class="' + (i.cond ? 'cond' : '') + '"><span>' + esc(i.company) + ' · ' + esc(shortRider(i.name)) + (i.others ? ' <small>외 ' + i.others + '</small>' : '') + (i.cond ? ' <small class="cd">조건 확인</small>' : '') + '</span><b>' + won(i.est) + (x.perDay ? '<small> (' + man(i.amount) + '×' + Math.max(1, x.inDays) + '일)</small>' : '') + '</b></li>'; }).join('') + '</ul>' +
+          '<ul class="fc-i">' + x.items.map(function(i){ return '<li class="' + (i.cond ? 'cond' : '') + '"><span>' + esc(i.company) + ' · ' + esc(shortRider(i.name)) + (i.others ? ' <small>외 ' + i.others + '</small>' : '') + (i.cond ? ' <small class="cd">조건 확인</small>' : '') + (i.tier ? tierLine(i) : '') + '</span><b>' + won(i.est) + (x.perDay ? '<small> (' + man(i.amount) + '×' + Math.max(1, x.inDays) + '일)</small>' : '') + '</b></li>'; }).join('') + '</ul>' +
           '<div class="fc-f"><span class="fc-sum">예상 <b>' + won(x.amt) + '</b>' + (x.condAmt ? ' <small>+' + won(x.condAmt) + '</small>' : '') + '</span>' + stBtns(x.key, x.st) + '</div><div class="fc-n">' + esc(x.note) + ' · 기한 ' + dot(x.deadline) + '</div></article>';
       }).join('') + '</div>';
     }
@@ -14866,6 +14899,27 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
     return h;
   }
   var GEN_NOTE = '계산 기준(통원): 1세대 병원·약국 각 5천원 공제 / 2세대 1만원(병원급 1.5만·종합 2만) 또는 20% 중 큰 금액, 약국 8천원 또는 20% / 3세대 같은 공제에 10% / 4세대 병원+약국 합산 1만원(종합 2만) 또는 20% / 5세대 합산 1만원(종합 2만) 또는 건보 본인부담률(의원 30%·병원 40%·종합 50%·상급 60%). 입원은 1세대 전액, 2·3세대 90%, 4·5세대 80%로 단순 계산했습니다.';
+  // 종수술비(1~N종): 몇 종으로 봤는지 + 종별 금액표(누르면 증권 금액으로 고침 · 기기에 기억) — 2026-11-16
+  function tierLine(i){
+    var T = i.tier, sc = T.sched ? T.sched.map(function(a){ return a / 1e4; }).join('·') + '만' : '종별 금액 모름';
+    var src = T.src === 'mine' ? '직접 입력' : T.src === 'pdf' ? '보장분석' : T.src === 'est' ? '추정' : '';
+    return '<small class="tr">' + (T.t ? '<em>' + T.t + '종 추정</em> ' + esc(T.why) : '<em class="q">몇 종인지 확인</em> 1종 금액만 넣음') +
+      ' · <button type="button" class="trb" data-tier="' + esc(T.key) + '" data-tn="' + T.n + '" data-tv="' + (T.sched ? T.sched.map(function(a){ return a / 1e4; }).join(',') : '') + '" data-tl="' + esc(i.company + ' · ' + shortRider(i.name)) + '">1~' + T.n + '종 ' + sc + (src ? ' (' + src + ')' : '') + ' ✎</button></small>';
+  }
+  function openTierEdit(t){
+    var n = +t.dataset.tn || 5, key = t.dataset.tier, has = !!Benefit.tierMap()[key];
+    openDlg('<h4>종별 수술비 금액</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(t.dataset.tl) + '</b><br>보장분석에는 가장 높은 종 금액만 나옵니다. 증권·가입설계서에 적힌 종별 금액을 <b>만원 단위로, 1종부터 차례로</b> 적어 주세요. 한 번 적으면 이 기기에 기억합니다.</p>' +
+      '<input id="trIn" inputmode="numeric" value="' + esc(t.dataset.tv) + '" placeholder="예) 10,20,100,250,500"><div class="ferr" id="trErr"></div></div>' +
+      '<div class="mrow">' + (has ? '<button class="lnk" type="button" id="trDel" style="margin-right:auto">추정값으로 되돌리기</button>' : '') + '<button class="btn lg" type="button" id="trX">닫기</button><button class="go" type="button" id="trOk">저장</button></div>');
+    var done = function(msg){ closeDlg(); var y = window.scrollY; compute(); renderCustomer(); window.scrollTo(0, y); toast(msg); };
+    $('trX').onclick = closeDlg;
+    if ($('trDel')) $('trDel').onclick = function(){ Benefit.tierSet(key, null); done('추정값으로 되돌렸습니다'); };
+    $('trOk').onclick = function(){
+      var v = $('trIn').value.split(/[^\d.]+/).filter(Boolean).map(function(x){ return Math.round(parseFloat(x) * 1e4); });
+      if (v.length < 2 || v.length > 9 || v.some(function(x, k){ return !(x > 0) || (k && x < v[k - 1]); })) { $('trErr').textContent = '1종부터 차례로, 낮은 금액부터 적어 주세요 (예: 10,20,100,250,500)'; return; }
+      Benefit.tierSet(key, v); done('종별 금액을 기억했습니다 · 다른 고객의 같은 특약에도 적용됩니다');
+    };
+  }
   function shortRider(n){ return String(n || '').replace(/\((?:경증|간편|맞춤|갱신|\d+년갱신)[^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').replace(/_.*$/, '').replace(/\s+기타$/, '').replace(/\s{2,}/g, ' ').trim().slice(0, 40); }
   function timeFull(t){ var d = new Date(t); var p = function(n){ return String(n).padStart(2, '0'); }; return d.getFullYear() % 100 + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
   async function saveClaimState(logItem){
@@ -15496,6 +15550,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
       else await saveClaimState();
       var y = window.scrollY; renderCustomer(); window.scrollTo(0, y); return;
     }
+    if ((t = e.target.closest('[data-tier]'))) { openTierEdit(t); return; }
     if ((t = e.target.closest('[data-gen]'))) { S.data.silGen = t.dataset.gen ? +t.dataset.gen : 0; await saveClaimState(); var y2 = window.scrollY; renderCustomer(); window.scrollTo(0, y2); toast(S.data.silGen ? S.data.silGen + '세대 기준으로 계산했습니다' : '보장분석 가입일 기준(자동)으로 계산했습니다'); return; }
     if ((t = e.target.closest('[data-ptab]'))) { S.tab = t.dataset.ptab; S.pv = null; renderCustomer(); return; }
     if ((t = e.target.closest('[data-dt]'))) { setDTab(t.dataset.dt); return; }
@@ -17036,6 +17091,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CallAI;
 })();
 
 </script>
-<script>window.AOB_V="39d7a0ed1bed";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="ec743011a464";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
