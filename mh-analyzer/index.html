@@ -3217,6 +3217,49 @@ html.split .topmenu{display:none!important}               /* 아래 메뉴 줄�
 .aiset .aiadv[open] summary{margin-bottom:6px}
 html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창을 좁혔을 때 😣 불편해 단추가 아래 메뉴 줄을 덮지 않게 */
 
+/* ===== 📞 액션콜 회사 연결 (2026-11-17 대표님 결정 · cocall.js): 팀원 필수 동의 창 · 액션콜 화면 한 줄 · 관리자 사용 현황 ===== */
+.clrecv .clco{display:block;margin-top:10px;color:var(--ink2);font-size:13px;line-height:1.5}.clrecv .clco b{color:var(--ink)}
+.coag .cobox{border:1px solid var(--line);border-radius:14px;background:var(--soft);padding:14px;display:flex;flex-direction:column;gap:10px;margin:4px 0 2px}
+.coag .cobox>b{font-size:15px;line-height:1.4}
+.coag .cobox ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.coag .cobox li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;align-items:start;font-size:14px;line-height:1.55}
+.coag .cobox li>i{font-style:normal;font-weight:700;font-size:12px;text-align:center;border-radius:999px;padding:3px 0;background:var(--amber-soft);color:var(--amber)}
+.coag .cobox li>i.no{background:var(--green-soft);color:var(--green)}
+.coag .cobox small{font-size:12.5px;color:var(--mute);line-height:1.5}
+.coag input{margin-bottom:4px}
+.cncall{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;display:flex;flex-direction:column;gap:4px;font-size:13.5px;line-height:1.6}
+.cncall>span{color:var(--ink2)}.cncall>small{color:var(--mute);font-size:12.5px}.cncall .lnk{margin-left:6px}
+.couse{min-height:160px}.couse[aria-busy="true"]{opacity:.6}
+.couse .cu-seg{margin:0 0 10px}
+.cu-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.cu-c{border:1px solid var(--line);border-radius:14px;background:var(--soft);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cu-c small{font-size:12px;color:var(--mute)}.cu-c b{font-size:19px;line-height:1.25;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}.cu-c em{font-style:normal;font-size:12px;color:var(--ink2)}
+.cu-bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin:12px 0 4px}.cu-bar>i{display:block;height:100%;min-width:2px;border-radius:999px;background:var(--accent)}
+.cu-cap{display:block;color:var(--mute);font-size:12.5px;line-height:1.5}.cu-cap b{color:var(--ink2)}.couse .w{color:var(--amber)}
+.cu-t{margin:12px 0 4px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cu-h,.cu-r{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.25fr) 58px;gap:8px;align-items:center;padding:9px 12px;text-align:left}
+.cu-t.no-t .cu-h,.cu-t.no-t .cu-r{grid-template-columns:minmax(0,1.5fr) minmax(0,1.25fr) 58px}
+.cu-h{background:var(--soft);font-size:12px;color:var(--mute);font-weight:600}
+.cu-r{width:100%;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:14px;cursor:pointer;min-height:52px}
+.cu-r:hover{background:var(--soft)}.cu-r[aria-expanded="true"]{background:var(--soft)}
+.cu-n{display:flex;flex-direction:column;gap:2px;min-width:0}.cu-n b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cu-n em{font-style:normal;font-size:11.5px;color:var(--mute)}.cu-n em.on{color:var(--green);font-weight:700}.cu-n em.w{color:var(--amber)}
+.cu-v{display:flex;flex-direction:column;gap:1px;min-width:0;font-variant-numeric:tabular-nums}.cu-v b{font-weight:700;white-space:nowrap}.cu-v small{font-size:11.5px;color:var(--mute);line-height:1.35}
+.cu-w{font-size:12px;color:var(--mute);text-align:right;white-space:nowrap}
+.cu-d{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 12px;border-top:1px dashed var(--line);background:var(--soft)}
+.cu-d[hidden]{display:none}
+.cu-d span{font-size:12.5px;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--paper)}.cu-d span b{color:var(--ink)}.cu-d span.w{border-style:dashed;color:var(--amber)}
+.cu-set{margin-top:12px;border:1px solid var(--line);border-radius:14px;padding:0 12px}
+.cu-set>summary{cursor:pointer;padding:12px 0;font-size:14px;font-weight:600;color:var(--ink2)}
+.cu-set[open]{padding-bottom:12px}.cu-set[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+.cu-f{display:flex;flex-wrap:wrap;gap:10px 16px;margin:10px 0}
+.cu-f label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink2);white-space:nowrap}
+.cu-f input{width:84px;height:40px;text-align:right;padding:0 10px}
+.cu-set .go{margin-top:10px;height:44px;padding:0 20px}
+/* 창이 화면보다 길어질 때: 안쪽 줄이 찌그러지지 않고(표·막대·거르기 단추가 사라지던 문제) 창이 스크롤되게 */
+.couse>*,.coag>*{flex:none}
+.cu-set .go{align-self:flex-start}
+
 </style>
 </head>
 <body>
@@ -3249,7 +3292,7 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -7596,6 +7639,156 @@ var Finder = (function () {
   return { norm: norm, cho: cho, find: find, score: score, menus: menus, people: people, favs: favs, used: used, ui: ui, KEY: KEY };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
+
+</script>
+<script>
+// 📞 액션콜 · 회사 연결 (2026-11-17 대표님 결정 · 시험판)
+//   팀원은 AI 열쇠(API 키)를 받거나 넣지 않는다 → 회사 중계소가 입장 코드를 확인하고 1회용 출입증을 내줌(진짜 열쇠는 앱에 안 옴).
+//   대신 '사용 기록 공유'에 동의해야 쓸 수 있고(필수), 누가 몇 분 썼는지 숫자만 관리자 앱(⚙ 관리자 전용 → 📞 액션콜 사용 현황)에 보인다.
+//   여기서 나가는 것: 입장 코드 지문 · 구글 계정 주소(본인 확인용 — 서버는 견주기만 하고 저장하지 않음) · 내가 정한 이름 · 통화 시간(초).
+//   나가지 않는 것: 통화 소리 · 받아쓴 글 · 고객 정보 (소리는 앱 ↔ 구글이 직접 주고받음).
+(function (root) {
+  var BASE = '', KEY = 'aob_cocall', LEFT = 'aob_coleft', RATE = 16, cur = null, tick = 0;   // RATE: 1분에 약 몇 원(어림)
+  function ls(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function err(code, msg, extra) { var e = new Error(msg); e.co = code; if (extra) for (var k in extra) e[k] = extra[k]; return e; }
+  async function post(path, body, tok, keep) {
+    var r; try { r = await fetch(BASE + path, { method: 'POST', body: JSON.stringify(body), headers: tok ? { Authorization: 'Bearer ' + tok } : undefined, credentials: 'omit', referrerPolicy: 'no-referrer', keepalive: !!keep }); }
+    catch (e) { throw err('net', '회사 연결에 닿지 못했습니다'); }
+    var j = await r.json().catch(function () { return {}; });
+    return { ok: r.ok, status: r.status, j: j || {} };
+  }
+  // 오늘 남은 시간(마지막으로 들은 값) — 액션콜 화면에 한 줄로 보여 줌
+  function remember(left, day) { if (left != null) ls(LEFT, { d: today(), left: Math.max(0, left | 0), day: day | 0 }); }
+  function left() { var x = ls(LEFT); return x && x.d === today() ? x : null; }
+  // 통화 끝 보고. 못 보내면 기기에 남겨 뒀다가 다음에 앱을 열 때·다음 통화 전에 다시 보냄
+  async function send(p) {
+    try {
+      var r = await post('/v1/aob/live-end', { c: p.c, e: p.e, id: p.id, secs: p.secs | 0 }, null, true);
+      if (r.ok || r.status === 400 || r.status === 403) { var q = ls(KEY); if (q && q.id === p.id) ls(KEY, null); if (r.ok && r.j.left != null) remember(r.j.left, r.j.day); return r.j; }
+    } catch (e) { }
+    return null;
+  }
+  async function flush() { var p = ls(KEY); if (!p || !p.id || (cur && cur.id === p.id)) return; await send(p); }
+  function stopTick() { clearInterval(tick); tick = 0; }
+  function keep() { if (cur) ls(KEY, { id: cur.id, c: cur.c, e: cur.e, secs: cur.t0 ? Math.round((Date.now() - cur.t0) / 1000) : 0, at: Date.now() }); }
+  // 출입증 받기: o = { c, e, m(구글 계정 주소), n(이름) } → { url, model, co, cap(초), left, day }
+  async function token(o) {
+    await flush();
+    if (cur) { var old = cur; cur = null; stopTick(); await send({ c: old.c, e: old.e, id: old.id, secs: 0 }); }   // 연결을 한 번 다시 거는 경우: 앞 출입증은 안 쓴 것으로
+    var r = await post('/v1/aob/live-token', { c: o.c, e: o.e, m: o.m || '', n: o.n || '', agree: 1 });
+    if (!r.ok || !r.j.token) {
+      var code = r.j.error || '';
+      if (/^(day|month|off|lic|consent)$/.test(code)) throw err(code, code, { limit: r.j.limit });
+      throw err('srv', '회사 연결이 잠깐 안 됩니다 (' + (code || r.status) + ')');
+    }
+    cur = { id: r.j.id, c: o.c, e: o.e, cap: r.j.cap | 0, t0: 0, fin: (r.j.left | 0) <= (r.j.cap | 0) }; keep(); remember(r.j.left, r.j.day);   // fin: 이 통화로 오늘 시간이 끝남
+    return { url: 'BidiGenerateContentConstrained?access_token=' + encodeURIComponent(r.j.token), model: r.j.model, co: 1, cap: cur.cap, left: r.j.left, day: r.j.day };
+  }
+  function start() { if (!cur) return; cur.t0 = Date.now(); keep(); stopTick(); tick = setInterval(keep, 10000); }   // 전화를 받은 순간부터 잼 (10초마다 기기에 적어 둠 — 앱이 꺼져도 다음에 보고)
+  async function end(secs) { if (!cur) return null; var p = { c: cur.c, e: cur.e, id: cur.id, secs: Math.max(0, secs | 0) }; cur = null; stopTick(); ls(KEY, { id: p.id, c: p.c, e: p.e, secs: p.secs, at: Date.now() }); return send(p); }
+  function own(o) { return post('/v1/aob/live-end', { c: o.c, e: o.e, m: o.m || '', own: 1, agree: 1, secs: o.secs | 0, n: o.n || '' }, null, true).catch(function () { }); }   // 본인 열쇠로 쓴 시간(요금 없음)도 현황에만
+  async function usage(tok, ym) {
+    var r; try { r = await fetch(BASE + '/v1/aob/usage' + (ym ? '?ym=' + encodeURIComponent(ym) : ''), { headers: { Authorization: 'Bearer ' + tok }, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }); } catch (e) { throw err('net', '중계소에 닿지 못했습니다 · 인터넷을 확인하고 다시 열어 주세요'); }
+    var j = await r.json().catch(function () { return {}; });
+    if (!r.ok || !j.ok) throw err(r.status === 401 ? 'auth' : 'srv', r.status === 401 ? 'NHC 본사 연결 열쇠를 중계소가 받지 않았습니다 · ⚙ → NHC 본사 연결에서 열쇠를 확인하세요' : (r.status === 404 ? '중계소가 아직 새 버전이 아닙니다 · 몇 분 뒤 다시 열어 주세요' : (j.error || ('HTTP ' + r.status))));
+    return j;
+  }
+  async function config(tok, cfg) { var r = await post('/v1/aob/config', cfg, tok); if (!r.ok) throw err(r.status === 401 ? 'auth' : 'srv', r.j.error || ('HTTP ' + r.status)); return r.j.cfg; }
+
+  function dur(s) { s = Math.max(0, Math.round(s || 0)); var m = Math.floor(s / 60), x = s % 60; return m ? m + '분' + (x && m < 10 ? ' ' + x + '초' : '') : x + '초'; }
+  function won(secs) { return Math.round((secs || 0) / 60 * RATE / 10) * 10; }
+  function prevYm(ym) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1; if (!m) { y--; m = 12; } return y + '-' + ('0' + m).slice(-2); }
+
+  // 화면: C = { $, openDlg, closeDlg, toast, esc, name(), setName(v), agreeSet(), ghTok(), nhcSetup(), aiSetup() }
+  function ui(C) {
+    var $ = C.$, esc = C.esc;
+    // ① 팀원: 필수 동의 (한 번만)
+    function agree(onOk) {
+      var nm = C.name();
+      C.openDlg('<h4>📞 AI 전화 상대 — 준비할 것 없이 바로</h4><div class="form coag">' +
+        '<p class="note">가상 고객 역할의 AI는 <b>회사 연결</b>로 바로 붙습니다. 열쇠(API 키)를 받거나 넣을 필요가 없습니다.</p>' +
+        '<div class="cobox"><b>대신 사용 기록이 관리자에게 보입니다 (필수)</b><ul>' +
+        '<li><i>보임</i><span>내 이름 · 날짜 · 통화 횟수 · 통화 시간</span></li>' +
+        '<li><i class="no">안 보임</i><span><b>통화 내용</b>(내가 한 말 · AI가 한 말)과 <b>고객 정보</b> — 보내지도 저장하지도 않습니다</span></li></ul>' +
+        '<small>본인 확인을 위해 내 구글 계정 주소를 견주어 봅니다(저장하지 않음).</small></div>' +
+        (nm ? '' : '<label class="l" for="coNm">내 이름 (관리자에게 보이는 이름)</label><input id="coNm" type="text" maxlength="10" autocomplete="off" placeholder="이름 또는 별명">') +
+        '<p class="note">한 사람이 하루에 쓸 수 있는 시간이 정해져 있습니다. 동의는 ⚙ 환경설정 → 🛡 개인정보에서 언제든 거둘 수 있고, 거두면 AI 전화는 쓸 수 없습니다.</p><div class="ferr" id="coErr"></div></div>' +
+        '<div class="mrow"><button class="btn lg" type="button" id="coX" style="margin-right:auto">닫기</button><button class="go" type="button" id="coOk">동의하고 전화 받기</button></div>');
+      $('coX').onclick = C.closeDlg;
+      $('coOk').onclick = async function () {
+        if ($('coNm')) { var v = $('coNm').value.trim(); if (!v) { $('coErr').textContent = '이름을 적어 주세요 (별명도 됩니다)'; try { $('coNm').focus(); } catch (e) { } return; } C.setName(v.slice(0, 10)); }
+        this.disabled = true; await C.agreeSet(); C.closeDlg(); if (onOk) onOk();
+      };
+    }
+    // ② 팀원: 회사 연결을 못 쓸 때 (한도·꺼짐·코드) — 쉬운 말로. 열쇠 화면은 본인이 고를 때만
+    function blocked(e) {
+      var k = e && e.co, T = {
+        day: ['⏳ 오늘 쓸 수 있는 통화 시간을 다 썼습니다', '회사 연결은 한 사람이 하루 ' + (e && e.limit ? e.limit + '분' : '정해진 시간') + '까지 씁니다 · 내일 다시 쓸 수 있습니다.'],
+        month: ['⏳ 이번 달 회사 연결 시간이 모두 찼습니다', '다음 달 1일에 다시 열립니다. 관리자가 한도를 늘리면 바로 다시 쓸 수 있습니다.'],
+        off: ['회사 연결이 잠시 꺼져 있습니다', '관리자가 회사 연결을 꺼 두었습니다. 다시 켜면 바로 쓸 수 있습니다.'],
+        lic: ['입장 코드 확인이 안 됩니다', '이 기기의 입장 코드가 사용 중으로 확인되지 않습니다 · 관리자에게 알려 주세요.'] }[k];
+      if (!T) { C.toast('⚠ 회사 연결이 잠깐 안 됩니다 · 잠시 뒤 다시 눌러 주세요', 5000); return; }
+      C.openDlg('<h4>' + T[0] + '</h4><div class="form"><p class="note">' + T[1] + '</p></div><div class="mrow">' + (k !== 'lic' ? '<button class="lnk" type="button" id="coOwn" style="margin-right:auto">내 구글 열쇠로 계속 쓰기</button>' : '') + '<button class="go" type="button" id="coX">확인</button></div>');
+      $('coX').onclick = C.closeDlg; if ($('coOwn')) $('coOwn').onclick = function () { C.closeDlg(); C.aiSetup(); };
+    }
+    // ③ 관리자: 누가 몇 분 썼는지
+    function when(ms, tdy) { if (!ms) return '-'; var d = new Date(ms), k = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); return k === tdy ? '오늘 ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) : (d.getMonth() + 1) + '/' + d.getDate(); }
+    function days(r, ym) {
+      var ks = Object.keys(r.d || {}).sort().reverse(), out = ks.map(function (k) { var x = r.d[k] || []; if (!(x[0] || x[1] || x[3])) return ''; return '<span><b>' + (+ym.slice(5)) + '/' + (+k) + '</b> ' + dur(x[1]) + ' · ' + (x[0] || 0) + '통' + (x[3] ? ' <small>+내 열쇠 ' + dur(x[3]) + '</small>' : '') + '</span>'; }).filter(Boolean);
+      return out.length ? out.join('') : '<span>기록 없음</span>';
+    }
+    function draw(j, tok) {
+      var box = $('coUse'); if (!box) return;
+      var now = j.today.slice(0, 7), isCur = j.ym === now, T = j.total || {}, cfg = j.cfg || {}, capS = (cfg.month || 0) * 60, pct = capS ? Math.min(100, Math.round((T.secs || 0) / capS * 100)) : 0, mo = (+j.ym.slice(5)) + '월';
+      var card = function (t, a, b, cls) { return '<div class="cu-c' + (cls ? ' ' + cls : '') + '"><small>' + t + '</small><b>' + a + '</b><em>' + b + '</em></div>'; };
+      var rows = (j.rows || []).map(function (r, i) {
+        var tags = (r.live ? '<em class="on">통화 중</em>' : '') + (r.v ? '' : '<em class="w">계정 확인 안 됨</em>');
+        return '<button type="button" class="cu-r" data-cur="' + i + '" aria-expanded="false"><span class="cu-n"><b>' + esc(r.n || '이름 없음') + '</b>' + tags + '</span>' +
+          (isCur ? '<span class="cu-v"><b>' + (r.ts ? dur(r.ts) : '-') + '</b><small>' + (r.tc ? r.tc + '통' : '') + '</small></span>' : '') +
+          '<span class="cu-v"><b>' + dur(r.secs) + '</b><small>' + r.calls + '통' + (r.os ? ' · +내 열쇠 ' + dur(r.os) : '') + '</small></span>' +
+          '<span class="cu-w">' + esc(when(r.last, j.today)) + '</span></button><div class="cu-d" hidden>' + days(r, j.ym) + (r.x ? '<span class="w">받는 중에 앱이 꺼져 끝난 시간을 못 받은 통화 ' + r.x + '통은 한도 시간만큼으로 셌습니다</span>' : '') + '</div>';
+      }).join('');
+      var weak = (j.rows || []).some(function (r) { return !r.v; });
+      box.innerHTML = '<div class="sgf cu-seg"><button type="button" data-cum="' + now + '" aria-pressed="' + isCur + '">이번 달</button><button type="button" data-cum="' + prevYm(now) + '" aria-pressed="' + (j.ym === prevYm(now)) + '">지난달</button></div>' +
+        '<div class="cu-cards">' + (isCur ? card('오늘', dur(T.ts), (T.tc || 0) + '통') : '') + card(isCur ? '이번 달' : mo, dur(T.secs), (T.calls || 0) + '통') + card('예상 요금', '약 ' + won(T.secs).toLocaleString('ko-KR') + '원', '1분 약 ' + RATE + '원 어림', 'won') + '</div>' +
+        '<div class="cu-bar" role="img" aria-label="전체 한 달 한도의 ' + pct + '%"><i style="width:' + pct + '%"></i></div>' +
+        '<small class="cu-cap">전체 한 달 한도 ' + (cfg.month || 0).toLocaleString('ko-KR') + '분 중 <b>' + pct + '%</b> · 1인 하루 ' + cfg.day + '분 · 한 통화 ' + cfg.max + '분' + (cfg.on ? '' : ' · <b class="w">지금 꺼져 있음</b>') + '</small>' +
+        (rows ? '<div class="cu-t' + (isCur ? '' : ' no-t') + '"><div class="cu-h"><span>이름</span>' + (isCur ? '<span>오늘</span>' : '') + '<span>' + (isCur ? '이번 달' : mo) + '</span><span>마지막</span></div>' + rows + '</div>'
+          : '<div class="sgbox"><b>아직 쓴 사람이 없습니다</b><p class="note">팀원이 전화 탭 → 액션콜 → 📞 AI 전화 받기를 누르고 동의하면 여기에 이름과 시간이 보입니다.</p></div>') +
+        '<p class="note">' + (j.members != null ? '입장 코드를 쓰는 ' + j.members + '명 중 ' + (j.rows || []).length + '명이 ' + (isCur ? '이번 달' : mo) + '에 썼습니다 · ' : '') + '이름을 누르면 날짜별로 보입니다. 통화 내용은 어디에도 저장하지 않습니다(숫자만).' + (T.os ? ' 본인 열쇠로 쓴 ' + dur(T.os) + '은 요금이 나오지 않아 따로 적었습니다.' : '') + '</p>' +
+        (weak ? '<p class="note">⚠ <b>계정 확인 안 됨</b>: 그 기기의 구글 계정이 입장 코드를 받을 때의 계정과 달라 짧은 한도(하루 ' + (j.weak || {}).day + '분 · 한 통화 ' + (j.weak || {}).max + '분)로 씁니다. 그 팀원이 ⚙ 환경설정 → 연결에서 원래 구글 계정으로 다시 로그인하면 풀립니다.</p>' : '') +
+        '<details class="cu-set"><summary>한도 바꾸기 · 회사 연결 끄기</summary>' +
+        '<label class="ck"><input type="checkbox" id="cuOn"' + (cfg.on ? ' checked' : '') + '> 팀원이 회사 연결로 AI 전화를 쓸 수 있게 (끄면 아무도 못 씀)</label>' +
+        '<div class="cu-f"><label>1인 하루<input id="cuDay" type="number" inputmode="numeric" min="1" max="240" value="' + cfg.day + '">분</label><label>한 통화<input id="cuMax" type="number" inputmode="numeric" min="1" max="30" value="' + cfg.max + '">분</label><label>전체 한 달<input id="cuMon" type="number" inputmode="numeric" min="0" max="100000" value="' + cfg.month + '">분</label></div>' +
+        '<small class="note">전체 한 달 ' + (cfg.month || 0).toLocaleString('ko-KR') + '분을 다 쓰면 약 ' + won(capS).toLocaleString('ko-KR') + '원(어림)입니다. 실제 요금은 구글 청구서 기준입니다.</small>' +
+        '<div class="ferr" id="cuErr"></div><button class="go" type="button" id="cuSave">저장</button></details>';
+      box.querySelectorAll('[data-cum]').forEach(function (b) { b.onclick = function () { load(b.dataset.cum); }; });
+      box.querySelectorAll('[data-cur]').forEach(function (b) { b.onclick = function () { var d = b.nextElementSibling, on = d.hidden; d.hidden = !on; b.setAttribute('aria-expanded', String(on)); }; });
+      $('cuSave').onclick = async function () {
+        var b = this; b.disabled = true; $('cuErr').textContent = '';
+        try { await config(tok, { on: $('cuOn').checked, day: +$('cuDay').value, max: +$('cuMax').value, month: +$('cuMon').value }); C.toast('한도를 저장했습니다'); load(j.ym); }
+        catch (e) { b.disabled = false; $('cuErr').textContent = '저장하지 못했습니다 · ' + (e.message || e); }
+      };
+    }
+    async function load(ym) {
+      var box = $('coUse'); if (!box) return; box.setAttribute('aria-busy', 'true');
+      var tok = await C.ghTok();
+      if (!$('coUse')) return;
+      if (!tok) { box.removeAttribute('aria-busy'); box.innerHTML = '<div class="sgbox"><b>NHC 본사 연결이 먼저 필요합니다</b><p class="note">사용 현황은 회사 중계소에 있어, 관리자 기기의 NHC 본사 연결 열쇠로 읽습니다.</p><button class="go" type="button" id="cuNx">🏢 NHC 본사 연결 열기</button></div>'; $('cuNx').onclick = function () { C.closeDlg(); C.nhcSetup(); }; return; }
+      try { var j = await usage(tok, ym); if (!$('coUse')) return; box.removeAttribute('aria-busy'); draw(j, tok); }
+      catch (e) { if (!$('coUse')) return; box.removeAttribute('aria-busy'); box.innerHTML = '<div class="sgbox"><b>사용 현황을 불러오지 못했습니다</b><p class="note">' + esc(e.message || String(e)) + '</p><button class="btn lg" type="button" id="cuRe">다시 불러오기</button></div>'; $('cuRe').onclick = function () { box.innerHTML = '<p class="note">불러오는 중…</p>'; load(ym); }; }
+    }
+    function openUse() {
+      C.openDlg('<h4>📞 액션콜 사용 현황 <small class="note">팀원 · 회사 연결</small></h4><div class="form couse" id="coUse"><p class="note">불러오는 중…</p></div><div class="mrow"><button class="btn lg" type="button" id="coX" style="margin-left:auto">닫기</button></div>', 'wide');
+      $('coX').onclick = C.closeDlg; load('');
+    }
+    return { agree: agree, blocked: blocked, openUse: openUse };
+  }
+
+  root.CoCall = { init: function (o) { BASE = String((o && o.url) || '').replace(/\/$/, ''); }, token: token, start: start, end: end, own: own, flush: flush, usage: usage, config: config,
+    on: function () { return !!cur; }, cap: function () { return cur ? cur.cap : 0; }, lastToday: function () { return !!(cur && cur.fin); }, left: left, dur: dur, won: won, ui: ui };
+})(this);
 
 </script>
 <script>
@@ -13469,9 +13662,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (TOPICS.indexOf(CALL.sc) < 0) CALL.sc = TOPICS[0];
     if (!CALL.s) CALL.s = callScript(CALL.sc);
     var sc = SC.find(function(s){ return s.k === CALL.sc; });
+    // 회사 연결(2026-11-17): 팀원 = 열쇠 준비 없이 걸림 + 오늘 남은 시간 한 줄 · 관리자 = 팀원 사용 현황으로 가는 길
+    var coL = coLic(), coCs = coL ? await consentLoad() : null, coLf = CoCall.left();
+    var coLine = ROLE.admin ? '<small class="clco"><button type="button" class="lnk2" data-cl="use">👥 팀원 사용 현황</button></small>'
+      : (coL && coCs && coCs.call && coCs.call.at) ? '<small class="clco">🏢 회사 연결로 걸립니다 · 준비할 것 없음' + (coLf ? ' · 오늘 <b>' + esc(CoCall.dur(coLf.left)) + '</b> 남음' : '') + '</small>' : '';
     var h = head + '<section class="pcard clrecv"><div class="pc-h"><b>📞 AI 전화 받기</b><small>누르면 가상 고객이 바로 전화를 겁니다</small></div>' +
       '<p class="cltip">주제를 고르지 않습니다 · 청구·보장 점검·소개·안부 이야기가 통화 중에 자연스럽게 넘어가고, 서로 겹쳐 말해도 다 듣습니다</p>' +
-      '<button class="go ai clgo" type="button" data-cl="go">📞 AI 전화 받기</button>' +
+      '<button class="go ai clgo" type="button" data-cl="go">📞 AI 전화 받기</button>' + coLine +
       '<small class="clme">대본 이름 <b>' + esc(meLine()) + '</b> · 수화기로 들립니다 (통화 화면의 스피커를 누르면 크게) <button type="button" class="lnk2" data-cl="set">설정</button></small>' +
       '<details class="clsc"><summary>대본 보기 · ' + esc(sc.c) + '</summary>' +
       '<div class="clscript">' + CALL.s.lines.map(function(l, i){ return '<div class="cll ' + (l[0] === '나' ? 'me' : 'you') + '" data-cli="' + i + '"><i>' + (l[0] === '나' ? '나' : esc(CALL.s.nm.slice(0, 1))) + '</i><p>' + esc(l[1]) + '</p></div>'; }).join('') + '</div>' +
@@ -13481,6 +13678,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('main').innerHTML = h; window.scrollTo(0, 0);
     var M = $('main');
     M.querySelector('[data-cl="go"]').onclick = function(){ callLivePhone(); };
+    var cuL = M.querySelector('[data-cl="use"]'); if (cuL) cuL.onclick = function(){ COCALL.openUse(); };
     M.querySelector('[data-cl="regen"]').onclick = function(){ CALL.sc = TOPICS[(TOPICS.indexOf(CALL.sc) + 1) % TOPICS.length]; CALL.s = callScript(CALL.sc); showCall().then(function(){ var d = $('main').querySelector('.clsc'); if (d) d.open = true; }); };
     M.querySelector('[data-cl="set"]').onclick = openVoiceSet;
     M.querySelector('[data-cl="copy"]').onclick = function(){ copyText('[액션콜 대본 · ' + sc.t + ']\n' + CALL.s.lines.map(function(l){ return (l[0] === '나' ? '나: ' : CALL.s.nm + ': ') + l[1]; }).join('\n'), '대본'); };
@@ -13722,7 +13920,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function liveBusy(){ var n = performance.now(); return (LIVE.turnOpen && n < LIVE.turnAt + LIVE.turnSec * 1000 + 2500) || n < LIVE.aiEnd; }   // 지금 상대 소리가 나오는 중인가
   async function callLivePhone(){
     var tok; try { tok = await liveAuth(); } catch(e){
-      var a0 = await aiLoad(); if (!a0.key) { openAiSetup(); return; }   // 2026-11-17: 열쇠가 아직 없는 사람(팀원 첫 사용)은 경고 글 없이 바로 준비 창으로
+      if (e.co === 'consent') { COCALL.agree(function(){ callLivePhone(); }); return; }   // 팀원: 사용 기록 공유 동의(필수 · 한 번) → 동의하면 바로 전화가 옴
+      if (e.co) { COCALL.blocked(e); return; }   // 팀원: 오늘 시간 끝 · 꺼짐 · 잠깐 안 됨 → 열쇠 화면을 띄우지 않고 쉬운 말로
+      var a0 = await aiLoad(); if (!a0.key) { openAiSetup(); return; }   // 입장 코드가 없는 화면(시험·미리 보기)에서 열쇠가 없으면 준비 창
       toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); slowCall(); return; } // 실시간 열쇠가 없으면 예전 방식으로
     var V = voiceCfg(), P = callPersona({ dia: V.dia }), nm = P.nm, female = P.fem, duplex = !V.cut, hist = [], ended = false, muted = false, uBuf = '', aBuf = '', tps = [], tpNow = '';   // duplex: 서로 겹쳐 말하기(기본)
     var sys = callSys(P, meLine(), { live: 1 });
@@ -13742,10 +13942,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     el.querySelector('[data-cp="mute"]').onclick = function(){ setMute(!muted); };
     el.querySelector('[data-cp="hold"]').onclick = function(){ var on = this.classList.toggle('on'); $('cphSt').textContent = on ? '대기 중' : '통화 중'; setMute(on); };
     el.querySelector('#cphSet').onclick = function(){ var b = $('cphAll'); if (b) { b.remove(); return; } var d = document.createElement('div'); d.id = 'cphAll'; d.className = 'cph-all'; d.innerHTML = '<button type="button" class="btn" id="cphAllX">닫기</button>' + (hist.length ? hist.map(function(m){ return '<p class="' + (m.me ? 'me' : '') + '"><small>' + (m.me ? '나' : esc(nm)) + '</small>' + esc(m.t) + '</p>'; }).join('') : '<p class="note">아직 대화가 없습니다</p>'); el.appendChild(d); $('cphAllX').onclick = function(){ d.remove(); }; };
-    var stop = function(){ LIVE.pend = null; if (LIVE.nat) { LIVE.nat = false; natCall('pcmStop').catch(function(){}); } try { if (LIVE.ws) LIVE.ws.close(); } catch(e){} LIVE.ws = null; try { if (LIVE.proc) LIVE.proc.disconnect(); if (LIVE.src) LIVE.src.disconnect(); } catch(e){} try { if (LIVE.stream) LIVE.stream.getTracks().forEach(function(x){ x.stop(); }); } catch(e){} try { if (LIVE.ctxIn) LIVE.ctxIn.close(); if (LIVE.ctxOut) LIVE.ctxOut.close(); } catch(e){} LIVE.ctxIn = LIVE.ctxOut = LIVE.src = LIVE.proc = LIVE.stream = null; LIVE.playing = []; LIVE.hold = []; LIVE.ring = []; LIVE.turnOpen = false; LIVE.held = false; LIVE.aiEnd = LIVE.natEnd = 0; };
+    var stop = function(){ clearTimeout(LIVE.capT); clearTimeout(LIVE.capT2); LIVE.pend = null; if (LIVE.nat) { LIVE.nat = false; natCall('pcmStop').catch(function(){}); } try { if (LIVE.ws) LIVE.ws.close(); } catch(e){} LIVE.ws = null; try { if (LIVE.proc) LIVE.proc.disconnect(); if (LIVE.src) LIVE.src.disconnect(); } catch(e){} try { if (LIVE.stream) LIVE.stream.getTracks().forEach(function(x){ x.stop(); }); } catch(e){} try { if (LIVE.ctxIn) LIVE.ctxIn.close(); if (LIVE.ctxOut) LIVE.ctxOut.close(); } catch(e){} LIVE.ctxIn = LIVE.ctxOut = LIVE.src = LIVE.proc = LIVE.stream = null; LIVE.playing = []; LIVE.hold = []; LIVE.ring = []; LIVE.turnOpen = false; LIVE.held = false; LIVE.aiEnd = LIVE.natEnd = 0; };
     var finish = async function(why){
       if (ended) return; ended = true; stop(); callAudioEnd(); clearInterval(CALL.timer);
       var secs = CALL.t0 ? Math.round((Date.now() - CALL.t0) / 1000) : 0; $('cphSt').textContent = '통화 종료'; note(why || '');
+      coDone(secs);   // 회사 연결: 통화 시간(초)만 보고
       var back = function(){ phoneClose(); showCall(); };
       $('cphEnd').onclick = back;
       if (hist.filter(function(m){ return m.me; }).length < 2) { setTimeout(back, why ? 1800 : 0); return; }
@@ -13779,11 +13980,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       catch(e){ if (ended) throw e; duplex = false; return await open1(await liveAuth(), false); }   // 예전 설정은 서버가 끼어들면 멈추므로 겹쳐 말하기를 끔
     })();
     ready.catch(function(){});
-    if (!(await incoming(el))) { ended = true; stop(); return; }
+    if (!(await incoming(el))) { ended = true; stop(); coDone(0); return; }   // 안 받음: 회사 연결 출입증은 안 쓴 것으로
     if (ended) return;
     $('cphSt').textContent = '연결 중…';
-    var ws; try { ws = await ready; } catch(e){ toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); note('실시간 연결 실패 · 예전 방식으로 바꿉니다'); stop(); setTimeout(function(){ phoneClose(true); slowCall(); }, 1200); return; }
+    var ws; try { ws = await ready; } catch(e){
+      var coWas = CoCall.on() || !!e.co, aK = await aiLoad(); coDone(0); stop();
+      if (coWas && !aK.key) { ended = true; note('연결이 안 됐습니다 · 잠시 뒤 다시 눌러 주세요'); toast('⚠ 회사 연결이 잠깐 안 됩니다 · 잠시 뒤 다시 눌러 주세요'); setTimeout(function(){ phoneClose(true); showCall(); }, 1500); return; }   // 팀원에게는 열쇠 화면(느린 방식)을 띄우지 않음
+      toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); note('실시간 연결 실패 · 예전 방식으로 바꿉니다'); setTimeout(function(){ phoneClose(true); slowCall(); }, 1200); return; }
     $('cphSt').textContent = '통화 중'; phoneTimer();
+    if (CoCall.on()) {   // 회사 연결: 받은 순간부터 시간을 재고, 이번 통화에 쓸 수 있는 시간이 끝나면 알려 주고 끊음
+      CoCall.start(); var capS = CoCall.cap(), capDay = CoCall.lastToday();
+      if (capS > 0) { LIVE.capT = setTimeout(function(){ note(capDay ? '⏳ 30초 뒤 오늘 쓸 수 있는 통화 시간이 끝납니다' : '⏳ 30초 뒤 한 통화 시간이 끝납니다 · 끊고 다시 걸 수 있습니다'); }, Math.max(1, capS - 30) * 1000);
+        LIVE.capT2 = setTimeout(function(){ finish(capDay ? '오늘 쓸 수 있는 통화 시간이 끝났습니다' : '한 통화 시간이 끝났습니다 · 다시 걸 수 있습니다'); }, capS * 1000); } }
     // 새 앱: 수화기로 듣기 — 준비되는 동안 온 목소리는 잠깐 모아 뒀다가 같은 길로 (첫마디를 기다리게 하지 않음)
     LIVE.nat = false; LIVE.pend = CALL.native ? [] : null; LIVE.hold = []; LIVE.ring = []; LIVE.turnOpen = false; LIVE.held = false; LIVE.aiEnd = LIVE.natEnd = 0; LIVE.nf = 0.004;
     ws.onclose = function(ev){ if (!ended) finish(ev.code === 1000 ? '' : '연결이 끊겼어요 (' + ev.code + ')'); };
@@ -13912,13 +14120,42 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var at = Math.max(c.currentTime + 0.03, LIVE.next); s.start(at); LIVE.next = at + buf.duration; LIVE.aiEnd = performance.now() + (LIVE.next - c.currentTime) * 1000 + 60;   // 상대 소리가 다 들리는 시각
     LIVE.playing.push(s); s.onended = function(){ LIVE.playing = LIVE.playing.filter(function(x){ return x !== s; }); };
   }
-  // 1회용 열쇠: NHC 본사 연결(대표님 GitHub 열쇠)로 세리아 중계소에서 받음 · 없으면 이 기기에 넣은 내 Gemini 열쇠로 바로
+  // 1회용 열쇠 — 세 갈래:
+  //   ① 관리자: NHC 본사 연결(대표님 GitHub 열쇠)로 중계소에서 받음
+  //   ② 팀원(2026-11-17 대표님 결정 · 시험판 · cocall.js): 열쇠 화면 없이 '회사 연결'로 — 중계소가 입장 코드를 확인하고 내줌. 사용 기록(이름·날짜·횟수·시간) 공유 동의가 필수이고,
+  //      누가 몇 분 썼는지는 관리자 화면(⚙ 관리자 전용 → 📞 액션콜 사용 현황)에 보인다. 통화 소리·글·고객 정보는 중계소를 지나지 않는다(소리는 앱 ↔ 구글 직접)
+  //   ③ 이 기기에 넣은 내 Gemini 열쇠 — 회사 연결이 안 되거나 오늘 시간을 다 쓴 팀원이 본인 열쇠가 있을 때(쓴 시간만 현황에 보고)
+  CoCall.init({ url: JV_URL });
+  function coLic(){ if (ROLE.admin) return null; var l = window.Access && Access.lic && Access.lic(); return l && l.c && l.e ? l : null; }
+  function coName(){ var n = ''; try { n = mtName() || (League.nick && League.nick()) || myId().name || ''; } catch(e){} return String(n).slice(0, 10); }
+  var COCALL = CoCall.ui({ $: $, openDlg: openDlg, closeDlg: closeDlg, toast: toast, esc: esc, name: coName,
+    setName: function(v){ try { if (League.nick && !League.nick()) League.nick(v); } catch(e){} },
+    agreeSet: async function(){ await consentLoad(); CONSENT.call = { at: Date.now(), v: '2026-11-17' }; await consentSave(); },
+    ghTok: async function(){ var d = await nhcLoad(); return (d && d.token) || ''; },
+    nhcSetup: function(){ var n = document.querySelector('[data-nx="setup"]'); if (n) n.click(); else openSheet('set'); },
+    aiSetup: function(){ openAiSetup(); } });
+  // 통화가 끝남(또는 안 받음 = 0초): 회사 연결이면 통화 시간(초)만 보고하고 오늘 남은 시간을 한 줄로. 본인 열쇠로 건 통화는 시간만 현황에(요금 없음)
+  function coDone(secs){
+    try {
+      if (CoCall.on()) CoCall.end(secs).then(function(j){ if (j && j.left != null && secs >= 10) toast('📞 회사 연결 · 오늘 남은 통화 시간 ' + CoCall.dur(j.left)); }).catch(function(){});
+      else if (LIVE.own && secs >= 10) CoCall.own({ c: LIVE.own.c, e: LIVE.own.e, m: (window.Sync && Sync.account && Sync.account()) || '', secs: secs, n: coName() });
+    } catch(e){}
+    LIVE.own = null;
+  }
+  setTimeout(function(){ try { CoCall.flush(); } catch(e){} }, 20000);   // 지난번에 못 보낸 통화 시간(앱이 꺼진 경우)이 있으면 보냄
   async function liveAuth(){
-    var d = await nhcLoad(), gtok = d && d.token;
+    var d = await nhcLoad(), gtok = d && d.token; LIVE.own = null;
     if (gtok) { var r = await fetch(JV_URL + '/v1/live-token', { method: 'POST', headers: { Authorization: 'Bearer ' + gtok } }); var j = await r.json().catch(function(){ return {}; });
       if (r.ok && j.token) return { url: 'BidiGenerateContentConstrained?access_token=' + encodeURIComponent(j.token), model: j.model };
       if (r.status !== 401) throw new Error(j.error || ('HTTP ' + r.status)); }
-    var a = await aiLoad(); if (a.key && (!a.prov || a.prov === 'gemini')) return { url: 'BidiGenerateContent?key=' + encodeURIComponent(a.key), model: '' };
+    var a = await aiLoad(), own = !!(a.key && (!a.prov || a.prov === 'gemini')), lic = coLic();
+    if (lic) {
+      var cs = await consentLoad();
+      if (!(cs.call && cs.call.at)) { var e0 = new Error('사용 기록 공유 동의가 필요합니다'); e0.co = 'consent'; throw e0; }
+      try { return await CoCall.token({ c: lic.c, e: lic.e, m: (window.Sync && Sync.account && Sync.account()) || '', n: coName() }); }
+      catch(e1){ if (!own) throw e1; LIVE.own = lic; }   // 본인 열쇠가 있으면 그것으로 계속 (통화 시간만 현황에 보고)
+    }
+    if (own) return { url: 'BidiGenerateContent?key=' + encodeURIComponent(a.key), model: '' };
     throw new Error(gtok ? '중계소가 GitHub 열쇠를 거절했습니다 · ⚙ → NHC 본사 연결에서 열쇠를 확인하세요' : 'NHC 본사 연결(⚙ 메뉴) 또는 AI 통화 설정의 Gemini 열쇠가 필요합니다');
   }
   // ---------- 사진으로 싯플랜 넣기: 지점 교육일정표 · 손글씨 싯플랜 → AI가 읽어 일정으로 (미리 보고 고른 뒤 저장 → 캘린더 자동 동기화) ----------
@@ -15271,7 +15508,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     ];
     if (IS_MOBILE) SET[1][1] = SET[1][1].filter(function(x){ return x[0] !== '#keysBtn'; });
     if (IS_DESKTOP) { MENU[0][1] = MENU[0][1].filter(function(x){ return x[0] !== '#callBtn'; }); SET[1][1] = SET[1][1].map(function(x){ return x[0] === '#apkBtn' ? ['#apkBtn', '📱', '휴대폰 앱 설치', 'QR로 팀원 휴대폰에 설치'] : x; }); SET[0][1] = SET[0][1].map(function(x){ return x[0] === '#connBtn' ? ['#connBtn', '🔗', '연결 · 설정', '구글·알림·AI·지도 키'] : x; }); }
-    var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
+    var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#cuBtn', '📞', '액션콜 사용 현황', '팀원별 오늘 · 이번 달 통화 시간 · 한도'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
     var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; };
     return { MENU: MENU, SET: SET, AD: AD, vis: vis };
   }
@@ -15299,7 +15536,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
   var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
-    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
+    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
   function finderItems(){
@@ -15353,6 +15590,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 
   $('connBtn').onclick = function(){ openConnCenter(); };
   $('teamSetBtn').onclick = async function(){ var a = await admLoad(); if (a && a.token) teamServerDlg(a); };
+  $('cuBtn').onclick = function(){ COCALL.openUse(); };   // 📞 액션콜 사용 현황 (관리자 전용 · cocall.js)
   // 2026-11-13: 이미 연결돼 있는데 이 단추를 누르면 '새 프로젝트 만들기' 안내만 나와 서버를 하나 더 만들게 됐음(주소가 바뀌고 새 서버는 비어 있음) → 연결돼 있으면 상태와 '코드 업데이트'만 보여 줌
   async function teamServerDlg(a){
     var u = ''; try { u = await League.url(); } catch(e){}
@@ -17493,9 +17731,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
         '<ul class="kkg"><li>고객 이름·연락처·주민번호·주소·병력·계약은 <b>이 기기와 내 구글 드라이브에만</b> 저장됩니다(잠금 비밀번호로 암호화).</li><li>만든 사람(운영자)·회사·관리자도 <b>다른 사람의 고객 정보를 볼 수 없습니다.</b> 그런 길을 두지 않았습니다.</li><li>오류 신고·건의에는 화면 사진을 보내지 않고, 고객 이름·번호가 적혀 있으면 보내기 전에 막습니다.</li><li>👥 팀원에게 고객을 보낼 때는 <b>내가 고른 한 명</b>만, 받는 팀원만 열 수 있게 <b>잠가서</b> 보냅니다(팀 서버·운영자는 못 봄).</li></ul>' +
         '<label class="ck"><input type="checkbox" id="cnTerms"' + (cs.terms ? ' checked' : '') + '> (필수) <a href="https://sicrics27-gif.github.io/mh-analyzer/terms.html" target="_blank" rel="noopener">이용약관</a>과 <a href="https://sicrics27-gif.github.io/mh-analyzer/privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>에 동의합니다</label>' +
         '<label class="ck"><input type="checkbox" id="cnStats"' + (cs.stats ? ' checked' : '') + '> (선택) <b>익명 통계 제공</b> — 계약을 넣을 때 보험사·심사 유형·병력 앞 3자리 묶음·상품 분류·보험료 구간 <b>숫자만</b> 보냅니다. 이름·연락처·생년월일·주소, 나와 내 기기 정보는 보내지 않고, 5건 미만인 조합은 묶어서만 보입니다. 언제든 ⚙ 환경설정 → 개인정보에서 끌 수 있습니다.</label>' +
+        // 📞 액션콜 회사 연결(2026-11-17): 사용 기록 공유 동의 — 필수(동의해야 AI 전화를 씀), 여기서 지금 상태를 보고 거둘 수 있음
+        (coLic() ? '<div class="cncall"><b>📞 액션콜 · 회사 연결 사용 기록 공유</b><span>' + (cs.call && cs.call.at ? '동의함 (' + esc(new Date(cs.call.at).toLocaleDateString('ko-KR')) + ') <button type="button" class="lnk" id="cnCallOff">동의 거두기</button>' : '아직 동의 전 · 📞 AI 전화 받기를 누르면 묻습니다') + '</span><small>AI 전화를 회사 연결로 쓰는 동안 관리자에게 <b>내 이름 · 날짜 · 통화 횟수 · 통화 시간</b>이 보입니다. 통화 내용과 고객 정보는 보내지 않습니다. 동의를 거두면 AI 전화는 쓸 수 없습니다.</small></div>' : '') +
         '<p class="note">이 약관·방침은 초안입니다. 병력은 민감정보라 최종본은 변호사(법무) 검토 후 확정합니다.</p><div class="ferr" id="cnErr"></div></div>' +
         '<div class="mrow">' + (fromMenu ? '<button class="btn lg" type="button" id="cnX" style="margin-right:auto">닫기</button>' : '') + '<button class="go" type="button" id="cnGo">확인</button></div>');
       if ($('cnX')) $('cnX').onclick = closeDlg;
+      if ($('cnCallOff')) $('cnCallOff').onclick = async function(){ CONSENT.call = null; await consentSave(); toast('동의를 거뒀습니다 · AI 전화는 다시 동의해야 쓸 수 있습니다'); openConsent(fromMenu); };
       $('cnGo').onclick = async function(){ if (!$('cnTerms').checked) { $('cnErr').textContent = '이용약관·개인정보 처리방침 동의가 필요합니다'; return; } CONSENT.terms = CONSENT_VER; CONSENT.stats = $('cnStats').checked; CONSENT.at = Date.now(); await consentSave(); closeDlg(); toast(CONSENT.stats ? '익명 통계 제공을 켰습니다 · 고맙습니다' : '익명 통계는 꺼져 있습니다'); };
     });
   }
@@ -18325,6 +18566,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="7db46a1937b3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="e7f4e79e1406";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
