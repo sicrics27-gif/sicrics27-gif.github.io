@@ -7476,6 +7476,41 @@ var Policy = (function () {
     }));
   }
 
+  // ---------- 📧 메일 모양 파일(.eml) 풀기 (2026-11-18 대표님 실제 파일로 확인) ----------
+  // 카톡 '대화 내용 내보내기 → 텍스트 메시지만 저장'은 '메일 보내기' 방식이라, 드라이브에 저장하면 KakaoTalkChats.txt 가 아니라
+  // '○○ 님과 카카오톡 대화'라는 메일 모양 파일(message/rfc822 · 확장자 없음)이 된다. 그 안의 첨부(.txt 또는 zip)와 본문 글을 꺼낸다.
+  function bin(u8) { var s = '', n = u8.length, C = 0x8000; for (var i = 0; i < n; i += C) s += String.fromCharCode.apply(null, u8.subarray(i, Math.min(n, i + C))); return s; }   // 바이트 → '한 글자 = 한 바이트' 글
+  function u8of(s) { var u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; }
+  function isZipB(u8) { return u8.length > 3 && u8[0] === 0x50 && u8[1] === 0x4B && u8[2] === 3 && u8[3] === 4; }
+  function isEml(u8) {   // 첫 줄이 '이름: 값' 모양의 머리글이고, 앞쪽에 Content-Type/MIME-Version 줄이 있으면 메일 모양 파일
+    if (!u8 || u8.length < 20 || isZipB(u8)) return false;
+    var h = bin(u8.subarray(0, Math.min(u8.length, 8000))).replace(/^\xEF\xBB\xBF/, '').replace(/^\s+/, '');
+    return /^[A-Za-z][A-Za-z0-9-]{1,40}:[ \t]/.test(h) && /^(?:mime-version|content-type)\s*:/im.test(h);
+  }
+  function mimeHead(h) { var o = {}; String(h).replace(/\r?\n[ \t]+/g, ' ').split(/\r?\n/).forEach(function (l) { var i = l.indexOf(':'); if (i > 0) { var k = l.slice(0, i).trim().toLowerCase(); if (!(k in o)) o[k] = l.slice(i + 1).trim(); } }); return o; }
+  function mimeParam(v, k) { var m = String(v || '').match(new RegExp('(?:^|;)\\s*' + k + '\\*?(?:\\d\\*?)?\\s*=\\s*(?:"([^"]*)"|([^;\\s]*))', 'i')); return m ? (m[1] != null ? m[1] : m[2]) : ''; }
+  function mimeBody(s, cte) {
+    cte = String(cte || '').toLowerCase();
+    if (cte.indexOf('base64') >= 0) { try { return u8of(atob(s.replace(/[^A-Za-z0-9+/]/g, ''))); } catch (e) { return new Uint8Array(0); } }
+    if (cte.indexOf('quoted-printable') >= 0) return u8of(s.replace(/=\r?\n/g, '').replace(/=([0-9A-Fa-f]{2})/g, function (m, h) { return String.fromCharCode(parseInt(h, 16)); }));
+    return u8of(s);
+  }
+  // 메일 글(한 글자 = 한 바이트) → 잎(본문·첨부) 목록 [{ type, name, charset, bytes }]
+  function mimeLeaves(s, depth) {
+    depth = depth || 0;
+    var m = s.match(/\r?\n\r?\n/), i = m ? m.index : -1, H = mimeHead(i < 0 ? s : s.slice(0, i)), body = i < 0 ? '' : s.slice(i + m[0].length);
+    var ct = H['content-type'] || 'text/plain', type = ct.split(';')[0].trim().toLowerCase(), bd = mimeParam(ct, 'boundary');
+    if (/^multipart\//.test(type) && bd && depth < 6) {
+      var out = [], parts = body.split('--' + bd);
+      for (var k = 1; k < parts.length; k++) { if (/^--/.test(parts[k])) break; out = out.concat(mimeLeaves(parts[k].replace(/^[ \t]*\r?\n/, ''), depth + 1)); }
+      return out;
+    }
+    if (type === 'message/rfc822' && depth < 6) return mimeLeaves(body, depth + 1);
+    return [{ type: type, name: (mimeParam(H['content-disposition'], 'filename') || mimeParam(ct, 'name')).toLowerCase(), charset: mimeParam(ct, 'charset').toLowerCase(), bytes: mimeBody(body, H['content-transfer-encoding']) }];
+  }
+  // 그 잎이 '읽을 글'인가(본문 text/plain · 이름이 .txt · 종류를 안 밝힌 첨부) — text/html 은 뺀다
+  function leafIsText(l) { return l.type === 'text/plain' || /\.txt$/.test(l.name) || (l.type === 'application/octet-stream' && !/\.(zip|pdf|png|jpe?g|gif|mp4|m4a|xlsx?)$/.test(l.name)) || (/^text\//.test(l.type) && l.type !== 'text/html'); }
+
   // ---------- 화면 글 만들기 ----------
   // 칸은 7개로 묶음(좁은 PC 화면에서도 옆으로 밀지 않게): 증권 · 계약자/피보험자 · 보험사/증권번호 · 상품/분류 · 계약일/월 · 최종납입/월 · 보험료(초회/계속)
   var TH = [['dv', '증권', 'asc'], ['holder', '계약자', 'asc'], ['co', '보험사 · 증권번호', 'asc'], ['prod', '상품명 · 분류', 'asc'], ['cDate', '계약일', 'desc'], ['pDate', '최종납입', 'desc'], ['cont', '보험료', 'desc']];
@@ -7526,7 +7561,7 @@ var Policy = (function () {
     h += '<div class="pol-bar"><div class="sgf pol-f" id="polF">' + chipsHtml(d, P) + '</div><input id="polQ" type="search" class="pol-q" placeholder="이름 · 보험사 · 상품 · 증권번호" value="' + esc(P.q || '') + '" autocomplete="off"></div>';
     var key = P.key || 'cDate';
     h += '<div class="tw pol-w"><table class="t pol"><thead><tr>' + TH.map(function (c) { var on = c[0] === key; return '<th class="k-' + c[0] + (on ? ' on' : '') + '" data-polk="' + c[0] + '" data-pold="' + c[2] + '" role="button" tabindex="0" aria-sort="' + (on ? (P.asc ? 'ascending' : 'descending') : 'none') + '" title="누르면 정렬 · 한 번 더 누르면 반대로">' + c[1] + '<i>' + (on ? (P.asc ? '▲' : '▼') : '↕') + '</i></th>'; }).join('') + '</tr></thead><tbody id="polBody">' + bodyHtml(d, P, C.custOf) + '</tbody></table></div>';
-    h += '<ul class="notes"><li><b>증권</b> 칸을 누르면 전달(초록) ↔ 미전달(노랑)이 바뀝니다. 새 엑셀을 넣어도 이 표시는 그대로 남습니다.</li>' + (d.asOf ? '<li>수납은 넣은 자료(' + dot(d.asOf) + ') 기준입니다 — 최종납입월이 ' + mTxt + '이면 초록, 두 달 넘게 밀렸거나 연체면 빨강입니다. 월 중간에 받은 자료는 아직 납입일이 안 된 계약이 미수납으로 보입니다.</li>' : '') + '<li><b>📩 보험사 알림톡</b>: 카톡 채팅방을 "대화 내용 내보내기 → 텍스트 메시지만 저장"으로 내 드라이브에 저장한 뒤 위 [📩 알림톡 넣기]에서 그 파일을 고르면(보낼 곳에 AOB9가 보이면 바로 AOB9로) 증권번호·보험료·입금 알림이 들어옵니다. 계약자 이름이 가려져 오면 계약 실적의 보험료로 고객을 맞추고, 못 맞춘 계약은 "고객 미확인"에 모아 둡니다(계약자 칸을 눌러 정함).</li><li>표 머리글을 누르면 정렬됩니다. 계약일·계약자 순서는 계약자별로 묶어 보여 줍니다.</li><li>이 장부는 이 기기와 본인 구글 드라이브에만 저장됩니다. 회사·팀 서버로는 가지 않습니다.</li></ul>';
+    h += '<ul class="notes"><li><b>증권</b> 칸을 누르면 전달(초록) ↔ 미전달(노랑)이 바뀝니다. 새 엑셀을 넣어도 이 표시는 그대로 남습니다.</li>' + (d.asOf ? '<li>수납은 넣은 자료(' + dot(d.asOf) + ') 기준입니다 — 최종납입월이 ' + mTxt + '이면 초록, 두 달 넘게 밀렸거나 연체면 빨강입니다. 월 중간에 받은 자료는 아직 납입일이 안 된 계약이 미수납으로 보입니다.</li>' : '') + '<li><b>📩 보험사 알림톡</b>: 카톡 채팅방을 "대화 내용 내보내기 → 텍스트 메시지만 저장"으로 내 드라이브에 저장한 뒤 위 [📩 알림톡 넣기]에서 그 파일("○○ 님과 카카오톡 대화")을 고르면 증권번호·보험료·입금 알림이 들어옵니다. 계약자 이름이 가려져 오면 계약 실적의 보험료로 고객을 맞추고, 못 맞춘 계약은 "고객 미확인"에 모아 둡니다(계약자 칸을 눌러 정함).</li><li>표 머리글을 누르면 정렬됩니다. 계약일·계약자 순서는 계약자별로 묶어 보여 줍니다.</li><li>이 장부는 이 기기와 본인 구글 드라이브에만 저장됩니다. 회사·팀 서버로는 가지 않습니다.</li></ul>';
     return h;
   }
   function previewHtml(R, d, asOf) {
@@ -7646,16 +7681,26 @@ var Policy = (function () {
       try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); } catch (e) { }
       try { return new TextDecoder('euc-kr').decode(u8); } catch (e) { return new TextDecoder().decode(u8); }
     }
-    // 고르거나 공유받은 파일(.txt · 카톡 내보내기 .zip 안의 .txt)에서 글만 꺼냄
+    // 고르거나 공유받은 파일에서 글만 꺼냄: 그냥 글(.txt) · 압축(.zip 안의 .txt) · 메일 모양(.eml — 드라이브에 저장한 카톡 내보내기, 그 안의 첨부 .txt/zip)
+    function decodeAs(u8, cs) { if (cs && !/^(utf-?8|us-ascii)$/.test(cs)) { try { return new TextDecoder(cs).decode(u8); } catch (e) { } } return decode(u8); }
+    async function zipTexts(u8) {
+      var out = []; if (!window.JSZip) return out;
+      try { var z = await window.JSZip.loadAsync(u8), ns = Object.keys(z.files).filter(function (n) { return !z.files[n].dir && /\.txt$/i.test(n); }); for (var j = 0; j < ns.length && j < 20; j++) out.push(decode(await z.files[ns[j]].async('uint8array'))); } catch (e) { }
+      return out;
+    }
+    async function bytesTexts(u8) {
+      if (isZipB(u8)) return zipTexts(u8);
+      if (isEml(u8)) {
+        var L = []; try { L = mimeLeaves(bin(u8)); } catch (e) { L = []; }
+        var out = [];
+        for (var i = 0; i < L.length && i < 40; i++) { var l = L[i]; if (!l.bytes || !l.bytes.length) continue; if (isZipB(l.bytes)) out = out.concat(await zipTexts(l.bytes)); else if (leafIsText(l)) out.push(decodeAs(l.bytes, l.charset)); }
+        return out.sort(function (a, b) { return b.length - a.length; });   // 가장 긴 글(대화 내용)이 맨 앞 → 방 이름을 그 글 머리에서 읽음
+      }
+      return u8.length < 3e7 ? [decode(u8)] : [];
+    }
     async function textsOf(files) {
       var out = [];
-      for (var i = 0; i < (files || []).length; i++) {
-        var u8; try { u8 = await bytes(files[i]); } catch (e) { continue; }
-        if (u8.length > 3 && u8[0] === 0x50 && u8[1] === 0x4B && u8[2] === 3 && u8[3] === 4) {
-          if (!window.JSZip) continue;
-          try { var z = await window.JSZip.loadAsync(u8), ns = Object.keys(z.files).filter(function (n) { return !z.files[n].dir && /\.txt$/i.test(n); }); for (var j = 0; j < ns.length && j < 20; j++) out.push(decode(await z.files[ns[j]].async('uint8array'))); } catch (e) { }
-        } else if (u8.length < 3e7) out.push(decode(u8));
-      }
+      for (var i = 0; i < (files || []).length; i++) { var u8; try { u8 = await bytes(files[i]); } catch (e) { continue; } try { out = out.concat(await bytesTexts(u8)); } catch (e) { } }
       return out.join('\n\n');
     }
     function isNote(text) { try { return !!noteParse(text).ok; } catch (e) { return false; } }
@@ -7666,7 +7711,13 @@ var Policy = (function () {
       await load(); var deals = []; try { deals = (C.deals ? await C.deals() : []) || []; } catch (e) { }
       openNote(p, o, deals); return true;
     }
-    async function noteFiles(files, o) { var t = ''; try { t = await textsOf(files); } catch (e) { } if (!t || !isNote(t)) return false; o = o || {}; if (!o.name && files[0]) o.name = files[0].name || ''; return takeNote(t, o); }
+    async function noteFiles(files, o) {
+      var t = ''; try { t = await textsOf(files); } catch (e) { }
+      var p = null; try { p = t ? noteParse(t) : null; } catch (e) { p = null; }
+      P.why = !t.trim() ? '이 파일에서 대화 글을 꺼내지 못했습니다. 카톡 "대화 내용 내보내기"로 만든 파일인지 확인해 주세요.' : !p || !p.ok ? '대화 글 ' + (p ? p.msgs : 0) + '개를 읽었지만, 증권번호(증서번호)가 적힌 보험사 알림은 찾지 못했습니다.' : '';
+      if (!p || !p.ok) return false;
+      o = o || {}; if (!o.name && files[0]) o.name = files[0].name || ''; return takeNote(t, o);
+    }
     function openNote(p, o, deals) {
       var label = p.room || String(o.name || '').replace(/\.(txt|zip)$/i, '') || '보험사 알림톡', names = C.custNames() || [];
       var dry = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(deals), names: names }).R;
@@ -7718,13 +7769,14 @@ var Policy = (function () {
     function pickNote() {
       C.openDlg('<h4>📩 보험사 알림톡 넣기</h4><div class="form">' +
         '<p class="note" style="margin:0">보험사 영업지원 채널이 카톡으로 보내는 <b>보험료 입금 완료 · 계약 체결</b> 알림에서 증권번호와 보험료를 읽어 계약 장부에 넣고, 계약 실적의 보험료와 맞춰 어느 고객 계약인지 찾습니다.</p>' +
-        '<ol class="pol-how"><li>카톡에서 그 채팅방 → 오른쪽 위 <b>☰</b> → <b>⚙</b> → <b>대화 내용 내보내기</b> → <b>텍스트 메시지만 저장</b></li><li>보낼 곳을 고르는 창에서 <b>Drive</b>를 눌러 내 드라이브에 저장합니다 <small>(앱 줄을 옆으로 밀어 <b>AOB9</b>가 보이면 그걸 누르면 바로 끝)</small></li><li>아래 <b>📁 내보낸 파일 고르기</b> → 드라이브 → <b>KakaoTalkChats.txt</b></li></ol>' +
+        '<ol class="pol-how"><li>카톡에서 그 채팅방 → 오른쪽 위 <b>☰</b> → <b>⚙</b> → <b>대화 내용 내보내기</b> → <b>텍스트 메시지만 저장</b></li><li>보낼 곳을 고르는 창에서 <b>Drive</b>(또는 내 드라이브 폴더)를 눌러 저장합니다 <small>(카톡은 메일 방식으로 내보내서 이 목록에 AOB9는 나오지 않습니다)</small></li><li>아래 <b>📁 내보낸 파일 고르기</b> → 드라이브 → 저장한 폴더 → <b>"○○ 님과 카카오톡 대화"</b></li></ol>' +
         '<label class="l" for="pnTx">알림 한 건만 넣을 때: 글을 복사해서 붙여 넣기</label><textarea id="pnTx" rows="5" placeholder="[보험사] … 증서번호: … 보험료: …원"></textarea>' +
         '<div class="safe">' + (C.lock || '') + '<span>글은 이 기기 안에서만 읽습니다. 알림 원문은 저장하지 않고, 읽어 낸 증권번호·보험료·날짜만 암호화해 이 기기와 본인 구글 드라이브에 둡니다.</span></div><div class="ferr" id="polErr"></div></div>' +
         '<div class="mrow psnrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="pnGo">📋 붙여넣고 읽기</button><button class="go" type="button" id="pnFile">📁 내보낸 파일 고르기</button></div>', 'wide');
       $('polX').onclick = C.closeDlg;
-      var miss = function () { var e = $('polErr'); if (e) e.textContent = '증권번호(증서번호)가 적힌 보험사 알림을 찾지 못했습니다. 알림 글 전체를 복사했는지 확인해 주세요.'; };
-      $('pnFile').onclick = async function () { var fs = await C.pickFiles('.txt,text/plain,.zip,application/zip', true); if (!fs || !fs.length) return; if (!(await noteFiles(fs))) miss(); };
+      var miss = function (why) { var e = $('polErr'); if (e) e.textContent = why || '증권번호(증서번호)가 적힌 보험사 알림을 찾지 못했습니다. 알림 글 전체를 복사했는지 확인해 주세요.'; };
+      // 고르는 파일 종류를 가리지 않는다: 드라이브에 저장한 카톡 내보내기는 확장자 없는 메일 모양 파일이라, 종류를 정해 두면 고르는 창에서 회색으로 막힌다
+      $('pnFile').onclick = async function () { var fs = await C.pickFiles('', true); if (!fs || !fs.length) return; if (!(await noteFiles(fs))) miss(P.why); };
       $('pnGo').onclick = async function () {
         var t = $('pnTx').value;
         if (!t.trim()) { try { t = (C.clip ? await C.clip() : '') || ''; } catch (e) { t = ''; } if (!t.trim()) { $('polErr').textContent = '복사해 둔 글이 없습니다 · 알림 글을 길게 눌러 복사한 뒤 다시 누르거나, 위 칸을 길게 눌러 붙여 넣어 주세요.'; return; } if ($('pnTx')) $('pnTx').value = t; }
@@ -7817,7 +7869,7 @@ var Policy = (function () {
     return { show: show, pick: pick, take: take, isNote: isNote, takeNote: takeNote, noteFiles: noteFiles, pickNote: pickNote, chip: chip, synced: synced, isSheetName: isSheetName, info: info, sum: sum, markName: markName };
   }
 
-  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
+  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
@@ -18919,6 +18971,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="14f35cb0e371";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="fa9b7d6c6e14";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
