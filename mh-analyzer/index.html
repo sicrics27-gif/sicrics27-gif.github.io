@@ -3192,6 +3192,31 @@ html.narrow .citem .r1 .pfl b::after{content:attr(data-s);font-size:11.5px}
 @media (max-width:900px){html:not(.split)[data-theme="light"] .sqw{background:linear-gradient(#1b1d21 70%,transparent)}}
 :root[data-theme="light"] .clist .cgrp{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 
+/* ===== 2026-11-17 폴드 펼친 화면(나란히 보기 700~900): 접었을 때처럼 아래 메뉴 줄 고정 · 목록 칸 넓게 (대표님 요청) ===== */
+html.split .tabbar{display:grid!important}
+html.split .snav{display:none!important}                 /* 아래 메뉴와 겹치는 왼쪽 바로가기(전화·싯플랜·지도·메뉴)는 뺌 */
+html.split .shell{grid-template-columns:clamp(300px,40vw,360px) minmax(0,1fr)!important}
+html.split .side{padding-bottom:calc(74px + env(safe-area-inset-bottom))!important}
+html.split .main{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
+html.split .toast{bottom:calc(84px + env(safe-area-inset-bottom))!important}
+html.split .tabbar button{flex-direction:row;gap:8px;height:48px;font-size:13px}
+html.split .citem .r1 .pk em{display:none}
+html.split .citem{padding-right:10px!important}
+html.split .topmenu{display:none!important}               /* 아래 메뉴 줄의 '메뉴'(맨 위에 검색 줄)로 감 — 본문 단추와 겹치지 않게 */
+/* 🤖 AI 전화 상대 준비: 두 단계 안내 */
+.aiset .aistep{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
+.aiset .aistep>i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:14px;background:var(--ocean2,#4f7dff);color:#fff}
+.aiset .aistep>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.aiset .aistep b{font-size:15px}
+.aiset .aistep small{font-size:12.5px;color:var(--mute);line-height:1.5}
+.aiset .aistep small b{font-size:inherit;color:var(--ink2)}
+.aiset .aistep .go,.aiset .aistep .btn{align-self:flex-start;height:44px;padding:0 16px}
+.aiset .aistep input{margin-top:2px}
+.aiset .aiadv{border:1px dashed var(--line);border-radius:12px;padding:8px 12px}
+.aiset .aiadv summary{cursor:pointer;font-size:12.5px;color:var(--mute)}
+.aiset .aiadv[open] summary{margin-bottom:6px}
+html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창을 좁혔을 때 😣 불편해 단추가 아래 메뉴 줄을 덮지 않게 */
+
 </style>
 </head>
 <body>
@@ -3224,7 +3249,7 @@ html.narrow .citem .r1 .pfl b::after{content:attr(data-s);font-size:11.5px}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -3293,6 +3318,27 @@ html.narrow .citem .r1 .pfl b::after{content:attr(data-s);font-size:11.5px}
   })();
   if (!on) return;
   document.documentElement.classList.add('is-native');
+  // ---------- 전체 화면 (2026-11-17 대표님: 폴드를 펼치면 아래에 태스크바·뒤로가기 단추가 떠서 화면을 덮음 → 게임처럼 숨김) ----------
+  // 앱 틀(Capacitor 8)에 들어 있는 SystemBars 기능을 화면 쪽에서 부른다 → 앱을 새로 설치하지 않아도 됨. 숨긴 줄은 화면 아래에서 위로 쓸면 잠깐 나온다.
+  // 정하지 않았으면: 펼친 폴드·태블릿(짧은 쪽 600 이상)만 숨기고, 보통 휴대폰 화면은 그대로 둔다. ⚙ 환경설정 → 전체 화면에서 바꿈(aob_full = 1 | 0)
+  (function () {
+    var SB = plug('SystemBars'), t = 0;
+    function pref() { try { var v = localStorage.getItem('aob_full'); return v === '1' ? true : v === '0' ? false : null; } catch (e) { return null; } }
+    function big() { return Math.min(screen.width || 0, screen.height || 0) >= 600; }
+    function want() { var p = pref(); return p == null ? big() : p; }
+    function apply() {
+      var w = want(); document.documentElement.classList.toggle('fs-on', !!(SB && w));
+      if (!SB) return;
+      try { var r = w ? SB.hide({ bar: 'NavigationBar' }) : SB.show({ bar: 'NavigationBar' }); if (r && r.catch) r.catch(function () { }); } catch (e) { }
+    }
+    function soon(ms) { clearTimeout(t); t = setTimeout(apply, ms || 250); }
+    root.Native.full = { can: !!SB, on: want, big: big, pref: pref, apply: apply, set: function (v) { try { if (v == null) localStorage.removeItem('aob_full'); else localStorage.setItem('aob_full', v ? '1' : '0'); } catch (e) { } apply(); } };
+    apply();
+    root.addEventListener('resize', function () { soon(300); });                                   // 접었다 펴면 다시 판단
+    root.addEventListener('focus', function () { soon(200); });
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') soon(200); });
+    document.addEventListener('focusout', function (e) { if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) soon(500); });   // 글자판이 내려간 뒤 다시 숨김
+  })();
   // 예전 앱(크롬 기반) 버전 확인 코드와 맞추기: 진짜 앱은 항상 '최신 기능 있음'
   try { sessionStorage.setItem('mhs_apk', sessionStorage.getItem('mhs_apk') || '999'); sessionStorage.setItem('mhs_native', '1'); } catch (e) { }
   if (N) N.info().then(function (r) { try { if (r && r.code) sessionStorage.setItem('mhs_apk', String(r.code)); } catch (e) { } }).catch(function () { });
@@ -13569,7 +13615,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (e) e.onclick = function(){ m.className = 'kmsg'; m.textContent = '넣은 키: ' + keyMask($(id).value.replace(/\s+/g, '')); };
     if (t) t.onclick = async function(){ t.disabled = true; m.className = 'kmsg'; m.textContent = '확인 중…'; try { var r = await test(); m.className = 'kmsg ok'; m.textContent = '✅ ' + (r || '정상 키입니다'); } catch(er){ m.className = 'kmsg bad'; m.textContent = '❌ ' + (er.message || er); } t.disabled = false; };
   }
+  // 복사해 온 글에서 열쇠만 골라냄 (앞뒤에 다른 글·줄바꿈이 같이 복사돼도)
+  function keyPick(prov, t){ t = String(t || ''); var m = prov === 'gemini' ? /(AIza[0-9A-Za-z_\-]{30,}|AQ\.[0-9A-Za-z_\-.]{20,})/.exec(t) : prov === 'anthropic' ? /(sk-ant-[0-9A-Za-z_\-]{20,})/.exec(t) : /(sk-[0-9A-Za-z_\-]{20,})/.exec(t); return m ? m[1] : t.replace(/\s+/g, ''); }
   function keyWrong(prov, k){
+    if (!k) return '열쇠를 먼저 붙여 넣어 주세요';   // 2026-11-17: 빈 칸인데 "AIza 로 시작합니다"라고만 나와 팀원이 뭘 해야 할지 몰랐음
     if (/^sk_/.test(k) && prov !== 'openai') return '이 키는 ElevenLabs(목소리) 키입니다 · 목소리 키는 ⚙ → 연결·권한 → AI 목소리 칸에 넣어 주세요';
     if (prov === 'gemini' && !/^(AIza|AQ\.)/.test(k)) return 'Gemini 키는 AIza 또는 AQ. 로 시작합니다 · 다시 복사해 주세요';
     if (prov === 'openai' && !/^sk-/.test(k)) return 'OpenAI 키는 sk- 로 시작합니다';
@@ -13590,17 +13639,36 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     throw new Error(msg);
   }
   function openAiSetup(back){
-    var a = BZ.ai || {};
-    openDlg('<h4>🤖 AI 통화 상대 설정</h4><div class="form plform"><p class="note">AI가 가상의 고객 역할을 맡아 <b>실제처럼 대답</b>합니다. 키는 이 기기에 암호화되어 저장되고, 고객 정보는 AI에 보내지 않습니다(가상 인물만 사용). 사용량만큼 해당 회사에 요금이 청구됩니다.</p>' +
-      '<p class="note">추천: <b>Google Gemini</b> — 무료 키 하나로 AI 통화 상대 + <b>사람 같은 목소리</b>(통화 연습) + 사진 일정 읽기까지 됩니다.</p><label class="l">AI 회사</label><select id="aiProv">' + Object.keys(AI_PROV).filter(function(k){ return ROLE.admin || k !== 'anthropic' || a.prov === k; }).map(function(k){ return '<option value="' + k + '"' + (a.prov === k ? ' selected' : '') + '>' + AI_PROV[k].t + '</option>'; }).join('') + '</select><div class="note" id="aiHow"></div>' +
-      '<label class="l">API 키</label><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" id="aiKey" type="text" class="pw" value="' + esc(a.key || '') + '" placeholder="발급받은 키 붙여넣기">' + keyTools('aiKey') +
-      '<label class="l">모델 이름 (비워 두면 기본값)</label><input id="aiModel" type="text" value="' + esc(a.model || '') + '" placeholder="' + esc(AI_PROV[a.prov || 'gemini'].model) + '"><div class="ferr" id="aiErr"></div></div>' +
-      '<div class="mrow"><button class="btn lg" type="button" id="aiX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="aiDel">키 지우기</button><button class="go" type="button" id="aiGo">' + (back ? '저장' : '저장하고 통화 시작') + '</button></div>');
-    var how = function(){ var p = AI_PROV[$('aiProv').value]; $('aiHow').textContent = '키 받는 곳: ' + p.how; $('aiModel').placeholder = p.model; }; $('aiProv').onchange = how; how();
+    // 2026-11-17 대표님: 팀원 화면에 'API 키' 칸만 덩그러니 나와 막힘 → 처음 쓰는 사람도 두 번 누르면 끝나게 (① 받는 곳 열기 ② 돌아오면 자동으로 붙음). 다른 AI 회사·모델 이름은 접어 둠
+    var a = BZ.ai || {}, has = !!a.key, URLS = { gemini: 'https://aistudio.google.com/apikey', openai: 'https://platform.openai.com/api-keys', anthropic: 'https://console.anthropic.com/settings/keys' };
+    openDlg('<h4>🤖 AI 전화 상대 준비</h4><div class="form plform aiset">' +
+      '<p class="note">' + (has ? '지금 넣어 둔 AI 열쇠입니다. 바꾸려면 새 열쇠를 붙여 넣고 저장하세요.' : '가상 고객 역할은 <b>구글 AI</b>가 맡습니다. 본인 구글 계정으로 <b>무료 열쇠</b>를 한 번만 받아 붙여 넣으면 됩니다 · 2분이면 끝나고 다음부터는 묻지 않습니다.') + '</p>' +
+      '<div class="aistep"><i>1</i><div><b>무료 열쇠 받기</b><small>구글 로그인 → 약관 동의 → 열쇠 줄 오른쪽의 <b>복사</b> 단추. 열쇠가 안 보이면 <b>API 키 만들기(Create API key)</b>를 먼저 누릅니다.</small><button type="button" class="' + (has ? 'btn lg' : 'go') + '" id="aiOpen">🔑 열쇠 받는 곳 열기</button></div></div>' +
+      '<div class="aistep"><i>2</i><div><b>붙여넣기</b><small>복사한 뒤 이 화면으로 돌아오면 자동으로 들어옵니다. 안 들어오면 아래 단추를 누르세요.</small><button type="button" class="btn lg" id="aiPaste">📋 복사한 열쇠 붙여넣기</button>' +
+      '<input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" id="aiKey" type="text" class="pw" value="' + esc(a.key || '') + '" placeholder="열쇠가 여기에 들어옵니다" aria-label="AI 열쇠(API 키)">' + keyTools('aiKey') + '</div></div>' +
+      '<p class="note">열쇠는 이 기기에만 암호화해 저장합니다 · 가상 인물만 쓰고 고객 정보는 AI에 보내지 않습니다 · 구글에 결제 수단을 등록하지 않으면 요금이 나오지 않습니다.</p>' +
+      '<details class="aiadv"' + ((a.prov && a.prov !== 'gemini') || a.model ? ' open' : '') + '><summary>다른 AI 회사 · 모델 이름 (보통은 안 건드립니다)</summary><label class="l">AI 회사</label><select id="aiProv">' + Object.keys(AI_PROV).filter(function(k){ return ROLE.admin || k !== 'anthropic' || a.prov === k; }).map(function(k){ return '<option value="' + k + '"' + ((a.prov || 'gemini') === k ? ' selected' : '') + '>' + AI_PROV[k].t + '</option>'; }).join('') + '</select><div class="note" id="aiHow"></div>' +
+      '<label class="l">모델 이름 (비워 두면 기본값)</label><input id="aiModel" type="text" value="' + esc(a.model || '') + '" placeholder="' + esc(AI_PROV[a.prov || 'gemini'].model) + '"></details><div class="ferr" id="aiErr"></div></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="aiX" style="margin-right:auto">닫기</button>' + (has ? '<button class="btn lg" type="button" id="aiDel">열쇠 지우기</button>' : '') + '<button class="go" type="button" id="aiGo">' + (back ? '저장' : '저장하고 통화 시작') + '</button></div>');
+    var prov = function(){ return $('aiProv').value; }, msg = function(cls, t){ var m = $('aiKeyMsg'); if (m) { m.className = 'kmsg' + (cls ? ' ' + cls : ''); m.textContent = t; } };
+    var how = function(){ var p = AI_PROV[prov()]; $('aiHow').textContent = '키 받는 곳: ' + p.how; $('aiModel').placeholder = p.model; }; $('aiProv').onchange = how; how();
     $('aiX').onclick = closeDlg;
-    $('aiDel').onclick = async function(){ BZ.ai = {}; await hidSave('__ai', '__ai', BZ.ai); closeDlg(); toast('AI 키를 지웠습니다'); if (S.view === 'call') showCall(); };
-    keyToolsBind('aiKey', function(){ return aiKeyTest($('aiProv').value, $('aiKey').value.replace(/\s+/g, '')); });
-    $('aiGo').onclick = async function(){ var k = $('aiKey').value.replace(/\s+/g, ''); if (!k) { $('aiErr').textContent = 'API 키를 넣어 주세요'; return; } var wk = keyWrong($('aiProv').value, k); if (wk) { $('aiErr').textContent = wk; return; } BZ.ai = { prov: $('aiProv').value, key: k, model: $('aiModel').value.trim() }; await hidSave('__ai', '__ai', BZ.ai); closeDlg(); VO.cache = {}; VO.gm = ''; VO.warned = false; if (back === 'plan') openPlanPhoto(); else if (back === 'conn') openConnCenter(); else if (back) showCall(); else callAi(); };
+    if ($('aiDel')) $('aiDel').onclick = async function(){ BZ.ai = {}; await hidSave('__ai', '__ai', BZ.ai); closeDlg(); toast('AI 열쇠를 지웠습니다'); if (S.view === 'call') showCall(); };
+    keyToolsBind('aiKey', function(){ return aiKeyTest(prov(), $('aiKey').value.replace(/\s+/g, '')); });
+    var check = async function(){ msg('', '확인 중…'); try { await aiKeyTest(prov(), $('aiKey').value.replace(/\s+/g, '')); msg('ok', '✅ 정상 열쇠입니다 · 아래 [' + $('aiGo').textContent + ']을 누르세요'); try { $('aiGo').focus(); } catch(e){} } catch(er){ if ($('aiKeyMsg')) msg('bad', '❌ ' + (er.message || er)); } };
+    // 복사해 둔 글 읽기: auto = 받는 곳에 다녀온 뒤 자동으로(열쇠 모양일 때만 넣고, 아니면 조용히 넘어감)
+    var went = false, clip = async function(auto){
+      var t = ''; try { t = (window.Native && Native.on) ? ((await natCall('clipRead')) || {}).text || '' : await navigator.clipboard.readText(); } catch(e){ if (!auto) msg('bad', '붙여넣기가 막혀 있습니다 · 아래 칸을 길게 눌러 [붙여넣기]를 고르세요'); return; }
+      if (!$('aiKey')) return; var k = keyPick(prov(), t);
+      if (keyWrong(prov(), k)) { if (!auto) msg('bad', '❌ 복사된 글이 열쇠가 아닙니다 · 열쇠 줄의 복사 단추를 다시 눌러 주세요'); return; }
+      if (auto && $('aiKey').value) return; $('aiKey').value = k; check();
+    };
+    $('aiOpen').onclick = function(){ went = true; msg('', '열쇠를 복사한 뒤 이 화면으로 돌아오세요'); openExt(URLS[prov()] || URLS.gemini); };
+    $('aiPaste').onclick = function(){ clip(false); };
+    $('aiKey').addEventListener('paste', function(){ setTimeout(function(){ if (!$('aiKey')) return; $('aiKey').value = keyPick(prov(), $('aiKey').value); if ($('aiKey').value) check(); }, 30); });
+    var onVis = function(){ if (!$('aiKey')) { document.removeEventListener('visibilitychange', onVis); window.removeEventListener('focus', onVis); return; } if (document.visibilityState === 'visible' && went && !$('aiKey').value) setTimeout(function(){ clip(true); }, 500); };
+    document.addEventListener('visibilitychange', onVis); window.addEventListener('focus', onVis);
+    $('aiGo').onclick = async function(){ var k = keyPick(prov(), $('aiKey').value), wk = keyWrong(prov(), k); if (wk) { $('aiErr').textContent = wk; return; } BZ.ai = { prov: prov(), key: k, model: $('aiModel').value.trim() }; await hidSave('__ai', '__ai', BZ.ai); closeDlg(); VO.cache = {}; VO.gm = ''; VO.warned = false; if (back === 'plan') openPlanPhoto(); else if (back === 'conn') openConnCenter(); else if (back) showCall(); else callLivePhone(); };
   }
   // '생각 끄기' 설정은 모델마다 받는 형식이 다름 (2.x: thinkingBudget 0 · 3.x: thinkingLevel) → 안 받으면(400) 다음 형식, 끝내 안 되면 설정 없이
   var THK = {};
@@ -13653,7 +13721,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   var VOICE_POOL = { fy: ['Leda', 'Aoede', 'Zephyr', 'Kore'], fo: ['Kore', 'Gacrux', 'Sulafat', 'Vindemiatrix'], my: ['Puck', 'Fenrir', 'Achird', 'Orus'], mo: ['Charon', 'Orus', 'Algenib', 'Alnilam'] };   // 나이대에 맞는 목소리 (실제 서버에서 30개 모두 되는 것 확인)
   function liveBusy(){ var n = performance.now(); return (LIVE.turnOpen && n < LIVE.turnAt + LIVE.turnSec * 1000 + 2500) || n < LIVE.aiEnd; }   // 지금 상대 소리가 나오는 중인가
   async function callLivePhone(){
-    var tok; try { tok = await liveAuth(); } catch(e){ toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); slowCall(); return; } // 실시간 열쇠가 없으면 예전 방식으로
+    var tok; try { tok = await liveAuth(); } catch(e){
+      var a0 = await aiLoad(); if (!a0.key) { openAiSetup(); return; }   // 2026-11-17: 열쇠가 아직 없는 사람(팀원 첫 사용)은 경고 글 없이 바로 준비 창으로
+      toast('⚠ 실시간 통화 연결이 안 돼 느린 방식으로 겁니다 · ' + (e.message || e), 6000); slowCall(); return; } // 실시간 열쇠가 없으면 예전 방식으로
     var V = voiceCfg(), P = callPersona({ dia: V.dia }), nm = P.nm, female = P.fem, duplex = !V.cut, hist = [], ended = false, muted = false, uBuf = '', aBuf = '', tps = [], tpNow = '';   // duplex: 서로 겹쳐 말하기(기본)
     var sys = callSys(P, meLine(), { live: 1 });
     var tip = function(){ return duplex ? '🎙 그냥 말씀하세요 · 상대가 말하는 중에 말해도 다 듣습니다' : '🎙 그냥 말씀하세요 · 상대 말 중간에 끊어도 됩니다'; };
@@ -15183,6 +15253,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var b = e.target.closest('[data-pick]'); if (b && !b.disabled) piConfirm(b.dataset.pick, +b.dataset.pv, b);
   });
   setTimeout(function(){ try { if (ROLE.admin) nhcLoad().then(function(cfg){ if (cfg && cfg.token) piRelay(cfg).catch(function(){}); }); } catch(e){} }, 45000);
+  // 🔲 전체 화면 (2026-11-17 · native.js `Native.full`): 휴대폰 앱에서 아래 시스템 단추·태스크바 숨기기. 펼친 폴드·태블릿은 기본으로 켜짐. 앱이 아니면(크롬·PC) 단추 자체가 안 보임
+  function fullOn(){ try { return !!(window.Native && Native.full && Native.full.can && Native.full.on()); } catch(e){ return false; } }
+  (function(){ var b = $('fullBtn'); if (!b) return; b.hidden = !(window.Native && Native.full && Native.full.can);
+    b.onclick = function(){ var on = !fullOn(); Native.full.set(on); toast(on ? '전체 화면으로 봅니다 · 뒤로가기·홈 단추는 화면 아래에서 위로 쓸면 잠깐 나옵니다' : '아래 시스템 단추를 다시 보이게 했습니다'); }; })();
   // 메뉴·환경설정 항목 목록 — ☰ 메뉴 · ⚙ 환경설정 · PC 왼쪽 메뉴 · 🔍 통합 검색이 모두 이 목록 하나를 씀 (2026-11-17 · 목록을 두 군데 두면 한쪽만 고쳐져서)
   function sheetDefs(){
     var MENU = [
@@ -15192,7 +15266,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     ];
     var SET = [
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
-      ['🖥 화면 · 앱', [['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
+      ['🖥 화면 · 앱', [['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#fullBtn', '🔲', '전체 화면 ' + (fullOn() ? '끄기' : '켜기'), fullOn() ? '지금: 아래 시스템 단추·태스크바 숨김 (아래에서 위로 쓸면 잠깐 나옴)' : '아래 시스템 단추·태스크바를 숨겨 화면을 넓게'], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
       ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
     ];
     if (IS_MOBILE) SET[1][1] = SET[1][1].filter(function(x){ return x[0] !== '#keysBtn'; });
@@ -15224,7 +15298,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
   var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
-    '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
+    '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
@@ -18251,6 +18325,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="a445dcb178dd";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="7db46a1937b3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
