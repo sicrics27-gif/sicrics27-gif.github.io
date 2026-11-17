@@ -3260,6 +3260,11 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
 .couse>*,.coag>*{flex:none}
 .cu-set .go{align-self:flex-start}
 
+/* ===== 📇 보험사 연락처: 담당자 줄 '카톡' 단추 (2026-11-17 대표님 요청) — 카톡 노랑으로 문자 단추와 구분 ===== */
+.cdc .cda .pb.kk{background:#FEE500;border-color:#FEE500;color:#191600}
+#cdkTx{min-height:150px}
+#cdkGo.go.kakao{background:#FEE500;color:#191600;box-shadow:none}
+
 </style>
 </head>
 <body>
@@ -14614,6 +14619,29 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('cuGo').onclick = async function(){ CD.d.cos = r.cos; CD.d.at = r.at; CD.d.date = r.date || todayStr(); CD.d.raw = tx; await cdSave(); closeDlg(); toast('연락처를 ' + (CD.d.date) + ' 기준으로 바꿨습니다'); showCoDir(); cdShareNew(); };
   }
   function cdTel(p){ return String(p).replace(/[^\d+]/g, ''); }
+  // 담당자 한 사람을 글로 (2026-11-17 대표님 요청): 복사하면 "미래에셋 김영주 야간매니저" + 다음 줄에 번호 — 카톡·문자에 그대로 붙여 넣기 좋게
+  function cdWho(x){ return (x.co + ' ' + (x.nm || '') + ' ' + x.role).replace(/\s+/g, ' ').trim(); }
+  function cdPhTxt(p){ var d = cdTel(p); return /^01\d{8,9}$/.test(d) ? d.replace(/^(01\d)(\d{3,4})(\d{4})$/, '$1-$2-$3') : String(p).trim(); }
+  function cdCardTxt(x){ return cdWho(x) + '\n' + cdPhTxt(x.ph); }
+  // 💬 담당자에게 카톡 (2026-11-17 대표님 요청 "문자처럼 카톡도"): 카톡은 문자와 달리 전화번호로 그 사람 대화방을 바로 여는 길을 카카오가 열어 두지 않았다
+  //   → 보낼 말을 여기서 적고 카톡의 '받는 사람 고르기'로 넘긴다(받는 사람은 카톡에서 한 번 고름). 말을 비워 두면 카톡만 연다. 대신 눌러 보내는 자동화는 하지 않는다(약관).
+  function cdKakao(x){
+    var who = cdWho(x), nm = x.nm || x.role, nat = !!(window.Native && Native.on && Native.aob), can = nat || (IS_MOBILE && !!navigator.share);
+    openDlg('<h4>' + IC.chat + ' ' + esc(who) + '님께 카톡</h4>' +
+      '<textarea id="cdkTx" class="ktxt msgtxt" spellcheck="false" placeholder="보낼 말을 적으세요' + (nat ? ' (비워 두면 카톡만 엽니다)' : '') + '"></textarea>' +
+      '<div class="note" id="cdkNote">' + (can ? '카톡이 열리면 받는 사람에서 <b>' + esc(nm) + '</b>님을 골라 보내세요. 카톡 친구 목록에 안 보이면 먼저 [👤 저장]으로 휴대폰 연락처에 넣어 주세요.' : '[복사]한 뒤 카카오톡에서 <b>' + esc(nm) + '</b>님 대화방을 열고 붙여 넣으세요.') + '</div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="cdkX" style="margin-right:auto">닫기</button>' + (can ? '<button class="go kakao" type="button" id="cdkGo">' + IC.chat + '카톡으로 보내기</button>' : '<button class="go" type="button" id="cdkCopy">복사</button>') + '</div>', 'wide kbox');
+    $('cdkX').onclick = closeDlg;
+    if ($('cdkCopy')) $('cdkCopy').onclick = function(){ var t = $('cdkTx').value.trim(); if (!t) { $('cdkNote').textContent = '보낼 말을 먼저 적어 주세요'; $('cdkTx').focus(); return; } copyText(t, '메시지'); };
+    if ($('cdkGo')) $('cdkGo').onclick = async function(){
+      var t = $('cdkTx').value.trim();
+      if (!t) {   // 보낼 말이 없으면 카톡만 엶 (앱에서만 — 웹은 먼저 적게 함)
+        if (nat) { try { await natCall('openApp', { pkg: 'com.kakao.talk' }); closeDlg(); toast('카톡에서 ' + nm + '님을 찾아 대화를 여세요'); } catch(e){ toast('카톡을 열지 못했습니다'); } }
+        else { $('cdkNote').textContent = '보낼 말을 먼저 적어 주세요'; $('cdkTx').focus(); }
+        return; }
+      closeDlg(); await cdShare(t, who + '님께 보낼 글');
+    };
+  }
   function vcfOf(list){ return list.map(function(x){ var fn = x.co + ' ' + (x.nm || '') + ' ' + x.role; return ['BEGIN:VCARD', 'VERSION:3.0', 'N:' + (x.nm || x.role) + ';' + x.co + ';;;', 'FN:' + fn.replace(/\s+/g, ' ').trim(), 'ORG:' + x.co + ' (AFG 제휴)', 'TITLE:' + x.role, 'TEL;TYPE=CELL:' + x.ph, x.note ? 'NOTE:' + x.note : '', 'END:VCARD'].filter(Boolean).join('\r\n'); }).join('\r\n'); }
   async function cdAddContact(list){
     if (!list.length) return;
@@ -14638,7 +14666,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var tb = function(p, lab){ var t = cdTel(p); return '<span class="cdn"><b>' + esc(p) + '</b>' + (IS_DESKTOP ? '' : '<a class="pb" href="tel:' + t + '">📞</a>') + '<button type="button" class="pb" data-cdcp="' + esc(p) + '">복사</button></span>'; };
     return '<details class="cdc" data-cdco="' + esc(c.key) + '"' + (open ? ' open' : '') + '><summary><span class="tag ' + (c.k === '생명' ? 'b' : '') + '">' + c.k + '</span><b>' + esc(c.n) + '</b><small>' + c.people.length + '명' + (c.links.length ? ' · 모니터링' : '') + '</small></summary><div class="cdb">' +
       c.people.map(function(p, i){ return '<div class="cdp"><span class="cdw"><b>' + esc(p.nm || p.role) + '</b><small>' + esc(p.nm ? p.role : '') + (p.note ? ' · ' + esc(p.note) : '') + '</small></span><span class="cdph">' + esc(p.ph) + '</span><span class="cda">' +
-        (IS_DESKTOP ? '' : '<a class="pb" href="tel:' + cdTel(p.ph) + '">📞 전화</a><a class="pb" href="sms:' + cdTel(p.ph) + '">💬 문자</a>') + '<button type="button" class="pb" data-cdadd="' + esc(c.key) + '|' + i + '">👤 저장</button><button type="button" class="pb" data-cdcp="' + esc(p.ph) + '">복사</button></span></div>'; }).join('') +
+        (IS_DESKTOP ? '' : '<a class="pb" href="tel:' + cdTel(p.ph) + '">📞 전화</a><a class="pb" href="sms:' + cdTel(p.ph) + '">💬 문자</a><button type="button" class="pb kk" data-cdkk="' + esc(c.key) + '|' + i + '">카톡</button>') + '<button type="button" class="pb" data-cdadd="' + esc(c.key) + '|' + i + '">👤 저장</button><button type="button" class="pb" data-cdcard="' + esc(c.key) + '|' + i + '" title="보험사 · 이름 · 직함 + 번호를 복사">복사</button></span></div>'; }).join('') +   // 복사 = "미래에셋 김영주 야간매니저" + 다음 줄에 번호 (2026-11-17)
       (c.svc.length ? '<div class="cds">' + c.svc.map(function(s){ return '<div class="cdsv"><span class="cdl">' + esc(s.l) + '</span><span class="cdv">' + s.phs.map(function(p){ return tb(p); }).join('') + (s.mails || []).map(function(m){ return '<span class="cdn"><b>' + esc(m) + '</b><button type="button" class="pb" data-cdcp="' + esc(m) + '">복사</button></span>'; }).join('') + '</span></div>'; }).join('') + '</div>' : '') +
       c.links.map(function(l, i){ return '<div class="cdlk"><span class="cdl">🔗 ' + esc(l.l) + '</span><span class="cda"><button type="button" class="pb" data-cdopen="' + esc(l.u) + '">열기</button><button type="button" class="pb gold" data-cdlink="' + esc(c.key) + '|' + i + '">💬 고객에게 카톡</button><button type="button" class="pb" data-cdcp="' + esc(l.u) + '">복사</button></span></div>'; }).join('') +
       (c.notes.length ? '<details class="cdnote"><summary>안내 ' + c.notes.length + '줄</summary><p>' + c.notes.map(esc).join('<br>') + '</p></details>' : '') +
@@ -14668,7 +14696,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (CD.open) { var el = $('main').querySelector('[data-cdco="' + CD.open + '"]'); if (el) setTimeout(function(){ el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 60); CD.open = ''; }
   }
   document.addEventListener('click', async function(e){
-    var t = e.target.closest && e.target.closest('[data-cdupd],[data-cdk],[data-cdimp],[data-cdclip],[data-cdcp],[data-cdadd],[data-cdaddco],[data-cdall],[data-cdopen],[data-cdlink],[data-cdteam],[data-codir],#coDirBtn,[data-dssms]'); if (!t) return;
+    var t = e.target.closest && e.target.closest('[data-cdupd],[data-cdk],[data-cdimp],[data-cdclip],[data-cdcp],[data-cdcard],[data-cdkk],[data-cdadd],[data-cdaddco],[data-cdall],[data-cdopen],[data-cdlink],[data-cdteam],[data-codir],#coDirBtn,[data-dssms]'); if (!t) return;
     if (t.id === 'coDirBtn') { showCoDir(); return; }
     if (t.dataset.cdupd) { teamUpdGuide(); return; }
     if (t.dataset.codir != null) { e.preventDefault(); e.stopPropagation(); await cdLoad(); if (!CD.d.cos.length) { showCoDir(); return; } showCoDir(t.dataset.codir); return; }
@@ -14680,6 +14708,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (t.dataset.cdcp) { copyText(t.dataset.cdcp, '번호'); return; }
     if (t.dataset.cdopen) { openExt(t.dataset.cdopen); return; }
     var fc = function(k){ return CD.d.cos.find(function(c){ return c.key === k; }); };
+    var who1 = function(v){ var a0 = String(v).split('|'), c0 = fc(a0[0]); return c0 ? cdPeopleOf(c0)[+a0[1]] : null; };
+    if (t.dataset.cdcard) { var x1 = who1(t.dataset.cdcard); if (x1) copyText(cdCardTxt(x1), '연락처'); return; }
+    if (t.dataset.cdkk) { var x2 = who1(t.dataset.cdkk); if (x2) cdKakao(x2); return; }
     if (t.dataset.cdadd) { var a = t.dataset.cdadd.split('|'), c = fc(a[0]); if (c) cdAddContact([cdPeopleOf(c)[+a[1]]]); return; }
     if (t.dataset.cdaddco) { var c2 = fc(t.dataset.cdaddco); if (c2) cdAddContact(cdPeopleOf(c2)); return; }
     if (t.dataset.cdall) { var all = []; CD.d.cos.forEach(function(c){ all = all.concat(cdPeopleOf(c)); }); cdAddContact(all); return; }
@@ -18566,6 +18597,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="e7f4e79e1406";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="29e1f5e8c70b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
