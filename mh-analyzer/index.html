@@ -12861,16 +12861,73 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       '- 주민번호·전화번호·계좌번호·상세 주소는 결과에 절대 쓰지 마세요.\n- 요일만 있으면(예: 월·화 오후 2시) 오늘 이후 가장 가까운 날짜로.';
   }
   // 받아쓰기 키: 고객 정보용 키가 OpenAI면 그 키, Claude면 따로 넣은 받아쓰기용 OpenAI 키(aip.stt · 통화 자동 정리 설정에서 넣음)
-  function sttKey(){ var a = BZ.aip || {}; return a.stt || (a.prov === 'openai' ? a.key : '') || ''; }
-  async function consTranscribe(file){
-    var key = sttKey(); if (!key) return '';
+  // 2026-11-18 대표님 "제일 인식률 좋은 데로": 한국어 전화 녹음은 리턴제로(국내 · 상담·저음질 전화망 시험에서 가장 낮은 오류)를 먼저 쓰고, 없으면 OpenAI 상위 받아쓰기 모델
+  function rzOK(){ var z = (BZ.aip || {}).rz; return !!(z && z.id && z.sec); }
+  function oaSttKey(){ var a = BZ.aip || {}; return a.stt || (a.prov === 'openai' ? a.key : '') || ''; }
+  function sttKey(){ return rzOK() ? 'rtzr' : oaSttKey(); }
+  function sttName(){ return rzOK() ? '리턴제로' : oaSttKey() ? 'OpenAI' : ''; }
+  // 앱 안에서는 앱 틀의 HTTP(CapacitorHttp)로 부른다 — 리턴제로는 화면(브라우저)에서 바로 부르는 것을 막을 수 있어서
+  function nHttp(){ var C = window.Capacitor, P = C && C.isNativePlatform && C.isNativePlatform() && C.Plugins && C.Plugins.CapacitorHttp; return P && P.request ? P : null; }
+  function b64OfFile(file){ return new Promise(function(ok, no){ var fr = new FileReader(); fr.onload = function(){ ok(String(fr.result).split(',')[1] || ''); }; fr.onerror = function(){ no(new Error('녹음 파일을 읽지 못했습니다')); }; fr.readAsDataURL(file); }); }
+  async function rzReq(o){   // o: {url, method, headers, form(객체·urlencoded) | multi([{key,value,type,fileName,contentType}])}
+    var H = nHttp(), r, j;
+    if (H) {
+      var hd = Object.assign({}, o.headers || {}), q = { url: o.url, method: o.method || 'GET', headers: hd, responseType: 'json' };
+      if (o.form) { hd['Content-Type'] = 'application/x-www-form-urlencoded'; q.data = o.form; }
+      if (o.multi) { hd['Content-Type'] = 'multipart/form-data'; q.data = o.multi; q.dataType = 'formData'; }
+      r = await H.request(q); j = r.data; if (typeof j === 'string') { try { j = JSON.parse(j); } catch(e){ j = {}; } }
+      return { status: r.status, j: j || {} };
+    }
+    var init = { method: o.method || 'GET', headers: Object.assign({}, o.headers || {}) };
+    if (o.form) { init.headers['Content-Type'] = 'application/x-www-form-urlencoded'; init.body = new URLSearchParams(o.form).toString(); }
+    if (o.multi) { var fd = new FormData(); o.multi.forEach(function(p){ if (p.type === 'base64File') { var bin = atob(p.value), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); fd.append(p.key, new Blob([u], { type: p.contentType }), p.fileName); } else fd.append(p.key, p.value); }); init.body = fd; }
+    r = await fetch(o.url, init); try { j = await r.json(); } catch(e){ j = {}; }
+    return { status: r.status, j: j };
+  }
+  var RZ_API = 'https://openapi.vito.ai/v1/';
+  async function rzToken(force){
+    var z = BZ.aip.rz, now = Date.now() / 1000;
+    if (!force && BZ._rzTok && BZ._rzTok.exp - now > 1800) return BZ._rzTok.t;
+    var r = await rzReq({ url: RZ_API + 'authenticate', method: 'POST', form: { client_id: z.id, client_secret: z.sec } });
+    if (r.status !== 200 || !r.j.access_token) { var er = new Error(r.status === 401 || r.status === 400 ? '리턴제로 키가 맞지 않습니다 (Client ID·Secret 확인)' : '리턴제로 연결 실패 (' + r.status + ')'); er.status = r.status === 400 ? 401 : r.status; throw er; }
+    BZ._rzTok = { t: r.j.access_token, exp: r.j.expire_at || now + 3600 }; return BZ._rzTok.t;
+  }
+  async function rzTranscribe(file){
+    var tok = await rzToken(), b64 = await b64OfFile(file);
+    var cfg = { model_name: 'sommers', language: 'ko', domain: 'CALL', use_diarization: true, diarization: { spk_count: 2 }, use_itn: true, use_disfluency_filter: true, use_profanity_filter: false, use_paragraph_splitter: false };
+    var send = function(t){ return rzReq({ url: RZ_API + 'transcribe', method: 'POST', headers: { Authorization: 'Bearer ' + t }, multi: [{ key: 'config', value: JSON.stringify(cfg), type: 'string' }, { key: 'file', value: b64, type: 'base64File', fileName: file.name || 'call.m4a', contentType: file.type || 'audio/mp4' }] }); };
+    var r = await send(tok); if (r.status === 401) r = await send(await rzToken(true));
+    if (r.status !== 200 || !r.j.id) { var er = new Error((r.j && (r.j.msg || r.j.message || (r.j.error && r.j.error.message))) || '리턴제로 받아쓰기 요청 실패 (' + r.status + ')'); er.status = r.status === 429 || r.status === 403 ? 429 : r.status; throw er; }
+    var id = r.j.id, t0 = Date.now();
+    while (Date.now() - t0 < 15 * 60 * 1000) {   // 보통 몇 십 초 · 붐비면 길어질 수 있어 15분까지 기다림
+      await new Promise(function(ok){ setTimeout(ok, 5000); });
+      var g = await rzReq({ url: RZ_API + 'transcribe/' + encodeURIComponent(id), headers: { Authorization: 'Bearer ' + BZ._rzTok.t } });
+      if (g.status === 401) { await rzToken(true); continue; }
+      var s = g.j && g.j.status;
+      if (s === 'completed') {
+        var us = (g.j.results && g.j.results.utterances) || [], sp = {}, n = 0;
+        return us.map(function(u){ if (!(u.spk in sp)) sp[u.spk] = ++n; return '화자' + sp[u.spk] + ': ' + String(u.msg || '').trim(); }).filter(function(x){ return !/:\s*$/.test(x); }).join('\n');
+      }
+      if (s === 'failed') throw new Error('리턴제로 받아쓰기 실패' + (g.j.error && g.j.error.message ? ' — ' + g.j.error.message : ''));
+    }
+    throw new Error('리턴제로 받아쓰기가 15분 넘게 걸려 다음에 다시 합니다');
+  }
+  async function oaTranscribe(file){
+    var key = oaSttKey(); if (!key) return '';
     var go = async function(model){
       var fd = new FormData(); fd.append('file', file, file.name || 'rec.m4a'); fd.append('model', model); fd.append('language', 'ko');
       var r = await fetch('https://api.openai.com/v1/audio/transcriptions', { method: 'POST', headers: { Authorization: 'Bearer ' + key }, body: fd }), j = await r.json();
       if (!r.ok) { var er = new Error((j.error && j.error.message) || '녹음 받아쓰기 실패'); er.status = r.status; throw er; } return j.text || '';
     };
-    try { return await go('gpt-4o-mini-transcribe'); }
+    try { return await go('gpt-4o-transcribe'); }   // 2026-11-18: 정확도 우선 — mini 대신 상위 모델
     catch(e){ if (e.status === 401 || e.status === 429) throw e; return await go('whisper-1'); }   // 긴 녹음은 새 모델이 거절할 수 있어 예전 모델로 한 번 더 (키 오류·한도 초과는 그대로 알림)
+  }
+  async function consTranscribe(file){
+    if (rzOK()) {
+      try { return await rzTranscribe(file); }
+      catch(e){ if (!oaSttKey() || e.status === 401) throw e; return await oaTranscribe(file); }   // 리턴제로가 막히면(키 오류 말고) OpenAI 키가 있을 때만 그쪽으로
+    }
+    return oaTranscribe(file);
   }
   function consScrub(s){ return String(s || '').replace(/\d{6}\s*-\s*[1-8]\d{0,6}\**/g, '[주민번호]').replace(/01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/g, '[전화]').replace(/\d{2,6}[-\s]\d{2,6}[-\s]\d{2,8}/g, function(m){ return m.replace(/\d/g, '*'); }); }
   function consCard(k, full){
@@ -13261,12 +13318,26 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   setTimeout(crScan, 12000);
   // 받아쓰기용 OpenAI 키 (고객 정보용 키가 Claude일 때만 따로 필요)
   function openSttKey(after){
-    openDlg('<h4>🎙 받아쓰기용 OpenAI 키</h4><div class="form plform"><p class="note">통화 녹음을 글로 바꾸는 데만 씁니다. Claude는 소리를 읽지 못해서 <b>OpenAI 키</b>가 따로 필요합니다 (쓴 만큼만 요금이 나갑니다).</p>' +
+    var z = (BZ.aip && BZ.aip.rz) || {};
+    openDlg('<h4>🎙 받아쓰기 키</h4><div class="form plform">' +
+      '<div class="sgbox"><b>리턴제로 (추천 · 한국어 전화 녹음 인식이 가장 좋음)</b><p class="note">가입하면 10시간 무료, 그다음 1시간에 1,000원(부가세 별도). 콘솔 → 내 애플리케이션에서 받은 <b>Client ID</b>와 <b>Client Secret</b>을 넣어 주세요.</p>' +
+      '<label class="l">Client ID</label><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" id="rzId" type="text" value="' + esc(z.id || '') + '" placeholder="Client ID 붙여넣기">' +
+      '<label class="l">Client Secret</label><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" id="rzSec" type="text" class="pw" value="' + esc(z.sec || '') + '" placeholder="Client Secret 붙여넣기">' +
+      '<div class="ferr" id="rzErr"></div><button type="button" class="go" id="rzGo" style="margin-top:8px">리턴제로로 저장</button></div>' +
+      '<details class="memo" style="margin-top:10px"><summary>OpenAI 키로 하기 <small class="note">(리턴제로가 없을 때)</small></summary>' +
+      '<p class="note">Claude는 소리를 읽지 못해서 받아쓰기에는 <b>OpenAI 키</b>가 따로 필요합니다 (쓴 만큼만 요금이 나갑니다).</p>' +
       '<label class="l">API 키</label><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" id="skKey" type="text" class="pw" value="' + esc((BZ.aip && BZ.aip.stt) || '') + '" placeholder="sk- 로 시작하는 키 붙여넣기">' + keyTools('skKey') +
-      '<div class="safe">' + IC.lock + '<span>키는 이 기기에 암호화되어 저장되고, 회사 저장소·다른 곳에는 올라가지 않습니다.</span></div><div class="ferr" id="skErr"></div></div>' +
-      '<div class="mrow"><button class="btn lg" type="button" id="skX" style="margin-right:auto">닫기</button><button class="go" type="button" id="skGo">저장</button></div>');
+      '<div class="ferr" id="skErr"></div><button class="btn" type="button" id="skGo" style="margin-top:6px">OpenAI 키 저장</button></details>' +
+      '<div class="safe">' + IC.lock + '<span>키는 이 기기에 암호화되어 저장되고, 회사 저장소·다른 곳에는 올라가지 않습니다. 녹음은 이 기기에서 고른 받아쓰기 회사로만 바로 갑니다.</span></div></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="skX" style="margin-right:auto">닫기</button></div>');
     keyToolsBind('skKey', function(){ return aiKeyTest('openai', $('skKey').value.replace(/\s+/g, '')); });
     $('skX').onclick = function(){ closeDlg(); if (after) after(); };
+    $('rzGo').onclick = async function(){
+      var id = $('rzId').value.replace(/\s+/g, ''), sec = $('rzSec').value.replace(/\s+/g, '');
+      if (!id || !sec) { $('rzErr').textContent = 'Client ID와 Client Secret을 둘 다 넣어 주세요'; return; }
+      var b = this; b.disabled = true; b.textContent = '확인 중…'; BZ.aip = BZ.aip || {}; var old = BZ.aip.rz; BZ.aip.rz = { id: id, sec: sec }; BZ._rzTok = null;
+      try { await rzToken(true); } catch(e){ BZ.aip.rz = old; b.disabled = false; b.textContent = '리턴제로로 저장'; $('rzErr').textContent = e.message || String(e); return; }
+      await hidSave('__aip', '__aip', BZ.aip); closeDlg(); toast('리턴제로 받아쓰기 키를 저장했습니다 ✅'); if (after) after(); };
     $('skGo').onclick = async function(){ var k = $('skKey').value.replace(/\s+/g, ''), w = k ? keyWrong('openai', k) : 'API 키를 넣어 주세요'; if (w) { $('skErr').textContent = w; return; }
       var b = this; b.disabled = true; b.textContent = '확인 중…'; try { await aiKeyTest('openai', k); } catch(e){ b.disabled = false; b.textContent = '저장'; $('skErr').textContent = e.message || String(e); return; }
       BZ.aip = BZ.aip || {}; BZ.aip.stt = k; await hidSave('__aip', '__aip', BZ.aip); closeDlg(); toast('받아쓰기 키를 저장했습니다 ✅'); if (after) after(); };
@@ -13283,14 +13354,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var head = !crNative() ? '<div class="fwarn">통화 자동 정리는 <b>휴대폰 AOB9 앱</b>에서만 됩니다.</div>'
       : !sup ? '<div class="fwarn">이 기능은 <b>새 AOB9 앱</b>을 설치해야 켤 수 있습니다. ⚙ 환경설정 → 📱 앱 정보 · 업데이트에서 새 버전을 받아 주세요.</div>'
       : '<div class="sgbox"><b>' + (on ? '✅ 켜져 있습니다 — 지금부터의 통화만 정리합니다' : '꺼져 있습니다') + '</b>' +
-        '<p class="note">① 휴대폰 통화 자동 녹음: 전화 앱 설정에서 켜 두어야 합니다 (이 앱은 녹음하지 않습니다)<br>② 소리 파일 권한: <b>' + (st.perm ? '허용됨' : '아직 — 켤 때 한 번 물어봅니다') + '</b><br>③ 받아쓰기 키(OpenAI): <b>' + (stt ? '있음' : '없음') + '</b> · 정리 키: <b>' + (ai === 'anthropic' ? 'Claude' : ai === 'openai' ? 'OpenAI' : '없음') + '</b></p></div>';
+        '<p class="note">① 휴대폰 통화 자동 녹음: 전화 앱 설정에서 켜 두어야 합니다 (이 앱은 녹음하지 않습니다)<br>② 소리 파일 권한: <b>' + (st.perm ? '허용됨' : '아직 — 켤 때 한 번 물어봅니다') + '</b><br>③ 받아쓰기 키: <b>' + (stt ? sttName() : '없음 (리턴제로 추천)') + '</b> · 정리 키: <b>' + (ai === 'anthropic' ? 'Claude' : ai === 'openai' ? 'OpenAI' : '없음') + '</b></p></div>';
     openDlg('<h4>📞 통화 자동 정리 <small class="note">시험</small></h4><div class="form">' + head +
       '<p class="note">통화가 끝나고 AOB9를 열면, <b>고객 전화번호·이름과 맞는 통화만</b> 받아써서 요약 · 통화 기록 · 다음 할 일을 그 고객에게 넣습니다. 가족·모르는 번호 통화는 읽지 않습니다. 듣고 있는 것이 아니라 전화 앱이 남긴 녹음 파일만 읽기 때문에 배터리를 쓰지 않습니다.</p>' +
       (rows.length ? '<div class="msh">최근 통화</div><div class="cclist">' + rows.map(line).join('') + '</div>' : (on ? '<p class="note">아직 새 통화가 없습니다. 고객과 통화한 뒤 이 화면을 다시 열어 보세요.</p>' : '')) +
       (sup && st.perm ? '<details class="memo" style="margin-top:10px"><summary>녹음 폴더 확인 <small class="note">(통화가 안 잡힐 때)</small></summary><p class="note">최근 30일 소리 파일이 있는 폴더입니다. 통화 녹음 폴더 이름에 call · tphone · 통화가 없으면 아래에 폴더 이름을 적어 주세요.</p>' +
         (dirs.length ? '<p class="note">' + dirs.map(function(x){ return esc(x.dir) + ' <b>' + x.n + '</b>'; }).join(' · ') + '</p>' : '<p class="note">소리 파일을 찾지 못했습니다.</p>') +
         '<input type="text" id="crDir" maxlength="40" value="' + esc((d.like || []).join(', ')) + '" placeholder="예: TPhoneCallRecords"><button type="button" class="btn sm" id="crDirGo" style="margin-top:6px">폴더 이름 저장</button></details>' : '') +
-      '</div><div class="mrow"><button class="btn lg" type="button" id="crX" style="margin-right:auto">닫기</button>' + (sup && !stt ? '<button class="btn lg" type="button" id="crKey">🎙 받아쓰기 키 넣기</button>' : '') + (on ? '<button class="btn lg" type="button" id="crNow">지금 확인</button>' : '') + (sup ? '<button class="' + (on ? 'btn lg' : 'go') + '" type="button" id="crOn">' + (on ? '끄기' : '켜기') + '</button>' : '') + '</div>', 'wide');
+      '</div><div class="mrow"><button class="btn lg" type="button" id="crX" style="margin-right:auto">닫기</button>' + (sup ? '<button class="btn lg" type="button" id="crKey">🎙 받아쓰기 키' + (stt ? '' : ' 넣기') + '</button>' : '') + (on ? '<button class="btn lg" type="button" id="crNow">지금 확인</button>' : '') + (sup ? '<button class="' + (on ? 'btn lg' : 'go') + '" type="button" id="crOn">' + (on ? '끄기' : '켜기') + '</button>' : '') + '</div>', 'wide');
     $('crX').onclick = closeDlg;
     if ($('crKey')) $('crKey').onclick = function(){ openSttKey(openCallRec); };
     if ($('crNow')) $('crNow').onclick = async function(){ var b = this; b.disabled = true; b.textContent = '확인하는 중…'; var n = await crScan(); if (!n) toast(CR.busy ? '정리하는 중입니다' : '새로 정리한 통화가 없습니다'); openCallRec(); };
@@ -19276,6 +19347,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="3b263b075672";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="95759f8db56a";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
