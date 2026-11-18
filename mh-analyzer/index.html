@@ -3212,6 +3212,15 @@ html.dense .citem .cav{width:38px;height:38px;font-size:16px}
 .lsort>span:first-child i{font-style:normal}
 @container (max-width:420px){.lqs:has(.lq:nth-child(3)) .lq:not([aria-pressed="true"]) em{display:none}}
 @container (max-width:350px){.lq:not([aria-pressed="true"]) em{display:none}.lq{padding:0 8px}.lsort>span:first-child i{display:none}.lsort .lqs{gap:4px}}
+/* 📑 계약 장부 한 줄 (2026-11-18 · 오늘 브리핑 화면 · 첫 화면): 증권 미전달 · 수납 밀림 · 어제·오늘 입금 알림 — 누르면 계약 장부에서 그 계약만. 색은 변수만 쓴다(밝은·어두운 화면 공통) */
+.polb{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.polb button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.polb button b{font-weight:800}
+.polb button.w{border-color:color-mix(in srgb,#D69E2E 55%,var(--line))}.polb button.r{border-color:color-mix(in srgb,#E5484D 55%,var(--line))}
+.polb button:hover{background:var(--soft)}
+.side .polb{margin:0;padding:6px 10px 2px}
+.side .polb button{width:100%;text-align:left;border-radius:10px;background:var(--side2);color:var(--side-ink);border-color:color-mix(in srgb,var(--side-ink) 18%,transparent);font-size:12.5px;padding:8px 10px}
+@media (min-width:700px){.side .polb{display:none}}   /* 넓은 화면은 오른쪽 첫 화면에 같은 줄이 있다 */
 /* 아주 좁은 휴대폰(380 이하): 띠 글자를 짧게(미전달 · 증권 ✓) → 이름 줄에 같이 들어감 */
 html.narrow .citem .r1 .pfl{min-width:44px}
 html.narrow .citem .r1 .pfl b{font-size:0!important}
@@ -7698,15 +7707,20 @@ var Policy = (function () {
     S.holders = Object.keys(H).length; if (impN(d) < 2 || S.neu === S.n) S.neu = 0;
     return S;
   }
-  function matchF(x, f, d) {
+  // 최근(from 날짜부터) 들어온 보험사 알림 건수 — 브리핑·첫 화면 한 줄용. 숫자만 센다(이름·증권번호는 안 나감) · 날짜는 알림이 온 날
+  //   payN = 그 사이 입금 알림을 받은 '계약' 수(한 계약에 알림이 두 번 와도 1) — 한 줄의 숫자와 장부 거르기(pay2)가 같은 계약을 가리키게
+  function payNew(x, since) { return !!since && (x.ev || []).some(function (e) { return e && e.e === 'pay' && e.d && e.d >= since; }); }
+  function recent(d, from) { var R = { pay: 0, made: 0, warn: 0, fix: 0, bad: 0, payN: 0 }; all(d).forEach(function (x) { (x.ev || []).forEach(function (e) { if (e && e.d && e.d >= from && R[e.e] != null) R[e.e]++; }); if (payNew(x, from)) R.payN++; }); return R; }
+  function dAdd(s, n) { var t = new Date(s + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
+  function matchF(x, f, d, since) {
     var bm = (d.asOf || '').slice(0, 7);
-    return f === 'dvn' ? needDv(x) : f === 'unpaid' ? unpaid(x, bm) : f === 'late' ? behind(x, bm) : f === 'new' ? x.add === d.asOf : f === 'off' ? inactive(x) : f === 'gone' ? isGone(x, d) : f === 'own' ? !!x.own : f === 'note' ? !!(x.ev || []).length : f === 'who' ? !norm(x.holder) && !inactive(x) : true;
+    return f === 'dvn' ? needDv(x) : f === 'unpaid' ? unpaid(x, bm) : f === 'late' ? behind(x, bm) : f === 'new' ? x.add === d.asOf : f === 'off' ? inactive(x) : f === 'gone' ? isGone(x, d) : f === 'own' ? !!x.own : f === 'note' ? !!(x.ev || []).length : f === 'who' ? !norm(x.holder) && !inactive(x) : f === 'pay2' ? payNew(x, since) : true;
   }
   var HOW = { deal: '보험료로 맞춤', name: '알림에 적힌 이름', pick: '직접 정함', ledger: '장부에 있는 계약' };
   var GROUPED = { cDate: 1, holder: 1 };
   function view(d, o) {
     o = o || {}; var q = norm(o.q).toLowerCase(), key = o.key || 'cDate', dir = o.asc ? 1 : -1;
-    var L = all(d).filter(function (x) { return matchF(x, o.f || 'all', d) && (!q || norm([x.holder, x.insured, x.co, x.prod, x.no, x.mid, x.small, x.st].join('|')).toLowerCase().indexOf(q) >= 0); });
+    var L = all(d).filter(function (x) { return matchF(x, o.f || 'all', d, o.since) && (!q || norm([x.holder, x.insured, x.co, x.prod, x.no, x.mid, x.small, x.st].join('|')).toLowerCase().indexOf(q) >= 0); });
     var cmp = function (a, b) { var ea = a === '' || a == null, eb = b === '' || b == null; if (ea || eb) return ea && eb ? 0 : ea ? 1 : -1; return (typeof a === 'number' && typeof b === 'number' ? (a < b ? -1 : a > b ? 1 : 0) : String(a).localeCompare(String(b), 'ko')) * dir; };
     var newer = function (a, b) { return (b.cDate || '') < (a.cDate || '') ? -1 : (b.cDate || '') > (a.cDate || '') ? 1 : String(a.no).localeCompare(String(b.no)); };
     if (GROUPED[key]) {
@@ -7804,7 +7818,7 @@ var Policy = (function () {
     return h;
   }
   function chipsHtml(d, P) {
-    var S = stats(d), L = [['all', '전체', S.n], ['dvn', '증권 미전달', S.dvN], ['late', '수납 밀림·연체', S.behind], ['unpaid', '이번 달 미수납', S.paidN], ['new', '새 계약', S.neu], ['off', '철회·반송', S.off], ['gone', '최근 자료에 없음', S.gone], ['own', '내 계약', S.own], ['note', '📩 알림톡', S.note], ['who', '고객 미확인', S.who]];
+    var S = stats(d), L = [['all', '전체', S.n], ['dvn', '증권 미전달', S.dvN], ['late', '수납 밀림·연체', S.behind], ['unpaid', '이번 달 미수납', S.paidN], ['new', '새 계약', S.neu], ['off', '철회·반송', S.off], ['gone', '최근 자료에 없음', S.gone], ['own', '내 계약', S.own], ['note', '📩 알림톡', S.note], ['pay2', '📩 어제·오늘 입금', P.since ? recent(d, P.since).payN : 0], ['who', '고객 미확인', S.who]];
     return L.filter(function (c) { return c[0] === 'all' || c[0] === 'dvn' || c[2] > 0 || P.f === c[0]; }).map(function (c) { return '<button type="button" data-polf="' + c[0] + '" class="f-' + c[0] + '" aria-pressed="' + ((P.f || 'all') === c[0]) + '">' + c[1] + '<b>' + c[2] + '</b></button>'; }).join('');
   }
   function pageHtml(d, P, C) {
@@ -7848,6 +7862,7 @@ var Policy = (function () {
       return out;
     };
     function draw(keep) {
+      try { P.since = dAdd(C.today(), -1); } catch (e) { P.since = ''; }   // '어제·오늘 입금' 거르기의 기준 날짜(어제)
       var y = window.scrollY, w = document.querySelector('.pol-w'), sy = w ? w.scrollTop : 0, sx = w ? w.scrollLeft : 0;
       $('main').innerHTML = pageHtml(P.d, P, C);
       if (keep) { window.scrollTo(0, y); w = document.querySelector('.pol-w'); if (w) { w.scrollTop = sy; w.scrollLeft = sx; } } else window.scrollTo(0, 0);
@@ -8107,7 +8122,7 @@ var Policy = (function () {
       L.forEach(function (x) { if (inactive(x)) { o.off++; return; } o.n++; if (x.own) o.own++; else if (x.dv) { o.dv++; if ((x.dvD || '') > o.last) o.last = x.dvD; } else { o.need++; o.keys.push(x.k); } if (behind(x, bm)) o.late++; });
       return o;
     }
-    function sum() { return ready() && all(P.d).length ? stats(P.d) : null; }
+    function sum(from) { if (!ready() || !all(P.d).length) return null; var s = stats(P.d); if (from) s.rec = recent(P.d, from); return s; }   // from(날짜)을 주면 그날부터 온 알림 건수(rec)도
     // 이 이름의 미전달 증권을 모두 '전달'로 (고객 목록 줄 → 진행 현황에서 한 번에)
     async function markName(name) {
       await load(); var I = info(name); if (!I || !I.keys.length) return 0;
@@ -8126,7 +8141,7 @@ var Policy = (function () {
     return { show: show, pick: pick, take: take, isNote: isNote, takeNote: takeNote, noteFiles: noteFiles, pickNote: pickNote, chip: chip, synced: synced, isSheetName: isSheetName, info: info, sum: sum, markName: markName };
   }
 
-  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
+  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, recent: recent, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
@@ -11185,6 +11200,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var t = todayStr(), P = brPending(t), tom = brPending(addDay(t, 1)).length - P.length, W = '일월화수목금토';
     var h = (slot === 'pm' ? '🌇 오후' : '☀️ 오전') + ' 브리핑 · ' + (+t.slice(5, 7)) + '/' + (+t.slice(8)) + '(' + W[wdOf(t)] + ')\n';
     try { var CB = briefData(), cz = [['📵 다시 걸기', CB.miss.length], ['🎂 상령일 2주 안', CB.sang.length], ['🤝 소개 부탁', CB.ref.length], ['💐 계약 주년', CB.anniv.length]].filter(function(x){ return x[1]; }).map(function(x){ return x[0] + ' ' + x[1] + '명'; }); if (CB.feast) cz.push('🎁 ' + CB.feast.name + ' D-' + CB.feast.n); if (cz.length) h += '챙길 연락: ' + cz.join(' · ') + '\n'; } catch(e){}
+    try { var pl = polLineTxt(); if (pl) h += '계약: ' + pl + '\n'; } catch(e){}   // 2026-11-18: 계약 장부 한 줄(숫자만)
     if (!P.length) return h + '\n✅ 미처리 할 일이 없습니다.' + (tom > 0 ? '\n내일 할 일 ' + tom + '건' : '');
     return h + '미처리 ' + P.length + '건' + (tom > 0 ? ' · 내일 ' + tom + '건' : '') + '\n\n' + P.slice(0, 25).map(function(c, i){ return (i + 1) + '. ' + brLine(c, mask); }).join('\n') + (P.length > 25 ? '\n… 외 ' + (P.length - 25) + '건' : '') + '\n\n아래 번호를 누르면 해결로 표시됩니다 (AOB9에 반영)';
   }
@@ -11261,7 +11277,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var t = todayStr(), P = brPending(t), T2 = brPending(addDay(t, 1)).filter(function(c){ return c.next.d > t; }), g = BR.d.tg;
     var row = function(c){ var late = c.next.d < t; return '<div class="brr' + (late ? ' late' : '') + '"><button type="button" class="brn" data-brgo="' + c.id + '"><b>' + esc(c.name) + '</b><small>' + esc(c.next.t || '할 일') + ' · ' + (late ? '⚠️ ' + dot(c.next.d) + ' 지남' : c.next.d === t ? '오늘' : dot(c.next.d)) + '</small></button><span class="cda"><button type="button" class="go" data-brdone="' + c.id + '">✅ 해결</button><button type="button" class="btn" data-brlater="' + c.id + '">내일로</button></span></div>'; };
     $('main').innerHTML = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="📋">오늘 브리핑</h2><span class="cmeta">미처리 ' + P.length + '건 · 매일 ' + BR.d.am.slice(0, 2) + ':' + BR.d.am.slice(2) + ' · ' + BR.d.pm.slice(0, 2) + ':' + BR.d.pm.slice(2) + ' 알림</span></div>' +
-      '<div class="cdfoot">' + (g.tok && g.chat ? '<button type="button" class="btn" data-brtg="1">📤 텔레그램으로 지금 보내기</button>' : '<button type="button" class="go" data-brset="1">📲 텔레그램 연결 (알림이 울려요)</button>') + '<button type="button" class="btn" data-brcp="1">📋 글로 복사 (카톡 붙여넣기)</button><button type="button" class="btn" data-brset="1">⚙ 브리핑 설정</button></div>' +
+      '<div class="cdfoot">' + (g.tok && g.chat ? '<button type="button" class="btn" data-brtg="1">📤 텔레그램으로 지금 보내기</button>' : '<button type="button" class="go" data-brset="1">📲 텔레그램 연결 (알림이 울려요)</button>') + '<button type="button" class="btn" data-brcp="1">📋 글로 복사 (카톡 붙여넣기)</button><button type="button" class="btn" data-brset="1">⚙ 브리핑 설정</button></div>' + polLineHtml() +
       (P.length ? '<section class="pcard"><div class="pc-h"><b>⏰ 미처리 할 일</b><small>오늘까지 · 지난 것 먼저</small></div><div class="brlist">' + P.map(row).join('') + '</div></section>' : '<section class="pcard"><p>✅ 미처리 할 일이 없습니다.</p></section>') +
       (T2.length ? '<section class="pcard"><div class="pc-h"><b>📅 내일 할 일</b><small>' + T2.length + '건</small></div><div class="brlist">' + T2.map(row).join('') + '</div></section>' : '') +
       '<p class="note">해결을 누르면 고객 기록에 "할 일 완료"로 남고 할 일에서 빠집니다. 텔레그램의 ✅ 번호를 눌러도 똑같이 반영됩니다 (AOB9가 휴대폰이나 PC에서 켜져 있을 때 1분 안에).</p>';
@@ -12135,6 +12151,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var lq = function(k, ic, tx, full, n, on, cls){ return n || on ? '<button type="button" class="lq' + (cls ? ' ' + cls : '') + '" data-lq="' + k + '" aria-pressed="' + !!on + '" aria-label="' + full + ' ' + n + '명" title="' + full + ' ' + n + '명 · 누르면 이 고객만, 다시 누르면 전체">' + ic + '<em>' + tx + '</em><b>' + n + '</b></button>' : ''; };
     var quick = '<span class="lqs">' + lq('todo', '⏰', '할 일', '오늘·지난 할 일', nTd, S.filter === 'todo') + lq('dvn', '📑', '미전달', '증권 미전달', nDv, S.pol === 'dvn', 'w') + lq('late', '💳', '밀림', '수납 밀림·연체', nLt, S.pol === 'late', 'r') + '</span>';
     var bar = '<div class="lsort"><span><i>고객 </i><b>' + nShow + '</b>명</span>' + quick + '<label><select id="fSort" aria-label="고객 목록 정렬" title="정렬">' + SORTS.map(function(x){ return '<option value="' + x[0] + '"' + (x[0] === so ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label></div>';
+    bar += polLineHtml('pay2');   // 📩 어제·오늘 입금 알림 한 줄(있을 때만 · 넓은 화면에서는 오른쪽 첫 화면에 같은 줄이 있어 숨김 — style.css .side .polb)
     if (!S.list.length) h = '<div class="cempty">등록된 고객이 없습니다.<br><span class="phonly"><button type="button" class="btn pri" data-rail="new" style="margin-top:10px">＋ 첫 고객 등록</button></span></div>';
     else if (!h) h = bar + '<div class="cempty">검색 결과가 없습니다.</div>';
     else h = bar + h;
@@ -12247,6 +12264,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     return L.filter(function(c){ return cnt[c.name] === 1 && c.proc && c.proc.policy && c.proc.policy.d; }).map(function(c){ return { name: c.name, d: c.proc.policy.d }; }); }
   function polHit(c, k){ if (c.sample || c.hidden) return false; if (k === 'dvn') return dvNeed(c) > 0; var I = POL.info(c.name); return !!I && I.late > 0; }
   function polCnt(k){ var n = 0; S.list.forEach(function(c){ if (polHit(c, k)) n++; }); return n; }
+  // 📑 계약 장부 한 줄 (2026-11-18 · 오전·오후 브리핑 글 · 오늘 브리핑 화면 · 첫 화면): 증권 미전달 · 수납 밀림 · 어제·오늘 들어온 입금 알림
+  //   숫자만 센다(이름·증권번호는 브리핑 글에 안 나감) · 해당하는 것이 하나도 없으면 줄 자체가 안 보인다 · 누르면 계약 장부에서 그 계약만
+  function polBrief(){ var s = null; try { s = POL.sum(addDay(todayStr(), -1)); } catch(e){} if (!s) return null; var r = s.rec || {}; return { dvn: s.dvN || 0, late: s.behind || 0, pay: r.payN || 0, any: !!(s.dvN || s.behind || r.payN) }; }   // pay = 어제·오늘 입금 알림을 받은 계약 수(장부의 '어제·오늘 입금' 거르기와 같은 계약)
+  function polLineTxt(){ var b = polBrief(); if (!b || !b.any) return ''; return [b.dvn ? '📑 증권 미전달 ' + b.dvn + '건' : '', b.late ? '💳 수납 밀림 ' + b.late + '건' : '', b.pay ? '📩 어제·오늘 입금 알림 ' + b.pay + '건' : ''].filter(Boolean).join(' · '); }
+  function polLineHtml(only){ var b = polBrief(); if (!b || !b.any) return ''; var x = function(f, ic, tx, n, cls){ return n && (!only || only === f) ? '<button type="button" class="' + (cls || '') + '" data-polb="' + f + '">' + ic + ' ' + tx + ' <b>' + n + '</b>건</button>' : ''; };
+    var h = x('dvn', '📑', '증권 미전달', b.dvn, 'w') + x('late', '💳', '수납 밀림', b.late, 'r') + x('pay2', '📩', '어제·오늘 입금 알림', b.pay, ''); return h ? '<div class="polb' + (only ? ' one' : '') + '" role="group" aria-label="계약 장부 요약 · 누르면 그 계약만 봅니다">' + h + '</div>' : ''; }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-polb]'); if (!t) return; POL.show({ f: t.dataset.polb }); });
   document.addEventListener('click', function(e){
     var t = e.target.closest && e.target.closest('[data-lq]'); if (!t) return; var k = t.dataset.lq;
     if (k === 'todo') S.filter = S.filter === 'todo' ? 'all' : 'todo'; else S.pol = S.pol === k ? '' : k;
@@ -16710,7 +16734,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var recent = L.slice().sort(function(a, b){ return (b.updated || 0) - (a.updated || 0); }).slice(0, 10);
     return '<section class="hd"><div class="hd-top"><div><h2>' + (who ? esc(who) + ', ' : '') + '좋은 하루예요</h2><small>' + dot(t) + ' (' + '일월화수목금토'[wdOf(t)] + ') · 고객 ' + L.length + '명</small></div>' +
       '<div class="hd-act"><button class="go" type="button" data-hd="new">＋ 신규 고객 <kbd>N</kbd></button>' + (ARC_ON ? '<button class="btn" type="button" data-arc="open">🏙️ 아케이드 화면</button>' : '') + '<button class="btn" type="button" data-hd="plan">🗓 오늘 싯플랜 <kbd>2</kbd></button><button class="btn" type="button" data-nx="week">📊 이번 주 실적</button><button class="btn" type="button" data-hd="keys">⌨ 단축키 <kbd>?</kbd></button></div></div>' +
-      '<div class="hd-kpi">' + kpi.map(function(k){ return '<button type="button" class="' + (k[3] || '') + '" data-hd="' + k[2] + '"><small>' + k[0] + '</small><b>' + k[1] + '</b></button>'; }).join('') + '</div>' +
+      '<div class="hd-kpi">' + kpi.map(function(k){ return '<button type="button" class="' + (k[3] || '') + '" data-hd="' + k[2] + '"><small>' + k[0] + '</small><b>' + k[1] + '</b></button>'; }).join('') + '</div>' + polLineHtml() +
       '<div class="hd-grid"><div class="hd-col">' + c5Card() + bSec('오늘 할 일 · 지난 할 일', B.todo, '오늘 할 일이 없습니다.') + (B.miss.length ? bSec('📵 부재 — 다시 걸기', B.miss, '') : '') + (B.ref.length ? bSec('🤝 보험금 받은 뒤 — 확인 · 소개 부탁', B.ref, '') : '') + bSec('오늘 만날 수 있는 고객', B.meetToday, '만남 정보에 편한 요일·시간을 넣어 두면 여기에 나옵니다.') + '</div>' +
       '<div class="hd-col"><section class="bsec hd-plan"><h5>오늘 싯플랜 <button type="button" class="lnk2" data-pd="' + t + '">편집</button></h5>' + (plan.length ? plan.map(function(x){ return '<div class="hp-r c-' + (x.c || 'k') + '"><i>' + (x.t ? x.t.slice(0, 2) + ':' + x.t.slice(2) : '—') + '</i><span>' + esc(x.x) + '</span></div>'; }).join('') : '<p class="note">오늘 일정이 없습니다. <button type="button" class="lnk2" data-pd="' + t + '">일정 넣기</button></p>') + '</section>' +
       (B.sang.length ? bSec('🎂 상령일 — 보험나이 오르기 전 (14일 안)', B.sang, '') : '') + (B.feast && B.feastList.length ? bSec('🎁 ' + B.feast.name + ' 안부 (' + (B.feast.n === 0 ? '오늘' : 'D-' + B.feast.n) + ') · 계약 고객', B.feastList, '') : '') + (B.anniv.length ? bSec('💐 내 계약 N주년 (7일 안)', B.anniv, '') : '') +
@@ -19252,6 +19276,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="62ca18047740";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="3b263b075672";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
