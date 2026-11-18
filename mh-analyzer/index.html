@@ -7394,13 +7394,19 @@ var Policy = (function () {
             }
           }
         }
+        // ⑧ 실적으로 못 찾았으면 가려진 이름(김*일)과 글자 수·보이는 글자가 맞는 고객을 후보로만 보여 준다 — 자동으로 정하지 않는다(같은 모양 이름이 고객 목록 밖에도 있을 수 있음). 너무 많이 맞으면(7명 이상) 보여 주지 않는다
+        var askBy = ask.length ? 'deal' : '';
+        if (!who && !hasPick && mk && ask.length < 6) {
+          var mn = byMask(Object.keys(nameOk).map(function (k) { return nameOk[k]; })).filter(function (n) { return ask.indexOf(n) < 0; });
+          if (mn.length && mn.length <= 6) { mn.slice(0, 6 - ask.length).forEach(function (n) { ask.push(n); }); askBy = askBy ? 'both' : 'mask'; }
+        }
         if (who) { x.holder = who.name; x.hBy = who.how; x.hAt = o.now; R.sure++; }
         else { if (hasPick && x.holder) { x.holder = ''; x.hBy = ''; x.hAt = o.now; } if (ask.length) R.ask++; else R.none++; }
       }
       // 계약 실적에 증권번호 달아 주기(비어 있을 때만): 같은 사람 · 같은 보험료
       if (who && !dl && ma !== '') dl = pool.filter(function (q) { return norm(q.name) === norm(who.name) && +q.amt === +ma; }).sort(function (p, q) { return dayGap(p.d, ref) - dayGap(q.d, ref); })[0] || null;
       if (dl) { used[dl.id] = 1; if (!dl.no) R.links.push({ id: dl.id, no: no }); }
-      R.items.push({ no: no, isNew: isNew, who: who, ask: ask, fixed: kept, ev: last.ev, d: when, amt: amt === '' ? null : amt, prod: x.prod || prod, co: x.co || co, paid: paid, deal: dl ? dl.id : '' });
+      R.items.push({ no: no, isNew: isNew, who: who, ask: ask, askBy: askBy || '', fixed: kept, ev: last.ev, d: when, amt: amt === '' ? null : amt, prod: x.prod || prod, co: x.co || co, paid: paid, deal: dl ? dl.id : '' });
     });
     var ks = Object.keys(d.nseen); if (ks.length > 4000) { ks.sort(function (a, b) { return d.nseen[a] - d.nseen[b]; }).slice(0, ks.length - 4000).forEach(function (k) { delete d.nseen[k]; }); }
     if (order.length) { d.imports.push({ at: o.now, asOf: o.today, name: o.name || '보험사 알림톡', n: order.length, added: R.added, paid: R.items.filter(function (i) { return i.paid; }).length, note: 1 }); d.imports = d.imports.slice(-40); d.saved = o.now; if (!d.created) d.created = o.now; }
@@ -7418,9 +7424,10 @@ var Policy = (function () {
   function inactive(x) { return /철회|반송|해지|해약|실효|취소|무효|거절|소멸|만기/.test(x.st || ''); }
   function late(x) { return /연체|미납/.test(x.st || ''); }
   // 수납: 자료 기준 달에 냈으면 '수납', 한 달 전이면 '이번 달 미수납'(월 중간 자료면 아직 낼 날이 안 된 것일 수 있음), 두 달 넘게 밀렸거나 연체면 '밀림'
-  function unpaid(x, bm) { return !inactive(x) && !!bm && !!x.pMonth && x.pMonth < bm; }
+  // 알림톡으로만 들어온 계약(회사 자료에 아직 없음)은 첫 입금 알림만 아는 것이라 달 수로 '미수납·밀림'을 따지지 않는다 — 미납 알림을 받았을 때만 밀림
+  function unpaid(x, bm) { return !inactive(x) && !fromNote(x) && !!bm && !!x.pMonth && x.pMonth < bm; }
   function warnOn(x) { var e = lastEv(x); return !!e && e.e === 'warn' && (x.pDate || '') < e.d; }                 // 📩 미납·연체 알림을 받았고 그 뒤 수납이 없음
-  function behind(x, bm) { return !inactive(x) && (late(x) || warnOn(x) || (!!bm && !!x.pMonth && mdiff(x.pMonth, bm) >= 2)); }
+  function behind(x, bm) { return !inactive(x) && (late(x) || warnOn(x) || (!fromNote(x) && !!bm && !!x.pMonth && mdiff(x.pMonth, bm) >= 2)); }
   function needDv(x) { return !inactive(x) && !x.own && !x.dv; }
   function all(d) { return Object.keys(d && d.items || {}).map(function (k) { return d.items[k]; }); }
   function stats(d) {
@@ -7732,7 +7739,7 @@ var Policy = (function () {
       var need = dry.ask + dry.none;
       var rows = dry.items.map(function (it, i) {
         var whoH = it.fixed && it.who ? '<span class="who">' + esc(it.who.name) + '</span><small>' + (HOW[it.who.how] || HOW.ledger) + '</small>'
-          : '<input type="text" data-nwho="' + i + '" list="polCu" value="' + esc(it.who ? it.who.name : '') + '" placeholder="고객 이름" autocomplete="off" aria-label="고객 이름"><small>' + (it.who ? HOW[it.who.how] || '' : it.ask.length ? '계약 실적에서 찾은 후보 · 눌러서 고르기' : '못 찾음 · 비워 두면 "고객 미확인"') + '</small>' +
+          : '<input type="text" data-nwho="' + i + '" list="polCu" value="' + esc(it.who ? it.who.name : '') + '" placeholder="고객 이름" autocomplete="off" aria-label="고객 이름"><small>' + (it.who ? HOW[it.who.how] || '' : it.ask.length ? (it.askBy === 'mask' ? '가려진 이름과 맞는 고객 · 눌러서 고르기' : it.askBy === 'both' ? '후보(계약 실적 · 가려진 이름) · 눌러서 고르기' : '계약 실적에서 찾은 후보 · 눌러서 고르기') : '못 찾음 · 비워 두면 "고객 미확인"') + '</small>' +
             (it.ask.length ? '<span class="cand">' + it.ask.map(function (n) { return '<button type="button" data-nwc="' + i + '" data-n="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</span>' : '');
         return '<div class="pol-ni' + (!it.fixed && !it.who ? ' q' : '') + '"><div class="a"><b>' + esc([it.co, String(it.prod || '').slice(0, 30)].filter(Boolean).join(' · ') || '계약') + '</b><small class="n">' + esc(it.no) + (it.amt != null ? ' · ' + fmt(it.amt) + '원' : '') + ' · 📩 ' + esc(dot(it.d).slice(3)) + ' ' + (EV_T[it.ev] || '안내') + (it.isNew ? ' <em>새 계약</em>' : '') + '</small></div><div class="b">' + whoH + '</div></div>';
       }).join('');
@@ -18971,6 +18978,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="fa9b7d6c6e14";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="9f50e462c01b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
