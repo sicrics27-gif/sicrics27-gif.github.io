@@ -3018,6 +3018,9 @@ tr.pol-g td>div{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;font
 .pol-gn{border:0;background:none;padding:0;font:inherit;font-size:15px;font-weight:700;color:var(--ink)}button.pol-gn{cursor:pointer;color:var(--accent)}
 .pol-gd{color:#B88A00;font-weight:700}.pol-gd.ok{color:var(--green)}
 :root[data-theme="dark"] .pol-gd{color:#F2C230}:root[data-theme="dark"] .pol-gd.ok{color:var(--green)}
+/* ✍️ 청약 중(2026-11-18 · 출금방의 전자서명·모바일청약 알림으로 들어온 계약 — 증권번호 대기): 색은 변수만 써서 밝은·어두운 화면 둘 다 */
+.pol-own.p{border-color:transparent;background:var(--blue-soft);color:var(--blue)}.pol-gp{color:var(--blue);font-weight:700}
+table.pol tr.pol-r.pre td.p-dv{box-shadow:inset 4px 0 0 var(--blue)}table.pol tr.pol-r.pre.old td{color:var(--mute)}
 tr.pol-g .pb{height:26px;font-size:12px;margin-left:auto}
 .pol-empty{border:1px dashed var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;margin-top:14px}
 .pol-empty b{font-size:17px}.pol-empty p{margin:0;color:var(--ink2);font-size:14px;line-height:1.7}
@@ -3070,6 +3073,7 @@ tr.pol-g .pb{height:26px;font-size:12px;margin-left:auto}
   table.pol tr.pol-g{display:block;margin-top:16px}table.pol tr.pol-g td{display:block;border:0;border-radius:12px}
   table.pol tr.pol-r{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"dv co" "pr pr" "wh wh" "cd pd" "pm pm";gap:5px 10px;padding:11px 12px;margin-top:6px;border:1px solid var(--line);border-left-width:5px;border-radius:14px;background:var(--paper)}
   table.pol tr.pol-r.dvn{border-left-color:#F2C230;background:var(--paper)}table.pol tr.pol-r.dvy{border-left-color:#1FA971}
+  table.pol tr.pol-r.pre{border-left-color:var(--blue)}table.pol tr.pol-r.pre.old{border-left-color:var(--line)}
   table.pol tr.pol-r td{display:block;padding:0;border:0;box-shadow:none!important}
   .p-dv{grid-area:dv}.p-co{grid-area:co;align-self:center}.p-pr{grid-area:pr;font-weight:600}.p-wh{grid-area:wh}.p-cd{grid-area:cd}.p-pd{grid-area:pd}
   .p-pm{grid-area:pm;text-align:left!important;display:flex!important;gap:14px}table.pol td.p-pm span{display:inline;font-size:13px}
@@ -7488,6 +7492,7 @@ var Policy = (function () {
     if (!older) { Object.keys(d.items).forEach(function (k) { if (!inFile[k]) R.gone.push(d.items[k]); }); d.asOf = asOf; }
     d.imports.push({ at: o.now, asOf: asOf, name: o.name || '', n: rows.length, added: R.added.length, paid: R.paid.length });
     d.imports = d.imports.slice(-40); d.saved = o.now; if (!d.created) d.created = o.now;
+    R.tied = linkPre(d, o.now);   // 📩 알림톡으로 먼저 들어와 있던 '청약 중' 줄 → 같은 계약의 증권번호 줄이 이번 자료에 있으면 이어 붙임
     return { doc: d, R: R };
   }
   // 두 기기에서 따로 고친 장부 합치기: 계약은 양쪽 것을 모두, 증권 전달은 나중에 누른 쪽, 회사 자료는 더 최근 자료 쪽
@@ -7512,6 +7517,8 @@ var Policy = (function () {
       if ((x.ev || []).length || (y.ev || []).length) { var em = {}; (x.ev || []).concat(y.ev || []).forEach(function (e) { em[e.i] = e; }); m.ev = Object.keys(em).map(function (i) { return em[i]; }).sort(function (p, q) { return p.d < q.d ? -1 : p.d > q.d ? 1 : 0; }).slice(-12); }
       if (x.hAt || y.hAt) { var hs = (x.hAt || 0) >= (y.hAt || 0) ? x : y; if (!m.seen || !m.holder || m.hBy) { m.holder = hs.holder || ''; m.hBy = hs.hBy || ''; m.hAt = hs.hAt; } } else if (!m.holder) m.holder = x.holder || y.holder || '';
       if (x.src === 'note' || y.src === 'note') m.src = 'note';
+      if (x.into || y.into) m.into = x.into || y.into;                                   // '청약 중' 줄을 증권번호 줄에 이어 붙인 표시는 한쪽에만 있어도 남긴다
+      if ((x.aps || []).length || (y.aps || []).length) { var am = {}; (x.aps || []).concat(y.aps || []).forEach(function (v) { am[v] = 1; }); m.aps = Object.keys(am).slice(-4); }
       o.items[k] = m;
     });
     if (!Object.keys(o.items).length && o.wiped >= (o.saved || 0)) o.asOf = '';
@@ -7526,7 +7533,7 @@ var Policy = (function () {
   var KK_P = /^\[(.+?)\]\s*\[(?:(오전|오후)\s*)?(\d{1,2}):(\d{2})\]\s?(.*)$/;                                                                       // PC에서 내보낸 글
   var KK_D = /^-+\s*(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/;
   var INS = /보험|화재|생명|손보|해상|라이프|영업지원/;
-  var EV_T = { pay: '보험료 입금 완료', made: '계약 체결', apply: '청약 접수', fix: '보완 요청', warn: '미납·연체 안내', bad: '반송·철회', etc: '안내' };
+  var EV_T = { pay: '보험료 입금 완료', made: '계약 체결', apply: '청약·서명', fix: '보완 요청', warn: '미납·연체 안내', bad: '반송·철회', etc: '안내' };
   function kindOfCo(co) { return /생명|라이프|연금|카디프|우체국/.test(co || '') ? '생명' : co ? '손해' : ''; }
   // 보험사 이름 견주기: "미래에셋" ↔ "미래에셋생명"은 같고, "삼성화재" ↔ "삼성생명"은 다르다. 한쪽이 비어 있으면 가리지 않는다
   function coCore(v) { var t = norm(v).replace(/\(주\)|주식회사/g, ''), k = /생명|라이프|연금/.test(t) ? 'L' : /화재|손해|손보|해상/.test(t) ? 'S' : ''; return { c: t.replace(/손해보험|생명보험|보험|화재|생명|손보|손해|해상|라이프/g, '').toLowerCase(), k: k }; }
@@ -7555,42 +7562,51 @@ var Policy = (function () {
     var T = String(m.text || ''), one = T.replace(/[ \t]+/g, ' ');
     var oneNo = one.replace(/가\s*계약\s*번호\s*[:：]?\s*[0-9A-Za-z-]+/g, ' ');   // 서명 단계의 '가계약번호'는 증권번호가 아니다(체결 뒤 번호와 다름) → 번호 찾기에서 뺀다
     var no = ((oneNo.match(/(?:증권|증서|계약)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '').replace(/-+$/, '');
-    var ap = (one.match(/(?:청약서?|가\s*계약|설계|접수)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '';   // 청약·서명 단계의 번호(체결 뒤 증권번호와 다름) → 어느 계약인지 알 수 없어 넘김
+    // 청약·서명 단계의 번호(가계약번호·청약서번호·설계번호·영수증번호 — 체결 뒤 증권번호와 다르다). 2026-11-18 대표님: 출금방에 올리는 것은 대부분 이 단계 알림이다
+    //   → 넘기지 않고 '청약 중' 계약으로 읽는다(noteApply가 같은 계약의 증권번호 줄과 이어 붙임)
+    var ap = (one.match(/(?:청약서?|가\s*계약|(?:가입\s*)?설계|영수증)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,24})/) || [])[1] || '';
     var am = one.match(/보험료\s*(?:\(\s*원\s*\))?\s*[:：(]?\s*([\d,]{3,})\s*원?/) , amt = am && /\d{3}/.test(am[1]) ? num(am[1]) : null;
-    var prod = ((one.match(/(?:대상\s*계약|상품\s*명?|계약\s*명|보험\s*명|가입\s*상품)\s*[:：]\s*([^\n]{2,60})/) || [])[1] || '').trim();
+    var lab = function (re) { return ((one.match(re) || [])[1] || '').replace(/(?:고객)?님$/, '').trim(); };
+    var prod = ((one.match(/(?:대상\s*계약|상품\s*명?|계약\s*명|보험\s*명|가입\s*상품)\s*[:：]\s*([^\n]{2,60})/) || one.match(/상품명[ \t]+([^\n,]{2,60})/) || [])[1] || '').trim();
     var cD = ymd((one.match(new RegExp('(?:청약|계약|체결|성립|가입)\\s*일(?:자|시)?\\s*[:：]?\\s*' + DATE_S)) || [])[1] || '');
     var pD = ymd((one.match(new RegExp('(?:입금|수납|납입|출금|결제|이체)\\s*일(?:자)?\\s*[:：]?\\s*' + DATE_S)) || [])[1] || '');
-    var nmL = ((one.match(/(?:계약자|피보험자|고객)\s*명?\s*[:：]\s*([^\s,()]{2,12})/) || [])[1] || '').trim(), nm = nmL || ((one.match(/([가-힣]{2,5})\s*고객님/) || [])[1] || '').trim();
+    // 누구 계약인지: 계약자 → "계약관계자 : 계약자 (이름)" → 고객명 → 피보험자 순서. 모집자·취급자·담당FC·설계사 줄은 설계사 이름이라 읽지 않는다
+    var NM = '([^\\s,()]{2,12})', nmL = lab(new RegExp('계약자\\s*명?\\s*[:：]\\s*' + NM)) || lab(/계약\s*관계자\s*[:：]\s*계약자\s*\(\s*([^()\s]{2,12})\s*\)/) || lab(new RegExp('고객\\s*명?\\s*[:：]\\s*' + NM)) || lab(new RegExp('피보험자\\s*명?\\s*[:：]\\s*' + NM));
+    var nmT = nmL ? '' : lab(/([가-힣][가-힣*＊○●]{1,4})[ \t]*고객님/);   // "김*복고객님 모바일 서명이 완료" — 이름표가 없을 때만
+    if (/(?:하여|해서|하는|하신|위해|통해|에게|으로|이며|이고)$|^(?:모든|해당|담당|본인|가입|계약자?|청약|서명|완료|발송|확인|진행)$/.test(nmT)) nmT = '';
+    var nm = nmL || nmT, ins = lab(new RegExp('피보험자\\s*명?\\s*[:：]\\s*' + NM));
     var co = (T.match(CO_RE) || String(m.who || '').match(CO_RE) || String(room || '').match(CO_RE) || [])[1] || '';
     var cut = one.search(/\n\s*[■▷▶◆●□◇※·•\-–]/), headT = (cut > 20 ? one.slice(0, cut) : one.slice(0, 220));
     var bad = headT.match(/반송|청약\s*철회|철회\s*(?:처리|완료|접수)|(?:계약|청약)\s*취소|인수\s*거절|거절\s*안내|부적격/) || one.match(/(?:반송|철회|취소|거절)\s*(?:처리\s*)?(?:되었|됐|되어|완료)/);
     var good = function (t) {
-      return /입금\s*(?:이|은)?\s*완료|입금\s*확인|수납\s*(?:이|은)?\s*완료|출금\s*(?:이|은)?\s*완료|결제\s*(?:가|는)?\s*완료|이체\s*(?:가|는)?\s*완료|입금\s*(?:되었|됐)/.test(t) ? 'pay'
+      return /입금\s*(?:이|은)?\s*완료|입금\s*확인|수납\s*(?:이|은)?\s*완료|출금\s*(?:이|은)?\s*완료|결제\s*(?:가|는)?\s*완료|이체\s*(?:가|는)?\s*완료|입금\s*(?:되었|됐|되어)/.test(t) ? 'pay'
         : /(?:계약|청약)\s*(?:이|은)?\s*(?:체결|성립)|체결\s*안내|성립\s*안내|승낙|증권\s*(?:이|은)?\s*(?:발행|발급|발송)/.test(t) ? 'made'
-        : /청약/.test(t) ? 'apply' : '';
+        : /청약|서명|계약\s*접수|인수\s*심사/.test(t) ? 'apply' : '';
     };
     var ev = bad ? 'bad'
-      : /미납|미입금|연체|실효|출금\s*(?:실패|불능)|이체\s*(?:실패|불능)|잔액\s*부족|해지\s*예정/.test(headT) ? 'warn'
+      : /미납|미입금|미출금|연체|실효|출금\s*(?:실패|불능)|이체\s*(?:실패|불능)|수납\s*오류|잔액\s*부족|해지\s*예정/.test(headT) ? 'warn'
       : /보완/.test(headT) ? 'fix'
       : good(headT) || good(one) || 'etc';
+    if (!no && ev === 'made') ev = 'apply';   // 증권번호 없이 '계약 체결을 위한 서명' 같은 글 → 아직 청약·서명 단계
     if (/^(소중한|존경하는|사랑하는|우리|해당|담당|귀한|모든|신규|기존|안녕하세요)$/.test(nm)) nm = '';
-    var n = { no: no, ap: ap, amt: amt, prod: prod, cDate: cD, pDate: pD, name: nm, masked: /[*＊○●]/.test(nm) || (/[가-힣]/.test(nm) && /[OXＯ]/.test(nm)) ? 1 : 0, nameSure: nmL && nm === nmL ? 1 : 0, co: co, ev: ev, word: bad ? (norm(bad[0]).match(/반송|철회|취소|거절|부적격/) || ['반송'])[0] : '', d: m.d || '', t: m.t || '', who: String(m.who || '').trim() };
-    n.id = [no, ev, n.d || pD || cD || '', amt == null ? '' : amt].join('|');
+    var isMk = function (v) { return /[*＊○●]/.test(v) || (/[가-힣]/.test(v) && /[OXＯ]/.test(v)); };
+    var n = { no: no, ap: ap, pre: no ? 0 : 1, amt: amt, prod: prod, cDate: cD, pDate: pD, name: nm, masked: isMk(nm) ? 1 : 0, nameSure: nmL && nm === nmL ? 1 : 0, ins: ins && !isMk(ins) && /^[가-힣]{2,5}$/.test(ins) ? ins : '', co: co, ev: ev, word: bad ? (norm(bad[0]).match(/반송|철회|취소|거절|부적격/) || ['반송'])[0] : '', d: m.d || '', t: m.t || '', who: String(m.who || '').trim() };
+    n.id = [no || '~' + noKey(ap), ev, n.d || pD || cD || '', amt == null ? '' : amt].join('|');
     return n;
   }
-  // 글 → { room, msgs(읽은 글 수), notes(증권번호가 있는 알림), skip(청약번호만 있어 넘긴 알림 수) }
+  // 글 → { room, msgs(읽은 글 수), notes(증권번호가 있는 알림 + 청약·서명 단계 알림), pre(그중 청약·서명 단계 알림 수) }
+  //   청약·서명 단계 알림(pre)은 보험사 이름이 보일 때만 읽는다(청약번호가 적힌 아무 글이나 알림으로 잡지 않게)
   function noteParse(raw) {
-    var K = kkSplit(raw), notes = [], skip = 0, seen = {};
+    var K = kkSplit(raw), notes = [], pre = 0, seen = {};
     K.msgs.forEach(function (m) {
       if (!/번호/.test(m.text) || !/보험|계약|청약|증권|증서/.test(m.text)) return;
       var n = noteOf(m, K.room);
-      if (!n.no) { if (n.ap) skip++; return; }
-      if (seen[n.id]) return; seen[n.id] = 1; notes.push(n);
+      if (!n.no && !(n.ap && n.co)) return;
+      if (seen[n.id]) return; seen[n.id] = 1; notes.push(n); if (!n.no) pre++;
     });
-    var ins = INS.test(K.room) || K.msgs.some(function (m) { return INS.test(m.who || '') || /^\s*\[[^\]\n]*(?:보험|화재|생명|손보|해상|라이프)[^\]\n]*\]/.test(m.text || ''); });
     // 여러 사람이 글을 올리는 방(지점 출금내역방 등)인지: 글을 쓴 사람이 셋 이상(나 + 둘 이상). 둘뿐인 방(보험사 채널 · 1:1)은 지금처럼 전부 내 것으로 본다
     var W = {}; K.msgs.forEach(function (m) { if (m.who) W[m.who] = 1; });
-    return { room: K.room, msgs: K.msgs.length, notes: notes, skip: skip, ok: notes.length > 0 || (skip > 0 && ins), group: Object.keys(W).length >= 3 };
+    return { room: K.room, msgs: K.msgs.length, notes: notes, pre: pre, skip: 0, ok: notes.length > 0, group: Object.keys(W).length >= 3 };
   }
   // 여러 사람이 올리는 방에서는 '내가 올린 알림'만 내 장부에 넣는다 — 다른 분이 올린 계약은 그분 고객의 계약이다(2026-11-18 대표님: 지점 출금내역방)
   //   휴대폰에서 내보내면 내 글은 보낸 사람이 '회원님'으로 나온다. PC에서 내보내면 내 이름 그대로 → my(내가 적어 둔 내 이름들)와 견준다
@@ -7607,24 +7623,90 @@ var Policy = (function () {
   function fromNote(x) { return x.src === 'note' && !x.seen; }                                   // 알림톡으로만 들어온 계약(회사 자료에는 아직 없음)
   function isGone(x, d) { return !!d.asOf && !fromNote(x) && (x.seen || '') < d.asOf; }
   function lastEv(x) { var L = x.ev || []; return L.length ? L[L.length - 1] : null; }
+  // ---------- 청약·서명 단계 알림 ↔ 증권번호가 있는 계약 (2026-11-18 대표님 출금방) ----------
+  // 지점 출금방에 올리는 글은 대부분 '전자서명 · 모바일청약 · 수납완료' 같은 청약 단계 알림이고, 거기 적힌 가계약번호·청약서번호·설계번호는 체결 뒤 증권번호와 다르다
+  //   (실제 방 파일로 확인: 같은 번호로 이어지는 보험사가 하나도 없음). 그래서 번호가 아니라 '같은 보험사 · 같은 보험료 · 이름 · 날짜'로 같은 계약인지 본다.
+  function maskRe(mk) { return new RegExp('^' + norm(mk).replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/[*＊○●ＯOX]/g, '.') + '$'); }
+  function prodKey(s) { return norm(s).replace(/무배당|\(무\)|[()\[\]_.,·\-]/g, '').toLowerCase(); }
+  function prodSame(a, b) { a = prodKey(a); b = prodKey(b); if (!a || !b) return false; var s = a.length <= b.length ? a : b, l = s === a ? b : a; return l.indexOf(s) >= 0 || (s.length >= 12 && l.indexOf(s.slice(0, 12)) >= 0); }
+  function dayOff(a, b) { return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5); }   // a → b 며칠 뒤인지
+  // q = { co, amt, d(알림 날짜), name(가려졌을 수 있음), masked, prod } → 같은 계약으로 보이는 증권번호 줄 하나(없거나 애매하면 null)
+  //   같은 보험사 · 보험료가 똑같음 · 계약일이 알림 날짜의 10일 전~45일 뒤 · 이름이 맞음(가려진 이름이면 글자 수·보이는 글자). 이름을 견줄 수 없으면 상품명이 같아야 하고, 그때 계약자가 여럿이면 정하지 않는다
+  //   보험료가 안 적힌 알림(수납완료·진행상태)은 이름과 상품명이 둘 다 맞을 때만
+  function findFinal(d, q) {
+    var noAmt = q.amt == null || q.amt === '' || !(+q.amt > 0);
+    var re = q.name && q.masked ? maskRe(q.name) : null, qn = norm(q.name);
+    if (noAmt && (!qn || !norm(q.prod))) return null;
+    var L = [];
+    Object.keys(d.items).forEach(function (k) {
+      var x = d.items[k]; if (x.pre || x.into || !coSame(q.co, x.co)) return;
+      if (!noAmt && +x.first !== +q.amt && +x.cont !== +q.amt) return;
+      var g = 99; if (x.cDate && q.d) { var off = dayOff(q.d, x.cDate); if (off < -10 || off > 45) return; g = Math.abs(off); }
+      var hs = [norm(x.holder), norm(x.insured)].filter(Boolean), f = 0;
+      if (qn && hs.length) f = (re ? hs.some(function (h) { return re.test(h); }) : hs.indexOf(qn) >= 0) ? 2 : -1;
+      var p = prodSame(q.prod, x.prod) ? 1 : 0;
+      if (noAmt ? (f === 2 && p) : (f === 2 || (f === 0 && p))) L.push({ x: x, f: f, p: p, g: g, a: (x.aps || []).length });
+    });
+    if (!L.length) return null;
+    L.sort(function (a, b) { return b.f - a.f || b.p - a.p || a.a - b.a || a.g - b.g; });
+    if (L[0].f === 0) { var H = {}; L.forEach(function (c) { H[norm(c.x.holder) || c.x.k] = 1; }); if (Object.keys(H).length > 1) return null; }
+    return L[0].x;
+  }
+  function evJoin(a, b) { var em = {}; (a || []).concat(b || []).forEach(function (e) { if (e && e.i) em[e.i] = e; }); return Object.keys(em).map(function (i) { return em[i]; }).sort(function (p, q) { return p.d < q.d ? -1 : p.d > q.d ? 1 : 0; }).slice(-12); }
+  function apsAdd(x, k) { var a = (x.aps || []).filter(function (v) { return v !== k; }); a.push(k); x.aps = a.slice(-4); }
+  // 장부에 남아 있는 '청약 중' 줄 가운데 증권번호 줄이 생긴 것은 그 줄로 이어 붙인다(into) — 줄을 지우지 않고 표시만(다른 기기와 합칠 때 되살아나지 않게)
+  function linkPre(d, now) {
+    var n = 0;
+    Object.keys(d.items || {}).forEach(function (k) {
+      var x = d.items[k]; if (!x.pre || x.into) return;
+      var f = findFinal(d, { co: x.co, amt: premOf(x), d: x.cDate, name: x.holder, masked: 0, prod: x.prod });
+      if (!f) return;
+      x.into = f.k; x.up = now; apsAdd(f, k); n++;
+      if (!norm(f.holder) && norm(x.holder)) { f.holder = x.holder; f.hBy = x.hBy || 'pick'; f.hAt = x.hAt || now; }
+      if ((x.ev || []).length) f.ev = evJoin(f.ev, x.ev);
+      f.up = now;
+    });
+    return n;
+  }
   // 알림을 장부에 넣기 — 덮어쓰지 않는다: 이미 있는 계약은 빈 칸만 채우고(수납은 더 나중 날짜일 때만), 증권 전달 표시와 회사 자료의 계약자 이름은 그대로.
-  // o = { now, today, deals: [{ id, name, amt, d, co, no }](계약 실적), names: [고객 이름…], pick: { 증권번호: 이름 }(직접 고른 것) }
+  // o = { now, today, deals: [{ id, name, amt, d, co, no }](계약 실적), names: [고객 이름…], hot: [최근에 연락·상담한 고객 이름…], pick: { 장부 열쇠: 이름 }(직접 고른 것) }
+  //   증권번호가 있는 알림 → 그 번호 줄. 청약·서명 단계 알림(번호가 다름) → ① 같은 계약의 증권번호 줄이 이미 있으면 거기에 기록만 ② 없으면 '청약 중' 줄('~번호')을 만들고,
+  //   나중에 체결 알림·회사 엑셀로 증권번호 줄이 생기면 linkPre가 이어 붙인다. 이름·보험료가 하나도 없는 알림과 45일 넘은 청약 알림은 줄을 만들지 않는다.
   function noteApply(doc, notes, o) {
     var d = clone(doc || blank()); d.items = d.items || {}; d.nseen = d.nseen || {}; d.imports = d.imports || [];
-    var R = { n: notes.length, dup: 0, items: [], links: [], added: 0, upd: 0, sure: 0, ask: 0, none: 0, had: 0 };
+    var R = { n: notes.length, dup: 0, items: [], links: [], added: 0, upd: 0, sure: 0, ask: 0, none: 0, had: 0, pre: 0, tied: 0, thin: 0, old: 0, skipN: 0 };
     var by = {}, order = [], pick = o.pick || {}, used = {}, deals = o.deals || [];
-    var ix = {}; Object.keys(d.items).forEach(function (k) { ix[noKey(k)] = k; });
+    var ix = {}, apx = {}; Object.keys(d.items).forEach(function (k) { ix[noKey(k)] = k; (d.items[k].aps || []).forEach(function (a) { apx[a] = k; }); });
     var nameOk = {}, nameN = {}; (o.names || []).forEach(function (n) { var k = norm(n); if (!k) return; nameN[k] = (nameN[k] || 0) + 1; nameOk[k] = n; });
-    notes.forEach(function (n) { if (d.nseen[n.id]) { R.dup++; return; } var nk = noKey(n.no), k = d.items[n.no] ? n.no : ix[nk] || (ix[nk] = n.no); if (!by[k]) { by[k] = []; order.push(k); } by[k].push(n); });   // 줄표·앞 0만 다른 번호는 한 계약
+    var hot = {}; (o.hot || []).forEach(function (n) { hot[norm(n)] = 1; });
+    notes.forEach(function (n) {
+      if (d.nseen[n.id]) { R.dup++; return; }
+      var k;
+      if (n.no) { var nk = noKey(n.no); k = d.items[n.no] ? n.no : ix[nk] || (ix[nk] = n.no); }   // 줄표·앞 0만 다른 번호는 한 계약
+      else { var pk = '~' + noKey(n.ap); k = apx[pk] || pk; }                                      // 청약 단계 번호: 이미 증권번호 줄에 이어 둔 번호면 그 줄
+      if (!by[k]) { by[k] = []; order.push(k); } by[k].push(n);
+    });
+    order = order.filter(function (k) { return k.charAt(0) !== '~'; }).concat(order.filter(function (k) { return k.charAt(0) === '~'; }));   // 증권번호 줄 먼저 → 청약 단계 알림이 이번에 들어온 줄에도 붙을 수 있게
     var lastOf = function (L, k) { for (var i = L.length - 1; i >= 0; i--) if (L[i][k] !== '' && L[i][k] != null) return L[i][k]; return ''; };
+    var seenAll = function (x, L) { x.ev = x.ev || []; L.forEach(function (n) { d.nseen[n.id] = o.now; if (!x.ev.some(function (e) { return e.i === n.id; })) x.ev.push({ i: n.id, d: n.d || n.pDate || n.cDate || o.today, e: n.ev }); }); x.ev = evJoin(x.ev, []); };
     order.forEach(function (no) {
+      var isPre = no.charAt(0) === '~';
       var L = by[no].slice().sort(function (a, b) { return (a.d + a.t) < (b.d + b.t) ? -1 : (a.d + a.t) > (b.d + b.t) ? 1 : 0; }), last = L[L.length - 1];
       var amt = lastOf(L, 'amt'), prod = lastOf(L, 'prod'), co = lastOf(L, 'co'), when = last.d || last.pDate || last.cDate || o.today;
       var cD = lastOf(L, 'cDate'); if (!cD) { var f0 = L.filter(function (n) { return /^(apply|pay|made)$/.test(n.ev) && n.d; })[0]; cD = f0 ? f0.d : ''; }
+      var pnm = L.filter(function (n) { return n.name && !n.masked; }).pop(), mk = L.map(function (n) { return n.masked && /[가-힣]/.test(n.name) ? n.name : ''; }).filter(Boolean).pop();
       var x = d.items[no], isNew = !x;
+      if (isNew && isPre) {
+        var first = L[0].d || L[0].cDate || o.today;
+        var fin = findFinal(d, { co: co, amt: amt, d: first, name: pnm ? pnm.name : mk || '', masked: pnm ? 0 : mk ? 1 : 0, prod: prod });
+        if (fin) { apsAdd(fin, no); seenAll(fin, L); fin.up = o.now; R.tied++; return; }             // ① 이미 증권번호가 있는 같은 계약 → 기록만 붙임
+        if (!pnm && !mk && amt === '') { R.thin++; R.skipN += L.length; return; }                                          // 이름도 보험료도 없는 알림("모든 서명이 완료") → 줄을 만들 수 없음
+        if (dayGap(when, o.today) > 45 && when < o.today) { R.old++; R.skipN += L.length; return; }                        // 45일 넘게 지난 청약 알림인데 체결된 계약을 못 찾음 → 넣지 않음
+      }
       if (isNew) {
-        x = d.items[no] = { k: no, no: no, kind: kindOfCo(co), co: co, holder: '', insured: '', cDate: cD, cMonth: cD.slice(0, 7), pDate: '', pMonth: '', round: '', first: amt === '' ? null : amt, cont: amt === '' ? null : amt,
+        x = d.items[no] = { k: no, no: isPre ? '' : no, kind: kindOfCo(co), co: co, holder: '', insured: '', cDate: cD, cMonth: cD.slice(0, 7), pDate: '', pMonth: '', round: '', first: amt === '' ? null : amt, cont: amt === '' ? null : amt,
           prod: prod, big: '', mid: '', small: '', st: '', own: 0, dv: 0, add: o.today, seen: '', at: o.now, up: o.now, pays: [], src: 'note' };
+        if (isPre) { x.pre = 1; x.ap = no.slice(1); }
         R.added++;
       } else {
         if (!x.co && co) { x.co = co; if (!x.kind) x.kind = kindOfCo(co); } if (!x.prod && prod) x.prod = prod;
@@ -7632,29 +7714,29 @@ var Policy = (function () {
         if (amt !== '') { if (x.first == null || x.first === '') x.first = amt; if (x.cont == null || x.cont === '') x.cont = amt; }
         x.up = o.now; R.upd++;
       }
+      if (x.pre) R.pre++;
+      var insN = lastOf(L, 'ins'); if (insN && !norm(x.insured)) x.insured = insN;
       var paid = '';
-      x.ev = x.ev || [];
+      seenAll(x, L);
       L.forEach(function (n) {
-        d.nseen[n.id] = o.now; if (!x.ev.some(function (e) { return e.i === n.id; })) x.ev.push({ i: n.id, d: n.d || n.pDate || n.cDate || o.today, e: n.ev });   // 붙여 넣은 알림은 보낸 날짜가 없다 → 알림에 적힌 입금일·청약일, 그것도 없으면 넣은 날
         if (n.ev === 'pay') { var pd = n.pDate || n.d || n.cDate || o.today; addPay(x, { pMonth: pd.slice(0, 7), pDate: pd, round: '' }); if (pd > (x.pDate || '')) { x.pDate = pd; x.pMonth = pd.slice(0, 7); paid = pd; } }
         if (n.ev === 'bad' && fromNote(x)) x.st = (n.word || '반송') + '(알림)';
       });
-      x.ev.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }); if (x.ev.length > 12) x.ev = x.ev.slice(-12);
       // 누구 계약인가 — ① 회사 자료에 계약자가 있으면 그대로 ② 직접 고른 이름 ③ 이미 이 증권번호가 달린 계약 실적 ④ 알림에 가려지지 않고 온 이름
-      //   ⑤ 계약 실적의 보험료(계약금액)가 똑같고 계약일이 두 달 안인 고객이 한 명 ⑥ 여럿이면 가려진 이름(홍*동)으로 좁힘 ⑦ 그래도 모르면 후보만 보여 주고 '고객 미확인'
+      //   ⑤ 계약 실적의 보험료(계약금액)가 똑같고 계약일이 두 달 안인 고객이 한 명 ⑥ 여럿이면 가려진 이름(홍*동)으로 좁힘
+      //   ⑦ 가려진 이름과 맞는 고객이 딱 한 명이고 그 고객이 '최근에 연락·상담한 고객'(hot)이면 그 고객(넣기 창에서 고칠 수 있음) ⑧ 그래도 모르면 후보만 보여 주고 '고객 미확인'
       var ma = amt !== '' ? amt : (premOf(x) == null ? '' : premOf(x));   // 맞출 때 쓰는 보험료: 알림에 없으면 장부에 있는 값
       var who = null, ask = [], dl = null, ref = cD || x.cDate || when, hasPick = Object.prototype.hasOwnProperty.call(pick, no), fixed = !!(x.seen && x.holder && !x.hBy), kept = false;
-      var pool = deals.filter(function (q) { return !used[q.id] && (!q.no || noKey(q.no) === noKey(no)) && coSame(q.co, x.co || co); });
+      var pool = deals.filter(function (q) { return !used[q.id] && (!q.no || (!isPre && noKey(q.no) === noKey(no))) && coSame(q.co, x.co || co); });
       var uniqN = function (A) { var ns = []; A.forEach(function (q) { if (q.name && ns.indexOf(q.name) < 0) ns.push(q.name); }); return ns; };
-      var mk = L.map(function (n) { return n.masked && /[가-힣]/.test(n.name) ? n.name : ''; }).filter(Boolean).pop();
-      var byMask = function (ns) { if (!mk) return []; var re = new RegExp('^' + mk.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/[*＊○●ＯOX]/g, '.') + '$'); return ns.filter(function (n) { return re.test(norm(n)); }); };
+      var byMask = function (ns) { if (!mk) return []; var re = maskRe(mk); return ns.filter(function (n) { return re.test(norm(n)); }); };
       if (fixed || (x.holder && !hasPick)) { who = { name: x.holder, how: x.hBy || 'ledger' }; kept = true; R.had++; }
       else {
         if (hasPick) { if (norm(pick[no])) who = { name: String(pick[no]).replace(/\s+/g, ' ').trim(), how: 'pick' }; }
         else {
           var lk = pool.filter(function (q) { return q.no && q.name; })[0];
           if (lk) { who = { name: lk.name, how: 'deal' }; dl = lk; }
-          if (!who) { var pn = L.filter(function (n) { return n.name && !n.masked; }).pop(); if (pn) { var nk = norm(pn.name); if (nameN[nk] === 1) who = { name: nameOk[nk], how: 'name' }; else if (pn.nameSure && /^[가-힣]{2,5}$/.test(nk)) who = { name: nk, how: 'name' }; } }
+          if (!who && pnm) { var nk = norm(pnm.name); if (nameN[nk] === 1) who = { name: nameOk[nk], how: 'name' }; else if (pnm.nameSure && /^[가-힣]{2,5}$/.test(nk)) who = { name: nk, how: 'name' }; }
           if (!who && ma !== '') {
             var ex = pool.filter(function (q) { return +q.amt === +ma && dayGap(q.d, ref) <= 62; }), ns = uniqN(ex);
             if (ns.length > 1) { var nar = byMask(ns); if (nar.length === 1) ns = nar; }
@@ -7666,22 +7748,30 @@ var Policy = (function () {
             }
           }
         }
-        // ⑧ 실적으로 못 찾았으면 가려진 이름(김*일)과 글자 수·보이는 글자가 맞는 고객을 후보로만 보여 준다 — 자동으로 정하지 않는다(같은 모양 이름이 고객 목록 밖에도 있을 수 있음). 너무 많이 맞으면(7명 이상) 보여 주지 않는다
         var askBy = ask.length ? 'deal' : '';
-        if (!who && !hasPick && mk && ask.length < 6) {
-          var mn = byMask(Object.keys(nameOk).map(function (k) { return nameOk[k]; })).filter(function (n) { return ask.indexOf(n) < 0; });
-          if (mn.length && mn.length <= 6) { mn.slice(0, 6 - ask.length).forEach(function (n) { ask.push(n); }); askBy = askBy ? 'both' : 'mask'; }
+        if (!who && !hasPick && mk) {
+          var all1 = byMask(Object.keys(nameOk).map(function (k) { return nameOk[k]; }));
+          // ⑦ 가려진 이름에 보이는 글자가 둘 이상이고, 맞는 고객이 한 명뿐이며, 그 고객을 최근에 연락·상담했다 → 그 고객으로(넣기 창에 이름이 미리 들어가 있어 고칠 수 있다)
+          //   모양이 맞는 고객이 여럿이어도 최근에 연락·상담한 고객이 그중 한 명뿐이면 그 고객(나머지는 후보 단추로 남김)
+          var hot1 = all1.filter(function (n) { return hot[norm(n)] && nameN[norm(n)] === 1; });
+          if (hot1.length === 1 && all1.length <= 6 && norm(mk).replace(/[^가-힣]/g, '').length >= 2 && (!ask.length || ask.indexOf(hot1[0]) >= 0)) { who = { name: hot1[0], how: 'mask' }; ask = all1.filter(function (n) { return n !== hot1[0]; }).slice(0, 5); askBy = ask.length ? 'mask' : ''; }
+          else if (ask.length < 6) {
+            // ⑧ 글자 수·보이는 글자가 맞는 고객을 후보로만 — 자동으로 정하지 않는다(같은 모양 이름이 고객 목록 밖에도 있을 수 있음). 너무 많이 맞으면(7명 이상) 보여 주지 않는다
+            var mn = all1.filter(function (n) { return ask.indexOf(n) < 0; });
+            if (mn.length && mn.length <= 6) { mn.slice(0, 6 - ask.length).forEach(function (n) { ask.push(n); }); askBy = askBy ? 'both' : 'mask'; }
+          }
         }
         if (who) { x.holder = who.name; x.hBy = who.how; x.hAt = o.now; R.sure++; }
         else { if (hasPick && x.holder) { x.holder = ''; x.hBy = ''; x.hAt = o.now; } if (ask.length) R.ask++; else R.none++; }
       }
-      // 계약 실적에 증권번호 달아 주기(비어 있을 때만): 같은 사람 · 같은 보험료
+      // 계약 실적에 증권번호 달아 주기(비어 있을 때만): 같은 사람 · 같은 보험료 — 청약 단계 줄은 아직 증권번호가 없어 달지 않는다
       if (who && !dl && ma !== '') dl = pool.filter(function (q) { return norm(q.name) === norm(who.name) && +q.amt === +ma; }).sort(function (p, q) { return dayGap(p.d, ref) - dayGap(q.d, ref); })[0] || null;
-      if (dl) { used[dl.id] = 1; if (!dl.no) R.links.push({ id: dl.id, no: no }); }
-      R.items.push({ no: no, isNew: isNew, who: who, ask: ask, askBy: askBy || '', fixed: kept, ev: last.ev, d: when, amt: amt === '' ? null : amt, prod: x.prod || prod, co: x.co || co, paid: paid, deal: dl ? dl.id : '' });
+      if (dl) { used[dl.id] = 1; if (!dl.no && !x.pre) R.links.push({ id: dl.id, no: no }); }
+      R.items.push({ k: no, no: x.no, pre: x.pre ? 1 : 0, isNew: isNew, who: who, ask: ask, askBy: askBy || '', fixed: kept, ev: last.ev, d: when, amt: amt === '' ? null : amt, prod: x.prod || prod, co: x.co || co, paid: paid, deal: dl ? dl.id : '' });
     });
+    R.tied += linkPre(d, o.now);   // 이번에 들어온 증권번호 줄과 같은 계약인 '청약 중' 줄을 이어 붙임
     var ks = Object.keys(d.nseen); if (ks.length > 4000) { ks.sort(function (a, b) { return d.nseen[a] - d.nseen[b]; }).slice(0, ks.length - 4000).forEach(function (k) { delete d.nseen[k]; }); }
-    if (order.length) { d.imports.push({ at: o.now, asOf: o.today, name: o.name || '보험사 알림톡', n: order.length, added: R.added, paid: R.items.filter(function (i) { return i.paid; }).length, note: 1 }); d.imports = d.imports.slice(-40); d.saved = o.now; if (!d.created) d.created = o.now; }
+    if (R.items.length || R.tied) { d.imports.push({ at: o.now, asOf: o.today, name: o.name || '보험사 알림톡', n: R.items.length, added: R.added, paid: R.items.filter(function (i) { return i.paid; }).length, note: 1 }); d.imports = d.imports.slice(-40); d.saved = o.now; if (!d.created) d.created = o.now; }
     return { doc: d, R: R };
   }
   function premOf(x) { return x.first != null && x.first !== '' ? x.first : x.cont; }
@@ -7700,17 +7790,23 @@ var Policy = (function () {
   function unpaid(x, bm) { return !inactive(x) && !fromNote(x) && !!bm && !!x.pMonth && x.pMonth < bm; }
   function warnOn(x) { var e = lastEv(x); return !!e && e.e === 'warn' && (x.pDate || '') < e.d; }                 // 📩 미납·연체 알림을 받았고 그 뒤 수납이 없음
   function behind(x, bm) { return !inactive(x) && (late(x) || warnOn(x) || (!fromNote(x) && !!bm && !!x.pMonth && mdiff(x.pMonth, bm) >= 2)); }
-  function needDv(x) { return !inactive(x) && !x.own && !x.dv; }
-  function all(d) { return Object.keys(d && d.items || {}).map(function (k) { return d.items[k]; }); }
+  function needDv(x) { return !inactive(x) && !x.own && !x.dv && !x.pre; }                     // '청약 중' 줄은 아직 증권이 안 나왔다 → 미전달로 세지 않음
+  // 장부가 아는 가장 최근 날짜(회사 자료 기준일 · 마지막으로 넣은 날 중 늦은 쪽) — 시계를 따로 받지 않고 '소식 없음'을 따지려고
+  function nowOf(d) { var s = d && d.saved ? new Date(d.saved).toISOString().slice(0, 10) : '', a = (d && d.asOf) || ''; return s > a ? s : a; }
+  // '청약 중' 줄인데 마지막 알림 뒤 45일 넘게 체결 소식(증권번호)이 없다 → 계약으로 세지 않는다(줄은 남김)
+  function stale(x, d) { if (!x.pre || x.into) return false; var le = lastEv(x), ld = (le && le.d) || x.cDate || '', nd = nowOf(d); return !!ld && !!nd && ld < nd && dayGap(ld, nd) > 45; }
+  function all(d) { return Object.keys(d && d.items || {}).map(function (k) { return d.items[k]; }).filter(function (x) { return !x.into; }); }   // 증권번호 줄에 이어 붙인 '청약 중' 줄은 어디에도 안 보인다
   function stats(d) {
-    var L = all(d), bm = (d.asOf || '').slice(0, 7), S = { n: L.length, bm: bm, act: 0, off: 0, prem: 0, dvY: 0, dvN: 0, paidY: 0, paidN: 0, late: 0, behind: 0, own: 0, neu: 0, gone: 0, holders: 0, note: 0, who: 0 }, H = {};
+    var L = all(d), bm = (d.asOf || '').slice(0, 7), S = { n: L.length, bm: bm, act: 0, off: 0, prem: 0, dvY: 0, dvN: 0, paidY: 0, paidN: 0, late: 0, behind: 0, own: 0, neu: 0, gone: 0, holders: 0, note: 0, who: 0, pre: 0, old: 0 }, H = {};
     L.forEach(function (x) {
       if (isGone(x, d)) S.gone++;
       if ((x.ev || []).length) S.note++;
-      if (!norm(x.holder) && !inactive(x)) S.who++;
+      var st = stale(x, d);
+      if (!norm(x.holder) && !inactive(x) && !st) S.who++;
       if (x.add === d.asOf) S.neu++;
       if (x.own) S.own++;
       if (inactive(x)) { S.off++; return; }
+      if (x.pre) { if (st) S.old++; else { S.pre++; if (norm(x.holder)) H[norm(x.holder)] = 1; } return; }   // 청약 중: 계약·보험료·수납·증권 숫자에는 넣지 않고 따로 센다
       S.act++; S.prem += +x.cont || 0; if (norm(x.holder)) H[norm(x.holder)] = 1;
       if (late(x)) S.late++;
       if (behind(x, bm)) S.behind++;
@@ -7727,9 +7823,9 @@ var Policy = (function () {
   function dAdd(s, n) { var t = new Date(s + 'T00:00:00Z'); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }
   function matchF(x, f, d, since) {
     var bm = (d.asOf || '').slice(0, 7);
-    return f === 'dvn' ? needDv(x) : f === 'unpaid' ? unpaid(x, bm) : f === 'late' ? behind(x, bm) : f === 'new' ? x.add === d.asOf : f === 'off' ? inactive(x) : f === 'gone' ? isGone(x, d) : f === 'own' ? !!x.own : f === 'note' ? !!(x.ev || []).length : f === 'who' ? !norm(x.holder) && !inactive(x) : f === 'pay2' ? payNew(x, since) : true;
+    return f === 'dvn' ? needDv(x) : f === 'unpaid' ? unpaid(x, bm) : f === 'late' ? behind(x, bm) : f === 'new' ? x.add === d.asOf : f === 'off' ? inactive(x) : f === 'gone' ? isGone(x, d) : f === 'own' ? !!x.own : f === 'note' ? !!(x.ev || []).length : f === 'who' ? !norm(x.holder) && !inactive(x) && !stale(x, d) : f === 'pre' ? !!x.pre && !inactive(x) && !stale(x, d) : f === 'pay2' ? payNew(x, since) : true;
   }
-  var HOW = { deal: '보험료로 맞춤', name: '알림에 적힌 이름', pick: '직접 정함', ledger: '장부에 있는 계약' };
+  var HOW = { deal: '보험료로 맞춤', name: '알림에 적힌 이름', pick: '직접 정함', ledger: '장부에 있는 계약', mask: '가려진 이름과 맞는 최근 상담 고객' };
   var GROUPED = { cDate: 1, holder: 1 };
   function view(d, o) {
     o = o || {}; var q = norm(o.q).toLowerCase(), key = o.key || 'cDate', dir = o.asc ? 1 : -1;
@@ -7756,7 +7852,7 @@ var Policy = (function () {
   function aoa(d) {
     var L = all(d).sort(function (a, b) { return String(a.holder).localeCompare(String(b.holder), 'ko') || ((a.cDate || '') < (b.cDate || '') ? -1 : 1); });
     return [XH].concat(L.map(function (x) {
-      return [inactive(x) ? '' : x.own ? '내 계약' : x.dv ? '전달' : '미전달', x.kind ? x.kind + '보험' : '', x.co, x.no, x.holder, x.insured, x.cDate, x.cMonth, x.pDate, x.pMonth, x.round, x.first == null ? '' : x.first, x.cont == null ? '' : x.cont, x.prod, x.mid, x.small, x.st, x.dvD || '', x.add || '', lastEv(x) ? lastEv(x).d + ' ' + (EV_T[lastEv(x).e] || '안내') : ''];
+      return [inactive(x) ? '' : x.pre ? '청약 중' : x.own ? '내 계약' : x.dv ? '전달' : '미전달', x.kind ? x.kind + '보험' : '', x.co, x.no, x.holder, x.insured, x.cDate, x.cMonth, x.pDate, x.pMonth, x.round, x.first == null ? '' : x.first, x.cont == null ? '' : x.cont, x.prod, x.mid, x.small, x.st, x.dvD || '', x.add || '', lastEv(x) ? lastEv(x).d + ' ' + (EV_T[lastEv(x).e] || '안내') : ''];
     }));
   }
 
@@ -7800,17 +7896,17 @@ var Policy = (function () {
   var TH = [['dv', '증권', 'asc'], ['holder', '계약자', 'asc'], ['co', '보험사 · 증권번호', 'asc'], ['prod', '상품명 · 분류', 'asc'], ['cDate', '계약일', 'desc'], ['pDate', '최종납입', 'desc'], ['cont', '보험료', 'desc']];
   function rowHtml(x, d) {
     var bm = (d.asOf || '').slice(0, 7), off = inactive(x), pc = off ? '' : behind(x, bm) ? 'bad' : unpaid(x, bm) ? 'wait' : x.pMonth ? 'ok' : '';
-    var gone = isGone(x, d), isNew = x.add === d.asOf && impN(d) > 1, le = lastEv(x), nt = fromNote(x);
+    var gone = isGone(x, d), isNew = x.add === d.asOf && impN(d) > 1, le = lastEv(x), nt = fromNote(x), pre = !!x.pre && !off, old = pre && stale(x, d);
     var evTag = le ? ' <em class="ev e-' + le.e + '">📩 ' + esc(dot(le.d).slice(3)) + ' ' + (EV_T[le.e] || '안내') + '</em>' : '';
     // 계약자 칸: 알림톡으로만 들어온 계약은 눌러서 고객을 정하거나 바꿀 수 있음(회사 자료에 계약자가 있으면 그 이름 그대로)
     var wh = !norm(x.holder) ? '<button type="button" class="pol-who" data-polwho="' + esc(x.k) + '">고객 정하기</button>' : (nt || x.hBy) && !x.seen ? '<button type="button" class="pol-who has" data-polwho="' + esc(x.k) + '" title="알림톡 보험료로 맞춘 고객 · 누르면 바꿀 수 있습니다">' + esc(x.holder) + '</button>' : '<b>' + esc(x.holder) + '</b>';
     var cat = [x.mid, x.small].filter(function (v, i, a) { return v && a.indexOf(v) === i; }).join(' · ');
-    var dv = off ? '<span class="pol-own x">' + esc(x.st) + '</span>' : x.own ? '<span class="pol-own">내 계약</span>' : '<button type="button" class="pol-dv" data-poldv="' + esc(x.k) + '" aria-pressed="' + !!x.dv + '" title="누르면 증권 전달 표시가 바뀝니다">' + (x.dv ? '✓ 전달' + (x.dvD ? '<small>' + esc(dot(x.dvD).slice(3)) + '</small>' : '') : '미전달') + '</button>';
+    var dv = off ? '<span class="pol-own x">' + esc(x.st) + '</span>' : pre ? '<span class="pol-own ' + (old ? 'x' : 'p') + '" title="' + (old ? '청약·서명 알림 뒤 45일 넘게 체결 소식이 없습니다' : '청약·서명 단계 · 증권번호는 체결 알림이나 회사 엑셀이 들어오면 자동으로 붙습니다') + '">' + (old ? '소식 없음' : '청약 중') + '</span>' : x.own ? '<span class="pol-own">내 계약</span>' : '<button type="button" class="pol-dv" data-poldv="' + esc(x.k) + '" aria-pressed="' + !!x.dv + '" title="누르면 증권 전달 표시가 바뀝니다">' + (x.dv ? '✓ 전달' + (x.dvD ? '<small>' + esc(dot(x.dvD).slice(3)) + '</small>' : '') : '미전달') + '</button>';
     var stTag = !off && x.st && !/^정상$/.test(x.st) ? ' <em class="bd">' + esc(x.st) + '</em>' : '';
-    return '<tr class="pol-r' + (off ? ' off' : x.own ? ' own' : x.dv ? ' dvy' : ' dvn') + '">' +
+    return '<tr class="pol-r' + (off ? ' off' : pre ? (old ? ' pre old' : ' pre') : x.own ? ' own' : x.dv ? ' dvy' : ' dvn') + '">' +
       '<td class="p-dv">' + dv + '</td>' +
       '<td class="p-wh">' + wh + '<small>' + (nt ? (HOW[x.hBy] || '알림톡으로 들어옴') : '피 ' + esc(x.insured || '-')) + '</small></td>' +
-      '<td class="p-co"><i class="pk ' + (x.kind === '생명' ? 'l' : 's') + '">' + esc(x.kind || '-') + '</i><span>' + esc(x.co) + '</span><small class="n">' + esc(x.no) + '</small></td>' +
+      '<td class="p-co"><i class="pk ' + (x.kind === '생명' ? 'l' : 's') + '">' + esc(x.kind || '-') + '</i><span>' + esc(x.co) + '</span><small class="n">' + (x.pre ? '증권번호 대기' : esc(x.no)) + '</small></td>' +
       '<td class="p-pr"><span>' + esc(x.prod || '-') + '</span><small>' + esc(cat) + stTag + (isNew ? ' <em class="nw">새 계약</em>' : '') + (gone ? ' <em class="gn">최근 자료에 없음</em>' : '') + evTag + '</small></td>' +
       '<td class="p-cd n"><i>계약</i>' + dot(x.cDate) + '<small>' + esc(x.cMonth || '') + '</small></td>' +
       '<td class="p-pd n ' + pc + '"><i>납입</i>' + dot(x.pDate) + '<small>' + esc(x.pMonth || '') + (x.round !== '' && x.round != null ? ' · ' + esc(x.round) + '회' : '') + '</small></td>' +
@@ -7821,24 +7917,25 @@ var Policy = (function () {
     if (!V.n) return '<tr class="pol-none"><td colspan="' + TH.length + '">' + (P.q ? '"' + esc(P.q) + '"에 맞는 계약이 없습니다.' : '여기에 해당하는 계약이 없습니다.') + '</td></tr>';
     if (!V.grouped) return V.rows.map(function (x) { return rowHtml(x, d); }).join('');
     V.groups.forEach(function (g) {
-      var act = g.rows.filter(function (x) { return !inactive(x); }), prem = act.reduce(function (s, x) { return s + (+x.cont || 0); }, 0), need = g.rows.filter(needDv).length, tot = act.filter(function (x) { return !x.own; }).length;
+      var act = g.rows.filter(function (x) { return !inactive(x); }), prem = act.reduce(function (s, x) { return s + (+x.cont || 0); }, 0), need = g.rows.filter(needDv).length, tot = act.filter(function (x) { return !x.own && !x.pre; }).length, preN = act.filter(function (x) { return x.pre && !stale(x, d); }).length;
       var cid = custOf ? custOf(g.holder) : '';
       h += '<tr class="pol-g"><td colspan="' + TH.length + '"><div>' + (cid ? '<button type="button" class="pol-gn" data-ctopen="' + esc(cid) + '" title="고객 화면 열기">' + esc(g.holder) + ' ›</button>' : '<b class="pol-gn">' + (norm(g.holder) ? esc(g.holder) : '고객 미확인 <small>알림톡으로 들어온 계약 · 계약자 칸을 눌러 고객을 정해 주세요</small>') + '</b>') +
         '<span>계약 ' + g.rows.length + '건' + (prem ? ' · 월 ' + fmt(prem) + '원' : '') + '</span>' +
+        (preN ? '<span class="pol-gp">청약 중 ' + preN + '</span>' : '') +
         (need ? '<span class="pol-gd">증권 미전달 ' + need + '</span>' + (norm(g.holder) ? '<button type="button" class="pb" data-polall="' + esc(g.holder) + '">모두 전달</button>' : '') : tot ? '<span class="pol-gd ok">증권 전달 완료</span>' : '') + '</div></td></tr>';
       h += g.rows.map(function (x) { return rowHtml(x, d); }).join('');
     });
     return h;
   }
   function chipsHtml(d, P) {
-    var S = stats(d), L = [['all', '전체', S.n], ['dvn', '증권 미전달', S.dvN], ['late', '수납 밀림·연체', S.behind], ['unpaid', '이번 달 미수납', S.paidN], ['new', '새 계약', S.neu], ['off', '철회·반송', S.off], ['gone', '최근 자료에 없음', S.gone], ['own', '내 계약', S.own], ['note', '📩 알림톡', S.note], ['pay2', '📩 어제·오늘 입금', P.since ? recent(d, P.since).payN : 0], ['who', '고객 미확인', S.who]];
+    var S = stats(d), L = [['all', '전체', S.n], ['dvn', '증권 미전달', S.dvN], ['late', '수납 밀림·연체', S.behind], ['unpaid', '이번 달 미수납', S.paidN], ['new', '새 계약', S.neu], ['pre', '✍️ 청약 중', S.pre], ['off', '철회·반송', S.off], ['gone', '최근 자료에 없음', S.gone], ['own', '내 계약', S.own], ['note', '📩 알림톡', S.note], ['pay2', '📩 어제·오늘 입금', P.since ? recent(d, P.since).payN : 0], ['who', '고객 미확인', S.who]];
     return L.filter(function (c) { return c[0] === 'all' || c[0] === 'dvn' || c[2] > 0 || P.f === c[0]; }).map(function (c) { return '<button type="button" data-polf="' + c[0] + '" class="f-' + c[0] + '" aria-pressed="' + ((P.f || 'all') === c[0]) + '">' + c[1] + '<b>' + c[2] + '</b></button>'; }).join('');
   }
   function pageHtml(d, P, C) {
     var S = stats(d), mTxt = S.bm ? (+S.bm.slice(5)) + '월' : '이번 달';
     var h = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="📑">계약 · 수납 · 증권 전달</h2><span class="cmeta">' + (!S.n ? '회사 전산의 계약 리스트 엑셀을 넣어 관리합니다' : d.asOf ? '회사 전산 계약 리스트 · ' + dot(d.asOf) + ' 자료 기준' : '보험사 알림톡으로 들어온 계약 · 회사 전산 엑셀을 넣으면 한 장부로 합쳐집니다') + '</span></div>';
     if (!S.n) return h + '<div class="pol-empty"><b>회사 전산의 계약 리스트 엑셀을 넣어 주세요</b><p>고객계약관리(보유계약) 화면에서 내려받은 엑셀을 그대로 넣으면 됩니다. 보험사·증권번호·계약자·피보험자·계약일·최종납입일·보험료·상품만 골라 정리하고, 증권을 전달했는지 눌러서 표시할 수 있습니다. 다음 달 엑셀을 또 넣으면 새 계약과 수납만 더해지고 증권 전달 표시는 그대로 남습니다.</p><div class="pol-act"><button class="go" type="button" data-pol="imp">📥 계약 리스트 넣기</button><button class="btn lg" type="button" data-pol="note">📩 보험사 알림톡 넣기</button></div><div class="safe">' + (C.lock || '') + '<span>엑셀은 이 기기 안에서만 읽고, 잠금 비밀번호로 암호화해 이 기기와 본인 구글 드라이브에만 둡니다. 연락처·주민번호 칸은 저장하지 않습니다.</span></div></div>';
-    h += '<div class="bkpi pol-k">' + [['계약', S.act + '건', S.off ? '철회·반송 ' + S.off + '건 따로' : ''], ['계약자', S.holders + '명', ''], ['월 보험료', manWon(S.prem), '계속보험료 합'], [mTxt + ' 수납', S.paidY + ' / ' + (S.paidY + S.paidN), S.behind ? '밀림·연체 ' + S.behind + '건' : S.paidN ? '미수납 ' + S.paidN + '건' : '모두 수납', S.behind ? 'r' : S.paidN ? '' : 'g'], ['증권 전달', S.dvY + ' / ' + (S.dvY + S.dvN), S.dvN ? '미전달 ' + S.dvN + '건' : '모두 전달', S.dvN ? 'w' : 'g']].map(function (x) { return '<div class="' + (x[3] || '') + '"><small>' + x[0] + '</small><b>' + x[1] + '</b>' + (x[2] ? '<em>' + x[2] + '</em>' : '') + '</div>'; }).join('') + '</div>';
+    h += '<div class="bkpi pol-k">' + [['계약', S.act + '건', [S.pre ? '청약 중 ' + S.pre + '건' : '', S.off ? '철회·반송 ' + S.off + '건' : ''].filter(Boolean).join(' · ') + (S.pre || S.off ? ' 따로' : '')], ['계약자', S.holders + '명', ''], ['월 보험료', manWon(S.prem), '계속보험료 합'], [mTxt + ' 수납', S.paidY + ' / ' + (S.paidY + S.paidN), S.behind ? '밀림·연체 ' + S.behind + '건' : S.paidN ? '미수납 ' + S.paidN + '건' : '모두 수납', S.behind ? 'r' : S.paidN ? '' : 'g'], ['증권 전달', S.dvY + ' / ' + (S.dvY + S.dvN), S.dvN ? '미전달 ' + S.dvN + '건' : '모두 전달', S.dvN ? 'w' : 'g']].map(function (x) { return '<div class="' + (x[3] || '') + '"><small>' + x[0] + '</small><b>' + x[1] + '</b>' + (x[2] ? '<em>' + x[2] + '</em>' : '') + '</div>'; }).join('') + '</div>';
     h += '<div class="pol-act"><button class="go" type="button" data-pol="imp">📥 새 리스트 넣기</button><button class="btn lg" type="button" data-pol="note">📩 알림톡 넣기</button><button class="btn lg" type="button" data-pol="xls">📊 엑셀로 저장</button><button class="btn lg" type="button" data-pol="log">🕘 넣은 기록</button></div>';
     var miss = C.missing ? C.missing(d) : [];
     if (miss.length) h += '<div class="gapban a pol-miss"><span>계약자 <b>' + miss.length + '명</b>이 고객 목록에 없습니다 · ' + esc(miss.slice(0, 4).join(', ')) + (miss.length > 4 ? ' 외 ' + (miss.length - 4) + '명' : '') + '</span><button class="pb" type="button" data-pol="addc">고객으로 등록</button></div>';
@@ -7920,9 +8017,9 @@ var Policy = (function () {
         var as = $('polAs').value; if (!/^\d{4}-\d{2}-\d{2}$/.test(as)) { $('polErr').textContent = '자료 기준일을 골라 주세요'; return; }
         this.disabled = true; this.textContent = '넣는 중…';
         try {
-          await load(); var res = apply(P.d, p.rows, { asOf: as, name: file.name, now: Date.now() }); P.d = res.doc; await save(); await recon();
-          C.closeDlg(); var R = res.R;
-          C.toast(R.first ? '계약 ' + R.added.length + '건을 장부에 넣었습니다' : '새 계약 ' + R.added.length + '건 · 수납 갱신 ' + R.paid.length + '건 · 증권 전달 표시는 그대로');
+          await load(); var res = apply(P.d, p.rows, { asOf: as, name: file.name, now: Date.now() }); P.d = res.doc; await save(); await recon(true);
+          C.closeDlg(); var R = res.R, upT = P.up ? ' · ' + P.up.txt : '';
+          C.toast((R.first ? '계약 ' + R.added.length + '건을 장부에 넣었습니다' : '새 계약 ' + R.added.length + '건 · 수납 갱신 ' + R.paid.length + '건 · 증권 전달 표시는 그대로') + (R.tied ? ' · 청약 중 ' + R.tied + '건에 증권번호가 붙었습니다' : '') + upT);
           P.f = !R.first && R.added.length ? 'new' : 'all'; P.q = ''; C.enter(); draw();
         } catch (e) { $('polErr').textContent = '넣지 못했습니다: ' + (e.message || e); this.disabled = false; this.textContent = '장부에 넣기'; }
       };
@@ -7994,7 +8091,7 @@ var Policy = (function () {
     // 글이 보험사 알림이면 넣기 창을 띄우고 true. o = { quiet, name(파일 이름), other(알림이 아니라고 할 때 이어서 할 일) }
     async function takeNote(text, o) {
       o = o || {}; var p; try { p = noteParse(text); } catch (e) { p = { ok: false }; }
-      if (!p.ok) { if (!o.quiet) C.toast('보험사 알림을 찾지 못했습니다 · 증권번호(증서번호)가 적힌 알림 글인지 확인해 주세요'); return false; }
+      if (!p.ok) { if (!o.quiet) C.toast('보험사 알림을 찾지 못했습니다 · 증권번호나 청약번호가 적힌 알림 글인지 확인해 주세요'); return false; }
       var M = noteMine(p, myNames()); p.notes = M.notes; p.others = M.others; p.people = M.people; o.text = text;   // 여러 사람이 올리는 방: 내가 올린 것만(다른 분 것은 읽어 두지도 저장하지도 않는다)
       await load(); var deals = []; try { deals = (C.deals ? await C.deals() : []) || []; } catch (e) { }
       openNote(p, o, deals); return true;
@@ -8002,16 +8099,18 @@ var Policy = (function () {
     async function noteFiles(files, o) {
       var t = ''; try { t = await textsOf(files); } catch (e) { }
       var p = null; try { p = t ? noteParse(t) : null; } catch (e) { p = null; }
-      P.why = !t.trim() ? '이 파일에서 대화 글을 꺼내지 못했습니다. 카톡 "대화 내용 내보내기"로 만든 파일인지 확인해 주세요.' : !p || !p.ok ? '대화 글 ' + (p ? p.msgs : 0) + '개를 읽었지만, 증권번호(증서번호)가 적힌 보험사 알림은 찾지 못했습니다.' : '';
+      P.why = !t.trim() ? '이 파일에서 대화 글을 꺼내지 못했습니다. 카톡 "대화 내용 내보내기"로 만든 파일인지 확인해 주세요.' : !p || !p.ok ? '대화 글 ' + (p ? p.msgs : 0) + '개를 읽었지만, 증권번호나 청약번호가 적힌 보험사 알림은 찾지 못했습니다.' : '';
       if (!p || !p.ok) return false;
       o = o || {}; if (!o.name && files[0]) o.name = files[0].name || ''; return takeNote(t, o);
     }
     function openNote(p, o, deals) {
       var label = p.room || String(o.name || '').replace(/\.(txt|zip)$/i, '') || '보험사 알림톡', names = C.custNames() || [];
-      var dry = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(deals), names: names }).R;
+      var hot = C.custHot ? (C.custHot() || []) : [];
+      var dry = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(deals), names: names, hot: hot }).R;
+      var skipTx = [dry.tied ? '청약·서명 알림 ' + dry.tied + '건은 이미 장부에 있는 계약의 것이라 그 계약에 이어 둡니다' : '', dry.old ? '45일 넘게 지난 청약 알림 ' + dry.old + '건은 체결된 계약을 찾지 못해 넣지 않습니다' : '', dry.thin ? '이름·보험료가 없는 알림 ' + dry.thin + '건은 넘깁니다' : ''].filter(Boolean);
       var other = o.other ? '<button class="lnk2" type="button" id="pnOther" style="align-self:flex-start">보험사 알림이 아니에요 · 고객 기록으로 넣기</button>' : '';
       if (!dry.items.length) {
-        C.openDlg('<h4>📩 보험사 알림톡</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(label) + '</b></p><p class="pol-nmsg">' + (p.notes.length ? '이 글의 알림 ' + p.notes.length + '건은 <b>이미 모두 장부에 들어 있습니다.</b>' + (p.others ? ' 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '') : p.others ? '👥 여러 사람이 올리는 방입니다. <b>내가 올린 알림은 찾지 못했습니다.</b> 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '증권번호가 적힌 알림을 찾지 못했습니다.' + (p.skip ? ' 청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다 — <b>증권번호(증서번호)</b>가 나오는 "보험료 입금 완료 · 계약 체결" 알림이 있는 채팅방을 내보내 주세요.' : '')) + '</p>' + other + '</div>' +
+        C.openDlg('<h4>📩 보험사 알림톡</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(label) + '</b></p><p class="pol-nmsg">' + (p.notes.length ? (dry.dup || dry.tied ? '이 글의 알림 ' + p.notes.length + '건은 <b>이미 모두 장부에 들어 있습니다.</b>' : '이 글의 알림 ' + p.notes.length + '건에서는 <b>새로 넣을 계약이 없습니다.</b>') + (p.others ? ' 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '') : p.others ? '👥 여러 사람이 올리는 방입니다. <b>내가 올린 알림은 찾지 못했습니다.</b> 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '새로 넣을 알림을 찾지 못했습니다.') + (skipTx.length ? ' <small>(' + skipTx.join(' · ') + ')</small>' : '') + '</p>' + other + '</div>' +
           (p.others && !p.notes.length ? '<div class="form" style="padding-top:0"><label class="l" for="pnMe">이 방에서 보이는 내 이름</label><div class="sgf"><input type="text" id="pnMe" placeholder="예: 홍길동" autocomplete="off" style="flex:1;min-width:0"><button class="btn" type="button" id="pnMeGo">다시 찾기</button></div><p class="note" style="margin:0">방에서 내 글 옆에 나오는 이름을 적어 주세요(세 글자 이상 · 이 기기에만 기억합니다).</p></div>' : '') +
           '<div class="mrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button><button class="go" type="button" id="pnSee">계약 장부 보기</button></div>');
         if ($('pnMeGo')) $('pnMeGo').onclick = function () { var v = String($('pnMe').value || '').replace(/\s+/g, ''); if (v.length < 3) { $('pnMe').focus(); return; } try { localStorage.setItem('aob_polme', v); } catch (e) { } C.closeDlg(); takeNote(o.text, o); };
@@ -8022,18 +8121,19 @@ var Policy = (function () {
       var need = dry.ask + dry.none;
       var rows = dry.items.map(function (it, i) {
         var whoH = it.fixed && it.who ? '<span class="who">' + esc(it.who.name) + '</span><small>' + (HOW[it.who.how] || HOW.ledger) + '</small>'
-          : '<input type="text" data-nwho="' + i + '" list="polCu" value="' + esc(it.who ? it.who.name : '') + '" placeholder="고객 이름" autocomplete="off" aria-label="고객 이름"><small>' + (it.who ? HOW[it.who.how] || '' : it.ask.length ? (it.askBy === 'mask' ? '가려진 이름과 맞는 고객 · 눌러서 고르기' : it.askBy === 'both' ? '후보(계약 실적 · 가려진 이름) · 눌러서 고르기' : '계약 실적에서 찾은 후보 · 눌러서 고르기') : '못 찾음 · 비워 두면 "고객 미확인"') + '</small>' +
+          : '<input type="text" data-nwho="' + i + '" list="polCu" value="' + esc(it.who ? it.who.name : '') + '" placeholder="고객 이름" autocomplete="off" aria-label="고객 이름"><small>' + (it.who ? (HOW[it.who.how] || '') + (it.who.how === 'mask' ? ' · 다르면 고쳐 주세요' : '') : it.ask.length ? (it.askBy === 'mask' ? '가려진 이름과 맞는 고객 · 눌러서 고르기' : it.askBy === 'both' ? '후보(계약 실적 · 가려진 이름) · 눌러서 고르기' : '계약 실적에서 찾은 후보 · 눌러서 고르기') : '못 찾음 · 비워 두면 "고객 미확인"') + '</small>' +
             (it.ask.length ? '<span class="cand">' + it.ask.map(function (n) { return '<button type="button" data-nwc="' + i + '" data-n="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</span>' : '');
-        return '<div class="pol-ni' + (!it.fixed && !it.who ? ' q' : '') + '"><div class="a"><b>' + esc([it.co, String(it.prod || '').slice(0, 30)].filter(Boolean).join(' · ') || '계약') + '</b><small class="n">' + esc(it.no) + (it.amt != null ? ' · ' + fmt(it.amt) + '원' : '') + ' · 📩 ' + esc(dot(it.d).slice(3)) + ' ' + (EV_T[it.ev] || '안내') + (it.isNew ? ' <em>새 계약</em>' : '') + '</small></div><div class="b">' + whoH + '</div></div>';
+        return '<div class="pol-ni' + (!it.fixed && !it.who ? ' q' : '') + '"><div class="a"><b>' + esc([it.co, String(it.prod || '').slice(0, 30)].filter(Boolean).join(' · ') || '계약') + '</b><small class="n">' + (it.pre ? '✍️ 청약 중 · 증권번호 대기' : esc(it.no)) + (it.amt != null ? ' · ' + fmt(it.amt) + '원' : '') + ' · 📩 ' + esc(dot(it.d).slice(3)) + ' ' + (EV_T[it.ev] || '안내') + (it.isNew ? ' <em>새 계약</em>' : '') + '</small></div><div class="b">' + whoH + '</div></div>';
       }).join('');
       var L = ['증권 전달 표시와 회사 자료(엑셀)의 계약자·수납은 <b>덮어쓰지 않습니다</b> — 빈 칸만 채우고, 입금 알림은 더 나중 날짜일 때만 최종납입일을 고칩니다.'];
       if (p.others) L.unshift('👥 여러 사람이 올리는 방입니다 — <b>내가 올린 알림만</b> 넣습니다. 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.');
       if (dry.links.length) L.push('계약 실적 ' + dry.links.length + '건에 증권번호를 달아 둡니다.');
       if (dry.dup) L.push('이미 넣은 알림 ' + dry.dup + '건은 건너뜁니다.');
-      if (p.skip) L.push('청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다.');
+      if (dry.pre) L.push('✍️ <b>청약 중 ' + dry.pre + '건</b>: 전자서명·모바일청약·수납 알림으로 들어오는 계약입니다(보험사·상품·보험료). 증권번호는 체결 알림이나 회사 엑셀이 들어오면 같은 계약에 자동으로 붙습니다.');
+      skipTx.forEach(function (t) { L.push(t + '.'); });
       C.openDlg('<h4>📩 보험사 알림톡 → 계약 장부</h4><div class="form">' +
-        '<p class="note" style="margin:0"><b>' + esc(label) + '</b> · 알림 ' + (p.notes.length - dry.dup) + '건</p>' +
-        '<div class="bkpi pol-pv">' + [['계약', dry.items.length, ''], ['새 계약', dry.added, dry.added ? 'g' : ''], ['고객 맞춤', dry.sure + dry.had, ''], ['확인 필요', need, need ? 'w' : '']].map(function (x) { return '<div class="' + x[2] + '"><small>' + x[0] + '</small><b>' + x[1] + '건</b></div>'; }).join('') + '</div>' +
+        '<p class="note" style="margin:0"><b>' + esc(label) + '</b> · 알림 ' + (p.notes.length - dry.dup - (dry.skipN || 0)) + '건</p>' +
+        '<div class="bkpi pol-pv">' + [['계약', dry.items.length, ''], ['새 계약', dry.added, dry.added ? 'g' : ''], ['청약 중', dry.pre, ''], ['고객 맞춤', dry.sure + dry.had, ''], ['확인 필요', need, need ? 'w' : '']].filter(function (x) { return x[0] !== '청약 중' || x[1]; }).map(function (x) { return '<div class="' + x[2] + '"><small>' + x[0] + '</small><b>' + x[1] + '건</b></div>'; }).join('') + '</div>' +
         (need ? '<p class="note pol-nq">노란 줄은 어느 고객 계약인지 못 찾았습니다. 이름을 넣거나, 비워 두고 나중에 장부에서 정해도 됩니다.</p>' : '') +
         '<div class="pol-nl">' + rows + '</div>' + custList() +
         '<ul class="pol-pvl">' + L.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' +
@@ -8045,27 +8145,27 @@ var Policy = (function () {
       $('polGo').onclick = async function () {
         var btn = this; btn.disabled = true; btn.textContent = '넣는 중…';
         try {
-          var pick = {}; [].forEach.call($('dlgBox').querySelectorAll('[data-nwho]'), function (b) { var it = dry.items[+b.dataset.nwho], v = b.value.replace(/\s+/g, ' ').trim(); if (v !== (it.who ? it.who.name : '')) pick[it.no] = v; });
+          var pick = {}; [].forEach.call($('dlgBox').querySelectorAll('[data-nwho]'), function (b) { var it = dry.items[+b.dataset.nwho], v = b.value.replace(/\s+/g, ' ').trim(); if (v !== (it.who ? it.who.name : '')) pick[it.k] = v; });
           await load(); var dl = []; try { dl = (C.deals ? await C.deals() : []) || []; } catch (e) { }
-          var res = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(dl), names: C.custNames() || [], pick: pick, name: label });
+          var res = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(dl), names: C.custNames() || [], hot: C.custHot ? (C.custHot() || []) : [], pick: pick, name: label });
           P.d = res.doc; await save();
           if (res.R.links.length && C.linkDeals) { try { await C.linkDeals(res.R.links); } catch (e) { } }
-          await recon();
+          await recon(true);
           C.closeDlg(); var R = res.R, left = R.ask + R.none;
-          C.toast('📩 계약 ' + R.items.length + '건 반영 · 새 계약 ' + R.added + '건' + (left ? ' · 고객 미확인 ' + left + '건' : ''));
-          P.f = left ? 'who' : 'note'; P.q = ''; C.enter(); draw(); relist();
+          C.toast('📩 계약 ' + R.items.length + '건 반영 · 새 계약 ' + R.added + '건' + (R.pre ? ' (청약 중 ' + R.pre + ')' : '') + (left ? ' · 고객 미확인 ' + left + '건' : '') + (P.up ? ' · ' + P.up.txt : ''));
+          P.f = left ? 'who' : R.pre ? 'pre' : 'note'; P.q = ''; C.enter(); draw(); relist();
         } catch (e) { $('polErr').textContent = '넣지 못했습니다: ' + (e.message || e); btn.disabled = false; btn.textContent = '장부에 넣기'; }
       };
     }
     function pickNote() {
       C.openDlg('<h4>📩 보험사 알림톡 넣기</h4><div class="form">' +
-        '<p class="note" style="margin:0">보험사 영업지원 채널이 카톡으로 보내는 <b>보험료 입금 완료 · 계약 체결</b> 알림에서 증권번호와 보험료를 읽어 계약 장부에 넣고, 계약 실적의 보험료와 맞춰 어느 고객 계약인지 찾습니다.</p>' +
+        '<p class="note" style="margin:0">보험사가 카톡으로 보내는 <b>전자서명 · 모바일청약 · 수납 완료 · 계약 체결 · 보험료 입금</b> 알림에서 보험사·상품·보험료·증권번호를 읽어 계약 장부에 넣고, 어느 고객 계약인지 찾습니다. 지점 출금방처럼 여러 사람이 올리는 방은 <b>내가 올린 것만</b> 넣습니다.</p>' +
         '<ol class="pol-how"><li>카톡에서 그 채팅방 → 오른쪽 위 <b>☰</b> → <b>⚙</b> → <b>대화 내용 내보내기</b> → <b>텍스트 메시지만 저장</b></li><li>보낼 곳을 고르는 창에서 <b>Drive</b>(또는 내 드라이브 폴더)를 눌러 저장합니다 <small>(카톡은 메일 방식으로 내보내서 이 목록에 AOB9는 나오지 않습니다)</small></li><li>아래 <b>📁 내보낸 파일 고르기</b> → 드라이브 → 저장한 폴더 → <b>"○○ 님과 카카오톡 대화"</b></li></ol>' +
         '<label class="l" for="pnTx">알림 한 건만 넣을 때: 글을 복사해서 붙여 넣기</label><textarea id="pnTx" rows="5" placeholder="[보험사] … 증서번호: … 보험료: …원"></textarea>' +
         '<div class="safe">' + (C.lock || '') + '<span>글은 이 기기 안에서만 읽습니다. 알림 원문은 저장하지 않고, 읽어 낸 증권번호·보험료·날짜만 암호화해 이 기기와 본인 구글 드라이브에 둡니다.</span></div><div class="ferr" id="polErr"></div></div>' +
         '<div class="mrow psnrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="pnGo">📋 붙여넣고 읽기</button><button class="go" type="button" id="pnFile">📁 내보낸 파일 고르기</button></div>', 'wide');
       $('polX').onclick = C.closeDlg;
-      var miss = function (why) { var e = $('polErr'); if (e) e.textContent = why || '증권번호(증서번호)가 적힌 보험사 알림을 찾지 못했습니다. 알림 글 전체를 복사했는지 확인해 주세요.'; };
+      var miss = function (why) { var e = $('polErr'); if (e) e.textContent = why || '증권번호나 청약번호가 적힌 보험사 알림을 찾지 못했습니다. 알림 글 전체를 복사했는지 확인해 주세요.'; };
       // 고르는 파일 종류를 가리지 않는다: 드라이브에 저장한 카톡 내보내기는 확장자 없는 메일 모양 파일이라, 종류를 정해 두면 고르는 창에서 회색으로 막힌다
       $('pnFile').onclick = async function () { var fs = await C.pickFiles('', true); if (!fs || !fs.length) return; if (!(await noteFiles(fs))) miss(P.why); };
       $('pnGo').onclick = async function () {
@@ -8078,16 +8178,16 @@ var Policy = (function () {
       var x = P.d && P.d.items[k]; if (!x) return;
       var deals = []; try { deals = (C.deals ? await C.deals() : []) || []; } catch (e) { }
       var amt = premOf(x), cs = dealNames(deals, x);
-      C.openDlg('<h4>👤 이 계약의 고객 정하기</h4><div class="form"><p class="note" style="margin:0"><b>' + esc([x.co, x.prod].filter(Boolean).join(' · ') || '계약') + '</b><br>증권번호 ' + esc(x.no) + (amt != null && amt !== '' ? ' · 보험료 ' + fmt(amt) + '원' : '') + (x.cDate ? ' · 계약일 ' + dot(x.cDate) : '') + '</p>' +
+      C.openDlg('<h4>👤 이 계약의 고객 정하기</h4><div class="form"><p class="note" style="margin:0"><b>' + esc([x.co, x.prod].filter(Boolean).join(' · ') || '계약') + '</b><br>' + (x.pre ? '✍️ 청약 중 · 증권번호 대기' : '증권번호 ' + esc(x.no)) + (amt != null && amt !== '' ? ' · 보험료 ' + fmt(amt) + '원' : '') + (x.cDate ? ' · 계약일 ' + dot(x.cDate) : '') + '</p>' +
         '<label class="l" for="pwN">고객 이름</label><input id="pwN" type="text" list="polCu" value="' + esc(x.holder || '') + '" placeholder="이름을 치면 고객 목록에서 찾습니다" autocomplete="off">' + custList() +
         (cs.length ? '<div class="pol-cand"><small>계약 실적에서 보험료가 같은 고객</small><span class="cand">' + cs.map(function (n) { return '<button type="button" data-pwc="' + esc(n) + '">' + esc(n) + '</button>'; }).join('') + '</span></div>' : '<p class="note">계약 실적에 보험료가 같은 고객이 없습니다. 이름을 직접 넣어 주세요.</p>') +
         '<div class="ferr" id="polErr"></div></div><div class="mrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button>' + (x.holder ? '<button class="lnk2" type="button" id="pwClr">고객 미확인으로</button>' : '') + '<button class="go" type="button" id="pwGo">저장</button></div>');
       $('polX').onclick = C.closeDlg;
       var put = async function (name) {
         await load(); var y = setHolder(P.d, k, name, Date.now()); if (!y) { C.closeDlg(); return; }
-        await save();
-        if (name && C.linkDeals) { var q = dealFor(deals, y, name); if (q && !q.no) { try { await C.linkDeals([{ id: q.id, no: y.no }]); } catch (e) { } } }
-        C.closeDlg(); if (C.isView()) draw(true); relist(); C.toast(name ? name + ' 고객의 계약으로 정했습니다' : '고객 미확인으로 돌렸습니다');
+        await save(); P.up = null; if (name) await stageUp(true);
+        if (name && C.linkDeals && y.no) { var q = dealFor(deals, y, name); if (q && !q.no) { try { await C.linkDeals([{ id: q.id, no: y.no }]); } catch (e) { } } }
+        C.closeDlg(); if (C.isView()) draw(true); relist(); C.toast(name ? name + ' 고객의 계약으로 정했습니다' + (P.up ? ' · 계약 단계로 옮겼습니다' : '') : '고객 미확인으로 돌렸습니다');
       };
       [].forEach.call($('dlgBox').querySelectorAll('[data-pwc]'), function (b) { b.onclick = function () { $('pwN').value = b.dataset.pwc; }; });
       if ($('pwClr')) $('pwClr').onclick = function () { put(''); };
@@ -8124,21 +8224,33 @@ var Policy = (function () {
     }
     function of(name) { var n = norm(name); return n ? (index()[n] || []) : []; }
     // 장부를 아직 안 읽었으면 읽기 시작하고 false — 다 읽으면 고객 목록·고객 화면을 한 번 다시 그림
-    function ready() { if (P.d) return true; if (!P.loading) P.loading = load().then(recon).then(function () { relist(); if (C.curId()) C.rerender(); }).catch(function () { }); return false; }
+    function ready() { if (P.d) return true; if (!P.loading) P.loading = load().then(function () { return recon(); }).then(function () { relist(); if (C.curId()) C.rerender(); }).catch(function () { }); return false; }
     // 예전에 '계약 후 프로세스'에서 증권 전달을 체크해 둔 고객 → 그날까지 맺은 계약은 장부에도 '전달'로 맞춘다.
     // 장부에서 직접 눌러 본 적이 있는 계약(dvAt)은 건드리지 않는다. C.procDates() = [{ name, d }] (이름이 하나뿐인 고객만)
-    async function recon() {
-      if (!C.procDates || !P.d || !all(P.d).length) return 0;
-      var L = C.procDates() || [], now = Date.now(), n = 0;
-      L.forEach(function (p) { of(p.name).forEach(function (x) { if (inactive(x) || x.own || x.dv || x.dvAt) return; if (x.cDate && x.cDate > p.d) return; setDv(P.d, x.k, true, now, p.d); n++; }); });
+    async function recon(quiet) {
+      P.up = null;
+      if (!P.d || !all(P.d).length) return 0;
+      var L = (C.procDates ? C.procDates() : []) || [], now = Date.now(), n = 0;
+      L.forEach(function (p) { of(p.name).forEach(function (x) { if (inactive(x) || x.own || x.dv || x.dvAt || x.pre) return; if (x.cDate && x.cDate > p.d) return; setDv(P.d, x.k, true, now, p.d); n++; }); });
       if (n) { try { await save(); } catch (e) { } }
+      await stageUp(quiet);
       return n;
+    }
+    // 장부에 최근 60일 안의 계약(청약 중 포함)이 있는 계약자 → 고객 단계를 '계약'으로 올려 달라고 화면 쪽에 알린다(가망·상담 중인 고객만 · 한 번만 — ui.js stageUp)
+    //   장부를 읽을 때 · 알림톡/엑셀을 넣은 뒤 · 다른 기기와 맞춘 뒤마다 돈다 → 이미 들어가 있던 계약에도 적용된다
+    async function stageUp(quiet) {
+      if (!C.stageUp || !P.d) return 0;
+      var from = '', M = {}; try { from = dAdd(C.today(), -60); } catch (e) { return 0; }
+      all(P.d).forEach(function (x) { var cd = x.cDate || ''; if (inactive(x) || stale(x, P.d) || x.own || !norm(x.holder) || cd < from) return; var k = norm(x.holder); if (!M[k] || cd < M[k].d) M[k] = { name: x.holder, d: cd }; });
+      var L = Object.keys(M).map(function (k) { return M[k]; }); if (!L.length) return 0;
+      try { P.up = (await C.stageUp(L, quiet)) || null; } catch (e) { P.up = null; }
+      return P.up ? P.up.n : 0;
     }
     // 고객 목록 줄·진행 현황: 이름이 같은 계약 요약 { n 유지 계약, dv 전달, need 미전달, late 수납 밀림, off 철회·반송, keys 미전달 계약 }
     function info(name) {
       if (!ready()) return null; var L = of(name); if (!L.length) return null;
-      var bm = (P.d.asOf || '').slice(0, 7), o = { n: 0, dv: 0, need: 0, own: 0, late: 0, off: 0, keys: [], last: '' };
-      L.forEach(function (x) { if (inactive(x)) { o.off++; return; } o.n++; if (x.own) o.own++; else if (x.dv) { o.dv++; if ((x.dvD || '') > o.last) o.last = x.dvD; } else { o.need++; o.keys.push(x.k); } if (behind(x, bm)) o.late++; });
+      var bm = (P.d.asOf || '').slice(0, 7), o = { n: 0, dv: 0, need: 0, own: 0, late: 0, off: 0, pre: 0, keys: [], last: '', top: '' };
+      L.forEach(function (x) { if (inactive(x) || stale(x, P.d)) { o.off++; return; } o.n++; if ((x.cDate || '') > o.top) o.top = x.cDate; if (x.pre) o.pre++; else if (x.own) o.own++; else if (x.dv) { o.dv++; if ((x.dvD || '') > o.last) o.last = x.dvD; } else { o.need++; o.keys.push(x.k); } if (behind(x, bm)) o.late++; });
       return o;
     }
     function sum(from) { if (!ready() || !all(P.d).length) return null; var s = stats(P.d); if (from) s.rec = recent(P.d, from); return s; }   // from(날짜)을 주면 그날부터 온 알림 건수(rec)도
@@ -8153,14 +8265,14 @@ var Policy = (function () {
       if (!c || !c.name) return '';
       if (!ready()) return '';
       var L = of(c.name); if (!L.length) return '';
-      var need = L.filter(needDv).length;
-      return '<button type="button" class="pol-chip' + (need ? ' w' : '') + '" data-polname="' + esc(c.name) + '" title="이름이 같은 계약 · 누르면 계약 장부에서 봅니다">📑 계약 ' + L.length + '건' + (need ? ' · 증권 미전달 ' + need : '') + '</button>';
+      var need = L.filter(needDv).length, pre = L.filter(function (x) { return x.pre && !inactive(x) && !stale(x, P.d); }).length;
+      return '<button type="button" class="pol-chip' + (need ? ' w' : '') + '" data-polname="' + esc(c.name) + '" title="이름이 같은 계약 · 누르면 계약 장부에서 봅니다">📑 계약 ' + L.length + '건' + (pre ? ' · 청약 중 ' + pre : '') + (need ? ' · 증권 미전달 ' + need : '') + '</button>';
     }
     async function synced() { await load(); await recon(); if (C.isView() && $('dlg').hidden) draw(true); relist(); }
     return { show: show, pick: pick, take: take, isNote: isNote, takeNote: takeNote, noteFiles: noteFiles, pickNote: pickNote, chip: chip, synced: synced, isSheetName: isSheetName, info: info, sum: sum, markName: markName };
   }
 
-  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, recent: recent, noteMine: noteMine, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
+  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, recent: recent, noteMine: noteMine, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, findFinal: findFinal, linkPre: linkPre, stale: stale, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
@@ -12227,7 +12339,26 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     deals: async function(){ await planLoad(); return (PL.d.deals || []).map(function(x){ return { id: x.id, name: x.name, amt: x.amt, d: x.d, co: x.co || '', no: x.no || '' }; }); },
     linkDeals: async function(L){ await planLoad(); var n = 0; (L || []).forEach(function(l){ var q = PL.d.deals.find(function(x){ return x.id === l.id; }); if (q && !q.no) { q.no = l.no; n++; } }); if (n) await planSave(); return n; },
     clip: async function(){ return (window.Native && Native.on) ? ((await natCall('clipRead')) || {}).text || '' : await navigator.clipboard.readText(); },
-    addCusts: async function(names){ for (var i = 0; i < names.length; i++) await Store.saveHead({ status: 'wait', name: names[i], stage: 'contract', from: 'pol' }); S.list = await Store.list(); renderList(); } });
+    addCusts: async function(names){ for (var i = 0; i < names.length; i++) await Store.saveHead({ status: 'wait', name: names[i], stage: 'contract', from: 'pol' }); S.list = await Store.list(); renderList(); },
+    // 최근 90일 안에 연락·만남·상담 기록이 있거나 새로 등록한 고객 이름 — 알림의 가려진 이름(홍*동)과 맞는 고객이 한 명일 때 '지금 상담 중인 그 고객'인지 확인하는 데만 쓴다(2026-11-18)
+    custHot: function(){ var from = addDay(todayStr(), -90); return S.list.filter(function(c){ if (c.sample || c.hidden) return false; var L = lastOf(c); return L.any >= from || L.meet >= from || !!(c.consLast && c.consLast.d >= from) || msDay(c.created) >= from; }).map(function(c){ return c.name; }); },
+    // 계약 장부에 최근 계약(청약 중 포함)이 붙은 고객 → '계약' 단계로 (2026-11-18 대표님: "출금방 반영했는데 왜 아직도 보장분석 단계냐")
+    //   가망·상담 중일 때만 · 이름이 하나뿐인 고객만 · 고객마다 한 번만(대표님이 단계를 되돌리면 다시 올리지 않는다 — polUp) · 계약일은 장부의 계약일로 남겨 '계약 후 프로세스' 기한의 기준이 되게
+    stageUp: async function(L, quiet){
+      var n = 0, first = '', key = function(v){ return String(v || '').replace(/\s+/g, ''); };
+      for (var i = 0; i < (L || []).length; i++) {
+        var k = key(L[i].name), M = S.list.filter(function(c){ return !c.sample && !c.hidden && key(c.name) === k; }); if (M.length !== 1) continue;
+        var c = M[0]; if (/^(contract|care)$/.test(c.stage || '') || c.polUp) continue;
+        var h = Object.assign({}, c); h.stage = 'contract'; h.polUp = todayStr(); if (c.game) h.game = JSON.parse(JSON.stringify(c.game)); gameMark(h, 'contract', L[i].d || todayStr());
+        await Store.saveHead(h); n++; if (!first) first = c.name;
+      }
+      if (!n) return 0;
+      S.list = await Store.list();
+      if (S.cur && !S.cur.sample) { var cur = S.list.find(function(x){ return x.id === S.cur.id; }); if (cur) { S.cur = cur; if (!S.view && $('dlg').hidden) renderCustomer(); } }
+      renderList(); var txt = first + (n > 1 ? ' 님 외 ' + (n - 1) + '명' : ' 님') + '을 계약 단계로 옮겼습니다';
+      if (!quiet) toast('📑 계약이 들어온 ' + txt);   // 넣기 창에서 넣은 직후에는 그 창의 알림 글에 같이 적는다(quiet)
+      return { n: n, txt: txt };
+    } });
   Store.setMerger(Policy.ID, Policy.merge);
   // 🧭 진행 현황 (2026-11-17 대표님 요청): 고객 이름 줄 오른쪽 빈칸에 지금 어디까지 왔는지 + 증권 전달 여부. 따로 입력받지 않고 이미 있는 기록으로만 판단한다
   //   연락(통화·문자·만남 기록) → 상담(상담 기록·단계) → 병력(병원 자료 분석) → 보장(보장분석) → 제안(설계 기록) → 계약(단계·계약 장부) → 증권(계약 장부의 증권 전달 표시)
@@ -12235,23 +12366,25 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 증권 전달 여부는 한 곳만 본다: 이름이 같은 계약이 계약 장부에 있으면 장부가 기준, 없으면 '계약 후 프로세스'의 증권 전달 체크
   function dvState(c){
     var I = c.sample ? null : POL.info(c.name), pd = (c.proc && c.proc.policy && c.proc.policy.d) || '';
-    if (I && I.n) return { src: 'pol', done: !I.need, need: I.need, I: I, d: I.need ? '' : (I.last || pd) };
+    if (I && I.n) { if (I.pre && I.pre >= I.n) return { src: 'pol', done: false, need: 0, I: I, d: '', wait: 1 };   // 전부 '청약 중'(증권이 아직 안 나옴) → 전달도 미전달도 아님
+      return { src: 'pol', done: !I.need, need: I.need, I: I, d: I.need ? '' : (I.last || pd) }; }
     return { src: 'proc', done: !!pd, need: 0, I: I, d: pd };
   }
   // 미전달이 '확실한' 건수: 장부에 안 준 계약 수, 장부가 없으면 막 계약한(계약 단계) 고객인데 증권 전달 체크가 없을 때 1. 오래된 관리 고객은 장부가 없으면 세지 않음
   function dvNeed(c, V){ V = V || dvState(c); return V.src === 'pol' ? V.need : (!V.done && c.stage === 'contract' ? 1 : 0); }
   function flowOf(c){
     var D = docOf(c), L = lastOf(c), V = dvState(c), I = V.I, st = c.stage === 'db' ? 'lead' : c.stage || 'lead', np = (c.props || []).length;
-    var deal = /^(contract|care)$/.test(st) || !!(I && I.n), on = { call: !!L.any, cons: !!(c.consLast && c.consLast.t) || !!L.meet || st !== 'lead', hx: D.hx, cv: D.cv, prop: np > 0, deal: deal, dv: deal && V.done };
+    // 계약이 있으면(단계가 계약·관리이거나 계약 장부에 계약·청약이 있음) 그 앞의 연락·상담·제안은 지나온 것으로 본다 — 계약했는데 '5 제안'에 멈춰 보이지 않게(2026-11-18). 병력·보장분석은 자료가 있을 때만 ✓
+    var deal = /^(contract|care)$/.test(st) || !!(I && I.n), pre = I ? (I.pre || 0) : 0, on = { call: !!L.any || deal, cons: !!(c.consLast && c.consLast.t) || !!L.meet || st !== 'lead' || deal, hx: D.hx, cv: D.cv, prop: np > 0 || deal, deal: deal, dv: deal && V.done };
     var need = dvNeed(c, V), cnt = V.src === 'pol' ? V.need : 0;
-    var why = { call: L.any ? ago(L.any) + ' 연락' : L.miss ? ago(L.miss) + ' 부재' : '연락 기록 없음', cons: c.consLast && c.consLast.t ? ago(c.consLast.d) + ' 상담 기록' : L.meet ? ago(L.meet) + ' 만남' : st !== 'lead' ? stageTxt(st) + ' 단계' : '상담 기록 없음',
-      hx: D.hx ? (c.asOf ? '자료 ' + dot(c.asOf) : '분석 완료') : '병원 자료 없음', cv: D.cv ? '있음' : '보장분석 없음', prop: np ? '설계 기록 ' + np + '건' : '설계 기록 없음',
-      deal: I && I.n ? '계약 ' + I.n + '건' : deal ? stageTxt(st) + ' 단계' : '아직 계약 전', dv: V.src === 'pol' ? (V.need ? V.need + '건 미전달' + (I.dv ? ' · ' + I.dv + '건 전달' : '') : '모두 전달') : V.done ? dot(V.d) + ' 전달' : deal ? '아직 표시 없음' : '' };
+    var why = { call: L.any ? ago(L.any) + ' 연락' : L.miss ? ago(L.miss) + ' 부재' : deal ? '계약함' : '연락 기록 없음', cons: c.consLast && c.consLast.t ? ago(c.consLast.d) + ' 상담 기록' : L.meet ? ago(L.meet) + ' 만남' : st !== 'lead' ? stageTxt(st) + ' 단계' : deal ? '계약함' : '상담 기록 없음',
+      hx: D.hx ? (c.asOf ? '자료 ' + dot(c.asOf) : '분석 완료') : '병원 자료 없음', cv: D.cv ? '있음' : '보장분석 없음', prop: np ? '설계 기록 ' + np + '건' : deal ? '계약함' : '설계 기록 없음',
+      deal: I && I.n ? '계약 ' + I.n + '건' + (pre ? ' (청약 중 ' + pre + ')' : '') : deal ? stageTxt(st) + ' 단계' : '아직 계약 전', dv: V.src === 'pol' ? (V.wait ? '증권 나오기 전(청약 중)' : V.need ? V.need + '건 미전달' + (I.dv ? ' · ' + I.dv + '건 전달' : '') : '모두 전달') : V.done ? dot(V.d) + ' 전달' : deal ? '아직 표시 없음' : '' };
     var hi = -1, n = 0; FLOW.forEach(function(f, i){ if (on[f[0]]) { hi = i; n++; } });
     var PI = deal && !c.sample ? procItems(c) : null, pn = PI ? PI.filter(function(x){ return x.done; }).length : 0;
-    var cls = deal ? (need ? 'w' : V.done ? 'g' : 'd') : hi < 0 ? 'z' : '';
-    var label = deal ? (need ? '증권 미전달' + (cnt > 1 ? ' ' + cnt : '') : V.done ? (PI && PI.length && pn === PI.length ? '프로세스 완료 ✓' : '증권 전달 ✓') : '⑥ 계약') : hi < 0 ? '연락 전' : '①②③④⑤⑥⑦'[hi] + ' ' + FLOW[hi][1];
-    var short = deal ? (need ? '미전달' + (cnt > 1 ? ' ' + cnt : '') : V.done ? (PI && PI.length && pn === PI.length ? '완료 ✓' : '증권 ✓') : label) : label;   // 좁은 휴대폰용 짧은 글자
+    var cls = deal ? (need ? 'w' : pre ? 'd' : V.done ? 'g' : 'd') : hi < 0 ? 'z' : '';
+    var label = deal ? (need ? '증권 미전달' + (cnt > 1 ? ' ' + cnt : '') : pre ? '청약 중' + (pre > 1 ? ' ' + pre : '') : V.done ? (PI && PI.length && pn === PI.length ? '프로세스 완료 ✓' : '증권 전달 ✓') : '⑥ 계약') : hi < 0 ? '연락 전' : '①②③④⑤⑥⑦'[hi] + ' ' + FLOW[hi][1];
+    var short = deal ? (need ? '미전달' + (cnt > 1 ? ' ' + cnt : '') : pre ? label : V.done ? (PI && PI.length && pn === PI.length ? '완료 ✓' : '증권 ✓') : label) : label;   // 좁은 휴대폰용 짧은 글자
     return { on: on, why: why, hi: hi, n: n, cls: cls, label: label, short: short, V: V, I: I, need: need, cnt: cnt, late: I ? I.late : 0, deal: deal, PI: PI, pn: pn };
   }
   function procCls(x){ return x.done ? 'on' : x.n != null && x.n < 0 ? 'late' : x.n != null && x.n <= 7 ? 'w' : ''; }
@@ -15539,7 +15672,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var sc = function(x){ return (x.co ? 0 : 1000) + (x.hand ? 500 : 0) + (x.cset ? 300 : 0) + (x.gid ? 50 : 0) + (fr[ptxt(x.x)] || 0) * 10 + p8(x); };
     return g.slice().sort(function(a, b){ return sc(b) - sc(a) || (a.at || 0) - (b.at || 0); });
   }
-  // 2026-11-05: 싯플랜에 원래 예약 글 그대로 들어간 줄('어센틱 송매숙 부산 DB 71세 방문일정: …')을 '부산 송매숙 DB 1차상담'으로 줄임.
+  // 2026-11-05: 싯플랜에 원래 예약 글 그대로 들어간 줄('어센틱 홍길동 부산 DB 60세 방문일정: …')을 '부산 홍길동 DB 1차상담'으로 줄임.
   // 같은 날 이미 줄인 줄(같은 이름)이 있으면 원래 글 줄은 지우고(캘린더 복사본도) 줄인 줄에 시간·장소·원래 글만 보탬. 글자색·필체는 그대로.
   // 싯플랜 고객 줄에서 고객 이름만 ('사하 최일용 1차상담' → 최일용, '고성 김외숙님 DB 1차상담' → 김외숙)
   function custNameOf(t){
@@ -19368,6 +19501,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="8fd69b93786d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="5ca477cb6a3d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
