@@ -2655,6 +2655,9 @@ html.is-pc .fbbtn,body.is-pc .fbbtn{bottom:16px}
 .fbar .fb-f b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;font-weight:700}
 .fbar .fb-f.on{background:#C9A96A;border-color:#C9A96A;color:#141414}
 .fbar .fb-f[aria-expanded="true"] i{transform:rotate(180deg)}
+/* 화면 색 단추(밝게 ↔ 어둡게) — 첫 화면 필터 줄 맨 오른쪽 (2026-11-18 대표님: "메인 화면에 블랙·화이트 바꾸는 버튼"). 좁은 화면은 그림만 */
+.fbar .fb-th{padding:0 11px;gap:5px}.fbar .fb-th i{font-style:normal;font-size:15px;line-height:1}.fbar .fb-th b{font-weight:600}
+@media (max-width:399px),(min-width:700px){.fbar .fb-th{padding:0 10px}.fbar .fb-th b{display:none}}   /* 좁은 휴대폰 · 목록 칸이 좁은 두 칸/PC 배치는 그림만 */
 .fpanel{display:flex;flex-direction:column;gap:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);min-width:0}
 .fpanel[hidden]{display:none!important}
 .fp-r>small{display:block;font-size:12.5px;color:var(--side-mute);margin:0 0 6px 2px;font-weight:700}
@@ -3213,12 +3216,8 @@ html.dense .citem .cav{width:38px;height:38px;font-size:16px}
 html.narrow .citem .r1 .pfl{min-width:44px}
 html.narrow .citem .r1 .pfl b{font-size:0!important}
 html.narrow .citem .r1 .pfl b::after{content:attr(data-s);font-size:11.5px}
-/* 밝은 화면에서도 고객 목록 칸은 어두운 바탕 그대로라 — 고객 수 줄도 어둡게 맞춤(예전엔 밝은 바탕에 흰 글자라 숫자가 안 보였음) */
-:root[data-theme="light"] .lsort{background:rgba(18,20,26,.82)}
-:root[data-theme="light"] .lsort select{border-color:rgba(255,255,255,.14);background-color:rgba(255,255,255,.06)}
+/* (2026-11-18) 밝은 화면에서는 고객 목록 칸도 밝게 바뀜 — 예전에 '목록 칸은 늘 어두우니 고객 수 줄·검색 줄도 어둡게' 맞춰 둔 값은 뺐다. 밝은 화면 값은 파일 맨 끝 '밝은 화면: 목록 칸' */
 .pcmenu .pmfind kbd{background:transparent;color:inherit;box-shadow:none}
-@media (max-width:900px){html:not(.split)[data-theme="light"] .sqw{background:linear-gradient(#1b1d21 70%,transparent)}}
-:root[data-theme="light"] .clist .cgrp{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
 
 /* ===== 2026-11-17 폴드 펼친 화면(나란히 보기 700~900): 접었을 때처럼 아래 메뉴 줄 고정 · 목록 칸 넓게 (대표님 요청) ===== */
 html.split .tabbar{display:grid!important}
@@ -3293,6 +3292,220 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
 #cdkTx{min-height:150px}
 #cdkGo.go.kakao{background:#FEE500;color:#191600;box-shadow:none}
 
+/* ===== 밝은 화면: 목록 칸(첫 화면 · 고객 목록) — 2026-11-18 대표님: "검정색이라 가시성이 안 좋다 · 밝은 버전으로도 쓸 수 있게" =====
+   목록 칸(.side)은 원래 어느 화면에서나 어두운 칸이었다(색을 직접 적은 규칙이 많음). 밝은 화면에서는 아래 값이 그 위에 덮인다.
+   ① 바탕값(변수) ② 자동으로 만든 값(LIGHT-SIDE 블록 — NHC tools/aob9_light 로 다시 만든다 · 손으로 고치지 않는다) ③ 손질(블록 아래)
+   목록 칸에 새 색을 넣으면 밝은 화면도 같이 본다: NHC tools/aob9_paths/theme.mjs 가 '밝은 화면인데 어두운 바탕·안 읽히는 글자'를 잡는다. */
+:root[data-theme="light"] .side{--side:#F3F4F6;--side2:#FFFFFF;--side-ink:#111827;--side-mute:#5F6878;--gold2:#2F6BFF;--ocean2:#2F6BFF;background:#F3F4F6;color:#111827}
+/* LIGHT-SIDE:BEGIN (자동 생성 · 손으로 고치지 않는다) */
+:root[data-theme="light"] .side button,:root[data-theme="light"] .side select,:root[data-theme="light"] .side input{color:inherit}
+:root[data-theme="light"] .side .no{color:var(--amber)}
+:root[data-theme="light"] .side .btn{background:var(--paper);border:1px solid var(--line)}
+:root[data-theme="light"] .side details summary{color:var(--accent)}
+:root[data-theme="light"] .side{background:var(--side);color:var(--side-ink)}
+:root[data-theme="light"] .side .sbrand small{color:var(--side-mute)}
+:root[data-theme="light"] .side .sbtn{border:1px solid color-mix(in srgb,var(--side-ink) 22%,transparent);color:var(--side-ink);background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .sbtn.pri{color:rgb(255, 255, 255);background-color:rgb(61, 99, 214);background-image:initial;border-color:rgb(61, 99, 214)}
+:root[data-theme="light"] .side .sq{background:var(--paper);color:var(--ink);border-color:currentcolor}
+:root[data-theme="light"] .side .sqw svg{color:var(--mute)}
+:root[data-theme="light"] .side .sfilt button{border:1px solid color-mix(in srgb,var(--side-ink) 20%,transparent);color:var(--side-mute);background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .sfilt button[aria-pressed="true"]{background:var(--side2);color:#111827;border-color:transparent}
+:root[data-theme="light"] .side .cgrp{color:var(--side-mute)}
+:root[data-theme="light"] .side .citem{color:var(--side-ink);background-color:transparent;background-image:initial;border-color:currentcolor}
+:root[data-theme="light"] .side .citem:hover{background:color-mix(in srgb,var(--side2) 70%,transparent)}
+:root[data-theme="light"] .side .citem[aria-current="true"]{color:#111827;background-color:rgb(61, 99, 214);background-image:initial}
+:root[data-theme="light"] .side .citem .r1 small{color:inherit}
+:root[data-theme="light"] .side .citem .r2.ok{color:#1B7E46}
+:root[data-theme="light"] .side .cempty{color:var(--side-mute)}
+:root[data-theme="light"] .side .sfoot button{border:1px solid color-mix(in srgb,var(--side-ink) 20%,transparent);color:var(--side-ink);background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .sfoot button:hover{background:var(--side2)}
+:root[data-theme="light"] .side .slock{color:var(--side-mute)}
+:root[data-theme="light"] .side .membanner{background:var(--amber-soft);color:var(--amber)}
+:root[data-theme="light"] .side .pc{background:var(--paper);border:1px solid var(--line)}
+:root[data-theme="light"] .side .ssync{border-top:1px solid color-mix(in srgb,var(--side-ink) 15%,transparent)}
+:root[data-theme="light"] .side .ssync small{color:var(--side-mute)}
+:root[data-theme="light"] .side{background-color:initial;background-image:linear-gradient(#F3F4F6 0%, #F3F4F6 60%, #F3F4F6 100%);border-right-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .sbrand{border-bottom-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .sbtn{border-color:rgba(17,24,39,0.114)}
+:root[data-theme="light"] .side .sbtn.pri{color:rgb(27, 20, 8);background-color:initial;background-image:linear-gradient(135deg, rgb(227, 200, 145) 0%, rgb(201, 164, 101) 55%, rgb(176, 138, 78) 100%);box-shadow:rgba(217, 188, 134, 0.7) 0px 8px 20px -10px, rgba(255, 255, 255, 0.4) 0px 1px 0px inset;border-color:currentcolor}
+:root[data-theme="light"] .side .sq{color:var(--side-ink);background-color:rgba(255,255,255,0.9);background-image:initial;border-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .sq::placeholder{color:var(--side-mute)}
+:root[data-theme="light"] .side .sqw svg{color:var(--side-mute)}
+:root[data-theme="light"] .side .sfilt{background-color:rgba(255,255,255,0.8);background-image:initial}
+:root[data-theme="light"] .side .sfilt button{border-color:currentcolor}
+:root[data-theme="light"] .side .sfilt button[aria-pressed="true"]{color:#111827;background-color:rgba(47,107,255,0.13);background-image:initial}
+:root[data-theme="light"] .side .cgrp{color:#5F6878}
+:root[data-theme="light"] .side .citem:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .citem[aria-current="true"]{color:#111827;background-color:initial;background-image:linear-gradient(90deg, rgba(217, 188, 134, 0.16), rgba(47,107,255,0.13));box-shadow:inset 3px 0 0 var(--gold2)}
+:root[data-theme="light"] .side .citem .r2.ok{color:#1B7E46}
+:root[data-theme="light"] .side .sfoot button{border-color:rgba(17,24,39,0.095)}
+:root[data-theme="light"] .side .sfoot button:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .ssync,:root[data-theme="light"] .side .sclip{border-top-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .btn{background:var(--paper);box-shadow:var(--sh1)}
+:root[data-theme="light"] .side .btn:hover{color:var(--accent)}
+:root[data-theme="light"] .side .pc{box-shadow:var(--sh1)}
+:root[data-theme="light"] .side .pc:hover{box-shadow:var(--sh2)}
+:root[data-theme="light"] .side .sfoot .adm{color:var(--gold2);border-color:rgba(217, 188, 134, 0.3)}
+:root[data-theme="light"] .side{background:var(--side);border-right-color:currentcolor}
+:root[data-theme="light"] .side .sbtn.pri{background:var(--gold2);color:rgb(26, 20, 6);box-shadow:none}
+:root[data-theme="light"] .side .sbtn.pri:hover{background-color:rgb(214, 184, 132);background-image:initial}
+:root[data-theme="light"] .side .cgrp{color:#5F6878}
+:root[data-theme="light"] .side .citem[aria-current="true"]{background-color:rgba(47,107,255,0.13);background-image:initial;box-shadow:inset 2px 0 0 var(--gold2)}
+:root[data-theme="light"] .side .btn{box-shadow:none}
+:root[data-theme="light"] .side .pc{box-shadow:none}
+:root[data-theme="light"] .side .pc:hover{box-shadow:none}
+:root[data-theme="light"] .side > .clist::-webkit-scrollbar-thumb{background-color:rgba(17,24,39,0.22);background-image:initial}
+:root[data-theme="light"] .side > .ssync,:root[data-theme="light"] .side > .sclip,:root[data-theme="light"] .side > .slock{background:var(--side)}
+:root[data-theme="light"] .side .smenu{border-top-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .smenu summary{color:var(--side-mute)}
+:root[data-theme="light"] .side .smenu summary::after{border-top-color:currentcolor;border-right-color:currentcolor}
+:root[data-theme="light"] .side .smenu summary:hover{color:var(--side-ink);background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .citem .stg{color:var(--side-mute);background-color:rgba(17,24,39,0.06);background-image:initial}
+:root[data-theme="light"] .side .citem .stg.s-consult{color:#0047EB}
+:root[data-theme="light"] .side .citem .stg.s-contract{color:var(--gold2)}
+:root[data-theme="light"] .side .citem .stg.s-care{color:#1F844D}
+:root[data-theme="light"] .side .citem .r4{color:var(--side-mute)}
+:root[data-theme="light"] .side .citem .r4.due{color:#E01800}
+:root[data-theme="light"] .side .sct{color:var(--side-ink);background-color:rgba(255,255,255,0.8);background-image:initial;border-color:currentcolor}
+:root[data-theme="light"] .side .sct:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .sct svg{color:var(--gold2)}
+:root[data-theme="light"] .side .wm i{color:var(--ocean2)}
+:root[data-theme="light"] .side{background-color:#F3F4F6}
+:root[data-theme="light"] .side > .ssync,:root[data-theme="light"] .side > .sclip,:root[data-theme="light"] .side > .slock{background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .sbrand .wm{color:#111827}
+:root[data-theme="light"] .side .sbrand small{color:#5F6878}
+:root[data-theme="light"] .side .sbtn.pri{background:var(--ocean);color:rgb(255, 255, 255)}
+:root[data-theme="light"] .side .sbtn.pri:hover{background-color:rgb(61, 120, 255);background-image:initial}
+:root[data-theme="light"] .side .citem[aria-current="true"]{background-color:rgba(47, 107, 255, 0.12);background-image:initial;box-shadow:inset 2px 0 0 var(--ocean2)}
+:root[data-theme="light"] .side .sct svg{color:var(--ocean2)}
+:root[data-theme="light"] .side{background-color:#F3F4F6}
+:root[data-theme="light"] .side{background-color:#F3F4F6}
+:root[data-theme="light"] .side .citem[aria-current="true"]{background-color:rgba(47,107,255,0.13);background-image:initial}
+:root[data-theme="light"] .side .sfoot .nxm{color:#906C27}
+:root[data-theme="light"] .side .sct.sbr{color:#906A1D}
+:root[data-theme="light"] .side .sfold{color:var(--side-mute);background-color:transparent;background-image:initial;border-color:rgba(17,24,39,0.114)}
+:root[data-theme="light"] .side .sfold:hover{color:var(--side-ink);background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .sfoot .dbm{color:#AB5A0C}
+:root[data-theme="light"] .side .sct.scm{color:#8F681E}
+:root[data-theme="light"] .side .citem .stg[data-q]:hover{background-color:rgba(47,107,255,0.09);background-image:initial;box-shadow:rgba(17,24,39,0.28) 0px 0px 0px 1px}
+:root[data-theme="light"] .side .qmore{color:var(--side-mute)}
+:root[data-theme="light"] .side .qmore:hover{color:var(--side-ink);background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .gchip{color:var(--side-ink);background-color:initial;background-image:linear-gradient(135deg, rgba(201, 169, 106, 0.16), rgba(201, 169, 106, 0.04));border-color:rgba(217, 188, 134, 0.28)}
+:root[data-theme="light"] .side .gchip:hover{border-color:rgba(217, 188, 134, 0.55)}
+:root[data-theme="light"] .side .gc-lv{color:rgb(20, 20, 20);background-color:initial;background-image:linear-gradient(135deg, rgb(233, 210, 166), rgb(201, 169, 106))}
+:root[data-theme="light"] .side .gc-t i{background-color:rgba(17,24,39,0.09);background-image:initial}
+:root[data-theme="light"] .side .gc-t em{background-color:initial;background-image:linear-gradient(90deg, rgb(201, 169, 106), rgb(242, 221, 176))}
+:root[data-theme="light"] .side .rl.lvr b{color:rgb(20, 20, 20);background-color:initial;background-image:linear-gradient(135deg, rgb(233, 210, 166), rgb(201, 169, 106))}
+:root[data-theme="light"] .side .sct.spl{color:#0073D6}
+:root[data-theme="light"] .side .ph{border-bottom-color:rgba(17,24,39,0.12);border-left-color:rgba(17,24,39,0.12)}
+:root[data-theme="light"] .side .ph{border-bottom:1px solid var(--line);color:var(--mute);border-top-color:currentcolor;border-right-color:currentcolor;border-left-color:currentcolor}
+:root[data-theme="light"] .side .snav .sct{border-color:transparent}
+:root[data-theme="light"] .side .snav .sct small{color:var(--side-ink)}
+:root[data-theme="light"] .side .snav .sct.on{background-color:rgba(47,107,255,0.13);background-image:initial;border-color:rgba(17,24,39,0.133)}
+:root[data-theme="light"].split .side{background-color:rgba(243,244,246,0.72)!important;background-image:initial!important;border-right-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"].split .sqw{background-color:initial;background-image:none}
+:root[data-theme="light"] .side .cgrp{color:var(--mute)}
+:root[data-theme="light"] .side .citem .stg.s-lead{color:#374151;background-color:rgba(155, 163, 178, 0.14);background-image:initial}
+:root[data-theme="light"] .side .citem .stg.s-consult{color:#0047EB;background-color:rgba(79, 125, 255, 0.16);background-image:initial}
+:root[data-theme="light"] .side .citem .stg.s-contract{color:#8F6A14;background-color:rgba(226, 194, 126, 0.16);background-image:initial}
+:root[data-theme="light"] .side .citem .stg.s-care{color:#1F844D;background-color:rgba(62, 207, 142, 0.15);background-image:initial}
+:root[data-theme="light"] .side .snav .sct{background-color:rgba(255,255,255,0.765);background-image:initial;border-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .snav .sct:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .citem .r5 .lc.old{color:#CC4700}
+:root[data-theme="light"] .side .citem .r4 i{color:var(--side-ink);background-color:rgba(17,24,39,0.075);background-image:initial}
+:root[data-theme="light"] .side .citem .r4.due i{color:rgb(42, 28, 0);background-color:rgb(232, 176, 74);background-image:initial}
+:root[data-theme="light"] .side .citem .r4.late i{color:rgb(255, 255, 255);background-color:rgb(229, 83, 75);background-image:initial}
+:root[data-theme="light"] .side .sgear{color:var(--side-ink);background-color:transparent;background-image:initial;border-color:rgba(17,24,39,0.114)}
+:root[data-theme="light"] .side .sgear:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+:root[data-theme="light"] .side .sgear.warn::after{color:rgb(255, 255, 255);background-color:rgb(229, 83, 75);background-image:initial}
+:root[data-theme="light"] .side .citem .r1 .pk{background-color:rgba(17,24,39,0.045);background-image:initial;border-color:rgba(17,24,39,0.152)}
+:root[data-theme="light"] .side .citem .r1 .pk u{text-decoration-color:initial}
+:root[data-theme="light"] .side .citem .r1 .chp{color:#AB5A0C;background-color:rgba(242, 184, 128, 0.08);background-image:initial;border-color:rgba(242, 184, 128, 0.35)}
+:root[data-theme="light"] .side .citem .r1 .chp.none{color:var(--side-mute);background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .citem .r1 .pk:hover{box-shadow:rgba(17,24,39,0.3) 0px 0px 0px 1px}
+:root[data-theme="light"] .side .cgrp{background:color-mix(in srgb,var(--paper) 55%,transparent);border:1px solid var(--line)}
+:root[data-theme="light"] .side .citem .r5 .ph{color:inherit!important;border-color:currentcolor!important}
+:root[data-theme="light"] .side .lsort b{color:var(--side-ink)}
+:root[data-theme="light"] .side .lsort label::before{color:var(--gold2)}
+:root[data-theme="light"] .side .lsort select option{color:rgb(17, 17, 17)}
+:root[data-theme="light"] .side .snav .smn b{color:var(--side-ink)}
+:root[data-theme="light"] .side .cs1{color:var(--accent,#0039EB)}
+:root[data-theme="light"] .side .citem.doc0,:root[data-theme="light"] .side .citem.doc1{box-shadow:inset 4px 0 0 var(--dc)}
+:root[data-theme="light"] .side .dtg i.ok{color:#1F8452;background-color:rgba(48, 164, 108, 0.16);background-image:initial}
+:root[data-theme="light"] .side .dtg i.no{color:#EB0008;background-color:rgba(229, 72, 77, 0.14);background-image:initial}
+:root[data-theme="light"] .side .sfilt.fbar{background-color:transparent;background-image:initial}
+:root[data-theme="light"] .side .fbar > button{color:var(--side-ink);background-color:rgba(255,255,255,0.8);background-image:initial;border-color:rgba(17,24,39,0.114)}
+:root[data-theme="light"] .side .fbar > button:hover{border-color:rgba(17,24,39,0.266)}
+:root[data-theme="light"] .side .fbar .fb-f.on{color:rgb(20, 20, 20);background-color:rgb(201, 169, 106);background-image:initial;border-color:rgb(201, 169, 106)}
+:root[data-theme="light"] .side .fpanel{background-color:rgba(255,255,255,0.8);background-image:initial;border-color:rgba(17,24,39,0.095)}
+:root[data-theme="light"] .side .fp-r > small{color:var(--side-mute)}
+:root[data-theme="light"] .side .fp-c button{color:var(--side-ink);background-color:rgba(17,24,39,0.035);background-image:initial;border-color:rgba(17,24,39,0.133)}
+:root[data-theme="light"] .side .fp-c button[aria-pressed="true"]{color:rgb(20, 20, 20);background-color:rgb(201, 169, 106);background-image:initial;border-color:rgb(201, 169, 106)}
+:root[data-theme="light"] .side .fp-c .cg-db::before{background-color:rgb(79, 140, 255);background-image:initial}
+:root[data-theme="light"] .side .fp-c .cg-ji::before{background-color:rgb(255, 111, 174);background-image:initial}
+:root[data-theme="light"] .side .fp-c .cg-op::before{background-color:rgb(46, 196, 182);background-image:initial}
+:root[data-theme="light"] .side .fp-c .cg-bz::before{background-color:transparent;background-image:initial;box-shadow:rgb(167, 123, 255) 0px 0px 0px 2px inset}
+:root[data-theme="light"] .side .fp-lg{color:var(--side-mute);border-top-color:rgba(17,24,39,0.09)}
+:root[data-theme="light"] .side .lg-av.g{background-color:rgb(47, 181, 122);background-image:initial}
+:root[data-theme="light"] .side .lg-av.o{background-color:rgb(240, 154, 26);background-image:initial}
+:root[data-theme="light"] .side .lg-av.bz{box-shadow:rgb(167, 123, 255) 0px 0px 0px 2px inset}
+:root[data-theme="light"] .side .lg-ch.db{background-color:rgb(79, 140, 255);background-image:initial}
+:root[data-theme="light"] .side .lg-ch.ji{background-color:rgb(255, 111, 174);background-image:initial}
+:root[data-theme="light"] .side .lg-ch.op{background-color:rgb(46, 196, 182);background-image:initial}
+:root[data-theme="light"] .side .lg-bar{background-color:initial;background-image:linear-gradient(rgb(229, 72, 77), rgb(245, 179, 1), rgb(48, 164, 108))}
+:root[data-theme="light"] .side .citem .r1 .chp.cg-db{color:#0055EB;background-color:rgba(79, 140, 255, 0.14);background-image:initial;border-color:rgba(79, 140, 255, 0.5)}
+:root[data-theme="light"] .side .citem .r1 .chp.cg-ji{color:#E00064;background-color:rgba(255, 111, 174, 0.13);background-image:initial;border-color:rgba(255, 111, 174, 0.5)}
+:root[data-theme="light"] .side .sang{color:#0027EB;background-color:rgba(120, 140, 255, 0.14);background-image:initial;border-color:rgba(120, 140, 255, 0.35)}
+:root[data-theme="light"] .side .sang.past{color:var(--side-mute,#5F6878);background-color:rgba(127, 127, 127, 0.15);background-image:initial;border-color:rgba(127, 127, 127, 0.35)}
+:root[data-theme="light"] .side .citem .r1 .pfl{background-color:color-mix(in srgb, currentcolor 5%, transparent 95%);background-image:initial;border-color:color-mix(in srgb, currentcolor 18%, transparent 82%)}
+:root[data-theme="light"] .side .citem .r1 .pfl u{background-color:color-mix(in srgb, currentcolor 18%, transparent 82%);background-image:initial;text-decoration-color:initial}
+:root[data-theme="light"] .side .citem .r1 .pfl u.on{background-color:rgb(111, 155, 255);background-image:initial}
+:root[data-theme="light"] .side .citem .r1 .pfl.w{background-color:rgba(242, 194, 48, 0.14);background-image:initial;border-color:rgba(242, 194, 48, 0.65)}
+:root[data-theme="light"] .side .citem .r1 .pfl.w b{color:#8A6905}
+:root[data-theme="light"] .side .citem .r1 .pfl.w u.on{background-color:rgb(242, 194, 48);background-image:initial}
+:root[data-theme="light"] .side .citem .r1 .pfl.g{background-color:rgba(31, 169, 113, 0.15);background-image:initial;border-color:rgba(31, 169, 113, 0.65)}
+:root[data-theme="light"] .side .citem .r1 .pfl.g b{color:#1F8452}
+:root[data-theme="light"] .side .citem .r1 .pfl.g u.on{background-color:rgb(31, 169, 113);background-image:initial}
+:root[data-theme="light"] .side .citem .rtg .polr{color:#EB0008;background-color:rgba(229, 72, 77, 0.18);background-image:initial;border-color:rgba(229, 72, 77, 0.5)}
+:root[data-theme="light"] .side .fp-lg .lg-pf{background-color:initial;background-image:linear-gradient(90deg, rgb(111, 155, 255) 0px, rgb(111, 155, 255) 58%, rgba(127, 140, 170, 0.4) 58%)}
+:root[data-theme="light"] .side .lq{color:var(--side-ink);background-color:transparent;background-image:initial;border-color:color-mix(in srgb, currentcolor 24%, transparent 76%)}
+:root[data-theme="light"] .side .lq b{color:inherit}
+:root[data-theme="light"] .side .lq.w{border-color:rgba(242, 194, 48, 0.6)}
+:root[data-theme="light"] .side .lq.r{border-color:rgba(229, 83, 75, 0.65)}
+:root[data-theme="light"] .side .lq[aria-pressed="true"]{color:rgb(255, 255, 255);background-color:rgb(61, 99, 214);background-image:initial;border-color:rgb(61, 99, 214)}
+:root[data-theme="light"] .side .lq.w[aria-pressed="true"]{color:rgb(42, 28, 0);background-color:rgb(242, 194, 48);background-image:initial;border-color:rgb(242, 194, 48)}
+:root[data-theme="light"] .side .lq.r[aria-pressed="true"]{color:rgb(255, 255, 255);background-color:rgb(229, 83, 75);background-image:initial;border-color:rgb(229, 83, 75)}
+:root[data-theme="light"] .side .citem .r1 .pfl.pc u.on{background-color:rgb(31, 169, 113);background-image:initial}
+:root[data-theme="light"] .side .citem .r1 .pfl.pc u.w{background-color:rgb(242, 194, 48);background-image:initial}
+@media (min-width: 1180px){
+  :root[data-theme="light"] .shell:not(.mini) .side::before{background-color:rgba(17,24,39,0.048);background-image:initial;border-left-color:rgba(17,24,39,0.09)}
+  :root[data-theme="light"] .shell:not(.mini) .smenu .sfoot button{color:var(--side-ink);background-color:transparent;background-image:initial;border-color:currentcolor}
+  :root[data-theme="light"] .shell:not(.mini) .smenu .sfoot button:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+  :root[data-theme="light"] .shell:not(.mini) .side > .pcmenu{border-top-color:rgba(17,24,39,0.09)}
+  :root[data-theme="light"] .side .pcmenu .pmh{color:var(--side-mute,#5F6878)}
+  :root[data-theme="light"] .side .pcmenu button{color:var(--side-ink);background-color:transparent;background-image:initial;border-color:currentcolor}
+}
+@media (min-width: 901px){
+  :root[data-theme="light"] .side .rl-brand{color:#111827;background-color:rgba(255,255,255,0.85);background-image:initial;border-color:currentcolor}
+  :root[data-theme="light"] .side .rl-brand b{color:var(--ocean2,#0048EB)}
+  :root[data-theme="light"] .side .rl{color:var(--side-ink);background-color:rgba(255,255,255,0.8);background-image:initial;border-color:currentcolor}
+  :root[data-theme="light"] .side .rl:hover{background-color:rgba(47,107,255,0.09);background-image:initial}
+  :root[data-theme="light"] .side .rl.pri{background:var(--ocean,#2F6BFF);color:rgb(255, 255, 255)}
+  :root[data-theme="light"] .side .rl.gold{color:#906A1D}
+  :root[data-theme="light"] .side .rlb{color:rgb(20, 20, 20);background-color:rgb(201, 169, 106);background-image:initial}
+  :root[data-theme="light"] .side #rlCnt{color:#111827;background-color:#FFFFFF;background-image:initial}
+  :root[data-theme="light"] .side .rl-dot{background-color:rgb(94, 211, 154);background-image:initial;box-shadow:rgba(94, 211, 154, 0.2) 0px 0px 0px 3px}
+  :root[data-theme="light"] .side .rl-dot.bad{background-color:rgb(255, 138, 128);background-image:initial}
+  :root[data-theme="light"] .side .rl-dot.off{background-color:rgb(119, 119, 119);background-image:initial;box-shadow:none}
+  :root[data-theme="light"] .side .sbrand .sgear,:root[data-theme="light"] .side .sbrand .sfold{background-color:rgba(255,255,255,0.75);background-image:initial}
+}
+/* LIGHT-SIDE:END */
+/* ③ 손질 — 자동으로 만든 값 위에 덮는다 */
+:root[data-theme="light"] .side .citem{background-color:#fff}
+:root[data-theme="light"] .side .citem:hover{background-color:#F7F9FF}
+:root[data-theme="light"] .side .citem[aria-current="true"]{background-color:#EAF1FF;background-image:none}
+:root[data-theme="light"] .side .citem[aria-current="true"] .cav{box-shadow:0 0 0 2px #2F6BFF}
+
 </style>
 </head>
 <body>
@@ -3318,7 +3531,7 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
     <button type="button" class="gchip" id="gchip" data-gm="open" hidden title="내 성장 · 레벨과 퀘스트"></button>
     <button class="sbtn pri" id="newCust" type="button"><svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="10" cy="8" r="4"/><path d="M2 21c0-4 4-7 8-7s8 3 8 7zM19 8h2v3h3v2h-3v3h-2v-3h-3v-2h3z"/></svg>신규 고객 등록</button>
     <div class="sqw"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" class="sq" type="search" placeholder="이름 · 전화번호 · 메모 검색" autocomplete="off"></div>
-    <div class="sfilt fbar" id="sfilt"><button id="fBtn" type="button" class="fb-f" aria-expanded="false" aria-controls="fPanel" title="거르기 (채널·진행·자료)"><i aria-hidden="true">🔽</i><b id="fLbl">필터</b></button><button id="fAddB" type="button" class="fb-b" title="고객 추가 · 가져오기 (붙여넣기·사진·DB·엑셀)">＋ 추가</button><button id="fViewB" type="button" class="fb-b" title="채널별 표 · 영업 트리 · 여러 명 선택">👁 보기</button></div>
+    <div class="sfilt fbar" id="sfilt"><button id="fBtn" type="button" class="fb-f" aria-expanded="false" aria-controls="fPanel" title="거르기 (채널·진행·자료)"><i aria-hidden="true">🔽</i><b id="fLbl">필터</b></button><button id="fAddB" type="button" class="fb-b" title="고객 추가 · 가져오기 (붙여넣기·사진·DB·엑셀)">＋ 추가</button><button id="fViewB" type="button" class="fb-b" title="채널별 표 · 영업 트리 · 여러 명 선택">👁 보기</button><button id="fThemeB" type="button" class="fb-b fb-th" title="밝은 화면 ↔ 어두운 화면" aria-label="화면 색 바꾸기 (밝은 화면 · 어두운 화면)"><i aria-hidden="true">☀️</i><b>밝게</b></button></div>
     <div class="fpanel" id="fPanel" role="group" aria-label="고객 거르기" hidden></div>
     <div class="snav">
     <button type="button" class="sct" data-act="contacts" data-tb="contacts"><svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg><b>전화</b><small>고객 · 보험사 연락처</small></button><button type="button" class="sct scm" data-cm="open" data-tb="chan" hidden><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3 3 0 0 1 0 6M18 14c2 .7 3.5 2.8 3.5 5.5"/></svg><b>고객관리</b><small>영업 채널별</small></button>
@@ -3410,9 +3623,18 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
     function soon(ms) { clearTimeout(t); t = setTimeout(apply, ms || 250); }
     root.Native.full = { can: !!SB, on: want, big: big, pref: pref, apply: apply, set: function (v) { try { if (v == null) localStorage.removeItem('aob_full'); else localStorage.setItem('aob_full', v ? '1' : '0'); } catch (e) { } apply(); } };
     apply();
+    // 화면 색(밝은 화면·어두운 화면)에 맞춰 위쪽 상태 줄 글자색을 바꾼다 (2026-11-18: 밝은 화면에서 시계·배터리가 흰 글자라 안 보였음)
+    //   SystemBars 의 LIGHT = 밝은 바탕용 어두운 글자 · DARK = 어두운 바탕용 밝은 글자. 앱 틀에 이미 들어 있는 기능이라 새로 설치하지 않아도 된다.
+    function themeNow() { var t = ''; try { t = document.documentElement.getAttribute('data-theme') || localStorage.getItem('mhs_theme') || ''; } catch (e) { } return t === 'light' ? 'light' : 'dark'; }
+    root.Native.bars = function (theme) {
+      if (!SB || !SB.setStyle) return false;
+      try { var r = SB.setStyle({ style: (theme || themeNow()) === 'light' ? 'LIGHT' : 'DARK' }); if (r && r.catch) r.catch(function () { }); } catch (e) { return false; }
+      return true;
+    };
+    root.Native.bars();
     root.addEventListener('resize', function () { soon(300); });                                   // 접었다 펴면 다시 판단
     root.addEventListener('focus', function () { soon(200); });
-    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') soon(200); });
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { soon(200); root.Native.bars(); } });
     document.addEventListener('focusout', function (e) { if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) soon(500); });   // 글자판이 내려간 뒤 다시 숨김
   })();
   // 예전 앱(크롬 기반) 버전 확인 코드와 맞추기: 진짜 앱은 항상 '최신 기능 있음'
@@ -8209,10 +8431,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var b = atob(r), out = new Uint8Array(b.length); for (i = 0; i < b.length; i++) out[i] = b.charCodeAt(i); return out;
   };
 
-  // 화면 테마: 기본은 콘크리트(어두운 화면), 도구 메뉴에서 밝은 화면으로 바꿀 수 있음
-  var THEME = 'dark'; try { THEME = localStorage.getItem('mhs_theme') || 'dark'; } catch(e){}
+  // 화면 색: 기본은 콘크리트(어두운 화면). 첫 화면 필터 줄의 ☀️ 밝게 / 🌙 어둡게 단추(#fThemeB)와 ⚙ 환경설정 → 화면 · 앱(#themeBtn)에서 바꾼다 — 이 기기에 기억(mhs_theme)
+  //   밝은 화면에서는 고객 목록 칸도 밝게 바뀐다(style.css 맨 끝 '밝은 화면: 목록 칸'). 2026-11-18 전에는 목록 칸이 늘 어두워서 휴대폰 첫 화면은 밝은 화면으로 바꿔도 검정이었다.
+  var THEME = 'dark'; try { THEME = localStorage.getItem('mhs_theme') === 'light' ? 'light' : 'dark'; } catch(e){}
   document.documentElement.setAttribute('data-theme', THEME);
-  function setTheme(t){ THEME = t; try { localStorage.setItem('mhs_theme', t); } catch(e){} document.documentElement.setAttribute('data-theme', t); var b = document.getElementById('themeBtn'); if (b) b.textContent = t === 'dark' ? '밝은 화면으로' : '어두운 화면으로'; }
+  function themeUi(){
+    var d = THEME === 'dark', b = document.getElementById('themeBtn'), f = document.getElementById('fThemeB'), m = document.querySelector('meta[name="theme-color"]');
+    if (b) b.textContent = d ? '밝은 화면으로' : '어두운 화면으로';
+    if (f) { f.innerHTML = '<i aria-hidden="true">' + (d ? '☀️' : '🌙') + '</i><b>' + (d ? '밝게' : '어둡게') + '</b>'; f.title = d ? '밝은 화면으로 바꾸기 (지금: 어두운 화면)' : '어두운 화면으로 바꾸기 (지금: 밝은 화면)'; f.setAttribute('aria-label', f.title); }
+    if (m) m.setAttribute('content', d ? '#090B10' : '#F3F4F6');
+    try { if (window.Native && Native.bars) Native.bars(THEME); } catch(e){}                       // 위쪽 상태 줄 글자색(시계·배터리)도 화면 색에 맞춤
+  }
+  function setTheme(t){ THEME = t === 'light' ? 'light' : 'dark'; try { localStorage.setItem('mhs_theme', THEME); } catch(e){} document.documentElement.setAttribute('data-theme', THEME); themeUi(); }
   var BRAND = '<div class="lmark"><span class="wm"><b>AOB</b><i>9</i></span><small>어센틱 오션브랜치 9팀 · Authentic Ocean Branch</small></div>';
   // ================= 잠금 =================
   var memMode = false;
@@ -15944,7 +16174,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
   var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
-    '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
+    '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
@@ -17464,8 +17694,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   $('sample').onclick = function(){ openCustomer('sample'); };
   $('lockBtn').onclick = function(){ Store.lock(); };
   $('admBtn').onclick = function(){ openAdmin(); };
-  $('themeBtn').textContent = THEME === 'dark' ? '밝은 화면으로' : '어두운 화면으로';
+  themeUi();
   $('themeBtn').onclick = function(){ setTheme(THEME === 'dark' ? 'light' : 'dark'); };
+  if ($('fThemeB')) $('fThemeB').onclick = function(){ setTheme(THEME === 'dark' ? 'light' : 'dark'); toast(THEME === 'dark' ? '🌙 어두운 화면으로 바꿨습니다' : '☀️ 밝은 화면으로 바꿨습니다'); };
   $('mClose').onclick = function(){ $('modal').hidden = true; };
   $('modal').addEventListener('click', function(e){ if (e.target === this) this.hidden = true; });
   $('mCopy').onclick = function(){
@@ -18978,6 +19209,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="9f50e462c01b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="3ea195587e4f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
