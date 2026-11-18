@@ -7553,11 +7553,12 @@ var Policy = (function () {
   var DATE_S = '(\\d{4}\\s*[-./년]\\s*\\d{1,2}\\s*[-./월]\\s*\\d{1,2})';
   function noteOf(m, room) {
     var T = String(m.text || ''), one = T.replace(/[ \t]+/g, ' ');
-    var no = ((one.match(/(?:증권|증서|계약)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '').replace(/-+$/, '');
-    var ap = (one.match(/청약서?\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '';
+    var oneNo = one.replace(/가\s*계약\s*번호\s*[:：]?\s*[0-9A-Za-z-]+/g, ' ');   // 서명 단계의 '가계약번호'는 증권번호가 아니다(체결 뒤 번호와 다름) → 번호 찾기에서 뺀다
+    var no = ((oneNo.match(/(?:증권|증서|계약)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '').replace(/-+$/, '');
+    var ap = (one.match(/(?:청약서?|가\s*계약|설계|접수)\s*번호\s*[:：]?\s*([0-9A-Za-z][0-9A-Za-z-]{5,19})/) || [])[1] || '';   // 청약·서명 단계의 번호(체결 뒤 증권번호와 다름) → 어느 계약인지 알 수 없어 넘김
     var am = one.match(/보험료\s*(?:\(\s*원\s*\))?\s*[:：(]?\s*([\d,]{3,})\s*원?/) , amt = am && /\d{3}/.test(am[1]) ? num(am[1]) : null;
     var prod = ((one.match(/(?:대상\s*계약|상품\s*명?|계약\s*명|보험\s*명|가입\s*상품)\s*[:：]\s*([^\n]{2,60})/) || [])[1] || '').trim();
-    var cD = ymd((one.match(new RegExp('(?:청약|계약|체결|성립|가입)\\s*일(?:자)?\\s*[:：]?\\s*' + DATE_S)) || [])[1] || '');
+    var cD = ymd((one.match(new RegExp('(?:청약|계약|체결|성립|가입)\\s*일(?:자|시)?\\s*[:：]?\\s*' + DATE_S)) || [])[1] || '');
     var pD = ymd((one.match(new RegExp('(?:입금|수납|납입|출금|결제|이체)\\s*일(?:자)?\\s*[:：]?\\s*' + DATE_S)) || [])[1] || '');
     var nmL = ((one.match(/(?:계약자|피보험자|고객)\s*명?\s*[:：]\s*([^\s,()]{2,12})/) || [])[1] || '').trim(), nm = nmL || ((one.match(/([가-힣]{2,5})\s*고객님/) || [])[1] || '').trim();
     var co = (T.match(CO_RE) || String(m.who || '').match(CO_RE) || String(room || '').match(CO_RE) || [])[1] || '';
@@ -7988,11 +7989,13 @@ var Policy = (function () {
       return out.join('\n\n');
     }
     function isNote(text) { try { return !!noteParse(text).ok; } catch (e) { return false; } }
+    // 여러 사람 방에서 '내 글'을 알아보는 이름: 내 프로필·팀 이름 + 넣기 창에서 직접 적어 둔 '방에서 보이는 내 이름'(이 기기에만 · 내 이름뿐)
+    function myNames() { var a = (C.myNames ? C.myNames() : []).slice(); try { var x = localStorage.getItem('aob_polme'); if (x) a.push(x); } catch (e) { } return a; }
     // 글이 보험사 알림이면 넣기 창을 띄우고 true. o = { quiet, name(파일 이름), other(알림이 아니라고 할 때 이어서 할 일) }
     async function takeNote(text, o) {
       o = o || {}; var p; try { p = noteParse(text); } catch (e) { p = { ok: false }; }
       if (!p.ok) { if (!o.quiet) C.toast('보험사 알림을 찾지 못했습니다 · 증권번호(증서번호)가 적힌 알림 글인지 확인해 주세요'); return false; }
-      var M = noteMine(p, C.myNames ? C.myNames() : []); p.notes = M.notes; p.others = M.others; p.people = M.people;   // 여러 사람이 올리는 방: 내가 올린 것만(다른 분 것은 읽어 두지도 저장하지도 않는다)
+      var M = noteMine(p, myNames()); p.notes = M.notes; p.others = M.others; p.people = M.people; o.text = text;   // 여러 사람이 올리는 방: 내가 올린 것만(다른 분 것은 읽어 두지도 저장하지도 않는다)
       await load(); var deals = []; try { deals = (C.deals ? await C.deals() : []) || []; } catch (e) { }
       openNote(p, o, deals); return true;
     }
@@ -8009,7 +8012,9 @@ var Policy = (function () {
       var other = o.other ? '<button class="lnk2" type="button" id="pnOther" style="align-self:flex-start">보험사 알림이 아니에요 · 고객 기록으로 넣기</button>' : '';
       if (!dry.items.length) {
         C.openDlg('<h4>📩 보험사 알림톡</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(label) + '</b></p><p class="pol-nmsg">' + (p.notes.length ? '이 글의 알림 ' + p.notes.length + '건은 <b>이미 모두 장부에 들어 있습니다.</b>' + (p.others ? ' 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '') : p.others ? '👥 여러 사람이 올리는 방입니다. <b>내가 올린 알림은 찾지 못했습니다.</b> 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '증권번호가 적힌 알림을 찾지 못했습니다.' + (p.skip ? ' 청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다 — <b>증권번호(증서번호)</b>가 나오는 "보험료 입금 완료 · 계약 체결" 알림이 있는 채팅방을 내보내 주세요.' : '')) + '</p>' + other + '</div>' +
+          (p.others && !p.notes.length ? '<div class="form" style="padding-top:0"><label class="l" for="pnMe">이 방에서 보이는 내 이름</label><div class="sgf"><input type="text" id="pnMe" placeholder="예: 홍길동" autocomplete="off" style="flex:1;min-width:0"><button class="btn" type="button" id="pnMeGo">다시 찾기</button></div><p class="note" style="margin:0">방에서 내 글 옆에 나오는 이름을 적어 주세요(세 글자 이상 · 이 기기에만 기억합니다).</p></div>' : '') +
           '<div class="mrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button><button class="go" type="button" id="pnSee">계약 장부 보기</button></div>');
+        if ($('pnMeGo')) $('pnMeGo').onclick = function () { var v = String($('pnMe').value || '').replace(/\s+/g, ''); if (v.length < 3) { $('pnMe').focus(); return; } try { localStorage.setItem('aob_polme', v); } catch (e) { } C.closeDlg(); takeNote(o.text, o); };
         $('polX').onclick = C.closeDlg; $('pnSee').onclick = function () { C.closeDlg(); show({ f: all(P.d).some(function (x) { return (x.ev || []).length; }) ? 'note' : 'all' }); };
         if ($('pnOther')) $('pnOther').onclick = function () { C.closeDlg(); o.other(); };
         return;
@@ -19363,6 +19368,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="7c3ce2700ad5";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="8fd69b93786d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
