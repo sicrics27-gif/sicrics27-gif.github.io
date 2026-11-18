@@ -1252,7 +1252,7 @@ table.ctt .due{color:var(--red);font-weight:700}
 .chtabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0 4px;padding-bottom:4px}
 .chtabs button{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink2);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .chtabs button b{font-size:12px;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--ink)}
-.chtabs button[aria-selected="true"]{background:var(--ocean,#2F6BFF);border-color:var(--ocean,#2F6BFF);color:#fff}.chtabs button[aria-selected="true"] b{background:rgba(255,255,255,.22);color:#fff}
+.chtabs button[aria-selected="true"]{background:var(--ocean,#2F6BFF);border-color:var(--ocean,#2F6BFF);color:#fff}.chtabs button[aria-selected="true"] b{background:rgba(255,255,255,.22);color:inherit}
 .bkpi.chk{grid-template-columns:repeat(8,minmax(0,1fr))}
 .chsel{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:13px;padding:0 6px}
 .cc-kv .chsel{height:28px}
@@ -1399,7 +1399,7 @@ table.act td{vertical-align:top}table.act td small{color:var(--mute)}table.act t
 .pr-i{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.pr-i .pi{font-size:13px;white-space:normal}
 :root[data-theme="dark"] .pr-i .pi.c-k{color:var(--ink)}:root[data-theme="dark"] .pr-i .pi.c-r{color:#ff8a80}:root[data-theme="dark"] .pr-i .pi.c-g{color:#7ee2a8}:root[data-theme="dark"] .pr-i .pi.c-b{color:#9DB8FF}
 .pdtpl,.pdtodo{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.pdtodo small{color:var(--mute);width:100%}
-.pdr{display:grid;grid-template-columns:70px minmax(0,1fr) 92px 28px;gap:6px;align-items:center;margin:4px 0}
+.pdr{display:grid;grid-template-columns:64px minmax(0,1fr) 88px auto;gap:6px;align-items:center;margin:4px 0}   /* 2026-11-18: 마지막 칸이 28px라 [빼기]가 두 줄(빼/기)로 꺾였음 → 글자 너비만큼 */
 .pdr input,.pdr select,.plform input,.pdform>input{height:40px;border:1px solid var(--line);border-radius:9px;padding:0 10px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;width:100%}
 .pdt{font-family:var(--f-mono,ui-monospace);letter-spacing:.06em;text-align:center}
 .pdp{background:var(--soft);border-radius:12px;padding:10px 12px}.pdp-h{display:flex;align-items:center;gap:6px}.pdp-h b{margin-right:auto}.pdp pre{margin:6px 0 0;white-space:pre-wrap;font:600 13.5px/1.7 var(--f-body)}
@@ -2494,7 +2494,7 @@ html .shell .side>.smenu,html .shell:not(.mini) .side>.smenu,html.split .shell .
 .fdrop.flash{outline:3px solid #f5b301;outline-offset:3px;transition:outline .3s}
 
 /* 싯플랜 일정 빼기 */
-.pdrm{flex:none;border:1px solid rgba(229,72,77,.45);background:rgba(229,72,77,.12);color:#ff8589;border-radius:10px;padding:0 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;align-self:stretch}
+.pdrm{flex:none;border:1px solid rgba(229,72,77,.45);background:rgba(229,72,77,.12);color:#ff8589;border-radius:10px;padding:0 8px;white-space:nowrap;height:40px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;align-self:stretch}
 .pdrm:hover{background:rgba(229,72,77,.25)}
 .pdadd{display:flex;gap:8px}.pdadd #pdAdd{flex:1}
 .pdhint{margin:4px 0 8px;font-size:12px}
@@ -3505,6 +3505,34 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
 :root[data-theme="light"] .side .citem:hover{background-color:#F7F9FF}
 :root[data-theme="light"] .side .citem[aria-current="true"]{background-color:#EAF1FF;background-image:none}
 :root[data-theme="light"] .side .citem[aria-current="true"] .cav{box-shadow:0 0 0 2px #2F6BFF}
+/* ④ 목록 칸 밖(화면 · 창) — 어두운 화면용으로 '어두운 바탕'이나 '밝은 글자색'을 직접 적어 둔 곳의 밝은 화면 값 (2026-11-18 대표님 캡처: 싯플랜 고객 이름 추천 목록이 검은 상자로 나옴)
+   NHC tools/aob9_paths/theme.mjs 가 밝은 화면에서 화면·창을 두루 열어 '바탕에 묻히는 글자'를 찾는다 — 잡히면 여기에 밝은 화면 값을 더한다. 새 화면은 색을 직접 적지 말고 --paper · --ink · --line 변수를 쓴다. */
+:root[data-theme="light"] .cacl{background:#fff;box-shadow:0 10px 28px rgba(20,30,60,.18)}
+:root[data-theme="light"] .cacl button:hover,:root[data-theme="light"] .cacl button:focus{background:rgba(47,107,255,.1)}
+:root[data-theme="light"] .selbar{background:#fff;border-color:var(--line);box-shadow:0 -8px 24px rgba(20,30,60,.12)}
+:root[data-theme="light"] .pdrm{color:#C4302B;border-color:rgba(210,54,47,.4);background:rgba(210,54,47,.07)}
+:root[data-theme="light"] .sang.hot{color:#B3261E}
+:root[data-theme="light"] .qc-x{color:#7A5A26;background:rgba(201,169,106,.22)}
+:root[data-theme="light"] .pb.gold{color:#7A5A26;border-color:#C9A96A}
+:root[data-theme="light"] .ccr.on em{color:#178A4C}:root[data-theme="light"] .ccr.bad em{color:#C4302B}
+:root[data-theme="light"] .ph.sun,:root[data-theme="light"] .pcd.sun .pd{color:#D2362F}:root[data-theme="light"] .ph.sat,:root[data-theme="light"] .pcd.sat .pd{color:#2F5FD0}
+:root[data-theme="light"] .pcd.today .pd{color:#fff}
+:root[data-theme="light"] .ptool .pgoal[aria-pressed="true"]{color:#1D4FC4}
+:root[data-theme="light"] .btn.ghost{color:var(--ink2);background:transparent;border-color:var(--line)}
+:root[data-theme="light"] .btn.ghost:hover{color:var(--ink);background:var(--soft);border-color:var(--line)}
+:root[data-theme="light"] :is(.khero,.cvhero,.wbrand,.lock,.inc,.rcall,.gate) .btn.ghost{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22)}
+/* ④-2 같은 훑기에서 더 나온 곳 (PC · 폴드 · 어두운 화면) */
+:root[data-theme="light"] kbd{color:#1F2937}:root[data-theme="light"] .pcmenu .pmfind kbd{color:inherit}
+:root[data-theme="light"] .hd-kpi button.warn b{color:#C4302B}
+:root[data-theme="light"] .chn{color:#A2561A}
+:root[data-theme="light"] .glog i{color:#7A5A26}
+:root[data-theme="light"] .bzdet>summary b{color:#7A5A26}:root[data-theme="light"] .bzdet .bzrow{background:rgba(20,30,60,.04)}
+:root[data-theme="dark"] .gchelp summary{color:#8FB0FF}
+.dlq input::placeholder{color:var(--mute)}
+:root[data-theme="light"] .rgcos button small{color:#5F6878}
+:root[data-theme="light"] .bzs>small b{color:#7A5A26}
+:root[data-theme="light"] .bsec h5>b{color:#1D4FC4}
+:root[data-theme="light"] .pm-tabs button b{color:#7A5A26}
 
 </style>
 </head>
@@ -9701,23 +9729,35 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function planTpl(d){ var w = wdOf(d); if (w === 6) return PLAN_WD[6]; if (w === 0) return [['0855', '출근']];
     var a = PLAN_TPL.slice(); a.splice(1, 1, PLAN_WD[w][0] || PLAN_TPL[1]); if (PLAN_WD[w][1]) a.splice(2, 0, PLAN_WD[w][1]); if (holiOf(d)) a[0] = ['0855', '출근']; return a; }
   // 회사 교육일정표 한 칸 → 시간별로 나눔 (8:10 한 줄로 오던 것을 실제 시간으로)
-  var COPERSON = /(AP|TL|SM|BM|ABM|FC|CA|팀장|지점장|본부장|대표)\s*님?\s*(교육|강의|특강)?$/;
-  // 이미 0920으로 들어간 회사 일정 중 '사람 교육'만 0800으로 한 번 바로잡음 (내가 손글씨로 쓴 것·원수사 교육은 그대로)
+  // 사람 교육('이지백SM님 교육' · '박재우 tl님'): 직급은 소문자로 읽혀 와도 알아본다. 영어 낱말 끝(roadmap)에 속지 않게 직급 앞은 한글·빈칸이어야 함
+  var COPERSON = /(?:^|[가-힣\s])(AP|TL|SM|BM|ABM|FC|CA|팀장|지점장|본부장|대표)\s*님?\s*(교육|강의|특강)?$/i;
+  var COINS = /(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시/i;   // 원수사(보험사) 교육 = 0920 그대로
+  // 이미 0920으로 들어간 일정 중 '사람 교육'만 0800으로 한 번 바로잡음 (내가 손글씨로 쓴 것·원수사 교육은 그대로)
+  //   1차(2026-11-11 · coFix0800): 회사 일정표가 자동으로 넣은 것(co)만 고쳤다
+  //   2차(2026-11-18 · coFix0800b · 대표님: "이지백SM님 교육이 왜 0920이냐"): 교육일정표 사진으로 직접 넣은 것은 co 표시가 없어 0920으로 남아 있었다
+  //     → co 가 없어도 '오늘부터'의 일정은 고친다. 지난 날은 기록이라 건드리지 않고, 같은 날 0800에 같은 교육이 이미 있으면 그대로 둔다. 글자색·필체·내용은 안 바꾼다(시간만)
+  //   ★ 1차가 실제로는 안 먹었던 까닭: 시간만 바꾸고 예전 줄(0920)에 '지움' 표시(planTomb)를 안 남겨서, 저장할 때 기기에 있던 0920 줄이 합치기(mergePlan)로 되살아났다
+  //     → 0800·0920 두 줄이 되고 '🧹 겹친 일정' 창이 먼저 들어온 0920을 남기는 쪽으로 권했다. 시간을 바꿀 때는 하루 창 저장과 똑같이 예전 줄에 지움 표시를 남긴다.
   function coFix0800(){
-    if (!PL.d || PL.d.coFix0800) return []; var ds = [];
-    Object.keys(PL.d.days || {}).forEach(function(d){ (PL.d.days[d].items || []).forEach(function(x){
-      if (x.co && x.t === '0920' && !x.hand && COPERSON.test(String(x.x || '').trim()) && !/(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시/i.test(x.x || '')) { x.t = '0800'; x.at = Date.now(); if (ds.indexOf(d) < 0) ds.push(d); } }); });
-    PL.d.coFix0800 = 1; ds.forEach(function(d){ (PL.d.mt = PL.d.mt || {})[d] = Date.now(); }); return ds;
+    if (!PL.d) return []; var p1 = !PL.d.coFix0800, p2 = !PL.d.coFix0800b; if (!p1 && !p2) return [];
+    var ds = [], td = todayStr(), nz = function(s){ return String(s || '').replace(/\s/g, ''); };
+    Object.keys(PL.d.days || {}).forEach(function(d){ var its = (PL.d.days[d] || {}).items || []; its.forEach(function(x){
+      var s = String(x.x || '').trim();
+      if (x.t !== '0920' || x.hand || !COPERSON.test(s) || COINS.test(s)) return;
+      if (!((p1 && x.co) || (p2 && d >= td))) return;
+      if (its.some(function(y){ return y !== x && y.t === '0800' && nz(y.x) === nz(s); })) return;
+      planTomb(d, x); x.t = '0800'; x.at = Date.now() + 1; if (ds.indexOf(d) < 0) ds.push(d); }); });
+    PL.d.coFix0800 = 1; PL.d.coFix0800b = 1; ds.forEach(function(d){ (PL.d.mt = PL.d.mt || {})[d] = Date.now(); }); return ds;
   }
   function coSplit(x){
     var parts = String(x.x || '').split(/\s*·\s*/).filter(Boolean), by = {}, order = [];
     parts.forEach(function(p){ var t;
       if (/석회/.test(p)) t = '1900'; else if (/weekly|위클리/i.test(p)) { t = '0930'; p = '위클리'; } else if (/주마감/.test(p)) t = '0900'; else if (/마감식/.test(p)) t = '1900';
       else if (/관리자\s*교차|워킹\s*공유|팀별\s*미팅|팀\s*미팅/.test(p)) t = '0800';
-      else if (/(화재|생명|라이프|손해|손보|해상|보험).*교육|초청강사|MD.?S\s*PICK|준법감시/i.test(p)) t = '0920';   // 원수사(보험사) 교육만 0920
-      else if (COPERSON.test(p)) t = '0800';   // 2026-11-11 대표님: 'OOO SM님 교육' 같은 사람 교육은 보통 0800
+      else if (COINS.test(p)) t = '0920';   // 원수사(보험사) 교육만 0920
+      else if (COPERSON.test(p.trim())) t = '0800';   // 2026-11-11 대표님: 'OOO SM님 교육' 같은 사람 교육은 보통 0800
       else if (/교육$/.test(p)) t = '0920'; else t = x.t || '';
-      p = p.replace(/(AP|TL|SM|BM|ABM)(?!님)(?=\s|$)/g, '$1님'); if (/(AP|TL|SM|BM|ABM)님$/.test(p)) p += ' 교육';   // 강사는 'OOO AP님 교육'처럼
+      p = p.replace(/(^|[가-힣\s])(AP|TL|SM|BM|ABM)(?!님)(?=\s|$)/gi, '$1$2님'); if (/(?:^|[가-힣\s])(AP|TL|SM|BM|ABM)님$/i.test(p)) p += ' 교육';   // 강사는 'OOO AP님 교육'처럼 (소문자 sm·tl 로 읽혀 와도)
       if (!by[t]) { by[t] = []; order.push(t); } by[t].push(p); });
     return order.map(function(t){ return { d: x.d, t: t, x: by[t].join(' · '), big: x.big }; });
   }
@@ -15379,7 +15419,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function dupKeep(g){ // 남길 것: 내가 직접 쓴 것(회사 자동 아님)·글자색/필체 정한 것 → 이번 달에 가장 많이 나온 글자 → 먼저 들어온 것
     var fr = {}; Object.keys(PL.d.days || {}).forEach(function(d){ ((PL.d.days[d] || {}).items || []).forEach(function(x){ var k = ptxt(x.x); fr[k] = (fr[k] || 0) + 1; }); });
-    var sc = function(x){ return (x.co ? 0 : 1000) + (x.hand ? 500 : 0) + (x.cset ? 300 : 0) + (x.gid ? 50 : 0) + (fr[ptxt(x.x)] || 0) * 10; };
+    var p8 = function(x){ var s = String(x.x || '').trim(); return x.t === '0800' && COPERSON.test(s) && !COINS.test(s) ? 60 : 0; };   // 사람 교육은 0800 줄을 남기는 쪽으로 권함 (2026-11-18)
+    var sc = function(x){ return (x.co ? 0 : 1000) + (x.hand ? 500 : 0) + (x.cset ? 300 : 0) + (x.gid ? 50 : 0) + (fr[ptxt(x.x)] || 0) * 10 + p8(x); };
     return g.slice().sort(function(a, b){ return sc(b) - sc(a) || (a.at || 0) - (b.at || 0); });
   }
   // 2026-11-05: 싯플랜에 원래 예약 글 그대로 들어간 줄('어센틱 송매숙 부산 DB 71세 방문일정: …')을 '부산 송매숙 DB 1차상담'으로 줄임.
@@ -15452,13 +15493,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   var CO = { busy: false };
   function coOff(v){ try { if (v !== undefined) localStorage.setItem('mhs_cooff', v ? '1' : ''); return localStorage.getItem('mhs_cooff') === '1'; } catch(e){ return false; } }
   async function coSync(){
-    if (CO.busy || coOff() || !Store.isOpen()) return 0; CO.busy = true;
+    if (CO.busy || !Store.isOpen()) return 0; CO.busy = true;
     try {
-      var l = null; try { l = await Access.fetchList(); } catch(e){}
-      var sc = Object.assign({}, (l && l.sched) || {}), tm = await teamSchedGet(); Object.keys(tm || {}).forEach(function(ym){ sc['T' + ym] = tm[ym]; }); // 팀원 누구나 올린 회사 일정(팀 서버)도 같이
-      if (!Object.keys(sc).length) return 0;
-      await planLoad(); var seen = PL.d.coSeen = PL.d.coSeen || {}, days = {}, n = 0; PL.d.mt = PL.d.mt || {}; PL.d.gdel = PL.d.gdel || [];
-      coFix0800().forEach(function(d){ days[d] = 1; });
+      // 시간 바로잡기(coFix0800)는 회사 일정표 자동 받기를 껐거나 받을 일정표가 없어도 한다 (2026-11-18)
+      await planLoad(); var days = {}, n = 0; coFix0800().forEach(function(d){ days[d] = 1; });
+      var sc = {};
+      if (!coOff()) { var l = null; try { l = await Access.fetchList(); } catch(e){}
+        sc = Object.assign({}, (l && l.sched) || {}); var tm = await teamSchedGet(); Object.keys(tm || {}).forEach(function(ym){ sc['T' + ym] = tm[ym]; }); } // 팀원 누구나 올린 회사 일정(팀 서버)도 같이
+      if (!Object.keys(sc).length && !Object.keys(days).length) return 0;
+      var seen = PL.d.coSeen = PL.d.coSeen || {}; PL.d.mt = PL.d.mt || {}; PL.d.gdel = PL.d.gdel || [];
       Object.keys(sc).forEach(function(ym){
         var S1 = sc[ym]; if (!S1 || !S1.items || seen[ym] === S1.at) return;
         S1 = { at: S1.at, items: [].concat.apply([], S1.items.map(function(x){ return x.big ? [x] : coSplit(x); })) };
@@ -19209,6 +19252,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="3ea195587e4f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="62ca18047740";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
