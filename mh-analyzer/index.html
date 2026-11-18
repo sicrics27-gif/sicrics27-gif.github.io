@@ -7573,7 +7573,7 @@ var Policy = (function () {
       : /보완/.test(headT) ? 'fix'
       : good(headT) || good(one) || 'etc';
     if (/^(소중한|존경하는|사랑하는|우리|해당|담당|귀한|모든|신규|기존|안녕하세요)$/.test(nm)) nm = '';
-    var n = { no: no, ap: ap, amt: amt, prod: prod, cDate: cD, pDate: pD, name: nm, masked: /[*＊○●]/.test(nm) || (/[가-힣]/.test(nm) && /[OXＯ]/.test(nm)) ? 1 : 0, nameSure: nmL && nm === nmL ? 1 : 0, co: co, ev: ev, word: bad ? (norm(bad[0]).match(/반송|철회|취소|거절|부적격/) || ['반송'])[0] : '', d: m.d || '', t: m.t || '' };
+    var n = { no: no, ap: ap, amt: amt, prod: prod, cDate: cD, pDate: pD, name: nm, masked: /[*＊○●]/.test(nm) || (/[가-힣]/.test(nm) && /[OXＯ]/.test(nm)) ? 1 : 0, nameSure: nmL && nm === nmL ? 1 : 0, co: co, ev: ev, word: bad ? (norm(bad[0]).match(/반송|철회|취소|거절|부적격/) || ['반송'])[0] : '', d: m.d || '', t: m.t || '', who: String(m.who || '').trim() };
     n.id = [no, ev, n.d || pD || cD || '', amt == null ? '' : amt].join('|');
     return n;
   }
@@ -7587,7 +7587,19 @@ var Policy = (function () {
       if (seen[n.id]) return; seen[n.id] = 1; notes.push(n);
     });
     var ins = INS.test(K.room) || K.msgs.some(function (m) { return INS.test(m.who || '') || /^\s*\[[^\]\n]*(?:보험|화재|생명|손보|해상|라이프)[^\]\n]*\]/.test(m.text || ''); });
-    return { room: K.room, msgs: K.msgs.length, notes: notes, skip: skip, ok: notes.length > 0 || (skip > 0 && ins) };
+    // 여러 사람이 글을 올리는 방(지점 출금내역방 등)인지: 글을 쓴 사람이 셋 이상(나 + 둘 이상). 둘뿐인 방(보험사 채널 · 1:1)은 지금처럼 전부 내 것으로 본다
+    var W = {}; K.msgs.forEach(function (m) { if (m.who) W[m.who] = 1; });
+    return { room: K.room, msgs: K.msgs.length, notes: notes, skip: skip, ok: notes.length > 0 || (skip > 0 && ins), group: Object.keys(W).length >= 3 };
+  }
+  // 여러 사람이 올리는 방에서는 '내가 올린 알림'만 내 장부에 넣는다 — 다른 분이 올린 계약은 그분 고객의 계약이다(2026-11-18 대표님: 지점 출금내역방)
+  //   휴대폰에서 내보내면 내 글은 보낸 사람이 '회원님'으로 나온다. PC에서 내보내면 내 이름 그대로 → my(내가 적어 둔 내 이름들)와 견준다
+  //   (두 글자 이름은 꼭 같을 때만 — 다른 사람 이름 속에 들어 있는 것으로 내 글이라 치지 않게)
+  function isMe(who, my) { var w = norm(who); if (!w) return false; if (w === '회원님') return true; return (my || []).some(function (n) { n = norm(n); return n.length >= 3 ? w.indexOf(n) >= 0 : n.length === 2 && w === n; }); }
+  function noteMine(p, my) {
+    if (!p || !p.group) return { notes: (p && p.notes) || [], others: 0, people: 0 };
+    var mine = [], oth = {}, n = 0;
+    p.notes.forEach(function (x) { if (isMe(x.who, my)) mine.push(x); else { n++; oth[x.who || '?'] = 1; } });
+    return { notes: mine, others: n, people: Object.keys(oth).length };
   }
   function noKey(v) { return String(v == null ? '' : v).replace(/[-\s]/g, '').replace(/^0+/, '').toUpperCase(); }
   function impN(d) { return (d.imports || []).filter(function (x) { return !x.note; }).length; }                // 회사 엑셀을 넣은 횟수(알림톡 넣기는 빼고)
@@ -7980,6 +7992,7 @@ var Policy = (function () {
     async function takeNote(text, o) {
       o = o || {}; var p; try { p = noteParse(text); } catch (e) { p = { ok: false }; }
       if (!p.ok) { if (!o.quiet) C.toast('보험사 알림을 찾지 못했습니다 · 증권번호(증서번호)가 적힌 알림 글인지 확인해 주세요'); return false; }
+      var M = noteMine(p, C.myNames ? C.myNames() : []); p.notes = M.notes; p.others = M.others; p.people = M.people;   // 여러 사람이 올리는 방: 내가 올린 것만(다른 분 것은 읽어 두지도 저장하지도 않는다)
       await load(); var deals = []; try { deals = (C.deals ? await C.deals() : []) || []; } catch (e) { }
       openNote(p, o, deals); return true;
     }
@@ -7995,7 +8008,7 @@ var Policy = (function () {
       var dry = noteApply(P.d, p.notes, { now: Date.now(), today: C.today(), deals: clone(deals), names: names }).R;
       var other = o.other ? '<button class="lnk2" type="button" id="pnOther" style="align-self:flex-start">보험사 알림이 아니에요 · 고객 기록으로 넣기</button>' : '';
       if (!dry.items.length) {
-        C.openDlg('<h4>📩 보험사 알림톡</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(label) + '</b></p><p class="pol-nmsg">' + (p.notes.length ? '이 글의 알림 ' + p.notes.length + '건은 <b>이미 모두 장부에 들어 있습니다.</b>' : '증권번호가 적힌 알림을 찾지 못했습니다.' + (p.skip ? ' 청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다 — <b>증권번호(증서번호)</b>가 나오는 "보험료 입금 완료 · 계약 체결" 알림이 있는 채팅방을 내보내 주세요.' : '')) + '</p>' + other + '</div>' +
+        C.openDlg('<h4>📩 보험사 알림톡</h4><div class="form"><p class="note" style="margin:0"><b>' + esc(label) + '</b></p><p class="pol-nmsg">' + (p.notes.length ? '이 글의 알림 ' + p.notes.length + '건은 <b>이미 모두 장부에 들어 있습니다.</b>' + (p.others ? ' 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '') : p.others ? '👥 여러 사람이 올리는 방입니다. <b>내가 올린 알림은 찾지 못했습니다.</b> 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.' : '증권번호가 적힌 알림을 찾지 못했습니다.' + (p.skip ? ' 청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다 — <b>증권번호(증서번호)</b>가 나오는 "보험료 입금 완료 · 계약 체결" 알림이 있는 채팅방을 내보내 주세요.' : '')) + '</p>' + other + '</div>' +
           '<div class="mrow"><button class="btn lg" type="button" id="polX" style="margin-right:auto">닫기</button><button class="go" type="button" id="pnSee">계약 장부 보기</button></div>');
         $('polX').onclick = C.closeDlg; $('pnSee').onclick = function () { C.closeDlg(); show({ f: all(P.d).some(function (x) { return (x.ev || []).length; }) ? 'note' : 'all' }); };
         if ($('pnOther')) $('pnOther').onclick = function () { C.closeDlg(); o.other(); };
@@ -8009,6 +8022,7 @@ var Policy = (function () {
         return '<div class="pol-ni' + (!it.fixed && !it.who ? ' q' : '') + '"><div class="a"><b>' + esc([it.co, String(it.prod || '').slice(0, 30)].filter(Boolean).join(' · ') || '계약') + '</b><small class="n">' + esc(it.no) + (it.amt != null ? ' · ' + fmt(it.amt) + '원' : '') + ' · 📩 ' + esc(dot(it.d).slice(3)) + ' ' + (EV_T[it.ev] || '안내') + (it.isNew ? ' <em>새 계약</em>' : '') + '</small></div><div class="b">' + whoH + '</div></div>';
       }).join('');
       var L = ['증권 전달 표시와 회사 자료(엑셀)의 계약자·수납은 <b>덮어쓰지 않습니다</b> — 빈 칸만 채우고, 입금 알림은 더 나중 날짜일 때만 최종납입일을 고칩니다.'];
+      if (p.others) L.unshift('👥 여러 사람이 올리는 방입니다 — <b>내가 올린 알림만</b> 넣습니다. 다른 분이 올린 ' + p.others + '건(' + p.people + '명)은 그분들 계약이라 내 장부에 넣지 않습니다.');
       if (dry.links.length) L.push('계약 실적 ' + dry.links.length + '건에 증권번호를 달아 둡니다.');
       if (dry.dup) L.push('이미 넣은 알림 ' + dry.dup + '건은 건너뜁니다.');
       if (p.skip) L.push('청약번호만 있는 알림 ' + p.skip + '건은 어느 계약인지 알 수 없어 넘겼습니다.');
@@ -8141,7 +8155,7 @@ var Policy = (function () {
     return { show: show, pick: pick, take: take, isNote: isNote, takeNote: takeNote, noteFiles: noteFiles, pickNote: pickNote, chip: chip, synced: synced, isSheetName: isSheetName, info: info, sum: sum, markName: markName };
   }
 
-  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, recent: recent, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
+  return { ID: ID, parse: parse, isList: isList, asOfHint: asOfHint, blank: blank, apply: apply, merge: merge, setDv: setDv, wipe: wipe, stats: stats, recent: recent, noteMine: noteMine, view: view, aoa: aoa, pageHtml: pageHtml, bodyHtml: bodyHtml, previewHtml: previewHtml, noteParse: noteParse, noteApply: noteApply, isEml: isEml, mimeLeaves: mimeLeaves, leafIsText: leafIsText, bin: bin, setHolder: setHolder, coSame: coSame, EV_T: EV_T, inactive: inactive, needDv: needDv, unpaid: unpaid, behind: behind, ymd: ymd, ym: ym, ui: ui };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
@@ -12202,6 +12216,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     isView: function(){ return S.view === 'pol' && !S.cur; }, curId: function(){ return S.cur ? S.cur.id : ''; }, rerender: function(){ if (S.cur && $('dlg').hidden) renderCustomer(); }, relist: function(){ if (Store.isOpen() && !$('shell').hidden) renderList(); }, procDates: function(){ return procDvDates(); },
     custOf: function(n){ var k = String(n || '').replace(/\s+/g, ''), L = S.list.filter(function(c){ return !c.sample && !c.hidden && String(c.name || '').replace(/\s+/g, '') === k; }); return L.length === 1 ? L[0].id : ''; },
     custNames: function(){ return S.list.filter(function(c){ return !c.sample && !c.hidden; }).map(function(c){ return c.name; }); },
+    // 여러 사람이 올리는 방(지점 출금내역방)에서 '내가 올린 글'을 알아보는 내 이름들 — 내가 직접 적어 둔 이름만(기본값 '남혁' 같은 것은 쓰지 않는다 · 2026-11-18)
+    myNames: function(){ var a = []; try { var m = myId(); if (m.name) a.push(m.name); } catch(e){} try { var n = League.nick && League.nick(); if (n) a.push(n); } catch(e){} return a; },
     // 📩 보험사 알림톡(2026-11-17): 계약 실적(월납 보험료)으로 어느 고객 계약인지 맞춤 → 맞춘 실적에는 증권번호만 달아 둠(비어 있을 때만 · 실적을 지우거나 고치지 않음)
     deals: async function(){ await planLoad(); return (PL.d.deals || []).map(function(x){ return { id: x.id, name: x.name, amt: x.amt, d: x.d, co: x.co || '', no: x.no || '' }; }); },
     linkDeals: async function(L){ await planLoad(); var n = 0; (L || []).forEach(function(l){ var q = PL.d.deals.find(function(x){ return x.id === l.id; }); if (q && !q.no) { q.no = l.no; n++; } }); if (n) await planSave(); return n; },
@@ -19347,6 +19363,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="95759f8db56a";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="7c3ce2700ad5";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
