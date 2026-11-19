@@ -3597,6 +3597,16 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
 .chpick select option{color:#111;background:#fff}
 .chtabs{flex-wrap:wrap}
 
+/* 2026-11-19 📝 패치노트 · 📣 공지 창 */
+.pnl{max-height:60vh;overflow:auto;margin:6px 0 4px;padding-right:2px}
+.pnd{font-size:12.5px;font-weight:800;color:var(--mute);margin:12px 0 6px}
+.pnc{border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.pnh{display:flex;align-items:center;gap:8px}.pnh i{font-style:normal;font-size:18px}.pnh b{font-size:15px;color:var(--ink);flex:1}.pnh small{color:var(--mute);font-size:11.5px}
+.pnc p{margin:6px 0 0;font-size:13.5px;line-height:1.6;color:var(--ink2)}
+.pnw{margin-top:6px;font-size:12.5px;line-height:1.55;color:var(--ink);background:var(--soft);border-radius:8px;padding:6px 9px}
+.annb{white-space:normal;font-size:14.5px;line-height:1.7;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;max-height:55vh;overflow:auto;word-break:break-all}
+.annb a{color:var(--ocean,#2F6BFF);text-decoration:underline}.annb.cur small{color:var(--mute)}
+
 </style>
 </head>
 <body>
@@ -3629,7 +3639,7 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -9549,6 +9559,46 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 
   root.CoCall = { init: function (o) { BASE = String((o && o.url) || '').replace(/\/$/, ''); }, token: token, start: start, end: end, own: own, flush: flush, usage: usage, config: config,
     on: function () { return !!cur; }, cap: function () { return cur ? cur.cap : 0; }, lastToday: function () { return !!(cur && cur.fin); }, left: left, dur: dur, won: won, ui: ui };
+})(this);
+
+</script>
+<script>
+// 📝 패치노트 (2026-11-19 대표님: "추가 기능을 팀원들이 환경설정에서 볼 수 있게 — 일일이 알려 주기 힘들다")
+// 새 기능을 넣으면 LIST 맨 위에 한 줄 추가한다 (id는 계속 커지게). 팀원 앱은 열 때 '안 본 것'이 있으면 한 번 보여 준다.
+// 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
+(function (root) {
+  var LIST = [
+    { id: 30, d: '2026-11-19', ic: '📥', t: 'AFG DB 고객 한 번에 가져오기', s: 'PC 크롬 북마크를 DB 사이트 리스트 화면에서 한 번 누르면 보장리스트Ⅰ·Ⅱ·실버·달러… 모든 리스트의 고객을 차례로 담아 복사합니다. 고객마다 누를 필요가 없습니다.', w: '처음 한 번: sicrics27-gif.github.io/mh-analyzer/bookmark.html → 파란 단추를 북마크바로 끌기 · 쓸 때: DB 리스트 화면에서 북마크 → [📋 AOB9로 복사] → 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기 → 붙여넣기' },
+    { id: 29, d: '2026-11-19', ic: '📷', t: '종이 서류 사진으로 병력 파악', s: '본인 명의 휴대폰이 없어 심평원·공단 서류를 종이로만 받은 고객도, 사진으로 찍거나 골라 넣으면 PDF와 같은 방식으로 병력을 읽습니다. 자신 없는 글자는 분석 전에 사진과 나란히 보여 주어 고치게 합니다.', w: '고객 화면 → 병력파악(파일 첨부) → 📷 찍어서 넣기 / 🖼 사진 여러 장 고르기 (휴대폰 앱에서)' },
+    { id: 28, d: '2026-11-19', ic: '📝', t: '인적사항 받기', s: '회사 인적사항 양식 순서 그대로 받아 고객 등록까지 한 번에. 병력파악 자료가 있으면 고지 7문항을 자동으로 채우고, 매니저에게 보낼 글로 복사합니다.', w: '고객 탭 ＋ 추가 → 📝 인적사항 받기 / 고객 화면 ⋯ → 📋 인적사항' },
+    { id: 27, d: '2026-11-19', ic: '🔽', t: '채널 고르는 칸', s: '전체·보유고객·AFG DB·DB 기고객… 옆으로 밀던 줄을 고르는 칸 하나로 바꿨습니다.', w: '고객 탭 👁 보기 → 👥 채널별 고객관리' },
+    { id: 26, d: '2026-11-18', ic: '🌗', t: '밝은 화면 · 어두운 화면', s: '검은 화면이 잘 안 보이면 밝은 화면으로 바꿀 수 있습니다. 기기에 기억됩니다.', w: '첫 화면 필터 줄 오른쪽 ☀️ 밝게 / 🌙 어둡게 · ⚙ 환경설정 → 화면 · 앱' },
+    { id: 25, d: '2026-11-18', ic: '📩', t: '출금방 · 보험사 알림톡 → 계약 장부', s: '카톡 출금방이나 보험사 영업지원 채널을 내보내 넣으면, 내가 올린 알림만 골라 증권번호·보험료·보험사가 계약 장부와 고객에 붙습니다. 전자서명·모바일청약 알림은 \'청약 중\'으로 들어가고 체결되면 증권번호가 이어집니다.', w: '카톡 방 → 대화 내용 내보내기 → 텍스트만 → 내 드라이브 폴더에 저장 → 고객 탭 ＋ 추가 → 📩 보험사 알림톡 → 파일 고르기' },
+    { id: 24, d: '2026-11-18', ic: '📑', t: '계약 한 줄 요약', s: '증권 미전달 · 수납 밀림 · 어제·오늘 입금 알림 건수를 첫 화면과 브리핑에 한 줄로 보여 주고, 누르면 그 계약만 열립니다.', w: '첫 화면 · ☰ 메뉴 → 오늘 브리핑' },
+    { id: 23, d: '2026-11-17', ic: '🔍', t: '통합 검색', s: '메뉴·환경설정·고객 이름·초성·전화 끝 4자리를 한 칸에서 찾습니다.', w: '오른쪽 위 🔍 · PC는 Ctrl + K' },
+    { id: 22, d: '2026-11-17', ic: '🧭', t: '고객 진행 현황 띠', s: '고객 이름 줄 오른쪽에 지금 단계(연락→상담→병력→보장→제안→계약→증권)와 증권 전달 여부가 보입니다. 누르면 자세히.', w: '고객 목록 이름 줄 오른쪽' },
+    { id: 21, d: '2026-11-17', ic: '📞', t: '액션콜 — 팀원도 열쇠 없이', s: 'AI 전화 연습을 팀원도 API 키 없이 회사 연결로 바로 씁니다(사용 기록 공유 동의 필요 · 1인 하루 15분).', w: '☰ 메뉴 → 영업 → ☎️ 액션콜' },
+    { id: 20, d: '2026-11-17', ic: '📇', t: '보험사 연락처 복사 · 카톡', s: '담당자 줄 [복사]는 "보험사 이름 직함 + 번호" 모양으로, [카톡]은 보낼 말을 적어 카톡으로 넘깁니다.', w: '☰ 메뉴 → 상품 · 자료 → 📇 보험사 연락처' },
+    { id: 19, d: '2026-11-17', ic: '📱', t: '폴드 펼친 화면 · 전체 화면', s: '폴드를 펼치면 목록+내용 두 칸에 아래 메뉴 줄이 고정되고, 아래 시스템 단추를 숨겨 넓게 씁니다.', w: '⚙ 환경설정 → 화면 · 앱 → 🔲 전체 화면' },
+    { id: 18, d: '2026-11-16', ic: '📑', t: '계약 장부 (계약 · 수납 · 증권 전달)', s: '회사 보유계약 엑셀을 넣으면 계약·수납·증권 전달을 한 표로. 다시 넣어도 증권 전달 표시는 지워지지 않습니다.', w: '고객 탭 👁 보기 → 📑 계약 · 수납 · 증권 전달 / ＋ 추가 → 📑 계약 리스트' },
+    { id: 17, d: '2026-11-16', ic: '📋', t: '진료이력 표 정렬', s: '머리글을 누르면 엑셀처럼 정렬, 한 번 더 누르면 반대로.', w: '고객 화면 → 병력 결과 → 진료이력 표 머리글' },
+    { id: 16, d: '2026-11-16', ic: '💰', t: '종수술비 예상 금액', s: '종수술 특약을 최고액이 아니라 종별 금액으로 예상합니다. 증권을 보고 ✎로 종별 금액을 넣을 수 있습니다.', w: '고객 화면 → 보장 · 받을 보험금' },
+    { id: 15, d: '2026-11-14', ic: '☎️', t: '액션콜 버튼 하나 · 사투리', s: '주제를 고르지 않고 버튼 하나로 AI 고객이 전화합니다. 한 통화 안에서 청구·보장 점검·소개로 이야기가 넘어가고, 경상도 말씨도 섞입니다.', w: '☰ 메뉴 → 영업 → ☎️ 액션콜' },
+    { id: 14, d: '2026-11-13', ic: '👥', t: '팀원', s: '팀원 접속 상태·한마디, 고객 한 명씩 잠가서 보내기, 교환 게시판.', w: '☰ 메뉴 → 성장 · 소통 → 👥 팀원' },
+    { id: 13, d: '2026-11-13', ic: '🤝', t: '챙길 연락', s: '상령일 14일 전 · 부재 다시 걸기 · 보험금 받은 뒤 소개 부탁 · 명절 안부 · 계약 N주년을 전화 탭과 알림에 모아 줍니다.', w: '아래 메뉴 → 📞 전화' }
+  ];
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, String(v)); } catch (e) { return null; } }
+  function top() { return LIST.length ? LIST[0].id : 0; }
+  function seen(v) { if (v !== undefined) ls('aob_pn', v); return +(ls('aob_pn') || 0); }
+  function unseen() { var s = seen(); return LIST.filter(function (x) { return x.id > s; }); }
+  function card(x) { return '<div class="pnc"><div class="pnh"><i>' + x.ic + '</i><b>' + esc(x.t) + '</b><small>' + esc(x.d.slice(5).replace('-', '/')) + '</small></div><p>' + esc(x.s) + '</p>' + (x.w ? '<div class="pnw">👉 ' + esc(x.w) + '</div>' : '') + '</div>'; }
+  function html(list) {
+    var by = {}, ds = [];
+    (list || LIST).forEach(function (x) { if (!by[x.d]) { by[x.d] = []; ds.push(x.d); } by[x.d].push(x); });
+    return ds.map(function (d) { return '<div class="pnd">' + (+d.slice(5, 7)) + '월 ' + (+d.slice(8)) + '일</div>' + by[d].map(card).join(''); }).join('');
+  }
+  root.Patch = { LIST: LIST, top: top, seen: seen, unseen: unseen, html: html, esc: esc };
 })(this);
 
 </script>
@@ -17431,12 +17481,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     ];
     var SET = [
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
-      ['🖥 화면 · 앱', [['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#fullBtn', '🔲', '전체 화면 ' + (fullOn() ? '끄기' : '켜기'), fullOn() ? '지금: 아래 시스템 단추·태스크바 숨김 (아래에서 위로 쓸면 잠깐 나옴)' : '아래 시스템 단추·태스크바를 숨겨 화면을 넓게'], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
+      ['🖥 화면 · 앱', [['#pnBtn', '📝', '새 기능 안내', '패치노트 · 업데이트로 새로 생긴 기능과 쓰는 곳'], ['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#fullBtn', '🔲', '전체 화면 ' + (fullOn() ? '끄기' : '켜기'), fullOn() ? '지금: 아래 시스템 단추·태스크바 숨김 (아래에서 위로 쓸면 잠깐 나옴)' : '아래 시스템 단추·태스크바를 숨겨 화면을 넓게'], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
       ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
     ];
     if (IS_MOBILE) SET[1][1] = SET[1][1].filter(function(x){ return x[0] !== '#keysBtn'; });
     if (IS_DESKTOP) { MENU[0][1] = MENU[0][1].filter(function(x){ return x[0] !== '#callBtn'; }); SET[1][1] = SET[1][1].map(function(x){ return x[0] === '#apkBtn' ? ['#apkBtn', '📱', '휴대폰 앱 설치', 'QR로 팀원 휴대폰에 설치'] : x; }); SET[0][1] = SET[0][1].map(function(x){ return x[0] === '#connBtn' ? ['#connBtn', '🔗', '연결 · 설정', '구글·알림·AI·지도 키'] : x; }); }
-    var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#cuBtn', '📞', '액션콜 사용 현황', '팀원별 오늘 · 이번 달 통화 시간 · 한도'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
+    var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#annBtn', '📣', '전체 공지', 'OTP 있는 팀원 모두에게 앱을 열 때 한 번 띄우기'],['#cuBtn', '📞', '액션콜 사용 현황', '팀원별 오늘 · 이번 달 통화 시간 · 한도'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
     var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; };
     return { MENU: MENU, SET: SET, AD: AD, vis: vis };
   }
@@ -17464,7 +17514,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
   var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
-    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
+    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
   function finderItems(){
@@ -17519,6 +17569,55 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   $('connBtn').onclick = function(){ openConnCenter(); };
   $('teamSetBtn').onclick = async function(){ var a = await admLoad(); if (a && a.token) teamServerDlg(a); };
   $('cuBtn').onclick = function(){ COCALL.openUse(); };   // 📞 액션콜 사용 현황 (관리자 전용 · cocall.js)
+  // ---------- 📝 패치노트 · 📣 전체 공지 (2026-11-19 대표님: "업데이트 뒤 처음 열 때 새 기능·공지를 띄워 팀원도 알게") ----------
+  // 패치노트 = patchnotes.js 의 목록(새 기능을 넣으면 거기 한 줄) · 공지 = 관리자가 쓴 글 → access.json 의 notice (공개 파일 — 고객 정보는 막음)
+  // 앱을 열고 잠금이 풀린 뒤 한 번: ① 안 본 공지 → ② 안 본 새 기능. 본 것은 이 기기에 번호만 기억(aob_ann · aob_pn)
+  var ANN = { at: 0, busy: false };
+  function annSeen(v){ try { if (v !== undefined) localStorage.setItem('aob_ann', String(v)); return localStorage.getItem('aob_ann') || ''; } catch(e){ return ''; } }
+  function annBody(t){ return esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="#" data-annx="$1">$1</a>').replace(/\n/g, '<br>'); }
+  function annWire(){ $('dlgBox').querySelectorAll('[data-annx]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); openExt(a.dataset.annx); }; }); }
+  function pnOpen(list, first){
+    var all = !list; list = list || Patch.LIST;
+    openDlg('<h4>' + (first ? '🆕 새로 생긴 기능 ' + list.length + '개' : '📝 새 기능 안내 (패치노트)') + '</h4>' + (first ? '<p class="note">업데이트로 새로 생긴 기능입니다. 언제든 ⚙ 환경설정 → 📝 새 기능 안내에서 다시 볼 수 있습니다.</p>' : '') +
+      '<div class="pnl">' + Patch.html(list.slice(0, first ? 8 : 60)) + '</div>' +
+      '<div class="mrow">' + (first && list.length < Patch.LIST.length ? '<button class="btn lg" type="button" id="pnAll" style="margin-right:auto">전체 보기</button>' : '') + '<button class="go" type="button" id="pnOk">확인</button></div>', 'pnbox');
+    Patch.seen(Patch.top());
+    $('pnOk').onclick = closeDlg; if ($('pnAll')) $('pnAll').onclick = function(){ pnOpen(); };
+  }
+  function annOpen(n, then){
+    openDlg('<h4>📣 공지</h4><div class="annb">' + annBody(n.t) + '</div><p class="note">' + (n.at ? new Date(n.at).toLocaleDateString('ko-KR') + ' · ' : '') + '관리자 공지</p><div class="mrow"><button class="go" type="button" id="annOk">확인</button></div>', 'pnbox');
+    annWire(); $('annOk').onclick = function(){ annSeen(n.id); closeDlg(); if (then) setTimeout(then, 300); };
+  }
+  async function annCheck(){
+    if (ANN.busy || !window.Store || !Store.isOpen() || !$('dlg').hidden || $('shell').hidden) return;
+    if (window.Access && Access.skip() && !localStorage.getItem('aob_pn_test')) return;   // 시험 도구(window.claude)에서는 안 띄움 — 다른 길 시험이 막히지 않게
+    if (Date.now() - ANN.at < 30 * 60e3) return; ANN.busy = true;
+    try {
+      var l = null; try { l = await Access.fetchList(); } catch(e){}
+      ANN.at = Date.now();
+      var n = l && l.notice, pn = Patch.unseen();
+      var showPn = function(){ if (pn.length && $('dlg').hidden) pnOpen(pn, true); };
+      if (!$('dlg').hidden) { ANN.at = 0; return; }   // 그 사이 다른 창이 떴으면 다음 차례에 다시
+      if (n && n.id && n.t && String(n.id) !== annSeen()) annOpen(n, showPn); else showPn();
+    } finally { ANN.busy = false; }
+  }
+  setInterval(annCheck, 4000); document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') setTimeout(annCheck, 1500); });
+  $('pnBtn').onclick = function(){ pnOpen(); };
+  // 관리자: 📣 전체 공지 쓰기 (OTP 있는 팀원 모두 다음에 앱을 열 때 한 번 뜸)
+  var ANN_PRESET = '📥 AFG DB 고객을 AOB9로 한 번에 옮기는 법 (PC 크롬)\n\n[처음 한 번만]\n1. PC 크롬에서 https://sicrics27-gif.github.io/mh-analyzer/bookmark.html 열기\n2. 북마크바가 안 보이면 Ctrl + Shift + B\n3. 파란 [AOB로 복사] 버튼을 꾹 눌러 북마크바로 끌어다 놓기 (예전 북마크는 오른쪽 클릭 → 삭제)\n\n[쓸 때]\n1. DB 사이트 아무 리스트 화면에서 북마크 한 번 클릭\n2. 오른쪽 위 상자가 모든 리스트를 돌며 담음 (100명에 5분쯤, 그동안 그 탭은 건드리지 않기)\n3. [📋 AOB9로 복사] → AOB9 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기 → 붙여넣기 → 가져오기\n\n내 DB만 담기고, 고객 정보는 내 크롬 → 내 AOB9로만 갑니다.';
+  $('annBtn').onclick = async function(){
+    var a = await admLoad(); if (!a || !a.token) { toast('관리자 기기에서만 쓸 수 있습니다'); return; }
+    var cur = null; try { cur = (await Access.fetchList()).notice || null; } catch(e){}
+    openDlg('<h4>📣 전체 공지</h4><p class="note">여기 쓴 글은 OTP가 있는 팀원 모두가 <b>다음에 앱을 열 때 한 번</b> 봅니다. 공개 파일에 실리므로 <b>고객 이름·연락처는 쓰지 마세요</b> (고객 이름이 들어가면 보내지 않습니다).</p>' +
+      (cur && cur.t ? '<div class="annb cur"><small>지금 공지 (' + new Date(cur.at).toLocaleString('ko-KR') + ')</small><br>' + annBody(cur.t) + '</div>' : '<p class="note">지금 올라가 있는 공지는 없습니다.</p>') +
+      '<textarea id="annT" rows="9" maxlength="1500" placeholder="예: 내일 석회 18:30으로 변경됩니다" style="width:100%"></textarea>' +
+      '<div class="row" style="margin-top:6px"><button class="btn" type="button" id="annPre">📥 DB 북마크 안내 넣기</button></div><div class="ferr" id="annErr"></div>' +
+      '<div class="mrow">' + (cur && cur.t ? '<button class="btn lg" type="button" id="annDel" style="margin-right:auto">공지 내리기</button>' : '') + '<button class="btn lg" type="button" id="annX">닫기</button><button class="go" type="button" id="annGo">📣 모두에게 보내기</button></div>');
+    $('annX').onclick = closeDlg; $('annPre').onclick = function(){ $('annT').value = ANN_PRESET; };
+    var save = async function(n, msg){ $('annErr').textContent = '저장 중…'; try { await Access.edit(a.token, function(l){ if (n) l.notice = n; else delete l.notice; }, msg); annSeen(n ? n.id : ''); closeDlg(); toast(n ? '공지를 올렸습니다 · 팀원이 다음에 앱을 열 때 뜹니다 (반영까지 몇 분)' : '공지를 내렸습니다'); } catch(e){ $('annErr').textContent = e.message || String(e); } };
+    $('annGo').onclick = function(){ var t = $('annT').value.trim(); if (!t) { $('annErr').textContent = '공지 글을 적어 주세요'; return; } var hit = custHit(t); if (hit) { $('annErr').textContent = '고객 이름(' + hit + ')이 들어 있어 보내지 않습니다'; return; } save({ id: Date.now(), t: t, at: Date.now() }, '전체 공지'); };
+    if ($('annDel')) $('annDel').onclick = function(){ save(null, '전체 공지 내림'); };
+  };
   // 2026-11-13: 이미 연결돼 있는데 이 단추를 누르면 '새 프로젝트 만들기' 안내만 나와 서버를 하나 더 만들게 됐음(주소가 바뀌고 새 서버는 비어 있음) → 연결돼 있으면 상태와 '코드 업데이트'만 보여 줌
   async function teamServerDlg(a){
     var u = ''; try { u = await League.url(); } catch(e){}
@@ -20615,6 +20714,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="15dbd76532d6";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="2553d9c7d725";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
