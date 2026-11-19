@@ -1971,6 +1971,10 @@ kbd{display:inline-block;font:600 11px/1 ui-monospace,Consolas,monospace;padding
   .shell:not(.mini) .side>.sfilt{grid-area:filt;margin:0 14px 0 26px}
   .shell:not(.mini) .side>.schan{grid-area:chan;margin:0 14px 0 26px}
   .shell:not(.mini) .side>.clist{grid-area:list;overflow:auto;min-height:0;padding:0 8px 0 20px;max-height:none}
+  /* 2026-11-19 대표님: Lv 띠·신규 고객 등록이 왼쪽 칸(212)보다 넓어 오른쪽 칸으로 튀어나옴 → 칸 안에 맞춤 */
+  .shell:not(.mini) .side>.gchip,.shell:not(.mini) .side>#newCust{width:auto;min-width:0;max-width:none;box-sizing:border-box;overflow:hidden}
+  .shell:not(.mini) .side>.gchip .gc-t{min-width:0}.shell:not(.mini) .side>.gchip .gc-t b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+  .shell:not(.mini) .side>.clist{margin:0}
   .shell:not(.mini) .side>.sclip{grid-area:clip;margin:0 14px 0 26px}
   .shell:not(.mini) .side>#memBan{grid-area:lock}
   .shell:not(.mini) .side{isolation:isolate}
@@ -3571,6 +3575,12 @@ html.split.is-pc body .fbbtn{bottom:calc(76px + var(--pccut,0px))}   /* PC 창�
 :root[data-theme="light"] .bzs>small b{color:#7A5A26}
 :root[data-theme="light"] .bsec h5>b{color:#1D4FC4}
 :root[data-theme="light"] .pm-tabs button b{color:#7A5A26}
+/* 2026-11-19 영업 채널 고르는 칸 (옆으로 미는 칩 줄 대신 · 정렬 칸과 같은 방식) */
+.chpick{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
+.chpick small{color:var(--mute);font-size:12.5px;font-weight:700;white-space:nowrap}
+.chpick select{appearance:none;-webkit-appearance:none;min-width:0;flex:0 1 260px;height:40px;border-radius:12px;border:1px solid var(--line);background-color:var(--paper);color:var(--ink);font:inherit;font-size:15px;font-weight:700;padding:0 34px 0 14px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 17px) 17px,calc(100% - 12px) 17px;background-size:5px 5px;background-repeat:no-repeat}
+.chpick select option{color:#111;background:#fff}
+.chtabs{flex-wrap:wrap}
 
 </style>
 </head>
@@ -10354,6 +10364,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     t = e.target.closest('[data-chf]'); if (t) { S.ch = t.dataset.chf === 'all' ? '' : t.dataset.chf; renderList(); if (S.view === 'chan') showChan(S.ch || 'all'); return; }
     t = e.target.closest('[data-cm]'); if (t) { var a = t.dataset.cm; if (a === 'open') showChan(S.ch || 'all'); else if (a === 'tab') { S.ch = t.dataset.k === 'all' ? '' : t.dataset.k; renderList(); showChan(t.dataset.k); } else if (a === 'db') openDbImport(); else if (a === 'bm') openExt('https://sicrics27-gif.github.io/mh-analyzer/bookmark.html'); else if (a === 'how') openDbHow(); else if (a === 'xlsx') openXlsxImport(); else if (a === 'emm') openEmmImport(); else if (a === 'tree') showTree(); else if (a === 'chk') openChkList(); return; }
   });
+  document.addEventListener('change', function(e){ var t = e.target.closest('[data-chpick]'); if (!t) return; var v = t.value; S.ch = v === 'all' ? '' : v; renderList(); showChan(v); });
   document.addEventListener('change', async function(e){
     var t = e.target.closest('[data-chsel]'); if (!t) return;
     var id = t.dataset.chsel, c = id === 'cur' ? S.cur : S.list.find(function(x){ return x.id === id; }); if (!c) return;
@@ -10382,7 +10393,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var title = isBiz ? '사업 (리크루팅·파트너)' : k === 'all' ? '전체 고객관리' : k === 'mine' ? '보유고객 (My Client)' : k === 'none' ? '미분류 고객' : chTxt(k) + ' 고객';
     var h = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="◎">' + esc(title) + '</h2><span class="cmeta">' + esc(k === 'all' ? '모든 영업 채널을 한 화면에서' : CH_DESC[k] || '') + '</span></div>' +
       '<div class="chtabs chbig" role="tablist" aria-label="대분류">' + bigTabs('') + '</div>' +
-      (isBiz ? '' : '<div class="chtabs" role="tablist">' + chTabs().map(function(x){ var n = chCount(x[0]); if (x[0] === 'none' && !n) return ''; return '<button type="button" role="tab" data-cm="tab" data-k="' + x[0] + '" aria-selected="' + (k === x[0]) + '">' + x[1] + '<b>' + n + '</b></button>'; }).join('') + '</div>') +
+      // 2026-11-19 대표님: 채널 칩 줄은 옆으로 밀어도 안 넘어감 → 정렬처럼 고르는 칸 하나로
+      (isBiz ? '' : '<label class="chpick"><small>영업 채널</small><select data-chpick aria-label="영업 채널 고르기">' + chTabs().map(function(x){ var n = chCount(x[0]); if (x[0] === 'none' && !n && k !== 'none') return ''; return '<option value="' + x[0] + '"' + (k === x[0] ? ' selected' : '') + '>' + esc(x[1]) + ' ' + n + '명</option>'; }).join('') + '</select></label>') +
       '<div class="bkpi chk">' + [['고객', rows.length], ['가망', stg.lead || 0], ['상담 중', stg.consult || 0], ['계약', stg.contract || 0], ['관리', stg.care || 0], ['이번 달 신규', nNew], ['할 일', nTodo], ['30일+ 미연락', nQuiet]].map(function(x){ return '<div><small>' + x[0] + '</small><b>' + x[1] + '</b></div>'; }).join('') + '</div>';
     var nChk = S.list.filter(function(c){ return c.chk; }).length;
     if (nChk) h += '<div class="gapban a">' + IC.warn + '<span>같은 이름이 두 번 있어 <b>동일인인지 확인</b>이 필요한 고객 ' + nChk + '명</span><button class="pb" type="button" data-cm="chk">확인 목록</button></div>';
@@ -20358,6 +20370,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="3879e36fca7d";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="b8897106d28b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
