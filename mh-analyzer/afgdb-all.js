@@ -36,7 +36,7 @@
   var onList = function () { return rowsOf().length > 0 && !/\/db\/\d+/.test(location.pathname); };
 
   // ── 상세 화면: 그 고객만 (예전 방식)
-  if (!onList()) {
+  if (/\/db\/\d+/.test(location.pathname) || (!onList() && !/\/db\/?$/.test(location.pathname))) {
     var g = grab(), K = 'oc9_db_bag', bag;
     try { bag = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) { bag = null; }
     if (!bag || Date.now() - bag.t > 12 * 3600e3) bag = { t: Date.now(), b: [] };
@@ -65,22 +65,39 @@
       if (!b) break; b.click(); await W(900);
     }
   }
-  var out = [], seen = {}, nMask = 0, nFail = 0, P = maxPage(), total = 0, prevName = '';
+  var out = [], seen = {}, nMask = 0, nFail = 0, P = 1, total = 0, prevName = '', menuNow = '';
+  // 2026-11-19 대표님: "30명이 전부가 아닐텐데" — 보장리스트Ⅰ·Ⅱ·실버·달러… 왼쪽 메뉴의 모든 '리스트'를 차례로 돈다
+  var menuBtns = function () { return [].slice.call(document.querySelectorAll('button')).filter(function (b) { return b.getBoundingClientRect().left < 300 && /리스트/.test(b.innerText || '') && !/쿠폰/.test(b.innerText || ''); }); };
+  var menus = menuBtns().map(function (b) { return b.innerText.trim(); }).filter(function (x, i, a) { return a.indexOf(x) === i; });
+  if (!menus.length) menus = [''];
+  // 상세 → 목록은 '뒤로 가기' 대신 왼쪽 메뉴를 다시 눌러 돌아온다 (뒤로 가기는 가끔 페이지를 통째로 다시 열어 담던 것이 날아감)
+  async function backTo(p) { var b = menuNow && menuBtns().find(function (x) { return x.innerText.trim() === menuNow; }); if (b) b.click(); else history.back(); await W(600); await waitList(); if (curPage() !== p) { await goPage(p); await waitList(); } }
+  // 중간에 화면이 다시 열려도 이어서 담도록 이 탭에만 잠깐 기억 (탭을 닫으면 사라짐)
+  try { var SV = JSON.parse(sessionStorage.getItem('aob_all') || 'null'); if (SV && Date.now() - SV.t < 3 * 3600e3 && SV.out && SV.out.length) { out = SV.out; SV.out.forEach(function (v) { seen[v.split('\n').slice(1, 4).join('|')] = 1; }); } } catch (e) {}
+  var save = function () { try { sessionStorage.setItem('aob_all', JSON.stringify({ t: Date.now(), out: out })); } catch (e) {} };
+  var realRows = function () { return [].slice.call(rowsOf()).filter(function (r) { return r.children.length >= 6; }).length; };
+  for (var mi = 0; mi < menus.length && !stop; mi++) {
+   menuNow = menus[mi];
+   if (menuNow) { var mb = menuBtns().find(function (b) { return b.innerText.trim() === menuNow; }); if (!mb) continue; mb.click(); await W(2200); await waitList(); }
+   if (!realRows()) continue;
+   P = maxPage(); prevName = '';
   for (var p = 1; p <= P && !stop; p++) {
     await goPage(p); await waitList();
     var n = rowsOf().length;
     for (var i = 0; i < n && !stop; i++) {
-      if (!onList()) { history.back(); await waitList(); }
+      if (!onList()) { await backTo(p); }
       if (curPage() !== p) { await goPage(p); await waitList(); }
       var tr = rowsOf()[i]; if (!tr) break;
       total++;
-      say(p + ' / ' + P + ' 페이지 · ' + (i + 1) + '번째 고객 여는 중<br>지금까지 <b>' + out.length + '명</b> 담음' + (nMask ? ' (번호 가려짐 ' + nMask + ')' : '') + '<br><button id="aobStop" style="margin-top:6px">그만 담고 지금까지 복사</button>');
+      if (realRows() === 0) break;
+      say((menuNow ? menuNow + ' · ' : '') + p + ' / ' + P + ' 페이지 · ' + (i + 1) + '번째 고객 여는 중<br>지금까지 <b>' + out.length + '명</b> 담음' + (nMask ? ' (번호 가려짐 ' + nMask + ')' : '') + '<br><button id="aobStop" style="margin-top:6px">그만 담고 지금까지 복사</button>');
+      window.__aobStat = { menu: mi + 1, menus: menus.length, p: p, P: P, i: i, got: out.length, mask: nMask, fail: nFail };
       var sb = document.getElementById('aobStop'); if (sb) sb.onclick = function () { stop = true; };
       (tr.children[3] || tr.children[1] || tr).click();
       for (var k = 0; k < 60 && !/\/db\/\d+/.test(location.pathname); k++) await W(150);
       var ph = null, nm = '';
       for (k = 0; k < 40; k++) { ph = phoneEl(); nm = nameVal(); if (ph && nm && nm !== prevName) break; await W(150); }
-      if (!ph || !nm) { nFail++; history.back(); await waitList(); continue; }
+      if (!ph || !nm) { nFail++; await backTo(p); continue; }
       // 가운데 번호가 가려져 있으면 잠깐 기다렸다가, 번호 칸을 눌러 본다 (대표님이 누르는 것과 같은 동작)
       for (k = 0; k < 8 && /\*/.test(ph.value); k++) { await W(250); ph = phoneEl() || ph; }
       if (/\*/.test(ph.value)) {
@@ -90,12 +107,14 @@
       }
       if (/\*/.test(ph.value)) nMask++;
       prevName = nm;
-      var gg = grab(); if (!seen[gg.k]) { seen[gg.k] = 1; out.push(gg.v); }
-      history.back(); await waitList();
+      var gg = grab(); if (!seen[gg.k]) { seen[gg.k] = 1; out.push(gg.v); save(); }
+      await backTo(p);
     }
+  }
   }
   window.__aobRun = 0;
   var txt = out.join('\n[END]\n');
+  window.__aobStat = { done: 1, got: out.length, mask: nMask, fail: nFail, menus: menus.length };
   var fin = function (ok) {
     say('<b>' + out.length + '명</b> 담았습니다' + (nMask ? '<br>· 번호가 가려진 고객 ' + nMask + '명(아직 통화 안 함)은 가려진 번호로 들어가고, 통화 뒤 다시 누르면 번호가 채워집니다' : '') + (nFail ? '<br>· 못 연 고객 ' + nFail + '명' : '') +
       (ok ? '<br><br>✅ 클립보드에 복사됨<br>AOB9 → 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기 → <b>붙여넣기</b>' : '<br><br><button id="aobCopy" style="font-size:16px;font-weight:800;padding:10px 16px;border:0;border-radius:10px;background:#2F6BFF;color:#fff;cursor:pointer">📋 AOB9로 복사</button>') +
