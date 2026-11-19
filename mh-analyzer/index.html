@@ -407,6 +407,21 @@ table.cl td.inp{color:var(--red);font-weight:700}
 .frow:hover{background:var(--soft)}
 .frow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .frow i{font-style:normal;font-size:12px;color:var(--mute)}
+/* 📝 인적사항 받기 (2026-11-19) — 색은 변수만 */
+.ikform .ikh{margin:14px 0 4px;padding:8px 12px;border-radius:10px;background:var(--soft);font-weight:800;font-size:14.5px;color:var(--ink)}
+.ikform .ikh small{display:block;font-weight:400;font-size:12px;color:var(--mute);margin-top:2px}
+.ikform .ikrr{min-height:16px;font-size:12.5px}
+.ikform .ikch{flex-wrap:wrap;gap:6px}
+.ikform .ikch button{flex:0 0 auto;padding:0 12px}
+.ikform .ikhx{width:100%;margin:6px 0 4px;display:flex;flex-direction:column;align-items:center;height:auto;padding:8px 12px}
+.ikform .ikhx small{font-size:11.5px;color:var(--mute);font-weight:400}
+.ikq{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;display:flex;flex-direction:column;gap:8px}
+.ikq.yes{border-left:4px solid var(--red)}
+.ikq-h{font-size:13.5px;line-height:1.55;color:var(--ink)}
+.ikq-h em{font-style:normal;color:var(--red);font-weight:700}
+.ikq .ikyn{max-width:220px}
+.ikq-b{display:flex;flex-direction:column;gap:8px}
+.ikq-b textarea{min-height:64px;font-size:13.5px}
 /* 📷 종이 서류 사진으로 병력 파악 (2026-11-18) — 색은 변수만 쓴다(밝은·어두운 화면 공통) */
 .fphoto{display:flex;flex-direction:column;gap:6px;margin:8px 0 2px}
 .fphoto small{color:var(--mute);font-size:12.5px;line-height:1.6}
@@ -9099,6 +9114,159 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
 </script>
 <script>
+// 📝 인적사항 받기 (AFG '고객정보 및 인적사항' 양식과 같은 순서) — 2026-11-19 대표님 요청
+// 순수 함수만 (브라우저/Node 공용): 주민번호 읽기 · 병력파악 결과로 고지사항 채우기 · 매니저에게 보낼 글.
+// 고객 정보는 이 기기 안에서만 다룬다 (서버·AI로 보내는 길 없음).
+(function (root) {
+  'use strict';
+  // 고지 7문항 (회사 양식 그대로) — [번호, 기간 글, 질문, 고를 것(없으면 있음/없음), 고르는 방식]
+  var Q = [
+    [1, '최근 3개월 이내', '의사로부터 진찰 또는 검사(건강검진 포함)를 통하여 다음과 같은 의료행위를 받은 사실이 있습니까?', ['질병확정진단', '질병의심소견', '치료', '입원', '수술(제왕절개 포함)', '투약']],
+    [2, '최근 1년 이내', '의사로부터 진찰 또는 검사를 통하여 추가검사(재검사)를 받은 사실이 있습니까?', null],
+    [3, '최근 5년 이내', '8대질병으로 의사로부터 진찰 또는 검사를 통하여 다음과 같은 의료행위를 받은 사실이 있습니까?', ['암', '백혈병', '협심증', '심근경색', '심장판막증', '간경화증', '뇌졸중증(뇌출혈·뇌경색)', '에이즈']],
+    [4, '최근 5년 이내', '3대질병(암·뇌·심혈관)으로 진찰 또는 검사를 통하여 의료행위를 받은 사실이 있습니까?', ['질병확정진단', '치료', '입원', '수술', '투약(고혈압·당뇨병·직장/항문 질환)']],
+    [5, '최근 3개월 이내', '마약을 사용하거나 혈압강하제·신경안정제·수면제·각성제(흥분제)·진통제 등 약물을 상시 복용한 사실이 있습니까?', null],
+    [6, '최근 5년 이내', '의사로부터 진찰 또는 검사를 통하여 다음과 같은 의료행위를 받은 사실이 있습니까?', ['입원', '수술(제왕절개 포함)', '계속하여 7일 이상 치료', '계속하여 30일 이상 투약']],
+    [7, '', '그 외 특이사항이 있습니까?', null]
+  ];
+  var TELS = ['SKT', 'KT', 'LGU+', 'SKT 알뜰폰', 'KT 알뜰폰', 'LGU+ 알뜰폰'];
+
+  function digits(s) { return String(s == null ? '' : s).replace(/\D/g, ''); }
+  // 주민번호: 13자리 · 앞 6 + 뒤 1(성별)만 · '-' '*' 띄어쓰기 상관없이
+  function rrn(s) {
+    var t = String(s || '').replace(/\s/g, ''), m = t.match(/(\d{6})-?([1-8*])([\d*]{0,6})/);
+    if (!m) return { ok: false };
+    var f = m[1], g = m[2], yy = +f.slice(0, 2), mm = +f.slice(2, 4), dd = +f.slice(4, 6);
+    if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return { ok: false };
+    var cen = /[3478]/.test(g) ? '20' : /[1256]/.test(g) ? '19' : (yy > (new Date().getFullYear() % 100) ? '19' : '20');
+    var back = /^\d$/.test(g) && /^\d{6}$/.test(m[3]) ? g + m[3] : '';
+    return { ok: true, birth: cen + f, sex: /[13579]/.test(g) ? 'M' : /[2468]/.test(g) ? 'F' : '', back: back, front: f };
+  }
+  function phone(s) { var p = digits(s); return /^01\d{8,9}$/.test(p) ? p : ''; }
+  function phoneTxt(p) { p = digits(p); return p.length === 11 ? p.slice(0, 3) + '-' + p.slice(3, 7) + '-' + p.slice(7) : p.length === 10 ? p.slice(0, 3) + '-' + p.slice(3, 6) + '-' + p.slice(6) : p; }
+
+  // ---------- 병력파악 결과 → 고지사항 (표준체 기준) ----------
+  function c3(code) { return String(code || '').replace('.', '').toUpperCase().slice(0, 3); }
+  function inR(code, a, b) { var k = c3(code); return !!k && k >= a && k <= b; }
+  // 8대질병 (상병코드 기준 · 확정 진단명은 고객 확인)
+  function big8(code) {
+    var k = String(code || '').replace('.', '').toUpperCase();
+    if (inR(k, 'C91', 'C95')) return '백혈병';
+    if (inR(k, 'C00', 'C97') || inR(k, 'D00', 'D09')) return '암';
+    if (inR(k, 'I20', 'I20')) return '협심증';
+    if (inR(k, 'I21', 'I23') || k.indexOf('I252') === 0) return '심근경색';
+    if (inR(k, 'I05', 'I08') || inR(k, 'I34', 'I39')) return '심장판막증';
+    if (k.indexOf('K703') === 0 || k.indexOf('K717') === 0 || inR(k, 'K74', 'K74')) return '간경화증';
+    if (inR(k, 'I60', 'I64') || k.indexOf('I69') === 0) return '뇌졸중증(뇌출혈·뇌경색)';
+    if (inR(k, 'B20', 'B24') || k.indexOf('Z21') === 0) return '에이즈';
+    return '';
+  }
+  // 3대질병(암·뇌·심혈관) · 투약 대상 질환(고혈압·당뇨·직장/항문)
+  function big3(code) {
+    var k = c3(code);
+    if (!k) return '';
+    if (inR(k, 'C00', 'C97') || inR(k, 'D00', 'D09')) return '암';
+    if (inR(k, 'I60', 'I69') || k === 'G45' || k === 'G46') return '뇌혈관';
+    if (inR(k, 'I20', 'I25') || inR(k, 'I05', 'I09') || inR(k, 'I30', 'I52')) return '심혈관';
+    return '';
+  }
+  function medGroup(code) { var k = c3(code); if (inR(k, 'I10', 'I15')) return '고혈압'; if (inR(k, 'E10', 'E14') || k === 'O24') return '당뇨병'; if (inR(k, 'K60', 'K64') || k === 'I84') return '직장·항문 질환'; return ''; }
+  function md(d) { d = String(d || ''); return d.length >= 10 ? d.slice(2, 4) + '.' + d.slice(5, 7) + '.' + d.slice(8, 10) : d; }
+  function hospsOf(c) { var h = c.hosps || {}; return Array.isArray(h) ? h.join(', ') : Object.keys(h).map(function (k) { return h[k] && h[k].name || k; }).join(', '); }
+  function uniq(a) { var s = {}; return a.filter(function (x) { if (!x || s[x]) return false; s[x] = 1; return true; }); }
+  function codeTxt(c) { return (c.name || '').replace(/^\((양방|한방)\)\s*/, '') + (c.code ? ' (' + c.code + ')' : ''); }
+
+  // R = Analyzer.analyze(input, { mode: 'std', baseDate }) · input = 같은 자료 (처방 날짜·약 이름용)
+  function fromHx(R, input) {
+    var A = {}, put = function (n, o, line) { var a = A[n] = A[n] || { yes: true, o: [], t: [] }; (o || []).forEach(function (x) { if (a.o.indexOf(x) < 0) a.o.push(x); }); if (line) a.t.push(line); };
+    var all = (R.main || []).concat(R.check || []), base = R.base, from3 = R.from3m;
+    var d1y = String(+base.slice(0, 4) - 1) + base.slice(4);
+    // 1. 3개월 이내
+    (R.recent3mCards || []).forEach(function (x) {
+      var o = ['치료']; if (x.rx) o.push('투약');
+      put(1, o, md(x.first) + (x.first !== x.last ? '~' + md(x.last) : '') + ' ' + (x.hosps.join(', ') || '병원 미상') + ' · ' + (x.code ? codeTxt(x) : (x.hint ? '진단명 미상 (이전 ' + x.hint + ')' : '진단명 미상 — 고객 확인')) + (x.days > 1 ? ' · ' + x.days + '일' : '') + (x.rx ? ' · 투약' : ''));
+    });
+    all.forEach(function (c) {
+      (c.visits || []).forEach(function (v) { if (v.inp && v.date >= from3) put(1, ['입원']); });
+      (c.surg || []).forEach(function (s) { if (s.date >= from3) put(1, ['수술(제왕절개 포함)']); });
+    });
+    // 2. 1년 이내 추가검사(재검사) — 정밀검사가 있으면 '확인 필요'로 적어 둔다 (재검 소견인지는 고객 확인)
+    all.forEach(function (c) {
+      var ex = (c.exams || []).filter(function (e) { return e.date >= d1y; });
+      var sg = (c.surg || []).filter(function (s) { return s.date >= d1y && /생검|조직|폴립|용종/.test(s.item); });
+      if (!ex.length && !sg.length) return;
+      var items = uniq(ex.concat(sg).map(function (e) { return String(e.item).replace(/[\[(].*$/, '').trim(); })).slice(0, 3);
+      var last = ex.concat(sg).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
+      put(2, [], md(last.date) + ' ' + (last.hosp || hospsOf(c)) + ' · ' + codeTxt(c) + ' · ' + items.join(', ') + ' → 재검·추가검사 소견 여부 고객 확인');
+    });
+    // 3. 8대질병 · 4. 3대질병 / 투약
+    all.concat(R.extra || []).forEach(function (c) {
+      if (!c.code || c.last < R.from5) return;
+      var b8 = big8(c.code), b3 = big3(c.code), mg = medGroup(c.code), span = md(c.first) + (c.first !== c.last ? '~' + md(c.last) : '');
+      var how = []; if ((c.visits || []).some(function (v) { return v.inp; })) how.push('입원'); if ((c.surg || []).length) how.push('수술'); if (c.rxDays) how.push('투약 ' + c.rxDays + '일');
+      if (b8) put(3, [b8], span + ' ' + hospsOf(c) + ' · ' + codeTxt(c) + (how.length ? ' · ' + how.join('·') : ''));
+      if (b3) put(4, ['질병확정진단', '치료'].concat(how.filter(function (h) { return /입원|수술/.test(h); })), span + ' ' + hospsOf(c) + ' · ' + codeTxt(c) + ' (' + b3 + ')');
+      if (mg) { var rxd = c.rxDays || (c.meds || []).length; put(4, rxd ? ['투약(고혈압·당뇨병·직장/항문 질환)'] : [], span + ' ' + hospsOf(c) + ' · ' + codeTxt(c) + ' · ' + mg + (rxd ? ' 투약' + (c.rxDays ? ' ' + c.rxDays + '일' : '') : ' 진료 · 투약 여부 고객 확인')); }
+    });
+    // 5. 3개월 이내 약 상시 복용 — 최근 3개월 처방약을 적어 두고 상시 복용인지 고객 확인
+    var rx3 = ((input && input.rx) || []).filter(function (x) { return x.date >= from3 && x.date <= base; });
+    if (rx3.length) {
+      var byDrug = {}; rx3.forEach(function (x) { var n = String(x.drug || '').replace(/\(.*$/, '').replace(/_.*$/, '').trim(); if (!n) return; byDrug[n] = Math.max(byDrug[n] || 0, +x.days || 0); });
+      var ds = Object.keys(byDrug).sort(function (a, b) { return byDrug[b] - byDrug[a]; });
+      if (ds.length) put(5, [], '최근 3개월 처방약: ' + ds.slice(0, 8).map(function (n) { return n + (byDrug[n] ? ' ' + byDrug[n] + '일' : ''); }).join(', ') + (ds.length > 8 ? ' 외 ' + (ds.length - 8) + '개' : '') + ' → 상시 복용 여부 고객 확인');
+    }
+    // 6. 5년 이내 입원·수술·7일·30일 — 병력파악의 고지 대상 판정 그대로
+    var K6 = { 입원: '입원', 수술: '수술(제왕절개 포함)', '7일이상': '계속하여 7일 이상 치료', '30일이상': '계속하여 30일 이상 투약' };
+    all.forEach(function (c) {
+      var ks = (c.disc || []).filter(function (d) { return K6[d.k] && d.lv === 'y'; }).map(function (d) { return d.k; });
+      var cks = (c.disc || []).filter(function (d) { return K6[d.k] && d.lv === 'c'; }).map(function (d) { return d.k; });
+      if (!ks.length && !cks.length) return;
+      var bits = [];
+      var inp = (c.visits || []).filter(function (v) { return v.inp; }); if (inp.length) bits.push('입원 ' + md(inp[0].date) + (c.inpDays ? ' ' + c.inpDays + '일' : ''));
+      if ((c.surg || []).length) bits.push('수술 ' + uniq(c.surg.map(function (s) { return md(s.date) + ' ' + String(s.item).replace(/[\[(].*$/, '').trim(); })).slice(0, 2).join(', '));
+      if (ks.indexOf('7일이상') >= 0 || cks.indexOf('7일이상') >= 0) bits.push('통원 ' + ((c.outDays || 0) + (c.inpDays || 0)) + '일');
+      if (c.rxDays) bits.push('투약 ' + c.rxDays + '일');
+      put(6, ks.map(function (k) { return K6[k]; }), md(c.first) + '~' + md(c.last) + ' ' + hospsOf(c) + ' · ' + codeTxt(c) + ' · ' + bits.join(' · ') + (cks.length && !ks.length ? ' (확인 필요)' : ''));
+    });
+    [1, 2, 3, 4, 5, 6, 7].forEach(function (n) { if (!A[n]) A[n] = { yes: false, o: [], t: [] }; A[n].t = A[n].t.join('\n'); });
+    A.auto = { at: base, from: (R.dataRange && R.dataRange.from) || '', to: (R.dataRange && R.dataRange.to) || '' };
+    return A;
+  }
+
+  // ---------- 매니저에게 보낼 글 (양식 순서) ----------
+  function yn(v) { return v === true || v === 'O' ? '한다' : v === false || v === 'X' ? '안 한다' : ''; }
+  function text(f, opt) {
+    opt = opt || {};
+    var L = [], r = f.rrn ? rrn(f.rrn) : { ok: false }, add = function (k, v) { if (v) L.push(k + ': ' + v); };
+    L.push('[고객정보 및 인적사항]');
+    add('이름', f.name);
+    add('주민등록번호', f.rrn ? (opt.mask && r.ok ? r.front + '-' + (r.back ? r.back.charAt(0) + '******' : '') : f.rrn) : '');
+    add('휴대폰', [f.tel, f.phone ? phoneTxt(f.phone) : ''].filter(Boolean).join(' '));
+    add('직업', [f.company, f.duty].filter(Boolean).join(' / '));
+    add('주소(자택)', f.addr); add('주소(사업장)', f.addr2);
+    add('운전', yn(f.drive) + (f.carExp ? ' · 자동차보험 만기 ' + f.carExp : ''));
+    add('키/몸무게', f.height || f.weight ? (f.height || '-') + 'cm / ' + (f.weight || '-') + 'kg' : '');
+    if (f.preg) add('임신', f.preg);
+    L.push('');
+    L.push('[고지사항]');
+    Q.forEach(function (q) {
+      var a = (f.q || {})[q[0]] || {};
+      var head = q[0] + '. ' + (q[1] ? q[1] + ' ' : '') + q[2].replace(/ 있습니까\?$/, '').replace(/^의사로부터 /, '').slice(0, 40) + '…';
+      if (!a.yes) { L.push(q[0] + '. ' + (q[1] ? q[1] + ' ' : '') + '— 없음'); return; }
+      L.push(q[0] + '. ' + (q[1] ? q[1] + ' ' : '') + '— 있음' + (a.o && a.o.length ? ' (' + a.o.join(', ') + ')' : ''));
+      String(a.t || '').split('\n').filter(function (x) { return x.trim(); }).forEach(function (x) { L.push('  - ' + x.trim()); });
+      void head;
+    });
+    if (f.q && f.q.auto && f.q.auto.from) { L.push(''); L.push('※ 고지 내용은 심평원 자료(' + f.q.auto.from + ' ~ ' + f.q.auto.to + ')로 채운 뒤 확인함 · 비급여 진료는 자료에 없음'); }
+    return L.join('\n');
+  }
+
+  var api = { Q: Q, TELS: TELS, rrn: rrn, phone: phone, phoneTxt: phoneTxt, big8: big8, big3: big3, medGroup: medGroup, fromHx: fromHx, text: text };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Intake = api;
+})(this);
+
+</script>
+<script>
 // 🔍 통합 검색 (2026-11-17 대표님 요청): 화면 오른쪽 위 🔍 → 모든 메뉴·환경설정·고객 추가/보기 항목과 고객 이름을 한 칸에서 찾는다.
 // · 찾기는 이 기기 안에서만 한다 — 검색어·고객 이름은 어디로도 보내지 않는다.
 // · '자주 쓰는 메뉴'는 메뉴 이름표(id)와 누른 횟수만 기기에 기억한다(aob_find · 고객 정보 없음).
@@ -9775,9 +9943,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function cgrp(t, inner){ return String(inner || '').trim() ? '<section class="cgrp"><h5 class="cgh">' + t + '</h5>' + inner + '</section>' : ''; }
   // 고객 화면 ⋯ : 자주 안 쓰는 것(정보 수정 · 삭제)
   document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-act="cmore"]'); if (!b) return; e.stopPropagation();
-    openDlg('<h4>' + esc(S.cur ? S.cur.name : '') + '님</h4><div class="msheet"><button type="button" data-cm2="edit"><i>✏️</i><b>정보 수정</b><small>이름 · 생년월일 · 번호 · 채널</small></button><button type="button" data-cm2="req"><i>📝</i><b>등록 요청서</b><small>비서에게 보험사 등록 요청</small></button><button type="button" data-cm2="ds"><i>🧮</i><b>설계 요청</b><small>보험사 매니저에게 보낼 글</small></button><button type="button" data-cm2="mate"><i>👥</i><b>팀원에게</b><small>이 고객 보내기 · 교환 신청</small></button><button type="button" data-cm2="del"><i>🗑️</i><b>삭제</b><small>되돌릴 수 없음</small></button></div><div class="mrow"><button class="btn lg" type="button" id="cm2X" style="margin-left:auto">닫기</button></div>');
+    openDlg('<h4>' + esc(S.cur ? S.cur.name : '') + '님</h4><div class="msheet"><button type="button" data-cm2="edit"><i>✏️</i><b>정보 수정</b><small>이름 · 생년월일 · 번호 · 채널</small></button><button type="button" data-cm2="intake"><i>📋</i><b>인적사항</b><small>회사 양식 · 고지사항 · 매니저에게 보낼 글</small></button><button type="button" data-cm2="req"><i>📝</i><b>등록 요청서</b><small>비서에게 보험사 등록 요청</small></button><button type="button" data-cm2="ds"><i>🧮</i><b>설계 요청</b><small>보험사 매니저에게 보낼 글</small></button><button type="button" data-cm2="mate"><i>👥</i><b>팀원에게</b><small>이 고객 보내기 · 교환 신청</small></button><button type="button" data-cm2="del"><i>🗑️</i><b>삭제</b><small>되돌릴 수 없음</small></button></div><div class="mrow"><button class="btn lg" type="button" id="cm2X" style="margin-left:auto">닫기</button></div>');
     $('cm2X').onclick = closeDlg;
-    $('dlgBox').querySelectorAll('[data-cm2]').forEach(function(x){ x.onclick = function(){ var k = x.dataset.cm2; closeDlg(); if (k === 'req') { openReqForm(S.cur); return; } if (k === 'ds') { openDs(S.cur); return; } if (k === 'mate') { openMateFor(S.cur); return; } var t = document.createElement('button'); t.dataset.act = k; t.hidden = true; $('main').appendChild(t); t.click(); t.remove(); }; });
+    $('dlgBox').querySelectorAll('[data-cm2]').forEach(function(x){ x.onclick = function(){ var k = x.dataset.cm2; closeDlg(); if (k === 'req') { openReqForm(S.cur); return; } if (k === 'intake') { openIntake(S.cur); return; } if (k === 'ds') { openDs(S.cur); return; } if (k === 'mate') { openMateFor(S.cur); return; } var t = document.createElement('button'); t.dataset.act = k; t.hidden = true; $('main').appendChild(t); t.click(); t.remove(); }; });
   }, true);
   function evStrip(c){
     var t = todayStr(), L = (c.cvx && c.cvx.ev || []).filter(function(e){ var k = dayDiff(t, e.d); return k >= 0 && k <= 180; }).slice(0, 4);
@@ -13120,7 +13288,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // ＋ 추가 · 👁 보기 (2026-11-04): 메뉴 곳곳에 흩어져 있던 고객 기능을 고객 탭 한곳으로
   // 항목 목록(…Defs)과 실행(…Go)을 나눠 둠 → 🔍 통합 검색(finder.js)이 같은 목록을 그대로 씀 (2026-11-17)
   function addDefs(){
-    var A = [['add:form', '✍️ 직접 입력', '이름·생년월일·번호'], ['add:paste', '📋 붙여넣기', '메모·SMemo·카톡 글 → 자동 등록']];
+    var A = [['add:form', '✍️ 직접 입력', '이름·생년월일·번호'], ['add:intake', '📝 인적사항 받기', '회사 인적 양식 그대로 · 고지사항 7문항'], ['add:paste', '📋 붙여넣기', '메모·SMemo·카톡 글 → 자동 등록']];
     if (ocrOn()) A.push(['add:cam', '📷 사진', '명함·메모 사진 글자 읽기']);
     if (pickContactsOk()) A.push(['add:pick', '📇 연락처에서 고르기', '휴대폰 연락처 · 고른 사람만']);
     A.push(['add:vcf', '📇 연락처 파일', '.vcf · 메모 .txt · SMemo .zip']);
@@ -13129,6 +13297,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function addGo(v){
     if (v === 'add:pol') { POL.pick(); return; }
     if (v === 'add:note') { POL.pickNote(); return; }
+    if (v === 'add:intake') { openIntake(null); return; }
     if (v === 'add:form') openCustForm(null);
     else if (v === 'add:paste') pasteFromClip();
     else if (v === 'add:cam') ocrPick(function(t){ openPaste(t); });
@@ -18947,6 +19116,81 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     };
   }
 
+  // ---------- 📝 인적사항 받기 (2026-11-19 대표님: "우리 회사 인적 받는 양식처럼 프로그램에서 인적 받아서 고객 등록") ----------
+  // AFG '고객정보 및 인적사항' 양식과 같은 순서 · 저장하면 고객 등록(이름·생년월일·성별·번호) + 등록 요청서 칸(통신사·주소·직업·키/몸무게·운전·주민번호 뒷자리)까지 채움
+  // 고지사항 7문항은 병력파악 자료가 있으면 [🩺 병력파악으로 채우기] 한 번에 (표준체 기준) · 이 기기 안에서만 (서버·AI로 안 보냄)
+  async function openIntake(c){
+    if (!window.Intake) { toast('인적사항 화면을 불러오지 못했습니다'); return; }
+    var I = window.Intake, old = (c && c.intake) || {}, r0 = (c && c.req) || {}, f = Object.assign({}, old.f || {}), q = JSON.parse(JSON.stringify(old.q || {}));
+    if (c) { f.name = f.name || c.name; f.phone = f.phone || c.phone || ''; if (!f.rrn && c.birth && c.birth.length === 8) f.rrn = c.birth.slice(2) + (r0.rrn2 ? '-' + r0.rrn2 : (c.sex ? '-' + ((+c.birth.slice(0, 4) >= 2000 ? 2 : 0) + (c.sex === 'M' ? 1 : 2)) : '')); f.tel = f.tel || r0.tel || ''; f.addr = f.addr || r0.addr || ''; f.addr2 = f.addr2 || r0.addr2 || ''; if (!f.company && r0.job) f.company = r0.job; if (f.drive == null && r0.drive) f.drive = /^(o|예|네|함|있|유)/i.test(r0.drive) ? true : /^(x|아니|안|없|무)/i.test(r0.drive) ? false : null; if (!f.height && r0.hw) { var hw = String(r0.hw).split('/'); f.height = digitsOnly(hw[0]); f.weight = digitsOnly(hw[1]); } }
+    var hx = null; if (c && !c.sample) { try { var dd = S.cur && S.cur.id === c.id && S.data ? S.data : await Store.loadData(c.id); if (dd && dd.input && (dd.input.basic || dd.input.recent)) hx = dd; } catch(e){} }
+    var chips = function(id, list, cur, multi){ return '<div class="sexsel ikch" id="' + id + '">' + list.map(function(x){ var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<button type="button" data-v="' + esc(String(v)) + '" aria-pressed="' + (multi ? (cur || []).indexOf(v) >= 0 : String(cur) === String(v)) + '">' + esc(t) + '</button>'; }).join('') + '</div>'; };
+    var qHtml = I.Q.map(function(x){ var n = x[0], a = q[n] || {}; return '<div class="ikq' + (a.yes ? ' yes' : '') + '" data-ikq="' + n + '"><div class="ikq-h"><b>' + n + '.</b> ' + (x[1] ? '<em>' + esc(x[1]) + '</em> ' : '') + esc(x[2]) + '</div>' +
+      '<div class="sexsel ikyn"><button type="button" data-yn="0" aria-pressed="' + !a.yes + '">없음</button><button type="button" data-yn="1" aria-pressed="' + !!a.yes + '">있음</button></div>' +
+      '<div class="ikq-b"' + (a.yes ? '' : ' hidden') + '>' + (x[3] ? chips('ikO' + n, x[3], a.o || [], true) : '') + '<textarea data-ikt="' + n + '" rows="3" placeholder="진단명·부위(좌/우) · 치료 내용 · 검사 · 기간(입원·통원·약 복용) · 합병증 · 후유증">' + esc(a.t || '') + '</textarea></div></div>'; }).join('');
+    openDlg('<h4>📝 인적사항' + (c ? ' — ' + esc(c.name) + '님' : ' 받기') + '</h4><div class="form ikform">' +
+      '<div class="ikh">고객정보 및 인적사항</div>' +
+      '<div class="frow2"><div><label class="l" for="ikName">이름</label><input id="ikName" type="text" maxlength="20" value="' + esc(f.name || '') + '" placeholder="필수" autocomplete="off"></div>' +
+      '<div><label class="l" for="ikRrn">주민등록번호 <small class="note">(앞 6 + 뒤 1자리면 등록됨)</small></label><input id="ikRrn" inputmode="numeric" maxlength="14" value="' + esc(f.rrn || '') + '" placeholder="000000-0000000" autocomplete="off"></div></div>' +
+      '<div class="ikrr note" id="ikRrnT"></div>' +
+      '<span class="l">통신사</span>' + chips('ikTel', I.TELS, f.tel || '') +
+      '<label class="l" for="ikPh">휴대폰 번호</label><input id="ikPh" inputmode="tel" maxlength="13" value="' + esc(f.phone ? phoneTxt(f.phone) : '') + '" placeholder="010-0000-0000" autocomplete="off">' +
+      '<div class="frow2"><div><label class="l" for="ikCo">회사명</label><input id="ikCo" type="text" maxlength="40" value="' + esc(f.company || '') + '" placeholder="예: ○○건설 · 자영업 · 주부"></div><div><label class="l" for="ikDu">업무 및 직책</label><input id="ikDu" type="text" maxlength="40" value="' + esc(f.duty || '') + '" placeholder="예: 현장 관리 · 과장"></div></div>' +
+      '<label class="l" for="ikAd">주소 (자택)</label><input id="ikAd" type="text" maxlength="100" value="' + esc(f.addr || '') + '" placeholder="시·도부터 · 예: 경남 양산시 ○○로 12, 101동 1001호">' +
+      '<label class="l" for="ikAd2">주소 (사업장)</label><input id="ikAd2" type="text" maxlength="100" value="' + esc(f.addr2 || '') + '" placeholder="선택">' +
+      '<div class="frow2"><div><span class="l">운전 여부</span>' + chips('ikDr', [['1', '한다'], ['0', '안 한다']], f.drive === true ? '1' : f.drive === false ? '0' : '') + '</div><div><label class="l" for="ikCar">자동차보험 만기일</label><input id="ikCar" type="date" value="' + esc(f.carExp || '') + '"></div></div>' +
+      '<div class="frow2"><div><label class="l" for="ikH">키 (cm)</label><input id="ikH" inputmode="decimal" maxlength="5" value="' + esc(f.height || '') + '"></div><div><label class="l" for="ikW">몸무게 (kg)</label><input id="ikW" inputmode="decimal" maxlength="5" value="' + esc(f.weight || '') + '"></div></div>' +
+      '<div id="ikPg"' + (/-?[24680]/.test(String(f.rrn || '').slice(6, 8)) || (c && c.sex === 'F') ? '' : ' hidden') + '><label class="l" for="ikPr">임산부의 경우 <small class="note">(임신 ○주차 / 예정일)</small></label><input id="ikPr" type="text" maxlength="40" value="' + esc(f.preg || '') + '" placeholder="예: 12주차 / 2027-05-20"></div>' +
+      '<div class="ikh">고지사항 <small>5년 이내 치료력(진단명·부위) · 치료 내용 · 검사 · 기간 · 합병증 · 후유증</small></div>' +
+      (hx ? '<button type="button" class="btn lg ikhx" id="ikHx">🩺 병력파악 결과로 고지 채우기 <small>표준체 기준 · 넣은 뒤 고객 확인</small></button>' : (c ? '<p class="note">병력파악 자료를 넣으면 고지사항을 자동으로 채울 수 있습니다.</p>' : '')) +
+      qHtml +
+      (c ? '' : cnsCard(null)) +
+      '<div class="ferr" id="ikE"></div></div><div class="mrow"><button class="btn lg" type="button" id="ikX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="ikCp">📋 글로 복사</button><button class="go" type="button" id="ikGo">' + (c ? '저장' : '등록') + '</button></div>', 'wide');
+    if (!c) cnsWire();
+    var tel = f.tel || '', drv = f.drive === true ? '1' : f.drive === false ? '0' : '';
+    var one = function(id, set){ $(id).onclick = function(e){ var bt = e.target.closest('button'); if (!bt) return; var on = bt.getAttribute('aria-pressed') !== 'true'; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(on && x === bt)); }); set(on ? bt.dataset.v : ''); }; };
+    one('ikTel', function(v){ tel = v; }); one('ikDr', function(v){ drv = v; });
+    var rrnShow = function(){ var t = $('ikRrn'), d = t.value.replace(/[^\d*]/g, '').slice(0, 13); t.value = d.length > 6 ? d.slice(0, 6) + '-' + d.slice(6) : d; var r = I.rrn(t.value); $('ikRrnT').textContent = r.ok ? '생년월일 ' + r.birth.slice(0, 4) + '.' + r.birth.slice(4, 6) + '.' + r.birth.slice(6) + ' · ' + (r.sex === 'M' ? '남' : r.sex === 'F' ? '여' : '성별 미상') + (r.back ? ' · 뒷자리는 등록 요청서에만 (화면엔 가림)' : '') : (d.length >= 6 ? '주민번호를 확인해 주세요' : ''); $('ikPg').hidden = !(r.ok && r.sex === 'F'); };
+    $('ikRrn').addEventListener('input', rrnShow); rrnShow();
+    $('ikPh').addEventListener('input', function(){ var v = this.value.replace(/\D/g, '').slice(0, 11); this.value = v.length > 7 ? v.slice(0, 3) + '-' + v.slice(3, v.length - 4) + '-' + v.slice(-4) : v.length > 3 ? v.slice(0, 3) + '-' + v.slice(3) : v; });
+    var box = $('dlgBox');
+    box.querySelectorAll('[data-ikq]').forEach(function(el){ var n = el.dataset.ikq; el.querySelector('.ikyn').onclick = function(e){ var bt = e.target.closest('button'); if (!bt) return; var y = bt.dataset.yn === '1'; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === bt)); }); el.classList.toggle('yes', y); el.querySelector('.ikq-b').hidden = !y; }; var o = el.querySelector('.ikch'); if (o) o.onclick = function(e){ var bt = e.target.closest('button'); if (!bt) return; bt.setAttribute('aria-pressed', String(bt.getAttribute('aria-pressed') !== 'true')); }; void n; });
+    var setQ = function(n, a){ var el = box.querySelector('[data-ikq="' + n + '"]'); if (!el) return; el.querySelector('[data-yn="' + (a.yes ? 1 : 0) + '"]').click(); el.querySelectorAll('.ikch button').forEach(function(x){ x.setAttribute('aria-pressed', String((a.o || []).indexOf(x.dataset.v) >= 0)); }); el.querySelector('textarea').value = a.t || ''; };
+    var auto = old.q && old.q.auto || null;
+    if ($('ikHx')) $('ikHx').onclick = function(){
+      var R; try { R = Analyzer.analyze(hx.input, { mode: 'std', baseDate: todayStr() }); } catch(e){ toast('병력파악 자료를 읽지 못했습니다'); return; }
+      var A = I.fromHx(R, hx.input), n = 0; I.Q.forEach(function(x){ var k = x[0], el = box.querySelector('[data-ikq="' + k + '"] textarea'); if (el && el.value.trim() && !confirm(k + '번에 적어 둔 내용이 있습니다. 병력파악 결과로 바꿀까요?')) return; setQ(k, A[k]); if (A[k].yes) n++; });
+      auto = A.auto; toast(n ? '병력파악 결과로 ' + n + '문항을 채웠습니다 · 고객에게 확인한 뒤 고치세요' : '병력파악 자료에서 고지할 내용을 찾지 못했습니다');
+    };
+    var read = function(){
+      var o = { name: $('ikName').value.trim(), rrn: $('ikRrn').value.trim(), tel: tel, phone: normPhone($('ikPh').value), company: $('ikCo').value.trim(), duty: $('ikDu').value.trim(), addr: $('ikAd').value.trim(), addr2: $('ikAd2').value.trim(), drive: drv === '1' ? true : drv === '0' ? false : null, carExp: $('ikCar').value, height: $('ikH').value.trim(), weight: $('ikW').value.trim(), preg: $('ikPg').hidden ? '' : $('ikPr').value.trim(), q: {} };
+      box.querySelectorAll('[data-ikq]').forEach(function(el){ var n = el.dataset.ikq, y = el.classList.contains('yes'); o.q[n] = { yes: y, o: y ? [].map.call(el.querySelectorAll('.ikch [aria-pressed="true"]'), function(b){ return b.dataset.v; }) : [], t: y ? el.querySelector('textarea').value.trim() : '' }; });
+      if (auto) o.q.auto = auto;
+      return o;
+    };
+    $('ikX').onclick = closeDlg;
+    $('ikCp').onclick = function(){ copyText(Intake.text(read(), { mask: false }), '인적사항'); };
+    $('ikGo').onclick = async function(){
+      var o = read(), r = I.rrn(o.rrn), err = $('ikE');
+      if (!o.name) { err.textContent = '이름을 입력하세요.'; return; }
+      if (!r.ok) { err.textContent = '주민등록번호 앞 6자리와 뒤 첫 자리(성별)를 확인하세요. 예: 900101-2'; return; }
+      if ($('ikPh').value.replace(/\D/g, '') && !o.phone) { err.textContent = '휴대폰 번호를 확인하세요. (예: 010-1234-5678)'; return; }
+      var cns = c ? true : cnsRead(null); if (!cns) { err.textContent = '고객에게 개인정보 수집·이용 동의를 받은 뒤 ‘개인정보’를 눌러 주세요.'; return; }
+      var h = c ? (S.list.find(function(x){ return x.id === c.id; }) || c) : S.list.find(function(x){ return !x.sample && !x.hidden && x.name === o.name && x.birth === r.birth; });
+      var merged = !c && !!h; h = h ? Object.assign({}, h) : { status: 'wait', stage: 'lead' };
+      h.name = o.name; h.birth = r.birth; if (r.sex) h.sex = r.sex; if (o.phone) h.phone = o.phone;
+      if (cns !== true) h.consent = cns;
+      var rq = Object.assign({}, h.req || {}); if (r.back) rq.rrn2 = r.back; if (o.tel) rq.tel = o.tel; if (o.addr) rq.addr = o.addr; if (o.addr2) rq.addr2 = o.addr2; var job = [o.company, o.duty].filter(Boolean).join(' / '); if (job) rq.job = job; if (o.height || o.weight) rq.hw = (o.height || '') + '/' + (o.weight || ''); if (o.drive != null) rq.drive = o.drive ? 'O' : 'X'; h.req = rq;
+      var fs = Object.assign({}, o); delete fs.q; fs.rrn = r.front + (r.back ? '-' + r.back.charAt(0) : (r.sex ? '-' + (o.rrn.replace(/\D/g, '').charAt(6) || '') : ''));   // 뒷자리 전체는 등록 요청서 칸(req.rrn2)에만
+      h.intake = { at: todayStr(), f: fs, q: o.q };
+      h = await Store.saveHead(h); S.list = await Store.list();
+      closeDlg(); await openCustomer(h.id);
+      toast(c ? '인적사항을 저장했습니다' : merged ? '같은 이름·생년월일 고객이 있어 그 고객에 합쳤습니다' : '인적사항으로 고객을 등록했습니다');
+    };
+    setTimeout(function(){ if (!c) $('ikName').focus(); }, 30);
+  }
+  function digitsOnly(s){ return String(s || '').replace(/[^\d.]/g, ''); }
+
   // ---------- SMemo 등 메모 붙여넣기로 고객 등록 (2026-11-04 다시 만듦: 줄 순서·모양 상관없이) ----------
   // 이름(한글 2~4자) · 주민번호(13자리 / 앞 6~7자리, - · 띄어쓰기 · 붙여쓰기 · **** 가림 모두) → 생년월일·성별 · 010 번호 · 주소 줄을 알아서 골라냄.
   // 여러 명: 빈 줄로 나누거나, 새 이름+주민번호가 나오면 다음 사람. 주민번호 뒷자리는 저장하지 않음(등록 요청서 칸에만). 이 기기 안에서만 읽음.
@@ -20371,6 +20615,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="ed0ead71be13";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="d7d75b89425f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
