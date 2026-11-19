@@ -123,5 +123,7 @@
     document.getElementById('aobX').onclick = function () { box.remove(); };
   };
   if (!out.length) { say('담은 고객이 없습니다. 내 DB 목록 화면에서 다시 눌러 주세요.<br><button id="aobX">닫기</button>'); document.getElementById('aobX').onclick = function () { box.remove(); }; return; }
-  copy(txt, fin);
+  // 끝 화면(복사 단추)을 먼저 띄우고, 그다음 저절로 복사를 시도한다 — 저절로 복사가 대답 없이 멈춰도 단추는 남는다
+  fin(false);
+  copy(txt, function (ok) { if (ok) fin(true); });
 })();
