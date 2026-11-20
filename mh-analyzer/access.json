@@ -1,6 +1,11 @@
 {
  "v": 1,
  "on": true,
+ "notice": {
+  "id": 20261120153500,
+  "t": "💻 PC 프로그램 받는 곳이 바뀌었습니다\n\n예전 링크(github.com/…/mh-analyzer/releases)는 이제 열리지 않습니다(404).\nPC 버전은 아래 주소에서 받아 주세요.\n\nhttps://sicrics27-gif.github.io/mh-analyzer/pc.html\n\n· 파란 [💻 PC 프로그램 받기] → 받은 파일 실행 → 'Windows의 PC 보호'가 뜨면 [추가 정보] → [실행]\n· 이미 PC 프로그램을 쓰고 있으면 받을 필요 없습니다(켜면 스스로 업데이트됩니다)\n· 예전 즐겨찾기는 지워 주세요",
+  "at": 1795156500000
+ },
  "users": {
   "e9c38cad0fbd70073ba4ebe8": {
    "s": 1,
