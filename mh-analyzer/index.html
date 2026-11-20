@@ -3647,6 +3647,33 @@ table.dbt.dbapply,table.dbt.dbhist{min-width:760px}
 table.dbt.dbhist td:nth-child(4){white-space:normal;text-align:left;min-width:280px}
 /* 2026-11-20 상령일 지난 칩 — 밝은 화면 고객 화면(#main)에서 글자가 바탕에 묻히던 것 */
 :root[data-theme="light"] #main .sang.past{color:#5F6878}
+/* ↕ 표 머리글 정렬 (2026-11-20) · 📋 AFG DB 고객 화면 = 회사 DB 사이트 상세처럼 — 색은 변수만 */
+th.tsh{cursor:pointer;user-select:none;white-space:nowrap}
+th.tsh i{font-style:normal;margin-left:3px;font-size:10px;opacity:.45}
+th.tsh.on{color:var(--accent)}th.tsh.on i{opacity:1}
+th.tsh:hover{background:var(--soft)}
+.dbsheet{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px;margin:10px 0 14px}
+.dbcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+@media (max-width:820px){.dbsheet{grid-template-columns:minmax(0,1fr)}}
+.dbsh{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:12px 14px;min-width:0}
+.dbsh h5{margin:0 0 8px;font-size:15px;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+.dbsh dl{margin:0}
+.dbr{display:grid;grid-template-columns:76px minmax(0,1fr);gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.dbr:last-child{border-bottom:0}
+.dbr dt{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.dbr dd{margin:0;font-size:13.5px;color:var(--ink);min-width:0;overflow-wrap:anywhere;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dbr dd .due{color:var(--red);font-weight:800}
+.dbcall{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:var(--on-accent);border-radius:8px;padding:5px 12px;font-size:12.5px;font-weight:700;text-decoration:none}
+.dbck{color:var(--mute);font-size:13px;margin-right:6px}.dbck.on{color:var(--ink);font-weight:700}
+.dbmemo{white-space:pre-wrap;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;line-height:1.5}
+.dbpill{border:1px solid var(--line);border-radius:8px;padding:3px 10px;background:var(--soft);font-size:12.5px}
+.dbsts{display:flex;flex-wrap:wrap;gap:5px;width:100%}
+.dbsts .dbs{opacity:.45;font-size:12px}.dbsts .dbs.on{opacity:1;font-weight:800;outline:2px solid currentColor;outline-offset:1px}
+.dbrecs .go{width:100%;justify-content:center}.dbrecs small{display:block;margin-top:6px}
+/* 📥 가져오기 하나로 (2026-11-20) */
+.impall{display:flex;flex-direction:column;gap:10px}
+.impall button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 16px;height:auto;white-space:normal}
+.impall button b{font-size:16px}.impall button small{font-size:12.5px;font-weight:500;opacity:.9;line-height:1.45}
 
 </style>
 </head>
@@ -9670,6 +9697,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 37, d: '2026-11-20', ic: '📥', t: '가져오기 하나로', s: '엑셀 고객표 · 회사 보유계약 · 알마인드 · 연락처 · 보장분석 PDF · 카톡 알림톡을 따로 찾을 필요 없이 [📥 가져오기]에서 파일을 고르면 종류를 보고 알아서 넣습니다. 회사 DB 북마크 글은 같은 창의 [📋 붙여넣기].', w: '고객 탭 ＋ 추가 → 맨 위 📥 가져오기' },
+    { id: 36, d: '2026-11-20', ic: '↕', t: '표 머리글 누르면 정렬', s: '고객 표에서 마지막 연락 · 배분일 · 등록일 · AS 마감 · 나이 같은 머리글을 누르면 최근 순으로, 한 번 더 누르면 오래된 순으로 바뀝니다. 고른 정렬은 기억됩니다.', w: '고객 탭 👁 보기 → 👥 채널별 고객관리 / 📋 AFG DB 고객' },
+    { id: 35, d: '2026-11-20', ic: '🗂️', t: 'AFG DB 고객 화면 — 회사 DB 사이트처럼', s: 'DB 고객 이름을 누르면 맨 위에 회사 DB 사이트와 같은 고객 정보(연락처·통화하기·나이·성별·결혼·특이사항·배분일시·등록일시·지역)와 담당자 정보(인수상태·AS 마감·업체승인), 🎧 녹취 듣기가 나옵니다.', w: 'AFG DB 고객 이름 누르기' },
     { id: 34, d: '2026-11-20', ic: '⚠', t: '계약 · 실효 관리 한 곳에', s: '회사 보유계약 엑셀을 넣으면 고객 화면 \'계약 현황\'에 보험사 · 상품명 · 증권번호 · 계약일(계약월) · 월 보험료 · 마지막 수금일이 바로 보이고, 두 달째 안 낸 계약은 ⚠ 실효 위험(언제까지 내야 하는지 · D-day), 유예가 지난 계약은 ⛔ 실효 의심으로 알려 줍니다. 첫 화면에도 실효 위험 건수가 뜹니다.', w: '☰ 메뉴 → 영업 → 📑 계약 · 실효 · 증권 전달 → 📥 새 리스트 넣기 · 고객 화면 → 계약 현황' },
     { id: 33, d: '2026-11-20', ic: '📮', t: 'DB 신청 · 신청현황', s: 'DB 북마크를 누를 때 DB 신청하기(당월·익월 디비 수량)와 신청현황(자동배분 기록) 표도 같이 담아 AOB9에서 회사 사이트처럼 봅니다.', w: '고객 탭 👁 보기 → 📮 DB 신청 · 신청현황 (DB 북마크로 한 번 더 담은 뒤)' },
     { id: 32, d: '2026-11-20', ic: '🎧', t: 'DB 고객 녹취 바로 듣기', s: 'AFG DB 고객 표와 고객 이름 옆의 🎧 단추를 누르면 회사 DB 사이트의 그 고객 화면이 열려 녹취를 바로 들을 수 있습니다(숫자 = 녹취 개수). DB 북마크로 한 번 더 담으면 단추가 생깁니다.', w: '고객 탭 👁 보기 → 📋 AFG DB 고객 → 🎧 / 고객 화면 이름 옆 🎧 녹취' },
@@ -10360,7 +10390,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function renderCard(){
     var c = S.cur, n = nextDue(c), ph = normPhone(c.phone);
-    var h = '<section class="ccard">' +
+    var h = dbSheet(c) + '<section class="ccard">' +
       '<div class="cc-stage" role="group" aria-label="진행현황">' + STAGES.map(function(s){ return '<button type="button" data-stage="' + s[0] + '" aria-pressed="' + ((c.stage === 'db' ? 'lead' : c.stage || 'lead') === s[0]) + '">' + s[1] + '</button>'; }).join('') + '</div>' +
       '<div class="cc-info">' +
         (ph ? '<span class="cc-ph"><b>' + phoneTxt(ph) + '</b>' + '' + '<button type="button" class="pb" data-copyph="' + ph + '">복사</button></span>' : '<button type="button" class="lnk2" data-act="edit">휴대폰 번호 넣기</button>') +
@@ -10688,7 +10718,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-bigf]'); if (t) { S.big = t.dataset.bigf; S.ch = ''; renderList(); if (S.view === 'chan') showChan('all'); return; }
     t = e.target.closest('[data-chf]'); if (t) { S.ch = t.dataset.chf === 'all' ? '' : t.dataset.chf; renderList(); if (S.view === 'chan') showChan(S.ch || 'all'); return; }
-    t = e.target.closest('[data-cm]'); if (t) { var a = t.dataset.cm; if (a === 'open') showChan(S.ch || 'all'); else if (a === 'tab') { S.ch = t.dataset.k === 'all' ? '' : t.dataset.k; renderList(); showChan(t.dataset.k); } else if (a === 'db') openDbImport(); else if (a === 'dbreq') showDbReq(); else if (a === 'bm') openExt('https://sicrics27-gif.github.io/mh-analyzer/bookmark.html'); else if (a === 'how') openDbHow(); else if (a === 'xlsx') openXlsxImport(); else if (a === 'emm') openEmmImport(); else if (a === 'tree') showTree(); else if (a === 'chk') openChkList(); return; }
+    t = e.target.closest('[data-cm]'); if (t) { var a = t.dataset.cm; if (a === 'open') showChan(S.ch || 'all'); else if (a === 'tab') { S.ch = t.dataset.k === 'all' ? '' : t.dataset.k; renderList(); showChan(t.dataset.k); } else if (a === 'db') openDbImport(); else if (a === 'dbreq') showDbReq(); else if (a === 'bm') openExt('https://sicrics27-gif.github.io/mh-analyzer/bookmark.html'); else if (a === 'how') openDbHow(); else if (a === 'all') openImportAll(); else if (a === 'xlsx') openXlsxImport(); else if (a === 'emm') openEmmImport(); else if (a === 'tree') showTree(); else if (a === 'chk') openChkList(); return; }
   });
   document.addEventListener('change', function(e){ var t = e.target.closest('[data-chpick]'); if (!t) return; var v = t.value; S.ch = v === 'all' ? '' : v; renderList(); showChan(v); });
   document.addEventListener('change', async function(e){
@@ -10724,7 +10754,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       '<div class="bkpi chk">' + [['고객', rows.length], ['가망', stg.lead || 0], ['상담 중', stg.consult || 0], ['계약', stg.contract || 0], ['관리', stg.care || 0], ['이번 달 신규', nNew], ['할 일', nTodo], ['30일+ 미연락', nQuiet]].map(function(x){ return '<div><small>' + x[0] + '</small><b>' + x[1] + '</b></div>'; }).join('') + '</div>';
     var nChk = S.list.filter(function(c){ return c.chk; }).length;
     if (nChk) h += '<div class="gapban a">' + IC.warn + '<span>같은 이름이 두 번 있어 <b>동일인인지 확인</b>이 필요한 고객 ' + nChk + '명</span><button class="pb" type="button" data-cm="chk">확인 목록</button></div>';
-    if (k === 'all') h += '<div class="dbbar"><div><b>엑셀로 고객 한꺼번에 가져오기</b><small>정리해 둔 고객표(.xlsx)를 골라 영업·사업, 가족·지인·친구·DB, 소개자까지 한 번에 등록합니다. 파일은 이 기기 안에서만 읽습니다.</small></div><button class="go" type="button" data-cm="xlsx">📥 엑셀 가져오기</button><button class="go" type="button" data-cm="emm">🧠 알마인드 가져오기</button><button class="btn" type="button" data-cm="tree">🌳 영업 트리</button></div>';
+    if (k === 'all') h += '<div class="dbbar"><div><b>고객 한꺼번에 가져오기</b><small>엑셀 고객표 · 알마인드 · 회사 보유계약 · 연락처 · 보장분석 PDF · 회사 DB 글 — 무엇이든 [📥 가져오기] 하나로 넣으면 알아서 나눠 넣습니다. 파일은 이 기기 안에서만 읽습니다.</small></div><button class="go" type="button" data-cm="all">📥 가져오기</button><button class="btn" type="button" data-cm="tree">🌳 영업 트리</button></div>';
     if (k === 'db') h += '<div class="dbbar"><button class="btn" type="button" data-cm="dbreq">📮 DB 신청 · 신청현황</button></div>';
     if (k === 'db') h += '<div class="dbbar"><div><b>회사 DB 고객 가져오기</b><small>DB 사이트 아무 리스트 화면에서 "AOB로 복사" 북마크를 한 번 누르면 모든 리스트 고객이 담깁니다 → 여기서 붙여넣기.</small></div><button class="go" type="button" data-cm="db">DB 고객 가져오기</button><button class="btn" type="button" data-cm="bm">북마크 만들기 페이지</button><button class="btn" type="button" data-cm="how">사용법</button></div>';
     if (k === 'none' && rows.length) h += '<div class="gapban a">' + IC.warn + '<span>오른쪽 <b>영업 채널</b> 칸에서 고르면 바로 그 채널로 옮겨집니다. 계약을 마친 고객은 진행현황를 <b>계약</b>이나 <b>관리</b>로 두면 자동으로 보유고객에 들어갑니다.</span></div>';
@@ -10736,23 +10766,70 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     };
     if (k === 'db') { $('main').innerHTML = h + dbTable(rows); window.scrollTo(0, 0); return; }
     rows.sort(function(a, b){ var x = nextDue(a), y = nextDue(b); x = x == null ? 1e9 : x; y = y == null ? 1e9 : y; return x - y || (b.updated || 0) - (a.updated || 0); });
-    h += '<div class="tw"><table class="t ctt chtt"><thead><tr><th>고객</th><th>단계</th>' + extraHead + '<th>마지막 연락</th><th>다음 할 일</th><th>영업 채널</th><th></th></tr></thead><tbody>' +
+    tsSort(rows, 'chan');
+    var TH = function(key, label){ return tsTh('chan', key, label); };
+    extraHead = k === 'db' ? TH('dbst', '인수상태') + TH('dist', '배분일') + TH('asdue', 'AS 마감') : k === 'mine' ? TH('nC', '보유 계약') + TH('prem', '월 보험료') + TH('ann', '응당일') : TH('area', '지역') + '<th>만남</th>';
+    h += '<div class="tw"><table class="t ctt chtt"><thead><tr>' + TH('name', '고객') + TH('stage', '단계') + extraHead + TH('last', '마지막 연락') + TH('next', '다음 할 일') + TH('reg', '등록일') + '<th>영업 채널</th><th></th></tr></thead><tbody>' +
       (rows.length ? rows.map(function(c){ var ph = normPhone(c.phone), n = nextDue(c), L = lastOf(c);
         return '<tr><td><button type="button" class="ctn" data-ctopen="' + c.id + '"><b>' + esc(c.name) + (chOf(c) ? ' <em class="chn">(' + chTxt(chOf(c)) + ')</em>' : '') + '</b><small>' + (ph ? phoneTxt(ph) : (c.db && c.db.mask) || '번호 없음') + '</small></button></td><td><span class="stg2 s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '">' + stageTxt(c.stage) + '</span></td>' + extra(c) +
           '<td class="n">' + (L.any ? dot(L.any) + '<small>' + ago(L.any) + '</small>' : '<span class="note">—</span>') + '</td>' +
           '<td>' + (c.next && c.next.d ? '<span class="' + (n <= 0 ? 'due' : '') + '">' + dot(c.next.d) + '</span> <small class="note">' + esc(c.next.t || '') + '</small>' : '<span class="note">—</span>') + '</td>' +
+          '<td class="n">' + (tsVal(c, 'reg') ? dot(tsVal(c, 'reg')) : '<span class="note">—</span>') + '</td>' +
           '<td>' + (isBiz && bigOf(c) === 'biz' ? '<span class="note">사업</span>' : chSelect(c, c.id)) + '</td><td class="ctact">' + (ph ? (IS_MOBILE ? '<a class="pb" href="tel:' + ph + '" data-ctcall="' + c.id + '">전화</a>' : '') + '<button type="button" class="pb" data-msg="kakao" data-cid="' + c.id + '">카톡</button>' : '') + '</td></tr>'; }).join('')
-        : '<tr><td colspan="9" class="note" style="text-align:center;padding:20px">' + (isBiz ? '사업 쪽 사람이 아직 없습니다. 위의 <b>엑셀 가져오기</b>로 넣을 수 있습니다.' : k === 'db' ? '아직 DB 고객이 없습니다. 위의 <b>DB 고객 가져오기</b>로 시작하세요.' : '해당하는 고객이 없습니다.') + '</td></tr>') + '</tbody></table></div>';
+        : '<tr><td colspan="10" class="note" style="text-align:center;padding:20px">' + (isBiz ? '사업 쪽 사람이 아직 없습니다. 위의 <b>엑셀 가져오기</b>로 넣을 수 있습니다.' : k === 'db' ? '아직 DB 고객이 없습니다. 위의 <b>DB 고객 가져오기</b>로 시작하세요.' : '해당하는 고객이 없습니다.') + '</td></tr>') + '</tbody></table></div>';
     $('main').innerHTML = h; window.scrollTo(0, 0);
   }
   // 📋 AFG DB 고객을 회사 DB 사이트 목록처럼 (2026-11-19 대표님: "DB 고객 리스트를 우리 회사 DB 사이트처럼 볼 수 있게")
   // 번호(최근 배분이 위) · 지역 · 인수상태 · 업체승인 · 상태 바뀐 때 · AS 마감 · 배분일 · 등록일 · 고객명 · 연락처 · 나이 · 성별 · 결혼 · 다음 할 일 — 인수상태로 거르기
+  // ↕ 표 머리글 누르면 정렬 (2026-11-20 대표님: "마지막 연락 같은 걸 누르면 날짜 오름차순·내림차순") — 채널별 고객관리 표(chan) · AFG DB 표(db)
+  //   처음 누르면 날짜·숫자는 최근·큰 것 먼저, 글자는 가나다 · 한 번 더 누르면 반대로 · 빈 칸은 늘 맨 아래 · 기기에 기억(aob_ts)
+  var TS_DATE = { last: 1, next: 1, reg: 1, dist: 1, asdue: 1, stat: 1, dreg: 1, ann: 1 }, TS_NUM = { nC: 1, prem: 1, age: 1, rec: 1, stage: 1 };
+  var TS = (function(){ try { return JSON.parse(localStorage.getItem('aob_ts') || '{}') || {}; } catch(e){ return {}; } })();
+  function tsVal(c, k){
+    var d = c.db || {}, f = c.cvx || {};
+    switch (k) {
+      case 'name': return c.name || '';
+      case 'stage': return ({ db: 0, lead: 0, consult: 1, contract: 2, care: 3 })[c.stage || 'lead'];
+      case 'last': return lastOf(c).any || '';
+      case 'next': return (c.next && c.next.d) || '';
+      case 'reg': return c.created ? new Date(c.created - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) : '';
+      case 'dbst': return d.status || '';
+      case 'dist': return d.dist || '';
+      case 'dreg': return d.reg || '';
+      case 'asdue': return d.asDue || '';
+      case 'stat': return d.stAt || '';
+      case 'appr': return d.appr || '';
+      case 'married': return d.married || '';
+      case 'rec': return d.rec == null ? '' : +d.rec;
+      case 'area': return (meetOf(c).area || (c.meet && c.meet.area) || '');
+      case 'age': var a = c.birth ? ageOf(c.birth) : d.age; return a === '' || a == null ? '' : +a;
+      case 'sex': return c.sex === 'F' ? '여자' : c.sex === 'M' ? '남자' : '';
+      case 'nC': return f.nC == null ? '' : +f.nC;
+      case 'prem': return f.prem ? +f.prem : '';
+      case 'ann': var t = todayStr(), L = (f.ann || []).map(function(md){ return nextOf(md, t); }).sort(); return L[0] || '';
+    }
+    return '';
+  }
+  function tsSort(rows, tbl){
+    var s = TS[tbl]; if (!s || !s.k) return rows;
+    var dir = s.asc ? 1 : -1;
+    return rows.sort(function(a, b){ var x = tsVal(a, s.k), y = tsVal(b, s.k), ex = x === '' || x == null, ey = y === '' || y == null; if (ex || ey) return ex && ey ? 0 : ex ? 1 : -1;
+      return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'ko')) * dir; });
+  }
+  function tsTh(tbl, k, label){ var s = TS[tbl] || {}, on = s.k === k; return '<th class="tsh' + (on ? ' on' : '') + '" data-ts="' + tbl + ':' + k + '" role="button" tabindex="0" aria-sort="' + (on ? (s.asc ? 'ascending' : 'descending') : 'none') + '" title="누르면 정렬 · 한 번 더 누르면 반대로">' + label + '<i>' + (on ? (s.asc ? '▲' : '▼') : '↕') + '</i></th>'; }
+  function tsGo(el){ var p = el.dataset.ts.split(':'), tbl = p[0], k = p[1], s = TS[tbl] || {};
+    if (s.k === k) s.asc = !s.asc; else { s.k = k; s.asc = !(TS_DATE[k] || TS_NUM[k]); }   // 처음: 날짜·숫자는 최근·큰 것 먼저(내림차순), 글자는 가나다(오름차순)
+    TS[tbl] = s; try { localStorage.setItem('aob_ts', JSON.stringify(TS)); } catch(e){}
+    var y = window.scrollY, w = el.closest('.tw'), sx = w ? w.scrollLeft : 0; showChan(S.chTab || 'all'); window.scrollTo(0, y); var w2 = document.querySelector(tbl === 'db' ? '.dbtw' : '.chtt'); w2 = w2 && w2.closest('.tw'); if (w2) w2.scrollLeft = sx; }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('th[data-ts]'); if (t) tsGo(t); });
+  document.addEventListener('keydown', function(e){ if (e.key !== 'Enter' && e.key !== ' ') return; var t = e.target.closest && e.target.closest('th[data-ts]'); if (t) { e.preventDefault(); tsGo(t); } });
   var DBST_C = { '상담중': 'b', '상담완료': 'g', '청약완료': 'g', '전산완료': 'g', '부재': 'm', 'TA거절': 'r', '가입불가(AS신청)': 'o', 'AS재신청': 'o', 'AS승인': 'r' };
   function dbTable(rows){
     var t = todayStr(), st = S.dbSt || '', cnt = {};
     rows.forEach(function(c){ var s = (c.db && c.db.status) || '미확인'; cnt[s] = (cnt[s] || 0) + 1; });
     var list = rows.filter(function(c){ return !st || ((c.db && c.db.status) || '미확인') === st; });
     list.sort(function(a, b){ var x = (a.db && (a.db.dist || a.db.reg)) || '', y = (b.db && (b.db.dist || b.db.reg)) || ''; return y.localeCompare(x) || (b.created || 0) - (a.created || 0); });
+    tsSort(list, 'db');
     var sel = '<label class="chpick dbst"><small>인수상태</small><select data-dbst aria-label="인수상태로 거르기"><option value="">전체 ' + rows.length + '명</option>' + Object.keys(cnt).sort(function(a, b){ return cnt[b] - cnt[a]; }).map(function(s){ return '<option value="' + esc(s) + '"' + (s === st ? ' selected' : '') + '>' + esc(s) + ' ' + cnt[s] + '명</option>'; }).join('') + '</select></label>';
     var d8 = function(s){ return s ? esc(String(s).slice(0, 10)) : '<span class="note">—</span>'; };
     var body = list.map(function(c, i){
@@ -10766,11 +10843,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
         '<td class="n">' + d8(d.dist) + '</td><td class="n">' + d8(d.reg) + '</td>' +
         '<td><b>' + esc(c.name) + '</b></td><td class="n">' + (ph ? phoneTxt(ph) : esc(d.mask || '—')) + '</td>' +
         '<td class="n">' + (age || '') + '</td><td>' + (c.sex === 'F' ? '여자' : c.sex === 'M' ? '남자' : '') + '</td><td>' + esc(d.married || '-') + '</td><td>' + dbRecBtn(d) + '</td>' +
+        '<td class="n">' + (tsVal(c, 'last') ? dot(tsVal(c, 'last')) + '<small>' + ago(tsVal(c, 'last')) + '</small>' : '<span class="note">—</span>') + '</td>' +
         '<td>' + (c.next && c.next.d ? '<span class="' + (n <= 0 ? 'due' : '') + '">' + dot(c.next.d) + '</span> <small class="note">' + esc(c.next.t || '') + '</small>' : '') + '</td>' +
         '<td class="ctact">' + (ph ? (IS_MOBILE ? '<a class="pb" href="tel:' + ph + '" data-ctcall="' + c.id + '">전화</a>' : '') + '<button type="button" class="pb" data-msg="kakao" data-cid="' + c.id + '">카톡</button>' : '') + '</td></tr>';
     }).join('');
-    return sel + '<div class="tw dbtw"><table class="t dbt"><thead><tr><th>번호</th><th>지역</th><th>인수상태</th><th>업체승인</th><th>상태 바뀐 때</th><th>AS 마감</th><th>배분일</th><th>등록일</th><th>고객명</th><th>연락처</th><th>나이</th><th>성별</th><th>결혼</th><th>녹취</th><th>다음 할 일</th><th></th></tr></thead><tbody>' +
-      (body || '<tr><td colspan="16" class="note" style="text-align:center;padding:20px">' + (rows.length ? '이 인수상태의 고객이 없습니다.' : '아직 DB 고객이 없습니다. 위의 <b>DB 고객 가져오기</b>로 시작하세요.') + '</td></tr>') + '</tbody></table></div>' +
+    var TH = function(key, label){ return tsTh('db', key, label); };
+    return sel + '<div class="tw dbtw"><table class="t dbt"><thead><tr><th>번호</th>' + TH('area', '지역') + TH('dbst', '인수상태') + TH('appr', '업체승인') + TH('stat', '상태 바뀐 때') + TH('asdue', 'AS 마감') + TH('dist', '배분일') + TH('dreg', '등록일') + TH('name', '고객명') + '<th>연락처</th>' + TH('age', '나이') + TH('sex', '성별') + TH('married', '결혼') + TH('rec', '녹취') + TH('last', '마지막 연락') + TH('next', '다음 할 일') + '<th></th></tr></thead><tbody>' +
+      (body || '<tr><td colspan="17" class="note" style="text-align:center;padding:20px">' + (rows.length ? '이 인수상태의 고객이 없습니다.' : '아직 DB 고객이 없습니다. 위의 <b>DB 고객 가져오기</b>로 시작하세요.') + '</td></tr>') + '</tbody></table></div>' +
       '<p class="note">줄을 누르면 고객 화면이 열립니다 · 인수상태·업체승인은 마지막으로 가져온 때 기준입니다 (DB 사이트에서 북마크를 다시 누르면 새로 맞춰집니다).</p>';
   }
   // 📮 DB 신청하기 · 신청현황 (2026-11-20 대표님 요청): 북마크가 같이 담은 표를 숨김 문서 __dbreq 에 두고 회사 사이트처럼 보여 줌 (고객 정보 없음)
@@ -10801,6 +10880,32 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function dbRecUrl(d){ return d && /^\d{3,12}$/.test(d.id || '') ? DB_SITE + '/db/' + d.id + (d.menu && /^\d+$/.test(d.menu) ? '?menu=' + d.menu : '') : ''; }
   function dbRecBtn(d){ var u = dbRecUrl(d); if (!u) return ''; return '<button type="button" class="pb dbrec" data-dbrec="' + esc(u) + '" title="회사 DB 사이트에서 녹취 듣기">🎧' + (d.rec ? ' ' + d.rec : '') + '</button>'; }
   function dbRecChip(c){ var d = c.db || {}, u = dbRecUrl(d); if (!u) return ''; return '<button type="button" class="pchip dbrec" data-dbrec="' + esc(u) + '" title="회사 DB 사이트에서 녹취 듣기">🎧 녹취' + (d.rec ? ' ' + d.rec : '') + '</button>'; }
+  // 📋 AFG DB 고객 화면 = 회사 DB 사이트 상세 화면처럼 (2026-11-20 대표님: "DB 고객은 이름을 눌렀을 때 일반 고객과 다르게, 회사 DB 사이트처럼 · 밑에 녹취 들을 수 있게")
+  //   왼쪽 '고객 정보'(고객명 · 연락처+통화하기 · 생년월일/나이 · 성별 · 결혼여부 · 특이사항 · 배분일시 · 등록일시 · 지역) · 오른쪽 '담당자 정보'(인수상태 · AS 마감 · 업체승인 · 상태 바뀐 때) · 아래 🎧 녹취
+  //   값은 마지막으로 DB 북마크로 담은 때 기준(읽기 전용 · 인수상태 바꾸기는 회사 사이트에서) — 일반 고객 화면 기능(연락·상담·보장분석…)은 그 아래에 그대로
+  function dbSheet(c){
+    if (!c || c.sample || !c.db || !/^(db|dbk)$/.test(chOf(c))) return '';
+    var d = c.db, t = todayStr(), ph = normPhone(c.phone), age = c.birth ? ageOf(c.birth) : (d.age || ''), m = meetOf(c), area = String(m.area || (c.meet && c.meet.area) || '').trim().split(/\s+/);
+    var left = d.asDue ? dayDiff(t, d.asDue) : null, u = dbRecUrl(d), ST = (window.AfgDb && AfgDb.STATUS) || ['부재', 'TA거절', '상담중', '가입불가(AS신청)', 'AS재신청', '상담완료', '청약완료'];
+    var row = function(k, v){ return '<div class="dbr"><dt>' + k + '</dt><dd>' + v + '</dd></div>'; }, box = function(on, txt){ return '<span class="dbck' + (on ? ' on' : '') + '">' + (on ? '☑' : '☐') + ' ' + txt + '</span>'; }, nb = '<span class="note">—</span>';
+    var cust = '<section class="dbsh"><h5>👥 고객 정보</h5><dl>' +
+      row('고객명', '<b>' + esc(c.name) + '</b>') +
+      row('연락처', '<span class="n">' + (ph ? phoneTxt(ph) : esc(d.mask || '번호 없음')) + '</span>' + (ph ? '<a class="dbcall" href="tel:' + ph + '" data-ctcall="' + c.id + '">📞 통화하기</a>' : '')) +
+      row('나이', c.birth || d.age ? '<span class="n">' + (c.birth ? esc(c.birth.slice(0, 4) + '-' + c.birth.slice(4, 6) + '-' + c.birth.slice(6, 8)) + ' · ' : '') + esc(String(age)) + '세</span>' : nb) +
+      row('성별', box(c.sex === 'M', '남자') + box(c.sex === 'F', '여자')) +
+      row('결혼여부', box(d.married === '미혼', '미혼') + box(d.married === '기혼', '기혼')) +
+      row('특이사항', c.memo ? '<div class="dbmemo">' + esc(String(c.memo).slice(0, 600)) + '</div>' : nb) +
+      row('배분일시', d.dist ? '<span class="n">' + esc(String(d.dist).slice(0, 16)) + '</span>' : nb) +
+      row('등록일시', d.reg ? '<span class="n">' + esc(String(d.reg).slice(0, 16)) + '</span>' : nb) +
+      row('지역', area[0] ? '<span class="dbpill">' + esc(area[0]) + '</span>' + (area[1] ? '<span class="dbpill">' + esc(area.slice(1).join(' ')) + '</span>' : '') : nb) + '</dl></section>';
+    var mgr = '<section class="dbsh"><h5>👤 담당자 정보</h5><dl>' +
+      row('인수상태', '<div class="dbsts">' + ST.map(function(s){ return '<span class="dbs ' + (DBST_C[s] || '') + (d.status === s ? ' on' : '') + '">' + (d.status === s ? '☑ ' : '☐ ') + esc(s) + '</span>'; }).join('') + (d.status && ST.indexOf(d.status) < 0 ? '<span class="dbs on">☑ ' + esc(d.status) + '</span>' : '') + '</div>' + (d.stAt ? '<small class="note">바뀐 때 ' + esc(d.stAt) + '</small>' : '')) +
+      row('AS 신청', d.asDue ? '<span class="n' + (left != null && left >= 0 && left <= 7 ? ' due' : '') + '">마감 ' + esc(d.asDue) + (left != null && left >= 0 ? ' · D-' + left : left != null ? ' · 지남' : '') + '</span>' : nb) +
+      row('업체승인', d.appr ? '<b class="dba ' + (/승인/.test(d.appr) ? 'r' : 'b') + '">' + esc(d.appr) + '</b>' : nb) + '</dl>' +
+      '<p class="note">회사 DB 사이트에서 마지막으로 담은 때 기준입니다 · 인수상태는 회사 사이트에서 바꾸고 북마크로 다시 담으면 맞춰집니다.</p></section>';
+    var rec = '<section class="dbsh dbrecs"><h5>🎧 녹취</h5>' + (u ? '<button type="button" class="go dbrec" data-dbrec="' + esc(u) + '">🎧 녹취 듣기' + (d.rec != null ? ' (' + d.rec + '건)' : '') + '</button><small class="note">회사 DB 사이트의 이 고객 화면이 열립니다 — 녹음 파일은 회사 서버에만 있고 AOB9에는 저장하지 않습니다.</small>' : '<p class="note">녹취 단추가 아직 없습니다. 회사 DB 사이트 리스트 화면에서 "AOB로 복사" 북마크를 한 번 더 누르고 붙여넣으면 생깁니다.</p>') + '</section>';
+    return '<div class="dbsheet" aria-label="회사 DB 고객 정보">' + cust + '<div class="dbcol">' + mgr + rec + '</div></div>';
+  }
   document.addEventListener('click', function(e){ var t = e.target.closest('[data-dbrec]'); if (!t) return; e.preventDefault(); e.stopPropagation(); openExt(t.dataset.dbrec); }, true);
   document.addEventListener('change', function(e){ var t = e.target.closest('[data-dbst]'); if (!t) return; S.dbSt = t.value; showChan('db'); });
   function openDbHow(){
@@ -13509,9 +13614,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (ocrOn()) A.push(['add:cam', '📷 사진', '명함·메모 사진 글자 읽기']);
     if (pickContactsOk()) A.push(['add:pick', '📇 연락처에서 고르기', '휴대폰 연락처 · 고른 사람만']);
     A.push(['add:vcf', '📇 연락처 파일', '.vcf · 메모 .txt · SMemo .zip']);
+    // 2026-11-20 대표님: 가져오기를 하나로 — 📥 가져오기(파일 무엇이든 · 붙여넣기)가 맨 위, 종류별 항목은 그 아래 '종류를 골라서'(검색에도 그대로 나옴)
+    A.unshift(['add:all', '📥 가져오기', '엑셀 · 알마인드 · 보유계약 · 연락처 · 보장분석 PDF · 알림톡 · 회사 DB 글 — 무엇이든 알아서']);
     return [A, [['add:db', '🗂️ 회사 DB', 'AFG DB 사이트'], ['add:xlsx', '📊 엑셀', '고객표 .xlsx'], ['add:emm', '🧠 알마인드', '.emm 마인드맵'], ['add:cov', '🛡️ 보장분석', '메리츠·KB PDF 여러 명 한 번에'], ['add:pol', '📑 보유계약 엑셀', '회사 전산에서 내려받은 엑셀 넣기'], ['add:note', '📩 보험사 알림톡', '카톡 입금·체결 알림 → 증권번호·보험료를 계약 장부에'], ['add:reg', '🏢 보험사 고객등록', '보험사별 등록 현황']]];
   }
   function addGo(v){
+    if (v === 'add:all') { openImportAll(); return; }
     if (v === 'add:pol') { POL.pick(); return; }
     if (v === 'add:note') { POL.pickNote(); return; }
     if (v === 'add:intake') { openIntake(null); return; }
@@ -13528,7 +13636,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function openAddMenu(anchor){
     var D = addDefs(), it = function(x){ return qItem(x[0], x[1], false, x[2]); };
-    qpop(anchor, '<div class="qh">고객 추가</div>' + D[0].map(it).join('') + '<div class="qh">한꺼번에 가져오기</div>' + D[1].map(it).join(''), function(v){ qclose(); addGo(v); });
+    qpop(anchor, '<div class="qh">고객 추가</div>' + D[0].map(it).join('') + '<div class="qh">종류를 골라서 가져오기</div>' + D[1].map(it).join(''), function(v){ qclose(); addGo(v); });
   }
   function denseOn(v){ try { if (v != null) localStorage.setItem('aob_dense', v ? '1' : ''); return localStorage.getItem('aob_dense') === '1'; } catch(e){ return !!v; } }
   function denseApply(){ document.documentElement.classList.toggle('dense', denseOn()); }
@@ -13651,8 +13759,41 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 복사해 둔 글을 바로 읽어 등록 창으로 (못 읽으면 빈 붙여넣기 창)
   async function pasteFromClip(){
     var t = ''; try { t = (window.Native && Native.on) ? ((await natCall('clipRead')) || {}).text || '' : await navigator.clipboard.readText(); } catch(e){}
+    if (t && /\[AFG-DB\]/.test(t)) { openDbImport(); var ta = $('dbTxt'); if (ta) { ta.value = t; ta.dispatchEvent(new Event('input', { bubbles: true })); } return; }   // 회사 DB 북마크로 복사한 글 → DB 고객 가져오기 (2026-11-20 하나로 통합)
     if (t && POL.isNote(t)) { await POL.takeNote(t, { quiet: true, other: function(){ openPaste(cleanKakao(t)); } }); return; }   // 복사한 글이 보험사 알림톡이면 계약 장부로
     openPaste(t && (parsePeople(t).length || parseLoose(t).length) ? cleanKakao(t) : '');
+  }
+  // 📥 가져오기 하나로 (2026-11-20 대표님: "가져오기·알마인드·엑셀 이런 거 전부 통합해서 하나로 · 찾기 까다롭다")
+  //   파일은 무엇이든 고르면 종류를 보고 알아서: 알마인드 .emm → 마인드맵 · 엑셀 → 회사 보유계약이면 계약 장부, 아니면 고객표 · 연락처 .vcf · 일정 .ics ·
+  //   카톡 내보내기(알림톡) · 보장분석·병력 PDF/zip → 고객 찾아 넣기 (공유 → AOB9와 같은 길 sharedIn) / 붙여넣기는 회사 DB 북마크 글 · 알림톡 · 메모 · 카톡 글
+  function openImportAll(){
+    openDlg('<h4>📥 가져오기</h4><div class="form"><div class="impall">' +
+      '<button type="button" class="go" id="iaFile"><b>📂 파일 고르기</b><small>엑셀 고객표 · 회사 보유계약 엑셀 · 알마인드(.emm) · 연락처(.vcf) · 보장분석·병력 PDF · 카톡 알림톡 내보내기 — 무엇이든 고르면 알아서 나눠 넣습니다 (여러 개도 됨)</small></button>' +
+      '<button type="button" class="btn lg" id="iaPaste"><b>📋 붙여넣기</b><small>회사 DB 북마크로 복사한 글 · 보험사 알림톡 · 메모 · 카톡 글</small></button>' +
+      '</div><p class="note">회사 DB 고객은 DB 사이트에서 "AOB로 복사" 북마크를 누른 뒤 여기 [📋 붙여넣기]. <button type="button" class="lnk2" id="iaBm">북마크 만들기 페이지</button></p>' +
+      '<div class="safe">' + IC.lock + '<span>파일은 이 기기 안에서만 읽고, 잠금 비밀번호로 암호화해 저장합니다.</span></div></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="iaX" style="margin-left:auto">닫기</button></div>');
+    $('iaX').onclick = closeDlg;
+    $('iaPaste').onclick = function(){ closeDlg(); pasteFromClip(); };
+    $('iaBm').onclick = function(){ closeDlg(); openDbImport(); var b = $('dbPage'); if (b) b.click(); };
+    $('iaFile').onclick = function(){ closeDlg(); pickFiles('', true).then(importAny); };
+  }
+  async function importAny(fs){
+    fs = [].slice.call(fs || []); if (!fs.length) return;
+    var nm = function(f){ return f.name || ''; };
+    var emm = fs.filter(function(f){ return /\.emm$/i.test(nm(f)); });
+    if (emm.length) { openEmmImport(); $('emFile').onchange.call({ files: [emm[0]] }); return; }
+    var xl = fs.filter(function(f){ return POL.isSheetName(f) || /\.(xlsx|xls|csv)$/i.test(nm(f)); });
+    if (xl.length) {
+      var hit = false; try { hit = await POL.take(xl, true); } catch(e){}
+      if (!hit) { openXlsxImport(); $('xlFile').onchange.call({ files: [xl[0]] }); }
+      var rest = fs.filter(function(f){ return xl.indexOf(f) < 0; }); if (rest.length) { window.__sharedFiles = rest; setTimeout(sharedIn, 600); }
+      return;
+    }
+    // 확장자 없는 파일(카톡 내보내기를 드라이브에 저장한 '○○ 님과 카카오톡 대화' = 메일 모양) → 알림톡이면 계약 장부
+    var bare = fs.filter(function(f){ return !/\.[a-z0-9]{2,5}$/i.test(nm(f)) || /rfc822|message/i.test(f.type || ''); });
+    if (bare.length) { var nh = false; try { nh = await POL.noteFiles(bare, { quiet: true }); } catch(e){} if (nh) { fs = fs.filter(function(f){ return bare.indexOf(f) < 0; }); if (!fs.length) return; } }
+    window.__sharedFiles = fs; sharedIn();
   }
 
   // ↔ 고객 줄 옆으로 밀기 (휴대폰, 2026-11-04 · 11-10 나눔) → 오른쪽: 📞 전화 · 💬 문자 / 왼쪽: 📅 일정 · 📝 메모. 위아래 스크롤·누르면 열기는 그대로, ⋯·길게 누르기도 그대로
@@ -17685,7 +17826,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
-    'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
+    'add:all': '가져오기 불러오기 파일 업로드 넣기 엑셀 알마인드 마인드맵 보유계약 연락처 vcf 보장분석 PDF 알림톡 카톡 내보내기 DB 디비 북마크 붙여넣기 한꺼번에 통합', 'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:db': 'AFG DB 디비 회사 배분 인수상태 업체승인 AS 반려 DB 사이트 목록 리스트 녹취 듣기', 'v:dbreq': 'DB 신청 신청하기 신청현황 디비 수량 당월 익월 배분 자동배분','v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료 실효 실효관리 부활 수금', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
   function finderItems(){
     var D = sheetDefs(), L = [], add = function(id, ic, t, s, g, run, tab){ L.push({ id: id, ic: ic, t: t, s: s || '', g: g, kw: FIND_KW[id.replace(/^px:/, '')] || '', run: run, tab: tab }); };
@@ -20885,6 +21026,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="cc46d6549ac8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="a51d35cf2607";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
