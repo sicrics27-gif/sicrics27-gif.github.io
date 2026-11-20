@@ -10645,9 +10645,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function apptTime(t){ var h = +t.slice(0, 2), m = +t.slice(3, 5); return (h < 12 ? '오전 ' : '오후 ') + (h % 12 === 0 ? 12 : h % 12) + '시' + (m ? ' ' + m + '분' : ''); }
   function apptDay(d){ return (+d.slice(5, 7)) + '월 ' + (+d.slice(8, 10)) + '일 ' + WD[new Date(d + 'T12:00:00').getDay()] + '요일'; }
   function apptMsg(o){
-    var when = apptDay(o.d) + ' ' + apptTime(o.t), who = o.me || '담당자';
+    var when = apptDay(o.d) + ' ' + apptTime(o.t), who = String(o.me || '').trim();
     var visit = o.where === 'home' ? '고객님댁 방문예정' : o.where === 'office' ? '지점 방문 상담' : o.where === 'cafe' ? '카페에서 뵙겠습니다' : '';
-    return o.name + ' 고객님\n안녕하세요.\n방금 전화드린 담당자 ' + who + '입니다.\n\n-상담 예약 확정-\n상담일시 : ' + when + '\n상담장소 : ' + (o.place || '') + (visit ? '\n' + visit : '') +
+    return o.name + ' 고객님\n안녕하세요.\n방금 전화드린 담당자' + (who && who !== '담당자' ? ' ' + who : '') + '입니다.\n\n-상담 예약 확정-\n상담일시 : ' + when + '\n상담장소 : ' + [String(o.place || '').trim(), visit].filter(Boolean).join(' ') +
       '\n\n무료로 진행 해드리는 일정이라 정말 필요로 원하시는 고객님들이 상담을 못받으실 수 있어 일정 변동 있으시면 미리 연락 부탁드립니다.\n\n' + when + '에 뵙겠습니다. 감사합니다.';
   }
   async function openAppt(c, opt){
@@ -10658,8 +10658,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var d0 = g.d || (nx && nx.d) || addDay(todayStr(), 1), t0 = g.t ? g.t.slice(0, 2) + ':' + g.t.slice(2) : nxT ? nxT[1] + ':' + nxT[2] : '14:00';
     var area = String(g.region || (meetOf(c).area || (c.meet && c.meet.area) || '')).trim().split(/\s+/).pop().replace(/(특별시|광역시|시|군|구)$/, '') || '';
     var tag = g.tag || (/^db/.test(chOf(c)) ? 'DB' : c.ref ? '소개' : '');
-    var place0 = g.loc || (c.req && c.req.addr) || (nx && nx.place) || '';
-    var me0 = myId().name ? meLine() : '';
+    // 장소: 붙여 넣은 글 → 주소 → 특이사항 속 주소 → 다음 할 일 장소 → 지역(경남 남해군)  (2026-11-20 대표님: "지역은 왜 빼먹노")
+    var memoAddr = String(c.memo || '').split(/[\/\n·|]/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length >= 4 && s.length <= 60 && /(시|군|구|읍|면|동|리|로|길)\s*\d/.test(s) && !/보험료|만원|원$|\d{2,3}-\d{3,4}-\d{4}|010/.test(s); })[0] || '';
+    var areaFull = String(meetOf(c).area || (c.meet && c.meet.area) || (c.db && c.db.area) || '').trim();
+    if (memoAddr && areaFull) { var a1 = areaFull.split(/\s+/); if (memoAddr.indexOf(a1[a1.length - 1]) < 0 && memoAddr.indexOf(a1[0]) < 0) memoAddr = areaFull + ' ' + memoAddr; }
+    var place0 = g.loc || (c.req && c.req.addr) || memoAddr || (nx && nx.place) || areaFull || g.region || '';
+    var me0 = myId().name ? meLine() : (coName() || '');
     var st = { kind: g.kind && APPT_KIND.indexOf(g.kind) >= 0 ? g.kind : '1차상담', where: /카페/.test(place0) ? 'cafe' : 'home', edited: false };
     var chip = function(id, L, cur){ return '<div class="sexsel apch" id="' + id + '">' + L.map(function(x){ var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<button type="button" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + t + '</button>'; }).join('') + '</div>'; };
     openDlg('<h4>📅 ' + esc(c.name) + '님 상담 약속</h4><div class="form apform">' +
@@ -21227,6 +21231,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="315cfc948a39";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="a8bd20c3fbf1";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
