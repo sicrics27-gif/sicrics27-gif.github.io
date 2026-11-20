@@ -3674,6 +3674,44 @@ th.tsh:hover{background:var(--soft)}
 .impall{display:flex;flex-direction:column;gap:10px}
 .impall button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:14px 16px;height:auto;white-space:normal}
 .impall button b{font-size:16px}.impall button small{font-size:12.5px;font-weight:500;opacity:.9;line-height:1.45}
+/* 📚 MD 백과 다시 꾸미기 (2026-11-20 대표님 "가시성 · 보기 좋게 · 실무에 쓰기 편하게") — 색은 변수만 */
+.mdbbar{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 14px;gap:6px 16px}
+.mdbbar>b{font-size:15px;color:var(--ink)}
+.mdbbar .rgwarn{background:var(--amber-soft);color:var(--amber);border-radius:999px;padding:3px 10px;font-weight:700;font-size:12.5px}
+.mdbpull{margin-left:auto;background:var(--accent);color:var(--on-accent);border-color:transparent;font-weight:700}
+#mdbT{position:sticky;top:0;z-index:3;background:var(--bg);padding:8px 0;margin:4px 0 2px;display:flex;flex-wrap:wrap;gap:6px}
+#mdbT button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+#mdbT button b{color:var(--mute);font-weight:700;margin-left:2px}
+#mdbT button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}#mdbT button[aria-pressed="true"] b{color:var(--on-accent);opacity:.85}
+#mdbT button.dim{opacity:.45}
+.mdbsec{margin:20px 0 10px;font-size:15.5px;color:var(--ink);display:flex;align-items:center;gap:6px}
+.mdbsec::after{content:'';flex:1;height:1px;background:var(--line)}
+.mdglance .tw{border:1px solid var(--line);border-radius:14px;overflow:auto;background:var(--paper)}
+table.mdgt{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+table.mdgt th{background:var(--soft);color:var(--ink2);font-weight:700;text-align:left;padding:9px 10px;white-space:nowrap}
+table.mdgt td{padding:9px 10px;border-top:1px solid var(--line);color:var(--ink);vertical-align:top;line-height:1.45}
+table.mdgt td:first-child{font-weight:700;min-width:150px}
+table.mdgt tr:hover td{background:var(--soft)}
+.mdl{grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.mdc{border-radius:14px;padding:14px 16px;gap:10px;box-shadow:var(--sh1,none)}
+.mdc-h b{font-size:15.5px;color:var(--ink);line-height:1.35}
+.mdins{font-size:12px;font-weight:800;border-radius:6px;padding:3px 9px}
+.mdins.l{background:var(--accent-soft);color:var(--accent)}.mdins.s{background:var(--green-soft);color:var(--green)}
+.mdbest{border-left:4px solid var(--gold,#C9A96A)}
+.mdwhy{margin:0;font-size:14px;line-height:1.6;color:var(--ink);white-space:normal}
+.mdnum{color:var(--accent);font-weight:800}
+.mdbk{font-size:12px;font-weight:800;border-radius:6px;padding:3px 9px}
+.mdbk.cheap{background:var(--green-soft);color:var(--green)}.mdbk.limit{background:var(--accent-soft);color:var(--accent)}.mdbk.etc{background:var(--soft);color:var(--ink2)}
+.mdbrk.cheap{border-top:3px solid var(--green)}.mdbrk.limit{border-top:3px solid var(--accent)}
+ol.mdrk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+ol.mdrk li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--ink2);padding:5px 8px;border-radius:8px}
+ol.mdrk li.top{background:var(--soft);color:var(--ink)}
+ol.mdrk li i{font-style:normal;min-width:22px;text-align:center;font-weight:800;color:var(--mute)}
+ul.mdpts{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(--ink)}
+.mdbsrc{font-size:11.5px;color:var(--mute);border-top:1px dashed var(--line);padding-top:6px;margin-top:auto}
+.mdbntw{margin:18px 0;border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:10px 14px}
+.mdbntw summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.mdbcov{margin:26px 0 4px;font-size:17px;color:var(--ink)}
 
 </style>
 </head>
@@ -9697,6 +9735,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 38, d: '2026-11-20', ic: '📚', t: 'MD 백과 — 팀원도 최신 자료 · 보기 좋게', s: '이제 팀원도 [↻ 최신 자료 받기]로 회사가 정리한 이번 달 MD’s Spec을 바로 받습니다(6시간마다 자동). 맨 위 \'⚡ 한눈에\' 표에서 기준마다 1·2·3위를 보고, 추천·순위 카드는 금액이 강조되고 메달로 순위가 보입니다.', w: '☰ 메뉴 → 상품 · 자료 → 📚 MD 백과' },
     { id: 37, d: '2026-11-20', ic: '📥', t: '가져오기 하나로', s: '엑셀 고객표 · 회사 보유계약 · 알마인드 · 연락처 · 보장분석 PDF · 카톡 알림톡을 따로 찾을 필요 없이 [📥 가져오기]에서 파일을 고르면 종류를 보고 알아서 넣습니다. 회사 DB 북마크 글은 같은 창의 [📋 붙여넣기].', w: '고객 탭 ＋ 추가 → 맨 위 📥 가져오기' },
     { id: 36, d: '2026-11-20', ic: '↕', t: '표 머리글 누르면 정렬', s: '고객 표에서 마지막 연락 · 배분일 · 등록일 · AS 마감 · 나이 같은 머리글을 누르면 최근 순으로, 한 번 더 누르면 오래된 순으로 바뀝니다. 고른 정렬은 기억됩니다.', w: '고객 탭 👁 보기 → 👥 채널별 고객관리 / 📋 AFG DB 고객' },
     { id: 35, d: '2026-11-20', ic: '🗂️', t: 'AFG DB 고객 화면 — 회사 DB 사이트처럼', s: 'DB 고객 이름을 누르면 맨 위에 회사 DB 사이트와 같은 고객 정보(연락처·통화하기·나이·성별·결혼·특이사항·배분일시·등록일시·지역)와 담당자 정보(인수상태·AS 마감·업체승인), 🎧 녹취 듣기가 나옵니다.', w: 'AFG DB 고객 이름 누르기' },
@@ -14213,8 +14252,24 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   var DSX = { ref: null, pulling: null, focus: '' };
   async function dsRefLoad(){ if (!DSX.ref) DSX.ref = await hidLoad('__afgref', {}); return DSX.ref; }
   // NHC에서 틀·MD 백과 받기 (관리자 기기 · NHC 연결돼 있을 때만, 6시간에 한 번 · force면 바로)
+  // 📚 MD 백과는 팀원도 받는다 (2026-11-20 대표님 "팀원들도 자료 최신화"): 회사 중계소가 입장 코드를 확인하고 사내 교육자료(고객 정보 없음)만 내준다
+  async function mdRelay(){
+    var l = window.Access && Access.lic && Access.lic(); if (!l || !l.c || !l.e || !JV_URL) throw new Error('입장 코드가 있어야 최신 자료를 받을 수 있습니다');
+    var r; try { r = await fetch(JV_URL + '/v1/aob/md', { method: 'POST', body: JSON.stringify({ c: l.c, e: l.e }), credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' }); } catch(e){ throw new Error('회사 연결에 닿지 못했습니다 · 인터넷을 확인해 주세요'); }
+    if (r.status === 404) throw new Error('회사에 아직 올라온 MD 백과가 없습니다');
+    if (!r.ok) throw new Error(r.status === 403 ? '이 기기의 입장 코드가 사용 중으로 확인되지 않습니다' : '회사 연결이 잠시 안 됩니다 (' + r.status + ')');
+    var j = await r.json(); if (!j || !j.encyclopedia) throw new Error('받은 자료 모양이 맞지 않습니다'); return j;
+  }
+  async function mdRelayPull(ref, force){
+    if (!force && ref.specAt && Date.now() - ref.specAt < 6 * 3600e3) return ref;
+    try { var sp = await mdRelay(); if (!ref.spec || String(sp.month || '') >= String(ref.spec.month || '') || force) { ref.spec = sp; } ref.specAt = Date.now(); await hidSave('__afgref', '__afgref', ref); if (force) toast('MD 백과 ' + mdbMonth(sp) + ' 자료를 받았습니다'); }
+    catch(e){ if (force) toast(e.message || String(e)); }
+    return ref;
+  }
   async function dsRefPull(force){
-    var ref = await dsRefLoad(); if (!ROLE.admin) return ref;
+    var ref = await dsRefLoad();
+    if (!ROLE.admin) return mdRelayPull(ref, force);
+    if (!(await nhcLoad() || {}).token) return mdRelayPull(ref, force);   // 관리자라도 본사 연결이 없는 기기는 회사 연결로
     if (!force && ref.at && Date.now() - ref.at < 6 * 3600e3) return ref;
     if (DSX.pulling) return DSX.pulling;
     DSX.pulling = (async function(){
@@ -15076,19 +15131,24 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   var Q_ALIAS = { '케이비': 'kb', '디비': 'db', '엠지': 'mg', '에이비엘': 'abl', '에이아이에이': 'aia', '엔에이치': '농협', 'nh': '농협', '현대': '현대', '삼성': '삼성', '메트': '메트라이프', '처브': '처브', '동부': 'db', '푸르덴셜': 'kb', '오렌지': '신한', '라이나': '라이나', '흥국': '흥국', '치료': '치료', '수술': '수술', '진단': '진단', '입원': '입원' };
   function qToks(q){ return String(q || '').toLowerCase().split(/[\s,·]+/).filter(Boolean).map(function(t){ return Q_ALIAS[t] || t; }); }
   function qHit(text, toks){ if (!toks || !toks.length) return true; var t = String(text || '').toLowerCase().replace(/\s+/g, ''); return toks.every(function(k){ return t.indexOf(k.replace(/\s+/g, '')) >= 0; }); }
+  function mdNum(s){ return esc(s).replace(/(\d[\d,]*(?:\.\d+)?\s*(?:억\s*원|억|천만\s*원|천만|백만\s*원|만\s*원|만|천\s*원|원|%|세|년|회|배))/g, '<b class="mdnum">$1</b>'); }   // 금액·비율 강조
   function mdbEntryHtml(E, q){
     var toks = Array.isArray(q) ? q : qToks(q), has = function(o){ return !toks.length || qHit(E.coverage + ' ' + JSON.stringify(o), toks); };
     var best = (E.best || []).filter(has), rk = (E.rankings || []).filter(has), hi = (E.highlights || []).filter(has), nt = toks.length ? [] : (E.notes || []);
     if (!best.length && !rk.length && !hi.length && !nt.length) return '';
     var h = '';
+    // 2026-11-20 대표님 "가시성이 별로 · 보기 좋게 · 실무에 쓰기 편하게": 맨 위 '한눈에'(기준마다 1·2·3위) → 추천 카드 → 순위 카드(메달·금액 강조) → 특징 → 주의
     var cheap = rk.filter(function(x){ return mdbKind(x.criterion) === 'cheap'; }), limit = rk.filter(function(x){ return mdbKind(x.criterion) === 'limit'; }), other = rk.filter(function(x){ return !mdbKind(x.criterion); });
-    var rkH = function(x){ var kd = mdbKind(x.criterion); return '<article class="mdc mdbrk"><div class="mdc-h">' + (kd ? '<span class="mdbk ' + kd + '">' + (kd === 'cheap' ? '💰 싼 곳' : '📈 한도 높은 곳') + '</span>' : '<span class="mdcat">순위</span>') + '<b>' + esc(x.criterion) + '</b></div><ol>' + (x.order || []).map(function(o){ return '<li>' + esc(o) + '</li>'; }).join('') + '</ol><span class="mdbsrc">' + esc([x.section, mdbSrc(x.doc, x.pages)].filter(Boolean).join(' · ')) + '</span></article>'; };
-    if (best.length) h += '<h5 class="mdbsec">🏆 추천 (어디가 좋은지)</h5><div class="mdl">' + best.map(function(x){ return '<article class="mdc"><div class="mdc-h"><span class="mdcat">' + esc(x.insurer || '') + '</span><b>' + esc(x.product || '') + '</b></div>' + (x.why ? '<p><small>이유</small>' + esc(x.why) + '</p>' : '') + '<span class="mdbsrc">' + esc(mdbSrc(x.doc, x.page)) + '</span></article>'; }).join('') + '</div>';
+    var ins = function(n){ n = String(n || ''); return n ? '<span class="mdins ' + (/생명|라이프|생보/.test(n) ? 'l' : 's') + '">' + esc(n) + '</span>' : ''; };
+    var MED = ['🥇', '🥈', '🥉'];
+    var rkH = function(x){ var kd = mdbKind(x.criterion); return '<article class="mdc mdbrk ' + (kd || 'etc') + '"><div class="mdc-h">' + (kd ? '<span class="mdbk ' + kd + '">' + (kd === 'cheap' ? '💰 싼 곳' : '📈 한도 높은 곳') + '</span>' : '<span class="mdbk etc">📊 순위</span>') + '<b>' + esc(x.criterion) + '</b></div><ol class="mdrk">' + (x.order || []).map(function(o, i){ return '<li class="' + (i < 3 ? 'top' : '') + '"><i>' + (MED[i] || (i + 1)) + '</i><span>' + mdNum(o) + '</span></li>'; }).join('') + '</ol><span class="mdbsrc">' + esc([x.section, mdbSrc(x.doc, x.pages)].filter(Boolean).join(' · ')) + '</span></article>'; };
+    if (rk.length && !toks.length) h += '<div class="mdglance"><h5 class="mdbsec">⚡ 한눈에 — 기준마다 1·2·3위</h5><div class="tw"><table class="t mdgt"><thead><tr><th>기준</th><th>🥇 1위</th><th>🥈 2위</th><th>🥉 3위</th></tr></thead><tbody>' + limit.concat(cheap, other).slice(0, 12).map(function(x){ var kd = mdbKind(x.criterion), o = x.order || []; return '<tr><td><span class="mdbk ' + (kd || 'etc') + '">' + (kd === 'cheap' ? '💰' : kd === 'limit' ? '📈' : '📊') + '</span> ' + esc(x.criterion) + '</td>' + [0, 1, 2].map(function(i){ return '<td>' + (o[i] ? mdNum(o[i]) : '<span class="note">—</span>') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div></div>';
+    if (best.length) h += '<h5 class="mdbsec">🏆 추천 (어디가 좋은지)</h5><div class="mdl">' + best.map(function(x){ return '<article class="mdc mdbest"><div class="mdc-h">' + ins(x.insurer) + '<b>' + esc(x.product || '') + '</b></div>' + (x.why ? '<p class="mdwhy">' + mdNum(x.why) + '</p>' : '') + '<span class="mdbsrc">' + esc(mdbSrc(x.doc, x.page)) + '</span></article>'; }).join('') + '</div>';
     if (limit.length) h += '<h5 class="mdbsec">📈 한도 높은 곳</h5><div class="mdl">' + limit.map(rkH).join('') + '</div>';
     if (cheap.length) h += '<h5 class="mdbsec">💰 싼 곳 (같은 조건 보험료)</h5><div class="mdl">' + cheap.map(rkH).join('') + '</div>';
     if (other.length) h += '<h5 class="mdbsec">📊 그 밖의 순위</h5><div class="mdl">' + other.map(rkH).join('') + '</div>';
-    if (hi.length) h += '<h5 class="mdbsec">✨ 보험사·상품별 특징</h5><div class="mdl">' + hi.map(function(x){ return '<article class="mdc"><div class="mdc-h"><span class="mdcat">' + esc(x.insurer || '') + '</span><b>' + esc(x.product || '') + '</b></div><p>' + (x.points || []).map(function(p){ return '· ' + esc(p); }).join('\n') + '</p><span class="mdbsrc">' + esc([x.section, x.doc ? '자료: ' + x.doc : ''].filter(Boolean).join(' · ')) + '</span></article>'; }).join('') + '</div>';
-    if (nt.length) h += '<h5 class="mdbsec">📝 조건 · 주의</h5><ul class="mdbnt">' + nt.map(function(n){ return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>';
+    if (hi.length) h += '<h5 class="mdbsec">✨ 보험사·상품별 특징</h5><div class="mdl">' + hi.map(function(x){ return '<article class="mdc"><div class="mdc-h">' + ins(x.insurer) + '<b>' + esc(x.product || '') + '</b></div><ul class="mdpts">' + (x.points || []).map(function(p){ return '<li>' + mdNum(p) + '</li>'; }).join('') + '</ul><span class="mdbsrc">' + esc([x.section, x.doc ? '자료: ' + x.doc : ''].filter(Boolean).join(' · ')) + '</span></article>'; }).join('') + '</div>';
+    if (nt.length) h += '<details class="mdbntw"><summary>📝 조건 · 주의 ' + nt.length + '개</summary><ul class="mdbnt">' + nt.map(function(n){ return '<li>' + esc(n) + '</li>'; }).join('') + '</ul></details>';
     return h;
   }
   async function showMdb(cov){
@@ -15097,8 +15157,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var head = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="📚">MD 백과</h2><span class="cmeta">담보별로 어디가 한도 높고 어디가 싼지 — AFG MD’s Spec(사내 교육자료) 정리 · 매달 갱신</span></div><div class="mdbwarn">⚠ 사내 교육용 — 고객 배포·외부 게시 금지</div>';
     $('main').innerHTML = head + '<p class="note">불러오는 중…</p>'; window.scrollTo(0, 0);
     await dsRefPull(false); if (S.view !== 'mdb') return;
-    var spec = dsSpec(), pull = ROLE.admin ? '<button type="button" class="pb" id="mdbPull">새로 받기</button>' : '';
-    if (!spec) { $('main').innerHTML = head + '<div class="sgbox"><b>이번 달 자료 준비 중</b><p class="note">NHC 본사에서 이번 달 AFG MD’s Spec을 정리하면 여기에 담보별 추천이 나옵니다.' + (ROLE.admin ? '' : ' (자료는 관리자 기기에서 받아 옵니다)') + '</p>' + pull + '</div>'; if ($('mdbPull')) $('mdbPull').onclick = async function(){ this.disabled = true; await dsRefPull(true); showMdb(); }; return; }
+    var spec = dsSpec(), pull = '<button type="button" class="pb mdbpull" id="mdbPull">↻ 최신 자료 받기</button>';   // 2026-11-20: 팀원도 누를 수 있게
+    if (!spec) { $('main').innerHTML = head + '<div class="sgbox"><b>아직 받은 자료가 없습니다</b><p class="note">[↻ 최신 자료 받기]를 누르면 회사가 정리한 이번 달 AFG MD’s Spec을 받아 담보별 추천을 보여 드립니다.</p>' + pull + '</div>'; if ($('mdbPull')) $('mdbPull').onclick = async function(){ this.disabled = true; await dsRefPull(true); showMdb(); }; return; }
     var names = MDB_TOC.map(function(x){ return x[1]; }), toc = MDB_TOC.concat((spec.encyclopedia || []).filter(function(e){ return names.indexOf(e.coverage) < 0; }).map(function(e){ return [e.coverage, e.coverage]; }));
     var cnt = function(n){ var E = mdbEntry(spec, n); return E ? (E.best || []).length + (E.rankings || []).length : 0; };
     if (!MDB.cov || !toc.some(function(x){ return x[1] === MDB.cov; })) MDB.cov = (toc.find(function(x){ return cnt(x[1]); }) || toc[0])[1];
@@ -21026,6 +21086,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="a51d35cf2607";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="836135e599fd";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
