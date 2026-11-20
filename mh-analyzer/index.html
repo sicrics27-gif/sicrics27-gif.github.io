@@ -3723,6 +3723,33 @@ ul.mdpts{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(-
 .apdlg .mrow{flex-wrap:wrap;gap:8px}
 .apdlg .mrow #apGo{flex:1 1 100%;order:-1;justify-content:center;min-height:48px}
 .apdlg .mrow #apSave{flex:1 1 auto}.apdlg .mrow #apX{flex:0 0 auto}
+/* 🪪 내 명함 (2026-11-20) */
+.bcwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.bcpv{position:sticky;top:0}
+.bcpv img{width:100%;aspect-ratio:12/7;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.18);background:var(--paper);display:block}
+.bcform label{display:block;font-size:13px;color:var(--ink2);margin:6px 0}
+.bcform input:not([type=checkbox]){width:100%;box-sizing:border-box}
+.bcform .frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bcph{display:flex;gap:8px;flex-wrap:wrap}
+.bcnote{margin:4px 0 6px}
+.bclic{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;margin:8px 0;font-size:13px;color:var(--ink2)}
+.bclic span,.bcth span{font-weight:600;color:var(--ink)}
+.bclic label,.bcform label.chk{display:inline-flex;align-items:center;gap:5px;margin:0}
+.bcform label.chk{display:flex;flex-wrap:wrap;margin:8px 0}
+.bcth{display:flex;gap:10px;align-items:center;margin:10px 0 4px}
+.bct{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);padding:0;cursor:pointer}
+.bct[aria-pressed=true]{outline:3px solid var(--gold,#C9A96A);outline-offset:2px}
+.bcth .bct.navy{background:linear-gradient(135deg,#0E2341,#1F4170)}.bcth .bct.green{background:linear-gradient(135deg,#0F3A2E,#1F5C49)}.bcth .bct.wine{background:linear-gradient(135deg,#3A1424,#682A41)}
+.msgcard{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px}
+.msgcard .bcon{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.msgcard .bcon img{width:96px;aspect-ratio:12/7;border-radius:5px;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.msgcard .bcon span{display:flex;flex-direction:column;min-width:0}
+.msgcard .bcon small,.msgcard .bcnew small{color:var(--ink2);font-size:12px;font-weight:400}
+.msgcard .bcon input{width:20px;height:20px;flex:none}
+.msgcard .bcnew{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left}
+@media (max-width:720px){.bcwrap{grid-template-columns:1fr}.bcpv{position:static}}
+@media (max-width:520px){.msgcard .bcon{flex:1 1 100%}}
+.bcform input:not([type=checkbox]){height:40px;font-size:15px;padding:0 10px}
 
 </style>
 </head>
@@ -3756,7 +3783,7 @@ ul.mdpts{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(-
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -9455,6 +9482,147 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
 </script>
 <script>
+// 🪪 내 명함 (2026-11-20 대표님: "명함 첨부해서 문자 가게 · 팀원마다 따로 등록 · 다른 온라인 명함 조사해서 신뢰가 가게 · 얼굴도 나오게")
+// 그리는 것만 한다 (순수 함수 · 기기 안에서만). 저장·화면은 ui.js BC.
+// 신뢰를 주는 구성 (온라인 명함 서비스들이 공통으로 권하는 것 — 화면 배치·문구는 옮기지 않음):
+//   ① 얼굴 사진(이름과 얼굴을 같이 기억 · 금융 상담에서 특히) ② 소속(대리점·지점)을 또렷하게 ③ 깔끔한 한 화면 · 색 두 가지
+//   ④ 자격(생명·손해·제3보험 설계사 등록 · 등록번호) ⑤ 누구나 확인할 수 있는 곳(e-클린보험서비스 설계사 조회) — 보험 쪽에만 있는 신뢰 장치
+(function (root) {
+  var W = 1200, H = 700;
+  var TH = {
+    navy:  { band0: '#0E2341', band1: '#1F4170', acc: '#C9A96A', acc2: '#A8833F', ink: '#13233B', sub: '#5B6472', strip: '#F4F0E6', stripInk: '#4A4F57', paper: '#FFFFFF' },
+    green: { band0: '#0F3A2E', band1: '#1F5C49', acc: '#D8B76A', acc2: '#9C7A2E', ink: '#13281F', sub: '#56625C', strip: '#EEF3EE', stripInk: '#45514B', paper: '#FFFFFF' },
+    wine:  { band0: '#3A1424', band1: '#682A41', acc: '#E0B98A', acc2: '#A0703E', ink: '#2A1620', sub: '#665A60', strip: '#F5EEEC', stripInk: '#55494E', paper: '#FFFFFF' }
+  };
+  var FONT = '"IBM Plex Sans KR","Pretendard","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+  function tel(s) {
+    var d = String(s || '').replace(/\D/g, '');
+    if (/^01\d{8,9}$/.test(d)) return d.length === 11 ? d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7) : d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6);
+    if (/^02\d{7,8}$/.test(d)) return d.length === 10 ? '02-' + d.slice(2, 6) + '-' + d.slice(6) : '02-' + d.slice(2, 5) + '-' + d.slice(5);
+    if (/^0\d{9,10}$/.test(d)) return d.slice(0, 3) + '-' + d.slice(3, d.length - 4) + '-' + d.slice(-4);
+    return String(s || '').trim();
+  }
+  function lics(c) {
+    var L = c.lic || {}, a = [];
+    if (L.life) a.push('생명보험'); if (L.non) a.push('손해보험'); if (L.third) a.push('제3보험');
+    return a;
+  }
+  function fit(x, t, max, size, weight) {   // 글자가 길면 줄여서 한 줄에
+    var s = size; x.font = weight + ' ' + s + 'px ' + FONT;
+    while (s > 14 && x.measureText(t).width > max) { s -= 1; x.font = weight + ' ' + s + 'px ' + FONT; }
+    return s;
+  }
+  function wrap(x, t, max, lines) {
+    var out = [], cur = '';
+    String(t || '').split('').forEach(function (ch) { if (x.measureText(cur + ch).width > max && cur) { out.push(cur); cur = ch.trim() ? ch : ''; } else cur += ch; });
+    if (cur) out.push(cur);
+    if (out.length > lines) { out = out.slice(0, lines); out[lines - 1] = out[lines - 1].replace(/.$/, '…'); }
+    return out;
+  }
+  function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+  // 작은 그림 글자 (그림 문자 글꼴이 없는 기기에서도 같게 — 직접 그림)
+  function icon(x, k, cx, cy, col) {
+    x.save(); x.strokeStyle = col; x.fillStyle = col; x.lineWidth = 2.6; x.lineCap = 'round'; x.lineJoin = 'round';
+    if (k === 'tel') {
+      x.beginPath(); x.moveTo(cx - 8, cy - 10); x.quadraticCurveTo(cx - 12, cy + 2, cx - 2, cy + 9); x.quadraticCurveTo(cx + 6, cy + 13, cx + 10, cy + 8); x.stroke();
+      x.beginPath(); x.arc(cx - 8, cy - 9, 3.2, 0, 7); x.fill(); x.beginPath(); x.arc(cx + 9, cy + 8, 3.2, 0, 7); x.fill();
+    } else if (k === 'mail') {
+      rr(x, cx - 11, cy - 8, 22, 16, 2.5); x.stroke(); x.beginPath(); x.moveTo(cx - 10, cy - 6); x.lineTo(cx, cy + 2); x.lineTo(cx + 10, cy - 6); x.stroke();
+    } else if (k === 'chat') {
+      rr(x, cx - 11, cy - 9, 22, 15, 5); x.stroke(); x.beginPath(); x.moveTo(cx - 4, cy + 6); x.lineTo(cx - 7, cy + 11); x.lineTo(cx + 2, cy + 6); x.stroke();
+    } else if (k === 'pin') {
+      x.beginPath(); x.arc(cx, cy - 3, 8, Math.PI * 0.85, Math.PI * 2.15); x.lineTo(cx, cy + 11); x.closePath(); x.stroke(); x.beginPath(); x.arc(cx, cy - 3, 2.8, 0, 7); x.fill();
+    } else if (k === 'ok') {
+      x.lineWidth = 3; x.beginPath(); x.moveTo(cx - 6, cy); x.lineTo(cx - 1.5, cy + 5); x.lineTo(cx + 7, cy - 5); x.stroke();
+    }
+    x.restore();
+  }
+  function img(src) { return new Promise(function (res) { if (!src) return res(null); var i = new Image(); i.onload = function () { res(i); }; i.onerror = function () { res(null); }; i.src = src; }); }
+
+  async function draw(c, cv) {
+    c = c || {}; var T = TH[c.theme] || TH.navy;
+    cv = cv || document.createElement('canvas'); cv.width = W; cv.height = H;
+    var x = cv.getContext('2d');
+    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) { }
+    // 바탕
+    x.fillStyle = T.paper; x.fillRect(0, 0, W, H);
+    var BW = 430, g = x.createLinearGradient(0, 0, BW, H); g.addColorStop(0, T.band0); g.addColorStop(1, T.band1);
+    x.fillStyle = g; x.fillRect(0, 0, BW, H);
+    x.save(); x.globalAlpha = 0.06; x.strokeStyle = '#fff'; x.lineWidth = 2;   // 은은한 사선
+    for (var i = -H; i < BW; i += 26) { x.beginPath(); x.moveTo(i, H); x.lineTo(i + H, 0); x.stroke(); }
+    x.restore();
+    x.fillStyle = T.acc; x.fillRect(BW, 0, 6, H);
+    // 얼굴 (없으면 이름 첫 글자)
+    var cx = BW / 2, cy = 245, R = 128, ph = await img(c.photo);
+    x.save(); x.beginPath(); x.arc(cx, cy, R + 9, 0, 7); x.fillStyle = T.acc; x.fill(); x.restore();
+    x.save(); x.beginPath(); x.arc(cx, cy, R, 0, 7); x.closePath(); x.clip();
+    if (ph) { var s = Math.min(ph.width, ph.height), sx = (ph.width - s) / 2, sy = ph.height > ph.width ? (ph.height - s) * 0.22 : 0; x.drawImage(ph, sx, sy, s, s, cx - R, cy - R, R * 2, R * 2); }
+    else { x.fillStyle = T.band0; x.fillRect(cx - R, cy - R, R * 2, R * 2); x.fillStyle = '#fff'; x.font = '700 120px ' + FONT; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(c.name || '?').trim().charAt(0) || '?', cx, cy + 6); }
+    x.restore();
+    x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+    var org = String(c.org || '').trim(), ga = String(c.ga || '').trim();
+    if (org) { x.fillStyle = '#fff'; fit(x, org, BW - 60, 34, '700'); x.fillText(org, cx, 452); }
+    if (ga) { x.fillStyle = T.acc; fit(x, ga, BW - 60, 23, '500'); x.fillText(ga, cx, org ? 492 : 452); }
+    var L = lics(c);
+    if (L.length) {   // 왼쪽 아래 자격 배지
+      var bt = L.join(' · ') + ' 설계사'; x.font = '600 20px ' + FONT; var bw = Math.min(BW - 50, x.measureText(bt).width + 54), bx = cx - bw / 2, by = 596;
+      x.save(); rr(x, bx, by, bw, 44, 22); x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 1.6; x.stroke(); x.restore();
+      icon(x, 'ok', bx + 24, by + 22, T.acc); x.fillStyle = '#fff'; x.textAlign = 'left'; fit(x, bt, bw - 50, 20, '600'); x.fillText(bt, bx + 40, by + 29);
+    }
+    // 오른쪽
+    var X = BW + 62, MW = W - X - 56; x.textAlign = 'left';
+    var team = String(c.team || '').trim();
+    var nRows = [c.phone, c.email, c.kakao, c.addr].filter(Boolean).length, top = nRows <= 1 ? 172 : nRows === 2 ? 146 : 118;
+    if (team) { x.fillStyle = T.acc2; fit(x, team, MW, 26, '600'); x.fillText(team, X, top); }
+    var name = String(c.name || '이름').trim(), title = String(c.title || '').trim();
+    x.fillStyle = T.ink; var ns = fit(x, name, MW * 0.66, 78, '700'); x.fillText(name, X, top + 92);
+    var nw = x.measureText(name).width;
+    if (title) { x.fillStyle = T.sub; fit(x, title, MW - nw - 22, 36, '500'); x.fillText(title, X + nw + 20, top + 92); }
+    x.fillStyle = T.acc; x.fillRect(X, top + 118, 64, 5);
+    var rows = [];
+    if (c.phone) rows.push(['tel', tel(c.phone), 1]);
+    if (c.email) rows.push(['mail', String(c.email).trim()]);
+    if (c.kakao) rows.push(['chat', '카카오톡 ' + String(c.kakao).trim()]);
+    if (c.addr) rows.push(['pin', String(c.addr).trim()]);
+    var y = top + 182, step = rows.length > 3 ? 54 : 60;
+    rows.slice(0, 4).forEach(function (r) {
+      x.save(); x.beginPath(); x.arc(X + 20, y - 11, 20, 0, 7); x.fillStyle = T.band0; x.fill(); x.restore();
+      icon(x, r[0], X + 20, y - 11, '#fff');
+      x.fillStyle = T.ink; fit(x, r[1], MW - 56, r[2] ? 36 : 27, r[2] ? '700' : '500'); x.fillText(r[1], X + 56, y);
+      y += step;
+    });
+    var intro = String(c.intro || '').trim();
+    if (intro) {
+      x.fillStyle = T.sub; x.font = '500 25px ' + FONT;
+      var iy = y + 14, lines = wrap(x, '“' + intro + '”', MW, iy > 545 ? 1 : 2);
+      lines.forEach(function (l, k) { x.fillText(l, X, iy + k * 34); });
+    }
+    // 아래 띠: 누구나 확인할 수 있는 정보
+    var SY = 618; x.fillStyle = T.strip; x.fillRect(BW + 6, SY, W - BW - 6, H - SY);
+    var s1 = (L.length ? L.join('·') + ' 설계사 등록' : '보험 설계사') + (c.reg ? ' · 등록번호 ' + String(c.reg).trim() : '');
+    var s2 = c.clean === false ? '' : '설계사 이름으로 e-클린보험서비스(e-cleanins.or.kr)에서 조회할 수 있습니다';
+    icon(x, 'ok', X + 10, SY + (s2 ? 30 : 41), T.acc2);
+    x.fillStyle = T.stripInk; fit(x, s1, MW - 30, 22, '600'); x.fillText(s1, X + 30, SY + (s2 ? 38 : 49));
+    if (s2) { x.fillStyle = T.sub; fit(x, s2, MW - 30, 18, '500'); x.fillText(s2, X + 30, SY + 66); }
+    return cv;
+  }
+  function blob(c) { return draw(c).then(function (cv) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/png'); }); }); }
+  function url(c) { return draw(c).then(function (cv) { return cv.toDataURL('image/png'); }); }
+  // 사진: 정사각으로 잘라 480px JPG (얼굴은 보통 위쪽이라 세로 사진은 위에서 22% 지점 기준)
+  function photo(file) {
+    return new Promise(function (res, rej) {
+      var u = URL.createObjectURL(file), i = new Image();
+      i.onload = function () { var s = Math.min(i.width, i.height), sx = (i.width - s) / 2, sy = i.height > i.width ? (i.height - s) * 0.22 : 0, cv = document.createElement('canvas'); cv.width = cv.height = 480; cv.getContext('2d').drawImage(i, sx, sy, s, s, 0, 0, 480, 480); URL.revokeObjectURL(u); res(cv.toDataURL('image/jpeg', 0.86)); };
+      i.onerror = function () { URL.revokeObjectURL(u); rej(new Error('사진을 읽지 못했습니다')); };
+      i.src = u;
+    });
+  }
+  function ready(c) { return !!(c && String(c.name || '').trim() && String(c.phone || '').replace(/\D/g, '').length >= 9); }
+  root.BizCard = { draw: draw, blob: blob, url: url, photo: photo, tel: tel, ready: ready, THEMES: Object.keys(TH), W: W, H: H };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
 // 🔍 통합 검색 (2026-11-17 대표님 요청): 화면 오른쪽 위 🔍 → 모든 메뉴·환경설정·고객 추가/보기 항목과 고객 이름을 한 칸에서 찾는다.
 // · 찾기는 이 기기 안에서만 한다 — 검색어·고객 이름은 어디로도 보내지 않는다.
 // · '자주 쓰는 메뉴'는 메뉴 이름표(id)와 누른 횟수만 기기에 기억한다(aob_find · 고객 정보 없음).
@@ -9746,6 +9914,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 41, d: '2026-11-20', ic: '🪪', t: '내 명함 · 문자에 명함 붙여 보내기', s: '얼굴 사진 · 이름 · 직급 · 번호 · 소속 · 설계사 등록(생명·손해) · e-클린보험서비스 조회 안내가 들어간 명함을 각자 한 번 만들어 두면, 상담 약속·문자를 보낼 때 명함 그림이 같이 붙습니다. 상담 예약 문자의 장소에는 고객 지역도 자동으로 들어갑니다.', w: '☰ 메뉴 → 영업 → 🪪 내 명함 · ⚙ 환경설정 → 내 정보 · 문자 보내기 창의 🪪 칸' },
     { id: 40, d: '2026-11-20', ic: '👥', t: '같은 고객 자동 합치기', s: '이름과 생년월일이 같은 고객(회사 DB에서 온 고객을 또 등록한 경우 등)은 자동으로 한 명으로 합칩니다. 정보는 빠짐없이 모으고(번호·DB 정보·기록·메모), 두 사람 모두 병력 자료가 있으면 합치지 않고 \'동일인 확인\'에 올립니다.', w: '자동 · 고객 탭' },
     { id: 39, d: '2026-11-20', ic: '📅', t: '상담 약속 잡기 · 예약 확정 문자', s: '고객을 등록하면 바로 상담 날짜·시간을 묻고, 저장하면 싯플랜·캘린더에 "1530 거제 홍길동 인포DB 1차상담"으로 들어가며 상담 예약 확정 문자가 날짜·시간만 바뀐 채 준비됩니다. 예약 글을 붙여 넣어 등록하면 날짜·시간이 미리 채워집니다.', w: '고객 등록 직후 · 고객 화면 연락 줄 📅 상담 약속' },
     { id: 38, d: '2026-11-20', ic: '📚', t: 'MD 백과 — 팀원도 최신 자료 · 보기 좋게', s: '이제 팀원도 [↻ 최신 자료 받기]로 회사가 정리한 이번 달 MD’s Spec을 바로 받습니다(6시간마다 자동). 맨 위 \'⚡ 한눈에\' 표에서 기준마다 1·2·3위를 보고, 추천·순위 카드는 금액이 강조되고 메달로 순위가 보입니다.', w: '☰ 메뉴 → 상품 · 자료 → 📚 MD 백과' },
@@ -10663,7 +10832,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var areaFull = String(meetOf(c).area || (c.meet && c.meet.area) || (c.db && c.db.area) || '').trim();
     if (memoAddr && areaFull) { var a1 = areaFull.split(/\s+/); if (memoAddr.indexOf(a1[a1.length - 1]) < 0 && memoAddr.indexOf(a1[0]) < 0) memoAddr = areaFull + ' ' + memoAddr; }
     var place0 = g.loc || (c.req && c.req.addr) || memoAddr || (nx && nx.place) || areaFull || g.region || '';
-    var me0 = myId().name ? meLine() : (coName() || '');
+    await BC.load();
+    var me0 = myId().name ? meLine() : (BC.who() || coName() || '');
     var st = { kind: g.kind && APPT_KIND.indexOf(g.kind) >= 0 ? g.kind : '1차상담', where: /카페/.test(place0) ? 'cafe' : 'home', edited: false };
     var chip = function(id, L, cur){ return '<div class="sexsel apch" id="' + id + '">' + L.map(function(x){ var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<button type="button" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + t + '</button>'; }).join('') + '</div>'; };
     openDlg('<h4>📅 ' + esc(c.name) + '님 상담 약속</h4><div class="form apform">' +
@@ -12253,7 +12423,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     openDlg('<h4>' + (kk ? IC.chat : IC.sms) + ' ' + esc(c.name) + '님께 ' + (kk ? '카톡' : '문자') + ' 보내기</h4>' +
       '<div class="tpl" role="group" aria-label="문구 틀">' + MSG_TPL.map(function(t, i){ return '<button type="button" data-tpl="' + i + '"' + (i === 0 ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>' + t[0] + '</button>'; }).join('') + '</div>' +
       '<textarea id="msgTxt" class="ktxt msgtxt" spellcheck="false">' + esc(fill(MSG_TPL[0][1])) + '</textarea>' +
-      '<div id="msgQr" class="msgqr" hidden></div><div class="note" id="msgNote"></div>' +
+      '<div id="msgQr" class="msgqr" hidden></div><div id="msgCard" class="msgcard"></div><div class="note" id="msgNote"></div>' +
       '<div class="mrow"><button class="btn lg" type="button" id="msgX" style="margin-right:auto">닫기</button>' +
       (IS_MOBILE ? (kk ? '<button class="go kakao" type="button" id="msgGo">' + IC.chat + '카톡으로 보내기</button>' : '<button class="go" type="button" id="msgGo">' + IC.sms + '문자 앱으로 보내기</button>')
         : (kk ? '<button class="btn lg" type="button" id="msgCopy">복사</button>' : '<button class="btn lg" type="button" id="msgCopy">복사</button><button class="btn lg" type="button" id="msgQrB">휴대폰으로 보내기 (QR)</button>') + '<button class="go" type="button" id="msgDone">보냈어요 · 기록</button>') + '</div>', 'wide kbox');
@@ -12273,8 +12443,31 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if ($('msgQrB')) $('msgQrB').onclick = drawQr;
     if ($('msgCopy')) $('msgCopy').onclick = function(){ copyText(ta.value, '메시지'); $('msgNote').textContent = kk ? '복사했습니다 · 카카오톡 PC에서 ' + c.name + '님 대화방을 열고 붙여 넣으세요 (Ctrl+V)' : '복사했습니다'; };
     if ($('msgDone')) $('msgDone').onclick = async function(){ closeDlg(); await log(); toast((kk ? '카톡' : '문자') + ' 보낸 것으로 기록했습니다'); };
+    // 🪪 명함 붙여 보내기: 문자 주소(sms:)로는 그림을 못 붙임 → 공유 창으로 글 + 명함 그림을 함께 넘김 (받는 사람은 메시지 앱에서 고름 · 번호는 미리 복사)
+    var useCard = function(){ return !!(BC.cur && BizCard.ready(BC.cur) && $('msgBc') && $('msgBc').checked); };
+    var cardRow = async function(){
+      await BC.load(); var box = $('msgCard'); if (!box) return;
+      if (!BizCard.ready(BC.cur)) { box.innerHTML = '<button type="button" class="btn bcnew" id="msgBcNew">🪪 내 명함 만들기 <small>문자에 명함을 같이 붙여 보냅니다</small></button>'; $('msgBcNew').onclick = function(){ openCardEdit(function(){ openMsg(ch, pre); }); }; return; }
+      var u = ''; try { u = await BizCard.url(BC.cur); } catch(e){}
+      box.innerHTML = '<label class="bcon">' + (IS_MOBILE ? '<input type="checkbox" id="msgBc"' + (BC.on ? ' checked' : '') + '>' : '') + '<img src="' + u + '" alt="내 명함"><span><b>🪪 ' + (IS_MOBILE ? '명함 같이 보내기' : '내 명함') + '</b><small>' + esc(BC.who()) + '</small></span></label><button type="button" class="btn ghost" id="msgBcEd">고치기</button>' + (IS_MOBILE ? '' : '<button type="button" class="btn" id="msgBcSv">🖼 명함 저장</button>');
+      $('msgBcEd').onclick = function(){ openCardEdit(function(){ openMsg(ch, pre); }); };
+      if ($('msgBcSv')) $('msgBcSv').onclick = async function(){ var fl = await BC.file(), a = document.createElement('a'); a.href = URL.createObjectURL(fl); a.download = fl.name; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000); };
+      var lab = function(){ var on = useCard(); if ($('msgGo')) $('msgGo').innerHTML = (kk ? IC.chat : IC.sms) + (on ? '명함 붙여 ' + (kk ? '카톡' : '문자') + ' 보내기' : kk ? '카톡으로 보내기' : '문자 앱으로 보내기'); $('msgNote').textContent = on && !kk ? '보낼 앱(메시지)을 고른 뒤 받는 사람을 한 번 고르세요 · ' + phoneTxt(ph) + ' 번호는 복사해 둡니다' : ''; };
+      if ($('msgBc')) $('msgBc').onchange = function(){ BC.on = this.checked; try { localStorage.setItem('aob_bcon', BC.on ? '1' : '0'); } catch(e){} lab(); };
+      lab();
+    };
+    cardRow();
     if ($('msgGo')) $('msgGo').onclick = async function(){
       var txt = ta.value;
+      if (useCard() && navigator.share) {
+        try {
+          var fl = await BC.file();
+          if (!kk && ph) { try { await navigator.clipboard.writeText(ph); } catch(e){} }
+          await navigator.share({ text: txt, files: [fl] });
+          closeDlg(); await log(); toast((kk ? '카톡' : '문자') + '(명함 포함) 보낸 것으로 기록했습니다');
+          return;
+        } catch(e){ if (e && e.name === 'AbortError') return; toast('명함을 붙이지 못해 글만 보냅니다'); }
+      }
       if (kk) {
         if (navigator.share) { try { await navigator.share({ text: txt }); closeDlg(); await log(); toast('카톡 보낸 것으로 기록했습니다'); } catch(e){ if (e && e.name !== 'AbortError') { copyText(txt, '메시지'); } } }
         else { copyText(txt, '메시지'); closeDlg(); await log(); }
@@ -12284,6 +12477,56 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       location.href = 'sms:' + ph + (txt ? '?body=' + encodeURIComponent(txt) : '');
     };
   }
+  // 🪪 내 명함 (bizcard.js 그림 · 2026-11-20): 팀원마다 자기 기기(+본인 드라이브)에 숨김 문서 __card. 서버로 보내지 않는다.
+  var BC = { cur: null, on: true, loaded: false };
+  BC.load = async function(){ if (!BC.loaded) { BC.cur = await hidLoad('__card', null); BC.loaded = true; try { BC.on = localStorage.getItem('aob_bcon') !== '0'; } catch(e){} } return BC.cur; };
+  BC.def = function(){ var m = myId(); return { name: m.name || coName() || '', title: m.title || '', org: 'AFG 오션지점', team: '', ga: '법인보험대리점(GA) 소속 · 여러 보험사 비교', phone: '', email: '', kakao: '', addr: '', intro: '보험금 청구부터 보장 점검까지 끝까지 챙기겠습니다', lic: { life: true, non: true, third: false }, reg: '', clean: true, theme: 'navy', photo: '' }; };
+  BC.who = function(){ var c = BC.cur; return c && c.name ? c.name + (c.title ? ' ' + c.title : '') : ''; };
+  BC.file = async function(){ var b = await BizCard.blob(BC.cur); return new File([b], '명함_' + String(BC.cur.name || '').replace(/\s/g, '') + '.png', { type: 'image/png' }); };
+  async function openCardEdit(after){
+    await BC.load();
+    var c = JSON.parse(JSON.stringify(BC.cur || BC.def())), L = c.lic || (c.lic = {});
+    var f = function(id, lab, v, ph, type){ return '<label>' + lab + '<input id="' + id + '" ' + (type ? 'type="' + type + '" inputmode="' + (type === 'tel' ? 'tel' : type === 'email' ? 'email' : 'text') + '" ' : '') + 'value="' + esc(v || '') + '" placeholder="' + esc(ph || '') + '" autocomplete="off"></label>'; };
+    openDlg('<h4>🪪 내 명함</h4><p class="note">상담 약속·문자를 보낼 때 이 명함 그림이 같이 갑니다. 팀원마다 자기 휴대폰에서 한 번만 만들면 되고, 이 기기와 내 구글 드라이브에만 저장됩니다.</p>' +
+      '<div class="bcwrap"><div class="bcpv"><img id="bcPv" alt="명함 미리 보기"></div><div class="form bcform">' +
+      '<div class="bcph"><button type="button" class="btn" id="bcPick">📷 얼굴 사진 ' + (c.photo ? '바꾸기' : '넣기') + '</button><button type="button" class="btn ghost" id="bcNoPh"' + (c.photo ? '' : ' hidden') + '>사진 빼기</button><input type="file" id="bcFile" accept="image/*" hidden></div>' +
+      '<p class="note bcnote">밝은 곳에서 어깨까지 나온 정장 사진이 가장 믿음을 줍니다. 없으면 이름 첫 글자로 나옵니다.</p>' +
+      '<div class="frow">' + f('bcName', '이름', c.name, '홍길동') + f('bcTitle', '직급', c.title, '팀장') + '</div>' +
+      f('bcPhone', '휴대폰', c.phone, '010-0000-0000', 'tel') +
+      '<div class="frow">' + f('bcOrg', '소속(지점)', c.org, 'AFG 오션지점') + f('bcTeam', '팀', c.team, 'Ocean Branch 9팀') + '</div>' +
+      f('bcGa', '소속 안내 한 줄', c.ga, '법인보험대리점(GA) 소속 · 여러 보험사 비교') +
+      '<div class="frow">' + f('bcEmail', '이메일 (선택)', c.email, 'name@example.com', 'email') + f('bcKakao', '카카오톡 ID (선택)', c.kakao, '') + '</div>' +
+      f('bcAddr', '사무실 주소 (선택)', c.addr, '') +
+      f('bcIntro', '한 줄 소개 (선택)', c.intro, '') +
+      '<div class="bclic"><span>설계사 등록</span><label><input type="checkbox" id="bcLife"' + (L.life ? ' checked' : '') + '>생명보험</label><label><input type="checkbox" id="bcNon"' + (L.non ? ' checked' : '') + '>손해보험</label><label><input type="checkbox" id="bcThird"' + (L.third ? ' checked' : '') + '>제3보험</label></div>' +
+      f('bcReg', '설계사 등록번호 (선택)', c.reg, '협회 등록번호') +
+      '<label class="chk"><input type="checkbox" id="bcClean"' + (c.clean !== false ? ' checked' : '') + '> e-클린보험서비스 조회 안내 넣기 <small class="note">(고객이 설계사를 직접 확인할 수 있는 협회 서비스)</small></label>' +
+      '<div class="bcth"><span>색</span>' + BizCard.THEMES.map(function(t){ return '<button type="button" data-bct="' + t + '" aria-pressed="' + (t === (c.theme || 'navy')) + '" class="bct ' + t + '" title="' + t + '"></button>'; }).join('') + '</div>' +
+      '</div></div><div class="mrow"><button class="btn lg" type="button" id="bcX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="bcImg">🖼 그림 저장</button><button class="go" type="button" id="bcSave">저장</button></div>', 'wide bcdlg');
+    var tm = 0, read = function(){
+      var v = function(id){ return ($(id).value || '').trim(); };
+      c.name = v('bcName'); c.title = v('bcTitle'); c.phone = v('bcPhone'); c.org = v('bcOrg'); c.team = v('bcTeam'); c.ga = v('bcGa'); c.email = v('bcEmail'); c.kakao = v('bcKakao'); c.addr = v('bcAddr'); c.intro = v('bcIntro'); c.reg = v('bcReg');
+      c.lic = { life: $('bcLife').checked, non: $('bcNon').checked, third: $('bcThird').checked }; c.clean = $('bcClean').checked;
+    };
+    var draw = function(){ clearTimeout(tm); tm = setTimeout(async function(){ if (!$('bcName')) return; read(); try { $('bcPv').src = await BizCard.url(c); } catch(e){} }, 150); };
+    $('dlgBox').querySelectorAll('input').forEach(function(i){ i.addEventListener('input', draw); i.addEventListener('change', draw); });
+    $('dlgBox').querySelectorAll('[data-bct]').forEach(function(b){ b.onclick = function(){ c.theme = b.dataset.bct; $('dlgBox').querySelectorAll('[data-bct]').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); draw(); }; });
+    $('bcPick').onclick = function(){ $('bcFile').click(); };
+    $('bcFile').onchange = async function(){ var fl = this.files && this.files[0]; this.value = ''; if (!fl) return; try { c.photo = await BizCard.photo(fl); $('bcNoPh').hidden = false; $('bcPick').textContent = '📷 얼굴 사진 바꾸기'; draw(); } catch(e){ toast(e.message || '사진을 읽지 못했습니다'); } };
+    $('bcNoPh').onclick = function(){ c.photo = ''; this.hidden = true; $('bcPick').textContent = '📷 얼굴 사진 넣기'; draw(); };
+    $('bcX').onclick = closeDlg;
+    $('bcImg').onclick = async function(){ read(); var b = await BizCard.blob(c), nm = '명함_' + (c.name || '나').replace(/\s/g, '') + '.png'; if (window.Native && Native.saveBlob && inApk()) Native.saveBlob(b, nm); else { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = nm; a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000); } };
+    $('bcSave').onclick = async function(){
+      read();
+      if (!c.name) { toast('이름을 넣어 주세요'); $('bcName').focus(); return; }
+      if (String(c.phone).replace(/\D/g, '').length < 9) { toast('휴대폰 번호를 넣어 주세요'); $('bcPhone').focus(); return; }
+      c.at = Date.now(); await hidSave('__card', '내 명함', c); BC.cur = c; BC.loaded = true;
+      try { await planLoad(); var m = PL.d.me || {}; if (!m.name) { PL.d.me = { name: c.name, title: c.title || m.title || '' }; planSave(); } } catch(e){}
+      closeDlg(); toast('🪪 명함을 저장했습니다 · 문자 보낼 때 같이 붙습니다'); if (after) after();
+    };
+    draw();
+  }
+  document.addEventListener('click', function(e){ if (e.target.closest('#cardBtn')) openCardEdit(); });
   function openLogCall(){
     openDlg('<h4>' + IC.phone + ' ' + esc(S.cur.name) + '님 통화 기록</h4><textarea id="pdTxt" rows="3" class="pdtxt" placeholder="통화 내용 (선택)"></textarea><div class="mrow"><button class="btn lg" type="button" id="lcX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="lcMiss">부재중</button><button class="go" type="button" id="lcOk">통화함 · 기록</button></div>');
     $('lcX').onclick = closeDlg;
@@ -17929,11 +18172,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 메뉴·환경설정 항목 목록 — ☰ 메뉴 · ⚙ 환경설정 · PC 왼쪽 메뉴 · 🔍 통합 검색이 모두 이 목록 하나를 씀 (2026-11-17 · 목록을 두 군데 두면 한쪽만 고쳐져서)
   function sheetDefs(){
     var MENU = [
-      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
+      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#cardBtn', '🪪', '내 명함', '사진 · 이름 · 번호 → 문자에 명함 붙여 보내기'],['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
       ['🌱 성장 · 소통', [['#mateBtn', '👥', '팀원', mtMenuDesc()], ['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류·건의', '오류·불편·아이디어 한 줄 → AI가 고침 (사진 안 보냄)'], /* 2026-11-16: '💡 건의사항'은 같은 화면을 열어 하나로 합침 */ ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
     var SET = [
+      ['🙋 내 정보', [['#cardBtn', '🪪', '내 명함', '얼굴 사진 · 직급 · 번호 · 자격 → 문자에 같이 붙음']]],
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
       ['🖥 화면 · 앱', [['#pnBtn', '📝', '새 기능 안내', '패치노트 · 업데이트로 새로 생긴 기능과 쓰는 곳'], ['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#fullBtn', '🔲', '전체 화면 ' + (fullOn() ? '끄기' : '켜기'), fullOn() ? '지금: 아래 시스템 단추·태스크바 숨김 (아래에서 위로 쓸면 잠깐 나옴)' : '아래 시스템 단추·태스크바를 숨겨 화면을 넓게'], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
       ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
@@ -17966,7 +18210,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('dlgBox').querySelectorAll('[data-fav]').forEach(function(b){ b.onclick = function(){ FIND.go(fav[+b.dataset.fav]); }; });
   }
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
-  var FIND_KW = { '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
+  var FIND_KW = { '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:all': '가져오기 불러오기 파일 업로드 넣기 엑셀 알마인드 마인드맵 보유계약 연락처 vcf 보장분석 PDF 알림톡 카톡 내보내기 DB 디비 북마크 붙여넣기 한꺼번에 통합', 'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
@@ -21231,6 +21475,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="a8bd20c3fbf1";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="6ecd9bd60cbe";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
