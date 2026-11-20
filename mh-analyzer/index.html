@@ -3758,6 +3758,42 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 .dbstcp{margin:8px 0}
 .dbstrow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(232,140,30,.1);border:1px solid rgba(232,140,30,.35);margin:0 0 10px;font-size:13px}
 .dbstrow span{flex:1}
+/* 🚗 상담 동선 · 이동 시간 (2026-11-20) */
+.rtdays{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+.rtdays b{margin-left:6px;font-size:15px}
+.rtdays .pb.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rtsum{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:14px;background:rgba(47,107,255,.09);border:1px solid rgba(47,107,255,.25);margin-bottom:10px}
+.rtsum>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.rtsum small{color:var(--ink2);font-size:12px}
+.rtsum b{font-size:24px;font-weight:800;color:var(--ink)}
+.rtsum span{color:var(--ink2);font-size:13px}
+.rtsum p{margin:0;color:#C46A00;font-weight:700;font-size:13px}
+.rtsum.warn{background:rgba(232,140,30,.1);border-color:rgba(232,140,30,.4)}
+.rtlist{display:flex;flex-direction:column;margin:4px 0 10px}
+.rts{display:flex;gap:10px;align-items:center;padding:8px 6px}
+.rts>i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#2F6BFF;color:#fff;font-style:normal;font-weight:800;font-size:13px}
+.rts.office>i{background:var(--ink2)}
+.rts.miss>i{background:var(--line);color:var(--ink2)}
+.rts>span{flex:1;min-width:0;display:flex;flex-direction:column;font-size:14px;color:var(--ink)}
+.rts>span small{color:var(--ink2);font-size:12px;margin-top:2px}
+.rtl{display:flex;align-items:center;gap:6px;margin-left:19px;padding:6px 0 6px 20px;border-left:3px dashed rgba(47,107,255,.45);flex-wrap:wrap}
+.rtl>span{flex:1;min-width:150px;font-size:13px;color:var(--ink2);display:block}
+.rtl>span b{color:var(--ink);font-size:15px}
+.rtl em{display:block;font-style:normal;color:#C46A00;font-weight:700;font-size:12px;margin-top:2px}
+.rtl.warn{border-left-color:#E88C1E}
+.rtl.same{border-left-style:dotted}
+.rtl .pb.kk{background:#FEE500;color:#191919;border-color:#FEE500;font-weight:700}
+.rtmap{height:280px;border-radius:14px;overflow:hidden;margin:6px 0 10px;border:1px solid var(--line)}
+.rtpin{display:grid;place-items:center;border-radius:50%;background:#2F6BFF;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);font-size:13px}
+.rtpin.o{background:#4A4F57}
+.rtmin{background:#fff;color:#13233B;border-radius:11px;font-size:12px;font-weight:800;text-align:center;line-height:22px;box-shadow:0 1px 4px rgba(0,0,0,.3);white-space:nowrap}
+.rtmin.warn{background:#FFE7C7;color:#8A4B00}
+.rtempty{padding:18px 4px;line-height:1.7}
+.rtbase{margin:4px 0}
+.pdroute:empty{display:none}
+.rtmini{margin:8px 0 4px;padding:9px 12px;border-radius:12px;background:rgba(47,107,255,.09);border:1px solid rgba(47,107,255,.22);font-size:14px;color:var(--ink);display:flex;flex-direction:column;gap:3px}
+.rtmini small{color:var(--ink2);font-size:12px}
+.rtmini.warn{background:rgba(232,140,30,.1);border-color:rgba(232,140,30,.4)}
 
 </style>
 </head>
@@ -3791,7 +3827,7 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button><button type="button" id="routeBtn" class="mstub" data-route=""></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -9631,6 +9667,40 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
 </script>
 <script>
+// 🚗 상담 동선 · 이동 시간 (2026-11-20 대표님: "싯플랜의 고객 상담 지역으로 이동하는 데 얼마나 걸리는지 · 카카오맵처럼 몇 분 소요")
+// 순수 계산만 한다 (기기 안 · 바깥으로 보내는 것 없음).
+// 이동 시간은 '어림'이다: 두 곳의 직선거리 × 길 굽음 비율 → 거리별 평균 속도 + 주차·출발 4분.
+//   비율·속도는 경남 국도·고속도로 실제 소요(창원↔김해 ≈ 30분, 창원↔진주 ≈ 55분, 하동↔남해 ≈ 40분)에 맞춘 값.
+//   막히는 시간·실제 길은 반영하지 못하므로 화면에 '약'을 붙이고, 정확한 시간은 [카카오맵]으로 연다.
+(function (root) {
+  function hav(a, b) {
+    var R = 6371, r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lng - a.lng) * r;
+    var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+  function leg(a, b) {
+    var s = hav(a, b);
+    if (s < 0.3) return { km: 0, min: 0, same: true };
+    var f = s < 5 ? 1.5 : s < 30 ? 1.38 : 1.27, km = s * f;
+    var v = km < 8 ? 28 : km < 25 ? 45 : km < 60 ? 58 : 75;
+    return { km: Math.round(km * 10) / 10, min: Math.round(km / v * 60 + 4) };
+  }
+  function fmt(min) { min = Math.round(min || 0); if (min < 60) return min + '분'; var h = Math.floor(min / 60), m = min % 60; return h + '시간' + (m ? ' ' + m + '분' : ''); }
+  function hm(t) { var s = String(t || '').replace(/\D/g, ''); if (s.length < 3) return null; s = s.padStart(4, '0'); var h = +s.slice(0, 2), m = +s.slice(2, 4); return h > 29 || m > 59 ? null : h * 60 + m; }
+  // 앱(안드로이드)·아이폰·PC 각각에서 '출발 → 도착' 자동차 길찾기 열기 주소
+  function links(a, b, an, bn) {
+    var enc = encodeURIComponent;
+    return {
+      kakaoApp: 'route?sp=' + a.lat + ',' + a.lng + '&ep=' + b.lat + ',' + b.lng + '&by=CAR',
+      kakaoWeb: 'https://map.kakao.com/link/to/' + enc(bn || '도착') + ',' + b.lat + ',' + b.lng,
+      naverApp: 'route/car?slat=' + a.lat + '&slng=' + a.lng + '&sname=' + enc(an || '출발') + '&dlat=' + b.lat + '&dlng=' + b.lng + '&dname=' + enc(bn || '도착') + '&appname=io.github.sicrics27gif.oc9'
+    };
+  }
+  root.Route = { hav: hav, leg: leg, fmt: fmt, hm: hm, links: links };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
 // 🔍 통합 검색 (2026-11-17 대표님 요청): 화면 오른쪽 위 🔍 → 모든 메뉴·환경설정·고객 추가/보기 항목과 고객 이름을 한 칸에서 찾는다.
 // · 찾기는 이 기기 안에서만 한다 — 검색어·고객 이름은 어디로도 보내지 않는다.
 // · '자주 쓰는 메뉴'는 메뉴 이름표(id)와 누른 횟수만 기기에 기억한다(aob_find · 고객 정보 없음).
@@ -9922,6 +9992,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 43, d: '2026-11-20', ic: '🚗', t: '상담 동선 · 이동 시간', s: '싯플랜에 적은 고객 상담을 시간 순서대로 이어서, 고객 지역끼리 차로 약 몇 분·몇 km인지와 하루 이동 합계를 보여 줍니다. 일정 사이 시간보다 이동이 더 걸리면 ⚠로 알려 주고, 구간마다 [카카오맵]을 누르면 바로 길찾기가 열립니다. 지점 위치를 정해 두면 출근·귀점까지 셉니다.', w: '☰ 메뉴 → 영업 → 🚗 상담 동선 · 이동 시간 · 싯플랜 화면 [🚗 동선] · 지도 탭 [🚗 상담 이동 시간] · 싯플랜 하루 창' },
     { id: 42, d: '2026-11-20', ic: '🔁', t: 'DB 인수상태 — 앱에서 바꾸고 회사 사이트와 맞추기', s: 'AFG DB 고객 화면의 인수상태(부재·상담중·TA거절…)를 눌러 바로 바꿉니다. PC에서 [🔁 상태 복사]를 누른 뒤 회사 DB 사이트에서 "AOB로 복사" 북마크를 누르면, 앱과 회사 사이트 중 더 최근에 바꾼 쪽으로 서로 맞춰집니다(회사 사이트를 바꾸기 전에 목록을 보여 주고 묻습니다).', w: 'AFG DB 고객 화면 → 담당자 정보 · 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기' },
     { id: 41, d: '2026-11-20', ic: '🪪', t: '내 명함 · 문자에 명함 붙여 보내기', s: '얼굴 사진 · 이름 · 직급 · 번호 · 소속 · 설계사 등록(생명·손해) · e-클린보험서비스 조회 안내가 들어간 명함을 각자 한 번 만들어 두면, 상담 약속·문자를 보낼 때 명함 그림이 같이 붙습니다. 상담 예약 문자의 장소에는 고객 지역도 자동으로 들어갑니다.', w: '☰ 메뉴 → 영업 → 🪪 내 명함 · ⚙ 환경설정 → 내 정보 · 문자 보내기 창의 🪪 칸' },
     { id: 40, d: '2026-11-20', ic: '👥', t: '같은 고객 자동 합치기', s: '이름과 생년월일이 같은 고객(회사 DB에서 온 고객을 또 등록한 경우 등)은 자동으로 한 명으로 합칩니다. 정보는 빠짐없이 모으고(번호·DB 정보·기록·메모), 두 사람 모두 병력 자료가 있으면 합치지 않고 \'동일인 확인\'에 올립니다.', w: '자동 · 고객 탭' },
@@ -11667,7 +11738,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var prevM = m === 1 ? dstr(y - 1, 12, 1) : dstr(y, m - 1, 1), nextM = m === 12 ? dstr(y + 1, 1, 1) : dstr(y, m + 1, 1);
     var gOn = gcReady(), gBad = gOn && PL.d.gcal && PL.d.gcal.err;
     var h = '<div class="chead plhead"><button class="btn back" type="button" data-act="back">‹ 목록</button><div class="pttl"><small>' + esc(PL.d.nick) + '의 MONTHLY PLAN</small><h2>싯플랜</h2></div><span class="pnav"><button type="button" class="pb" data-pm="' + prevM.slice(0, 7) + '" aria-label="이전 달">‹</button><b>' + y + '. ' + m + '월</b><button type="button" class="pb" data-pm="' + nextM.slice(0, 7) + '" aria-label="다음 달">›</button><button type="button" class="pb ptoday" data-pm="' + ymOf(t) + '">오늘</button></span></div>' +
-      '<div class="ptool"><span class="stb" role="group"><button type="button" data-pvw="month" aria-pressed="' + (S.pview === 'month') + '">월간</button><button type="button" data-pvw="list" aria-pressed="' + (S.pview === 'list') + '">주간</button></span><button class="btn pgoal" type="button" data-pl="acfp" aria-pressed="' + !!S.acfpOn + '" title="ACFP 월납 목표 보이기/숨기기"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>목표</button><span class="sp"></span><button class="btn" type="button" data-pl="addm">➕ 넣기</button><button class="btn" type="button" data-pl="snap">🖼 이미지</button><button class="btn" type="button" data-pl="cal" title="' + (gBad ? '캘린더 맞추기 오류 · 눌러서 확인' : gOn ? '캘린더 자동 맞추는 중' : '캘린더 연결 안 됨') + '"><span class="gdot' + (gBad ? ' bad' : gOn ? ' on' : '') + '"></span>캘린더</button></div>';
+      '<div class="ptool"><span class="stb" role="group"><button type="button" data-pvw="month" aria-pressed="' + (S.pview === 'month') + '">월간</button><button type="button" data-pvw="list" aria-pressed="' + (S.pview === 'list') + '">주간</button></span><button class="btn pgoal" type="button" data-pl="acfp" aria-pressed="' + !!S.acfpOn + '" title="ACFP 월납 목표 보이기/숨기기"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>목표</button><span class="sp"></span><button class="btn" type="button" data-route="">🚗 동선</button><button class="btn" type="button" data-pl="addm">➕ 넣기</button><button class="btn" type="button" data-pl="snap">🖼 이미지</button><button class="btn" type="button" data-pl="cal" title="' + (gBad ? '캘린더 맞추기 오류 · 눌러서 확인' : gOn ? '캘린더 자동 맞추는 중' : '캘린더 연결 안 됨') + '"><span class="gdot' + (gBad ? ' bad' : gOn ? ' on' : '') + '"></span>캘린더</button></div>';
     if (S.acfpOn) h += acfpPanel(S.pm);
     var memo = (PL.d.months[S.pm] || {}).memo || '';
     if (S.pview === 'month') {
@@ -11795,10 +11866,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       box.querySelectorAll('[data-td]').forEach(function(el){ el.onclick = function(){ var x = td[+el.dataset.td]; items.push({ t: x.t || '', x: x.x, c: 'r' }); draw(); prev(); }; });
     };
     var text = function(){ var it = items.filter(function(x){ return x.x.trim(); }).sort(function(a, b){ return a.t < b.t ? -1 : 1; }); return '일월화수목금토'[wdOf(d)] + ') ' + PL.d.nick + ' 싯플랜 🗓️\n\n' + it.map(function(x){ return '⏰️' + (x.t || '----') + ' ' + x.x.trim(); }).join('\n'); };
-    var prev = function(){ $('pdPrev').textContent = text(); };
+    var prev = function(){ $('pdPrev').textContent = text(); try { rtMini(items); } catch(e){} };
     openDlg('<h4>' + IC.cal + ' ' + (+d.slice(5, 7)) + '월 ' + (+d.slice(8)) + '일 (' + '일월화수목금토'[wdOf(d)] + ') 싯플랜</h4><div class="form pdform">' +
       '<div id="pdSug" class="pdsug"></div>' + (function(){ var trd = trailDay(d); if (!trd || !trd.v.length) return ''; var mt = trailMatches(d), ks = Object.keys(mt); return '<div class="pdtr">📍 이날 동선: 방문 ' + trd.v.length + '곳 · 이동 ' + (trd.km || 0) + 'km' + (ks.length ? ' · 다녀온 일정: ' + ks.map(function(k){ return '<b>' + esc(k.slice(0, 2) + ':' + k.slice(2, 4) + k.slice(5)) + ' ✓</b>'; }).join(', ') : '') + ' <button type="button" class="lnk2" data-trgo="' + d + '">지도 보기</button></div>'; })() +
-      '<div id="pdRows"></div>' +
+      '<div id="pdRows"></div><div id="pdRoute" class="pdroute"></div>' +
       '<div class="pdadd"><button type="button" class="btn" id="pdAdd">+ 한 줄</button><button type="button" class="btn" id="pdClr">🗑 모두 지우기</button></div>' +
       '<label class="l">하루 전체 메모 (크게 표시 · 예: 다낭 휴가, 병가)</label><input id="pdBig" type="text" placeholder="예) 다낭 휴가 · 예약 글을 붙여 넣으면 일정 한 줄로 줄여 넣어 줍니다" value="' + esc(v.big || '') + '">' +
       '<div class="pdp"><div class="pdp-h"><b>보고 글</b><button type="button" class="pb" id="pdCopy">📋 복사</button><button type="button" class="pb" id="pdSnap">🖼 이미지</button></div><pre id="pdPrev"></pre></div></div>' +
@@ -15872,7 +15943,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (MAPV.watch != null) { try { navigator.geolocation.clearWatch(MAPV.watch); } catch(e){} MAPV.watch = null; } MAPV.meMk = null; MAPV.acc = null; MAPV.trail = null;
     if (tab) MAPV.tab = tab;
     S.cur = null; S.data = null; S.view = 'map'; $('shell').classList.add('has-c'); armBack(); renderList();
-    var tabs = '<div class="sgf maptabs"><button type="button" data-maptab="cust" aria-pressed="' + (MAPV.tab !== 'trail') + '">👥 고객 지도</button><button type="button" data-maptab="trail" aria-pressed="' + (MAPV.tab === 'trail') + '">📍 내 동선</button></div>';
+    var tabs = '<div class="sgf maptabs"><button type="button" data-maptab="cust" aria-pressed="' + (MAPV.tab !== 'trail') + '">👥 고객 지도</button><button type="button" data-maptab="trail" aria-pressed="' + (MAPV.tab === 'trail') + '">📍 내 동선</button><button type="button" data-route="">🚗 상담 이동 시간</button></div>';
     if (MAPV.tab === 'trail') return trailView(tabs);
     var head = '<div class="chead"><button class="btn back" type="button" data-act="back">‹ 목록</button><h2 data-i="◎">지역별 고객</h2><span class="cmeta">고객 주소·만남 지역을 동네 단위로 표시 · 번지·이름은 지도 검색에 보내지 않습니다</span></div>' + tabs;
     var list = S.list.filter(function(c){ return !c.sample && (!MAPV.f || (MAPV.f === chOf(c)) || (MAPV.f === 'st:' + (c.stage === 'db' ? 'lead' : (c.stage || 'lead')))); });
@@ -17701,6 +17772,88 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (/Android/i.test(navigator.userAgent || '')) return 'intent://' + path + '#Intent;scheme=' + scheme + ';action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=' + pkg + ';S.browser_fallback_url=' + encodeURIComponent('https://play.google.com/store/apps/details?id=' + pkg) + ';end';
     return scheme + '://' + path;
   }
+  // 🚗 상담 동선 · 이동 시간 (route.js 어림 · 2026-11-20 대표님: "싯플랜 고객 상담 지역끼리 이동하는 데 몇 분 걸리는지 카카오맵처럼")
+  //   일정 → 장소: 일정의 위치 칸(지역까지만) → 일정 글의 고객 → 그 고객 지역(만남 정보·주소의 시·군·동) → 일정 글에서 이름 앞 낱말(예: "1530 거제 홍길동")
+  //   회사 일정(출근·교육·귀점…)은 '지점 위치'(PL.d.base)를 정해 두면 같이 셈. 지도 검색에는 지역 이름만 쓰고(고객 이름·상세 주소는 안 보냄), 길찾기 주소에도 지역 이름만.
+  var RTV = { d: '', R: null };
+  var RT_OFFICE = /출근|귀점|팀\s*미팅|위클리|석회|교육|지점|사무실|워킹\s*공유|퇴근/;
+  function rtCust(x){ var cn = custNames(), best = ''; Object.keys(cn).forEach(function(n){ if (n.length >= 2 && x.indexOf(n) >= 0 && n.length > best.length) best = n; }); return best ? S.list.find(function(c){ return c.id === cn[best]; }) || null : null; }
+  function rtStops(items){
+    var base = String((PL.d && PL.d.base) || '').trim(), out = [];
+    (items || []).filter(function(x){ return x && String(x.x || '').trim() && Route.hm(x.t) != null; }).sort(function(a, b){ return Route.hm(a.t) - Route.hm(b.t); }).forEach(function(x){
+      var s = String(x.x).trim(), c = rtCust(s), area = '', src = '', kind = '';
+      if (x.loc) { area = areaOfAddr(x.loc) || ''; src = '일정 위치'; }
+      if (!area && c) { area = areaKey(c); src = areaSrc(c) || ''; }
+      if (!area && c) { var pre = s.slice(0, s.indexOf(c.name)).trim().split(/\s+/).pop() || ''; if (pre.length >= 2 && !/DB|상담|클로징|프로세스|\d/.test(pre)) { area = pre; src = '일정 글'; } }
+      if (c || x.loc) kind = 'cust';
+      else if (RT_OFFICE.test(s)) { kind = 'office'; area = base; src = base ? '지점' : ''; }
+      else return;
+      out.push({ t: x.t, x: s, kind: kind, area: area, src: src, cid: c ? c.id : '', name: c ? c.name : '' });
+    });
+    return out.filter(function(p, i){ var q = out[i - 1]; return !(q && p.kind === 'office' && q.kind === 'office'); });   // 출근·팀미팅·교육이 이어지면 지점 한 곳
+  }
+  async function rtCalc(items){
+    var st = rtStops(items);
+    for (var i = 0; i < st.length; i++) { var p = st[i]; p.ll = null; if (p.area) { try { p.ll = await geocode(p.area); } catch(e){} } }
+    var pts = st.filter(function(p){ return p.ll; }), legs = [];
+    for (var j = 1; j < pts.length; j++) { var a = pts[j - 1], b = pts[j], L = Route.leg(a.ll, b.ll); L.a = a; L.b = b; L.gap = Route.hm(b.t) - Route.hm(a.t); L.warn = !L.same && L.gap >= 0 && L.min > L.gap; legs.push(L); }
+    return { st: st, pts: pts, legs: legs, min: legs.reduce(function(s, l){ return s + l.min; }, 0), km: legs.reduce(function(s, l){ return s + l.km; }, 0), warn: legs.filter(function(l){ return l.warn; }).length, nCust: st.filter(function(p){ return p.kind === 'cust'; }).length };
+  }
+  function rtDef(){ var t = todayStr(), n = new Date().getHours(); var has = function(d){ return rtStops(itemsOf(d)).some(function(p){ return p.kind === 'cust'; }); }; return n >= 17 || !has(t) ? (has(addDay(t, 1)) || !has(t) ? addDay(t, 1) : t) : t; }
+  function rtDayName(d){ var t = todayStr(); return d === t ? '오늘' : d === addDay(t, 1) ? '내일' : d === addDay(t, 2) ? '모레' : ''; }
+  async function openRoute(d){
+    await planLoad(); d = d || rtDef(); RTV.d = d;
+    var t = todayStr(), nm = rtDayName(d);
+    openDlg('<h4>🚗 상담 동선 · 이동 시간</h4><div class="rtdays"><button type="button" class="pb" data-rtd="' + addDay(d, -1) + '" aria-label="전날">‹</button>' + [t, addDay(t, 1), addDay(t, 2)].map(function(x){ return '<button type="button" class="pb' + (x === d ? ' on' : '') + '" data-rtd="' + x + '" aria-pressed="' + (x === d) + '">' + rtDayName(x) + '</button>'; }).join('') + '<b>' + (+d.slice(5, 7)) + '월 ' + (+d.slice(8)) + '일 (' + '일월화수목금토'[wdOf(d)] + ')' + (nm && [t, addDay(t, 1), addDay(t, 2)].indexOf(d) < 0 ? ' ' + nm : '') + '</b><button type="button" class="pb" data-rtd="' + addDay(d, 1) + '" aria-label="다음 날">›</button></div><div id="rtBody" class="rtbody"><p class="note">지역을 찾아 이동 시간을 계산하는 중…</p></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="rtX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="rtEd">🗓 이날 싯플랜 고치기</button></div>', 'wide rtdlg');
+    $('rtX').onclick = closeDlg; $('rtEd').onclick = function(){ openDay(d); };
+    $('dlgBox').querySelectorAll('[data-rtd]').forEach(function(b){ b.onclick = function(){ openRoute(b.dataset.rtd); }; });
+    var R = RTV.R = await rtCalc(itemsOf(d)), box = $('rtBody'); if (!box || RTV.d !== d) return;
+    var base = String(PL.d.base || '').trim(), needBase = R.st.some(function(p){ return p.kind === 'office' && !p.area; });
+    if (!R.nCust) { box.innerHTML = '<p class="note rtempty">이날 싯플랜에 고객 상담 일정이 없습니다.<br>싯플랜에 "1400 홍길동 1차상담"처럼 고객 이름을 넣으면, 그 고객 지역으로 이동 시간을 계산합니다.</p>'; return; }
+    var hh = function(x){ return x ? x.slice(0, 2) + ':' + x.slice(2, 4) : ''; }, li = 0;
+    var row = function(p, i){ return '<div class="rts ' + p.kind + (p.ll ? '' : ' miss') + '"><i>' + (p.ll ? R.pts.indexOf(p) + 1 : '?') + '</i><span><b>' + hh(p.t) + '</b> ' + esc(p.x) + '<small>' + (p.area ? '📍 ' + esc(p.area) + (p.src ? ' · ' + esc(p.src) : '') : p.kind === 'office' ? '🏢 지점 위치를 정하면 같이 계산합니다' : '📍 지역을 몰라 계산에서 뺐어요') + (p.area && !p.ll ? ' · 지도에서 못 찾음' : '') + '</small></span>' + (!p.ll && p.cid ? '<button type="button" class="pb" data-rtarea="' + p.cid + '">지역 넣기</button>' : '') + '</div>'; };
+    var legH = function(L){ var k = li++; return '<div class="rtl' + (L.warn ? ' warn' : '') + (L.same ? ' same' : '') + '"><span>' + (L.same ? '같은 동네 · 이동 거의 없음' : '🚗 약 <b>' + Route.fmt(L.min) + '</b> · ' + L.km + 'km' + (L.warn ? '<em>⚠ 일정 사이 ' + Route.fmt(L.gap) + '인데 이동만 약 ' + Route.fmt(L.min) + '</em>' : '')) + '</span>' + (L.same ? '' : '<button type="button" class="pb kk" data-rtgo="' + k + '|kakao">카카오맵</button>' + (IS_MOBILE ? '<button type="button" class="pb" data-rtgo="' + k + '|naver">네이버</button>' : '')) + '</div>'; };
+    var h = '<div class="rtsum' + (R.warn ? ' warn' : '') + '"><div><small>' + (nm || dot(d)) + ' 이동 합계</small><b>약 ' + Route.fmt(R.min) + '</b><span>' + Math.round(R.km) + 'km · ' + R.legs.filter(function(l){ return !l.same; }).length + '번 이동 · 상담 ' + R.nCust + '건</span></div>' + (R.warn ? '<p>⚠ 빠듯한 구간 ' + R.warn + '곳 — 일정 시간 사이보다 이동이 더 걸립니다</p>' : '') + '</div>';
+    h += '<div class="rtlist">';
+    R.st.forEach(function(p, i){ h += row(p, i); var L = p.ll && R.legs.find(function(l){ return l.a === p; }); if (L) h += legH(L); });
+    h += '</div>';
+    if (R.pts.length >= 2) h += '<div id="rtMap" class="rtmap" aria-label="상담 동선 지도"></div>';
+    if (needBase || !base) h += '<p class="note rtbase">🏢 ' + (base ? '지점: <b>' + esc(base) + '</b>' : '지점 위치를 정하면 출근·귀점(지점 → 첫 상담 → … → 지점)까지 계산합니다') + ' <button type="button" class="lnk2" id="rtBase">' + (base ? '바꾸기' : '지점 위치 정하기') + '</button></p>';
+    else h += '<p class="note rtbase">🏢 지점: ' + esc(base) + ' <button type="button" class="lnk2" id="rtBase">바꾸기</button></p>';
+    h += '<p class="note">이동 시간은 두 지역 사이 거리로 어림한 값입니다(막힘·실제 길은 반영 안 됨). 정확한 시간은 [카카오맵]을 누르면 바로 길찾기로 열립니다. 지도에는 고객 이름 없이 지역 이름만 보냅니다.</p>';
+    box.innerHTML = h;
+    box.querySelectorAll('[data-rtgo]').forEach(function(b){ b.onclick = function(){ var pr = b.dataset.rtgo.split('|'), L = R.legs[+pr[0]], lk = Route.links(L.a.ll, L.b.ll, L.a.area, L.b.area);
+      if (pr[1] === 'naver') { location.href = appUrl('nmap', lk.naverApp, 'com.nhn.android.nmap'); return; }
+      if (IS_MOBILE) location.href = appUrl('kakaomap', lk.kakaoApp, 'net.daum.android.map'); else openExt(lk.kakaoWeb); }; });
+    box.querySelectorAll('[data-rtarea]').forEach(function(b){ b.onclick = async function(){ var c = S.list.find(function(x){ return x.id === b.dataset.rtarea; }); if (!c) return; var v = prompt(c.name + '님 지역 (예: 하동군 화개면)', meetOf(c).area || ''); if (!v || !v.trim()) return; c.meet = Object.assign({}, c.meet || {}, { area: v.trim() }); await Store.saveHead(c); S.list = await Store.list(); openRoute(d); }; });
+    if ($('rtBase')) $('rtBase').onclick = async function(){ var v = prompt('지점(사무실) 위치 — 시·군·동까지 (예: 창원시 성산구 중앙동)', base); if (v == null) return; PL.d.base = v.trim(); await planSave(); openRoute(d); };
+    if (R.pts.length >= 2) rtMap(R);
+  }
+  async function rtMap(R){
+    var el = $('rtMap'); if (!el) return;
+    try { await loadLeaflet(); } catch(e){ el.remove(); return; }
+    var LF = window.L; if (!LF || !LF.map || !$('rtMap')) return;
+    var m = LF.map(el, { zoomControl: false, attributionControl: true }); baseTiles(LF, m, THEME === 'dark');
+    var ll = R.pts.map(function(p){ return [p.ll.lat, p.ll.lng]; });
+    LF.polyline(ll, { color: '#2F6BFF', weight: 4, opacity: .85, dashArray: '8 7' }).addTo(m);
+    R.pts.forEach(function(p, i){ LF.marker(ll[i], { icon: LF.divIcon({ className: 'rtpin' + (p.kind === 'office' ? ' o' : ''), html: '<b>' + (i + 1) + '</b>', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(m); });
+    R.legs.forEach(function(L){ if (L.same) return; var a = L.a.ll, b = L.b.ll; LF.marker([(a.lat + b.lat) / 2, (a.lng + b.lng) / 2], { interactive: false, icon: LF.divIcon({ className: 'rtmin' + (L.warn ? ' warn' : ''), html: Route.fmt(L.min), iconSize: [64, 22], iconAnchor: [32, 11] }) }).addTo(m); });
+    if (ll.length > 1) m.fitBounds(ll, { padding: [34, 34] }); else m.setView(ll[0], 11);
+    setTimeout(function(){ try { m.invalidateSize(); } catch(e){} }, 250);
+  }
+  // 싯플랜 하루 창 안의 한 줄 요약 (고치는 동안 바로 다시 셈)
+  var RTM = 0;
+  function rtMini(items){
+    clearTimeout(RTM); RTM = setTimeout(async function(){
+      var box = $('pdRoute'); if (!box) return;
+      var st = rtStops(items); if (!st.some(function(p){ return p.kind === 'cust'; }) || st.length < 2) { box.innerHTML = ''; return; }
+      var R = await rtCalc(items); box = $('pdRoute'); if (!box) return;
+      var mv = R.legs.filter(function(l){ return !l.same; });
+      box.innerHTML = mv.length ? '<div class="rtmini' + (R.warn ? ' warn' : '') + '"><b>🚗 이동 약 ' + Route.fmt(R.min) + '</b> · ' + Math.round(R.km) + 'km' + (R.warn ? ' · ⚠ 빠듯 ' + R.warn + '곳' : '') + '<small>' + R.legs.map(function(l){ return l.same ? '' : esc(l.a.area.split(' ').pop()) + ' → ' + esc(l.b.area.split(' ').pop()) + ' ' + Route.fmt(l.min) + (l.warn ? '⚠' : ''); }).filter(Boolean).join(' · ') + '</small></div>' : '';
+    }, 500);
+  }
+  document.addEventListener('click', function(e){ var b = e.target.closest('[data-route]'); if (!b) return; e.preventDefault(); openRoute(b.dataset.route || ''); });
   function openNavi(q, ll){
     q = String(q || '').trim(); var enc = encodeURIComponent, lat = ll && ll[0], lng = ll && ll[1], label = q || (ll ? '지도 위치' : '');
     if (!q && !ll) { toast('목적지가 없습니다 · 만남 정보에 지역이나 근처 장소를 넣어 주세요'); return; }
@@ -18212,7 +18365,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 메뉴·환경설정 항목 목록 — ☰ 메뉴 · ⚙ 환경설정 · PC 왼쪽 메뉴 · 🔍 통합 검색이 모두 이 목록 하나를 씀 (2026-11-17 · 목록을 두 군데 두면 한쪽만 고쳐져서)
   function sheetDefs(){
     var MENU = [
-      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#cardBtn', '🪪', '내 명함', '사진 · 이름 · 번호 → 문자에 명함 붙여 보내기'],['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
+      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#routeBtn', '🚗', '상담 동선 · 이동 시간', '싯플랜 고객 지역끼리 차로 몇 분 · 카카오맵 길찾기'], ['#cardBtn', '🪪', '내 명함', '사진 · 이름 · 번호 → 문자에 명함 붙여 보내기'],['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
       ['🌱 성장 · 소통', [['#mateBtn', '👥', '팀원', mtMenuDesc()], ['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류·건의', '오류·불편·아이디어 한 줄 → AI가 고침 (사진 안 보냄)'], /* 2026-11-16: '💡 건의사항'은 같은 화면을 열어 하나로 합침 */ ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
@@ -18250,7 +18403,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('dlgBox').querySelectorAll('[data-fav]').forEach(function(b){ b.onclick = function(){ FIND.go(fav[+b.dataset.fav]); }; });
   }
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
-  var FIND_KW = { '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
+  var FIND_KW = { '#routeBtn': '이동 시간 이동시간 동선 길찾기 네비 내비 카카오맵 거리 몇분 소요 운전 차 지도 오늘 내일 상담 지역', '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:all': '가져오기 불러오기 파일 업로드 넣기 엑셀 알마인드 마인드맵 보유계약 연락처 vcf 보장분석 PDF 알림톡 카톡 내보내기 DB 디비 북마크 붙여넣기 한꺼번에 통합', 'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
@@ -18796,7 +18949,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       '<div class="hd-act"><button class="go" type="button" data-hd="new">＋ 신규 고객 <kbd>N</kbd></button>' + (ARC_ON ? '<button class="btn" type="button" data-arc="open">🏙️ 아케이드 화면</button>' : '') + '<button class="btn" type="button" data-hd="plan">🗓 오늘 싯플랜 <kbd>2</kbd></button><button class="btn" type="button" data-nx="week">📊 이번 주 실적</button><button class="btn" type="button" data-hd="keys">⌨ 단축키 <kbd>?</kbd></button></div></div>' +
       '<div class="hd-kpi">' + kpi.map(function(k){ return '<button type="button" class="' + (k[3] || '') + '" data-hd="' + k[2] + '"><small>' + k[0] + '</small><b>' + k[1] + '</b></button>'; }).join('') + '</div>' + polLineHtml() +
       '<div class="hd-grid"><div class="hd-col">' + c5Card() + bSec('오늘 할 일 · 지난 할 일', B.todo, '오늘 할 일이 없습니다.') + (B.miss.length ? bSec('📵 부재 — 다시 걸기', B.miss, '') : '') + (B.ref.length ? bSec('🤝 보험금 받은 뒤 — 확인 · 소개 부탁', B.ref, '') : '') + bSec('오늘 만날 수 있는 고객', B.meetToday, '만남 정보에 편한 요일·시간을 넣어 두면 여기에 나옵니다.') + '</div>' +
-      '<div class="hd-col"><section class="bsec hd-plan"><h5>오늘 싯플랜 <button type="button" class="lnk2" data-pd="' + t + '">편집</button></h5>' + (plan.length ? plan.map(function(x){ return '<div class="hp-r c-' + (x.c || 'k') + '"><i>' + (x.t ? x.t.slice(0, 2) + ':' + x.t.slice(2) : '—') + '</i><span>' + esc(x.x) + '</span></div>'; }).join('') : '<p class="note">오늘 일정이 없습니다. <button type="button" class="lnk2" data-pd="' + t + '">일정 넣기</button></p>') + '</section>' +
+      '<div class="hd-col"><section class="bsec hd-plan"><h5>오늘 싯플랜 <button type="button" class="lnk2" data-pd="' + t + '">편집</button> <button type="button" class="lnk2" data-route="">🚗 동선 · 이동 시간</button></h5>' + (plan.length ? plan.map(function(x){ return '<div class="hp-r c-' + (x.c || 'k') + '"><i>' + (x.t ? x.t.slice(0, 2) + ':' + x.t.slice(2) : '—') + '</i><span>' + esc(x.x) + '</span></div>'; }).join('') : '<p class="note">오늘 일정이 없습니다. <button type="button" class="lnk2" data-pd="' + t + '">일정 넣기</button></p>') + '</section>' +
       (B.sang.length ? bSec('🎂 상령일 — 보험나이 오르기 전 (14일 안)', B.sang, '') : '') + (B.feast && B.feastList.length ? bSec('🎁 ' + B.feast.name + ' 안부 (' + (B.feast.n === 0 ? '오늘' : 'D-' + B.feast.n) + ') · 계약 고객', B.feastList, '') : '') + (B.anniv.length ? bSec('💐 내 계약 N주년 (7일 안)', B.anniv, '') : '') +
       bSec('생일 (7일 안)', B.bday, '7일 안에 생일인 고객이 없습니다.') + (B.renew.length ? bSec('🔔 갱신 · 납입완료 · 만기', B.renew, '') : '') + bSec('오래 연락 못 한 고객 (90일+)', B.quiet, '90일 넘게 연락이 끊긴 고객이 없습니다.') + '</div></div>' +
       '<section class="bsec hd-rec"><h5>최근 본 고객</h5><div class="hd-chips">' + recent.map(function(c){ return '<button type="button" data-ctopen="' + c.id + '"><i class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '">' + esc(c.name.slice(0, 1)) + '</i>' + esc(c.name) + '<small>' + stageTxt(c.stage) + '</small></button>'; }).join('') + '</div></section>' +
@@ -21515,6 +21668,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="b653daf0673b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="82e3f7325f95";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
