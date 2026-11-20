@@ -23,7 +23,11 @@
       for (var p = e.parentElement, i = 0; p && i < 4 && !lab; p = p.parentElement, i++) { var tx = (p.innerText || '').split('\n')[0].trim(); if (tx && tx !== v && tx.length < 16 && !/^\[/.test(tx)) lab = tx; }
       L.push(/^\[선택\]/.test(v) ? v : (lab ? lab + ': ' : '') + v);
     });
-    return { k: L.slice(0, 3).join('|'), v: '[AFG-DB]\n' + L.join('\n') + '\n[PAGE]\n' + document.body.innerText.slice(0, 3000) };
+    // 2026-11-19: 녹취는 회사 사이트에서 듣도록 DB 번호·메뉴·녹취 개수만 같이 담는다 (녹음 파일·임시 주소는 담지 않음)
+    var all = document.body.innerText || '', id = (location.pathname.match(/\/db\/(\d+)/) || [])[1] || '', mn = new URLSearchParams(location.search).get('menu') || '';
+    var rc = (all.match(/녹취파일\s*목록\s*\((\d+)개\)/) || [])[1] || '';
+    var meta = id ? 'DB번호: ' + id + ' 메뉴: ' + mn + ' 녹취: ' + rc + '\n' : '';
+    return { k: L.slice(0, 3).join('|'), v: '[AFG-DB]\n' + L.join('\n') + '\n[PAGE]\n' + meta + all.slice(0, 3000) };
   }
   function copy(txt, done) {
     // 오래 담은 뒤에는 창이 '누른 직후'가 아니라서 복사가 대답 없이 멈출 수 있다 → 2초 안에 안 되면 [📋 AOB9로 복사] 단추로
@@ -112,8 +116,29 @@
     }
   }
   }
+  // 📮 DB 신청하기 · DB 신청현황 표도 같이 (2026-11-20 대표님 요청 · 고객 정보 없음: 디비 이름·수량·날짜·설명뿐)
+  var req = null;
+  async function tableOf() {
+    var hd = [].slice.call(document.querySelectorAll('thead th')).map(function (x) { return (x.innerText || '').trim(); });
+    var rs = [].slice.call(rowsOf()).map(function (r) { return [].slice.call(r.children).map(function (td) { return (td.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 120); }); }).filter(function (r) { return r.length >= 3; });
+    return { head: hd, rows: rs };
+  }
+  async function openSide(re) { var b = [].slice.call(document.querySelectorAll('button')).find(function (x) { return x.getBoundingClientRect().left < 300 && re.test((x.innerText || '').trim()); }); if (!b) return false; b.click(); await W(2500); await waitList(); return true; }
+  if (!stop) {
+    try {
+      say('DB 신청하기 · 신청현황 표 담는 중…');
+      req = { at: Date.now() };
+      if (await openSide(/^DB\s*신청하기$/)) { var ap = await tableOf(); var note = [].slice.call(document.querySelectorAll('main *, body *')).map(function (x) { return x.children.length ? '' : (x.innerText || '').trim(); }).filter(function (t) { return /DB\s*지원\s*대상|지원여부/.test(t) && t.length < 80; }).slice(0, 2); ap.note = note; req.apply = ap; }
+      if (await openSide(/^DB\s*신청현황$/)) {
+        var hs = await tableOf(), PP = Math.min(maxPage(), 15);
+        for (var pp = 2; pp <= PP && !stop; pp++) { await goPage(pp); await waitList(); hs.rows = hs.rows.concat((await tableOf()).rows); }
+        req.hist = hs;
+      }
+      if (!req.apply && !req.hist) req = null;
+    } catch (e) { req = null; }
+  }
   window.__aobRun = 0;
-  var txt = out.join('\n[END]\n');
+  var txt = out.join('\n[END]\n') + (req ? '\n[END]\n[AFG-DBREQ]\n' + JSON.stringify(req) : '');
   window.__aobStat = { done: 1, got: out.length, mask: nMask, fail: nFail, menus: menus.length };
   var fin = function (ok) {
     say('<b>' + out.length + '명</b> 담았습니다' + (nMask ? '<br>· 번호가 가려진 고객 ' + nMask + '명(아직 통화 안 함)은 가려진 번호로 들어가고, 통화 뒤 다시 누르면 번호가 채워집니다' : '') + (nFail ? '<br>· 못 연 고객 ' + nFail + '명' : '') +
