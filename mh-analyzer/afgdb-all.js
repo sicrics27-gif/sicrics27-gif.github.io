@@ -37,10 +37,76 @@
     try { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); ta.remove(); r ? ok() : no(); } catch (e) { no(); }
   }
   var rowsOf = function () { return document.querySelectorAll('tbody tr'); };
+  // ── 🔁 인수상태 동기화 (2026-11-20 대표님: "앱의 고객상태와 회사 사이트 고객상태를 자동으로 · 최근에 바꾼 쪽으로")
+  //   AOB9에서 [🔁 상태 복사] → 클립보드의 [AOB-ST] 목록(DB번호·이름·상태·앱에서 바꾼 시각)을 읽어,
+  //   고객 상세 화면을 열 때 회사 사이트의 '인수상태 변경시점'이 앱보다 오래됐으면 그 상태 칸을 눌러 바꾼다(바꾸기 전에 목록을 보여 주고 묻는다).
+  //   목록은 이 브라우저 안에서만 쓰고 어디로도 보내지 않는다.
+  var PEND = null, stRes = [];
+  async function readPend() {
+    var t = '';
+    try { t = await navigator.clipboard.readText(); } catch (e) { return null; }
+    var m = /\[AOB-ST\](\{[\s\S]*\})/.exec(t || ''); if (!m) return null;
+    try { var o = JSON.parse(m[1]), P = {}; (o.L || []).forEach(function (x) { if (x && x.id && x.st) P[String(x.id)] = x; }); return Object.keys(P).length ? P : null; } catch (e) { return null; }
+  }
+  function stBoxes() {   // 인수상태 칸들 (글자가 상태 이름인 체크·라디오)
+    var NAMES = ['부재', 'TA거절', '상담중', '가입불가(AS신청)', 'AS재신청', 'AS승인', '상담완료', '청약완료', '전산완료'];
+    return [].slice.call(document.querySelectorAll('input[type=checkbox],input[type=radio]')).map(function (e) {
+      var lb = ((e.labels && e.labels[0] && e.labels[0].innerText) || (e.parentElement && e.parentElement.innerText) || (e.parentElement && e.parentElement.parentElement && e.parentElement.parentElement.innerText) || '').trim().split('\n')[0].trim();
+      return { e: e, t: lb };
+    }).filter(function (x) { return NAMES.indexOf(x.t) >= 0; });
+  }
+  function siteSt() { var b = stBoxes().find(function (x) { return x.e.checked; }); return b ? b.t : ''; }
+  function siteAt() { return ((document.body.innerText || '').match(/인수상태\s*변경시점\s*(\d{4}-\d{2}-\d{2}(?:\s\d{2}:\d{2})?)/) || [])[1] || ''; }
+  async function applySt() {
+    if (!PEND) return;
+    var id = (location.pathname.match(/\/db\/(\d+)/) || [])[1]; if (!id || !PEND[id] || PEND[id].done) return;
+    var want = PEND[id], cur = siteSt(), at = siteAt(), r = { n: want.n, st: want.st, from: cur };
+    PEND[id].done = 1;
+    if (cur === want.st) { r.k = 'same'; stRes.push(r); return; }
+    if (at && want.at && at >= want.at) { r.k = 'site'; r.at = at; stRes.push(r); return; }   // 회사 사이트가 더 최근 → 회사 쪽이 맞음 (앱이 가져갈 때 맞춰짐)
+    var box = stBoxes().find(function (x) { return x.t === want.st; });
+    if (!box) { r.k = 'nobox'; stRes.push(r); return; }
+    var oc = window.confirm, oa = window.alert; window.confirm = function () { return true; }; window.alert = function () {};
+    try {
+      (box.e.labels && box.e.labels[0] ? box.e.labels[0] : box.e).click(); await W(500);
+      if (!box.e.checked) { box.e.click(); await W(400); }
+      // 저장 단추가 따로 있으면 (상태 칸 가까이에서) 누른다
+      var sv = null;
+      for (var p2 = box.e.parentElement, k2 = 0; p2 && k2 < 8 && !sv; p2 = p2.parentElement, k2++) sv = [].slice.call(p2.querySelectorAll('button')).find(function (b) { return /^(저장|수정|변경|상태\s*변경|적용)/.test((b.innerText || '').trim()); });
+      if (!sv) sv = [].slice.call(document.querySelectorAll('button')).find(function (b) { var tx = (b.innerText || '').trim(); return /^(저장|수정하기|변경하기|인수상태\s*변경)$/.test(tx); });
+      if (sv) { sv.click(); await W(1300); }
+      for (var k3 = 0; k3 < 10 && siteSt() !== want.st; k3++) await W(200);
+      r.k = siteSt() === want.st ? (sv || siteAt() !== at ? 'ok' : 'okq') : 'fail';
+    } catch (e) { r.k = 'fail'; }
+    window.confirm = oc; window.alert = oa;
+    stRes.push(r);
+  }
+  function stSummary() {
+    if (!PEND) return '';
+    var c = function (k) { return stRes.filter(function (x) { return x.k === k; }); }, miss = Object.keys(PEND).filter(function (id) { return !PEND[id].done; }).map(function (id) { return PEND[id].n; });
+    var ok = c('ok').concat(c('okq')), bad = c('fail').concat(c('nobox'));
+    return '<div style="margin-top:8px;padding:8px 10px;border-radius:10px;background:#FFF6E8">🔁 <b>인수상태 맞추기</b><br>' +
+      (ok.length ? '✅ 회사 사이트를 바꿈 ' + ok.length + '명' + (c('okq').length ? ' (저장 단추 없이 바뀜 ' + c('okq').length + '명 — 회사 사이트에서 한 번 확인해 주세요)' : '') + '<br>' : '') +
+      (c('same').length ? '· 이미 같음 ' + c('same').length + '명<br>' : '') +
+      (c('site').length ? '· 회사 사이트가 더 최근이라 그대로 ' + c('site').length + '명 (AOB9에 붙여넣으면 앱이 회사 상태로 바뀝니다)<br>' : '') +
+      (bad.length ? '⚠ 못 바꿈 ' + bad.length + '명: ' + bad.map(function (x) { return x.n + '(' + x.st + ')'; }).join(', ') + '<br>' : '') +
+      (miss.length ? '· 목록에서 못 찾음 ' + miss.length + '명: ' + miss.slice(0, 6).join(', ') + (miss.length > 6 ? ' …' : '') : '') + '</div>';
+  }
+  function askPend(say2) {
+    return new Promise(function (res) {
+      var L = Object.keys(PEND).map(function (id) { return PEND[id]; });
+      say2('AOB9에서 바꾼 인수상태 <b>' + L.length + '명</b>을 회사 사이트에도 맞출까요?<div style="max-height:160px;overflow:auto;margin:6px 0;font-size:13px">' + L.map(function (x) { return '· ' + String(x.n || '').replace(/[<>&]/g, '') + ' → <b>' + String(x.st).replace(/[<>&]/g, '') + '</b>'; }).join('<br>') + '</div><span style="font-size:12px;color:#5b6472">회사 사이트에서 그보다 나중에 바꾼 고객은 건드리지 않습니다.</span><br><button id="aobStY" style="margin-top:6px;font-weight:800">네, 맞추고 담기</button> <button id="aobStN">아니요, 담기만</button>');
+      document.getElementById('aobStY').onclick = function () { res(true); };
+      document.getElementById('aobStN').onclick = function () { res(false); };
+    });
+  }
   var onList = function () { return rowsOf().length > 0 && !/\/db\/\d+/.test(location.pathname); };
 
   // ── 상세 화면: 그 고객만 (예전 방식)
   if (/\/db\/\d+/.test(location.pathname) || (!onList() && !/\/db\/?$/.test(location.pathname))) {
+    PEND = await readPend();
+    var did = (location.pathname.match(/\/db\/(\d+)/) || [])[1];
+    if (PEND && did && PEND[did] && confirm('AOB9에서 바꾼 인수상태(' + PEND[did].st + ')로 회사 사이트도 바꿀까요?\n(회사 사이트에서 더 나중에 바꿨으면 건드리지 않습니다)')) { await applySt(); var rr = stRes[0]; if (rr) alert(rr.k === 'ok' || rr.k === 'okq' ? '인수상태를 ' + rr.st + '(으)로 바꿨습니다' : rr.k === 'same' ? '이미 같은 상태입니다' : rr.k === 'site' ? '회사 사이트에서 더 나중에 바꿔서 그대로 둡니다' : '인수상태를 바꾸지 못했습니다 · 직접 바꿔 주세요'); }
     var g = grab(), K = 'oc9_db_bag', bag;
     try { bag = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) { bag = null; }
     if (!bag || Date.now() - bag.t > 12 * 3600e3) bag = { t: Date.now(), b: [] };
@@ -59,6 +125,8 @@
   var stop = false;
   var say = function (h) { box.innerHTML = '<b style="font-size:15px">AOB로 복사 · 한 번에 담기</b><div style="margin-top:6px">' + h + '</div>'; };
   say('준비 중…');
+  PEND = await readPend();
+  if (PEND && !(await askPend(say))) PEND = null;
   var pageBtns = function () { return [].slice.call(document.querySelectorAll('nav button, .MuiPagination-ul button')); };
   var curPage = function () { var b = pageBtns().find(function (x) { return x.getAttribute('aria-current'); }); return b ? +b.innerText.trim() || 1 : 1; };
   var maxPage = function () { return pageBtns().map(function (x) { return +x.innerText.trim() || 0; }).reduce(function (a, b) { return Math.max(a, b); }, 1); };
@@ -111,6 +179,7 @@
       }
       if (/\*/.test(ph.value)) nMask++;
       prevName = nm;
+      if (PEND) await applySt();
       var gg = grab(); if (!seen[gg.k]) { seen[gg.k] = 1; out.push(gg.v); save(); }
       await backTo(p);
     }
@@ -143,7 +212,7 @@
   var fin = function (ok) {
     say('<b>' + out.length + '명</b> 담았습니다' + (nMask ? '<br>· 번호가 가려진 고객 ' + nMask + '명(아직 통화 안 함)은 가려진 번호로 들어가고, 통화 뒤 다시 누르면 번호가 채워집니다' : '') + (nFail ? '<br>· 못 연 고객 ' + nFail + '명' : '') +
       (ok ? '<br><br>✅ 클립보드에 복사됨<br>AOB9 → 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기 → <b>붙여넣기</b>' : '<br><br><button id="aobCopy" style="font-size:16px;font-weight:800;padding:10px 16px;border:0;border-radius:10px;background:#2F6BFF;color:#fff;cursor:pointer">📋 AOB9로 복사</button>') +
-      '<br><button id="aobX" style="margin-top:8px">닫기</button>');
+      stSummary() + '<br><button id="aobX" style="margin-top:8px">닫기</button>');
     var c = document.getElementById('aobCopy'); if (c) c.onclick = function () { copy(txt, function (k2) { if (k2) fin(true); else prompt('아래 글을 전체 복사하세요', txt); }); };
     document.getElementById('aobX').onclick = function () { box.remove(); };
   };
