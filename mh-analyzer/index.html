@@ -3712,6 +3712,17 @@ ul.mdpts{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:var(-
 .mdbntw{margin:18px 0;border:1px solid var(--line);border-radius:12px;background:var(--paper);padding:10px 14px}
 .mdbntw summary{cursor:pointer;font-weight:700;color:var(--ink)}
 .mdbcov{margin:26px 0 4px;font-size:17px;color:var(--ink)}
+/* 📅 상담 약속 잡기 (2026-11-20) — 색은 변수만 */
+.ctb.appt{border-color:var(--accent);color:var(--accent)}
+.apform .mtrow{display:flex;gap:8px}.apform .mtrow input{flex:1;min-width:0;height:44px;font-size:16px}
+.apwd{margin:4px 0 0;font-weight:800;color:var(--accent);font-size:14.5px}
+.apch{display:flex;flex-wrap:wrap;gap:6px}.apch button{flex:1 1 auto}
+.aprow{display:flex;gap:8px;align-items:center}.aprow b{font-size:15px;color:var(--ink);min-width:44px;text-align:center;background:var(--soft);border-radius:8px;padding:9px 6px}.aprow input{flex:1;min-width:0}
+.aptxt{min-height:240px;font-size:14px;line-height:1.6}
+.apdlg #apM{min-height:230px}
+.apdlg .mrow{flex-wrap:wrap;gap:8px}
+.apdlg .mrow #apGo{flex:1 1 100%;order:-1;justify-content:center;min-height:48px}
+.apdlg .mrow #apSave{flex:1 1 auto}.apdlg .mrow #apX{flex:0 0 auto}
 
 </style>
 </head>
@@ -9735,6 +9746,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 40, d: '2026-11-20', ic: '👥', t: '같은 고객 자동 합치기', s: '이름과 생년월일이 같은 고객(회사 DB에서 온 고객을 또 등록한 경우 등)은 자동으로 한 명으로 합칩니다. 정보는 빠짐없이 모으고(번호·DB 정보·기록·메모), 두 사람 모두 병력 자료가 있으면 합치지 않고 \'동일인 확인\'에 올립니다.', w: '자동 · 고객 탭' },
+    { id: 39, d: '2026-11-20', ic: '📅', t: '상담 약속 잡기 · 예약 확정 문자', s: '고객을 등록하면 바로 상담 날짜·시간을 묻고, 저장하면 싯플랜·캘린더에 "1530 거제 홍길동 인포DB 1차상담"으로 들어가며 상담 예약 확정 문자가 날짜·시간만 바뀐 채 준비됩니다. 예약 글을 붙여 넣어 등록하면 날짜·시간이 미리 채워집니다.', w: '고객 등록 직후 · 고객 화면 연락 줄 📅 상담 약속' },
     { id: 38, d: '2026-11-20', ic: '📚', t: 'MD 백과 — 팀원도 최신 자료 · 보기 좋게', s: '이제 팀원도 [↻ 최신 자료 받기]로 회사가 정리한 이번 달 MD’s Spec을 바로 받습니다(6시간마다 자동). 맨 위 \'⚡ 한눈에\' 표에서 기준마다 1·2·3위를 보고, 추천·순위 카드는 금액이 강조되고 메달로 순위가 보입니다.', w: '☰ 메뉴 → 상품 · 자료 → 📚 MD 백과' },
     { id: 37, d: '2026-11-20', ic: '📥', t: '가져오기 하나로', s: '엑셀 고객표 · 회사 보유계약 · 알마인드 · 연락처 · 보장분석 PDF · 카톡 알림톡을 따로 찾을 필요 없이 [📥 가져오기]에서 파일을 고르면 종류를 보고 알아서 넣습니다. 회사 DB 북마크 글은 같은 창의 [📋 붙여넣기].', w: '고객 탭 ＋ 추가 → 맨 위 📥 가져오기' },
     { id: 36, d: '2026-11-20', ic: '↕', t: '표 머리글 누르면 정렬', s: '고객 표에서 마지막 연락 · 배분일 · 등록일 · AS 마감 · 나이 같은 머리글을 누르면 최근 순으로, 한 번 더 누르면 오래된 순으로 바뀝니다. 고른 정렬은 기억됩니다.', w: '고객 탭 👁 보기 → 👥 채널별 고객관리 / 📋 AFG DB 고객' },
@@ -10624,6 +10637,71 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('ppGo').onclick = async function(){ var d = $('ppD').value; if (!d) return; c.next = { d: d, t: ($('ppT').value ? $('ppT').value + ' ' : '') + '만남 · ' + place, place: place }; closeDlg(); await saveCur('할 일에 약속을 넣었습니다 · 만난 뒤 상담 기록에서 "만남"으로 남기면 장소가 기억됩니다'); };
     $('ppMsg').onclick = async function(){ var d = $('ppD').value; if (d) { c.next = { d: d, t: ($('ppT').value ? $('ppT').value + ' ' : '') + '만남 · ' + place, place: place }; await saveCur(); } S.preTxt = text(); closeDlg(); openMsg('kakao', 'raw'); };
   }
+  // 📅 상담 약속 잡기 (2026-11-20 대표님: "AFG DB 고객을 새로 등록하면 상담예약문자 — 내가 보내는 양식 그대로 날짜·시간만 바꿔서 · 붙여넣기로 등록하면 상담 일정·시간 팝업 → 싯플랜·캘린더 동기화")
+  //   고객 등록 직후(직접 입력 · 붙여넣기 한 명) 자동으로 뜨고, 고객 화면 연락 줄 [📅 상담 약속]으로도 연다
+  //   저장 = ① 싯플랜 '1530 거제 홍길동 인포DB 1차상담'(빨강 · 주소는 캘린더 위치 칸에만) ② 캘린더(싯플랜과 같은 길 gcPush) ③ 다음 할 일 · 문자 = 대표님 '상담 예약 확정' 양식(날짜·시간·장소만 바뀜)
+  //   이 기기 안에서만 만든다(AI·서버로 안 보냄) · 문자는 문자 앱으로 넘기기만(보내기 버튼은 대표님이)
+  var APPT_KIND = ['1차상담', '2차상담', '클로징', '증권전달'], APPT_WHERE = [['home', '고객님댁 방문'], ['office', '지점'], ['cafe', '카페'], ['etc', '기타']];
+  function apptTime(t){ var h = +t.slice(0, 2), m = +t.slice(3, 5); return (h < 12 ? '오전 ' : '오후 ') + (h % 12 === 0 ? 12 : h % 12) + '시' + (m ? ' ' + m + '분' : ''); }
+  function apptDay(d){ return (+d.slice(5, 7)) + '월 ' + (+d.slice(8, 10)) + '일 ' + WD[new Date(d + 'T12:00:00').getDay()] + '요일'; }
+  function apptMsg(o){
+    var when = apptDay(o.d) + ' ' + apptTime(o.t), who = o.me || '담당자';
+    var visit = o.where === 'home' ? '고객님댁 방문예정' : o.where === 'office' ? '지점 방문 상담' : o.where === 'cafe' ? '카페에서 뵙겠습니다' : '';
+    return o.name + ' 고객님\n안녕하세요.\n방금 전화드린 담당자 ' + who + '입니다.\n\n-상담 예약 확정-\n상담일시 : ' + when + '\n상담장소 : ' + (o.place || '') + (visit ? '\n' + visit : '') +
+      '\n\n무료로 진행 해드리는 일정이라 정말 필요로 원하시는 고객님들이 상담을 못받으실 수 있어 일정 변동 있으시면 미리 연락 부탁드립니다.\n\n' + when + '에 뵙겠습니다. 감사합니다.';
+  }
+  async function openAppt(c, opt){
+    opt = opt || {}; c = c || S.cur; if (!c || c.sample) { if (opt.after) opt.after(); return; }
+    await planLoad();
+    var g = {}; try { if (opt.raw) g = calSimplify(opt.raw) || {}; } catch(e){ g = {}; }
+    var nx = c.next && c.next.d && c.next.d >= todayStr() ? c.next : null, nxT = nx && /^(\d{2}):(\d{2})/.exec(nx.t || '');
+    var d0 = g.d || (nx && nx.d) || addDay(todayStr(), 1), t0 = g.t ? g.t.slice(0, 2) + ':' + g.t.slice(2) : nxT ? nxT[1] + ':' + nxT[2] : '14:00';
+    var area = String(g.region || (meetOf(c).area || (c.meet && c.meet.area) || '')).trim().split(/\s+/).pop().replace(/(특별시|광역시|시|군|구)$/, '') || '';
+    var tag = g.tag || (/^db/.test(chOf(c)) ? 'DB' : c.ref ? '소개' : '');
+    var place0 = g.loc || (c.req && c.req.addr) || (nx && nx.place) || '';
+    var me0 = myId().name ? meLine() : '';
+    var st = { kind: g.kind && APPT_KIND.indexOf(g.kind) >= 0 ? g.kind : '1차상담', where: /카페/.test(place0) ? 'cafe' : 'home', edited: false };
+    var chip = function(id, L, cur){ return '<div class="sexsel apch" id="' + id + '">' + L.map(function(x){ var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<button type="button" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + t + '</button>'; }).join('') + '</div>'; };
+    openDlg('<h4>📅 ' + esc(c.name) + '님 상담 약속</h4><div class="form apform">' +
+      (opt.fresh ? '<p class="note">새로 등록한 고객입니다 · 상담 날짜·시간만 확인하면 싯플랜·캘린더·문자까지 한 번에 됩니다</p>' : '') +
+      '<div class="mtrow"><input type="date" id="apD" value="' + esc(d0) + '" aria-label="상담 날짜"><input type="time" id="apT" value="' + esc(t0) + '" step="600" aria-label="상담 시간"></div>' +
+      '<p class="apwd" id="apWd"></p>' +
+      '<span class="l">상담 종류</span>' + chip('apK', APPT_KIND, st.kind) +
+      '<span class="l">장소</span>' + chip('apW', APPT_WHERE, st.where) +
+      '<input id="apP" type="text" maxlength="120" placeholder="주소 · 장소 (캘린더 위치 칸과 문자에만 들어갑니다)" value="' + esc(place0) + '">' +
+      '<label class="l" for="apL">싯플랜에 들어갈 한 줄</label><div class="aprow"><b id="apLt"></b><input id="apL" type="text" maxlength="60" value=""></div>' +
+      '<label class="l" for="apMe">문자에 넣을 내 이름 · 직함 <small class="note">(한 번 넣으면 기억)</small></label><input id="apMe" type="text" maxlength="20" placeholder="예: 강남혁 팀장" value="' + esc(me0) + '">' +
+      '<label class="l" for="apM">상담 예약 확정 문자 <small class="note">(고쳐도 됩니다)</small></label><textarea id="apM" class="ktxt aptxt" spellcheck="false"></textarea>' +
+      '<div class="ferr" id="apE"></div></div>' +
+      '<div class="mrow"><button class="btn lg" type="button" id="apX" style="margin-right:auto">' + (opt.fresh ? '나중에' : '닫기') + '</button><button class="btn lg" type="button" id="apSave">싯플랜·캘린더에 저장</button><button class="go" type="button" id="apGo">' + IC.sms + ' 저장하고 문자 보내기</button></div>', 'wide apdlg');
+    var lineOf = function(){ return [area, c.name, tag, st.kind].filter(Boolean).join(' '); };
+    $('apL').value = lineOf();
+    var cur = function(){ return { d: $('apD').value, t: $('apT').value || '14:00', name: c.name, place: $('apP').value.trim(), where: st.where, me: $('apMe').value.trim() }; };
+    var redraw = function(){ var o = cur(); $('apWd').textContent = o.d ? apptDay(o.d) + ' ' + apptTime(o.t) + (o.d < todayStr() ? ' · 지난 날짜입니다' : '') : ''; $('apLt').textContent = o.t.replace(':', ''); if (!st.edited && o.d) $('apM').value = apptMsg(o); };
+    ['apD', 'apT', 'apP', 'apMe'].forEach(function(id){ $(id).addEventListener('input', redraw); $(id).addEventListener('change', redraw); });
+    $('apM').addEventListener('input', function(){ st.edited = true; });
+    $('apK').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; st.kind = b.dataset.v; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); $('apL').value = lineOf(); };
+    $('apW').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; st.where = b.dataset.v; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); if (st.where === 'office' && !$('apP').value.trim()) $('apP').value = '지점'; redraw(); };
+    redraw();
+    var done = false, fin = function(){ if (done) return; done = true; if (opt.after) setTimeout(function(){ opt.after(); }, 300); };
+    $('apX').onclick = function(){ closeDlg(); fin(); };
+    var save = async function(){
+      var o = cur(), line = $('apL').value.trim(); if (!o.d) { $('apE').textContent = '상담 날짜를 넣어 주세요'; return null; } if (!line) { $('apE').textContent = '싯플랜 한 줄을 넣어 주세요'; return null; }
+      if (o.me && (!PL.d.me || !PL.d.me.name)) { var sp = o.me.split(/\s+/); PL.d.me = { name: sp[0], title: sp.slice(1).join(' ') }; }
+      var t4 = o.t.replace(':', '').slice(0, 4), day = PL.d.days[o.d] = PL.d.days[o.d] || { items: [], big: '' }; day.items = day.items || [];
+      var dup = day.items.some(function(x){ return x.t === t4 && String(x.x).replace(/\s+/g, '') === line.replace(/\s+/g, ''); });
+      if (!dup) { var it = { t: t4, x: line, c: st.kind === '증권전달' ? 'g' : 'r', at: Date.now() }; if (o.place && st.where !== 'office') it.loc = o.place; day.items.push(it); day.items.sort(function(p, q){ return (p.t || '9999') < (q.t || '9999') ? -1 : (p.t || '9999') > (q.t || '9999') ? 1 : 0; }); if (PL.d.tomb) delete PL.d.tomb[o.d + '|' + Store.planKey(it)]; }
+      PL.d.mt = PL.d.mt || {}; PL.d.mt[o.d] = Date.now();
+      await planSave(); try { planChanged([o.d]); } catch(e){} if (gcReady()) gcPush([o.d], true).catch(function(){});
+      if (!c.next || !c.next.d || c.next.d < todayStr() || c.next.d === o.d || !opt.fresh) { var h = S.list.find(function(x){ return x.id === c.id; }) || c; h.next = { d: o.d, t: o.t + ' ' + st.kind + (o.place ? ' · ' + o.place.slice(0, 30) : ''), place: o.place || undefined }; if (S.cur && S.cur.id === c.id) S.cur.next = h.next; await Store.saveHead(S.cur && S.cur.id === c.id ? S.cur : h); S.list = await Store.list(); }
+      return { o: o, dup: dup };
+    };
+    $('apSave').onclick = async function(){ var r = await save(); if (!r) return; closeDlg(); if (S.cur && S.cur.id === c.id) renderCustomer(); renderList(); toast((r.dup ? '싯플랜에 이미 있는 약속입니다' : '싯플랜에 넣었습니다') + (gcReady() ? ' · 캘린더에 맞추는 중…' : '')); fin(); };
+    $('apGo').onclick = async function(){ var msg = $('apM').value.trim(), r = await save(); if (!r) return; closeDlg(); if (S.cur && S.cur.id === c.id) renderCustomer(); renderList(); toast('싯플랜' + (gcReady() ? '·캘린더' : '') + '에 넣었습니다 · 문자를 보내 주세요');
+      if (!normPhone(c.phone)) { copyText(msg, '상담 예약 문자'); fin(); return; }
+      done = true; S.preTxt = msg; if (!S.cur || S.cur.id !== c.id) await openCustomer(c.id); openMsg('sms', 'appt'); };   // 문자 창이 뜨면 등록 뒤 이어지던 창(등록 요청서·파일)은 띄우지 않음
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-appt]'); if (t && S.cur) openAppt(S.cur); });
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-mt]'); if (!t) return;
     if (t.dataset.mt === 'edit') openMeet(); else if (t.dataset.mt === 'cafe') openCafe(); else if (t.dataset.mt === 'checkin') checkIn(S.cur); else if (t.dataset.mt === 'navi') { var lpq = lastPlace(S.cur); openNavi(placeQuery(S.cur) || (lpq && lpq.place) || ''); }
@@ -12051,8 +12129,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var c = S.cur, ph = normPhone(c.phone), L = lastOf(c);
     var b = '<div class="ctbar">';
     if (ph) {
-      if (IS_MOBILE) b += '<a class="ctb call" href="tel:' + ph + '" data-pend="call">' + IC.phone + '전화</a><button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡</button>';
-      else b += '<button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자 보내기</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡 보내기</button><button type="button" class="ctb" data-act="logCall">' + IC.phone + '통화 기록</button>';
+      if (IS_MOBILE) b += '<a class="ctb call" href="tel:' + ph + '" data-pend="call">' + IC.phone + '전화</a><button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡</button><button type="button" class="ctb appt" data-appt="1">📅 상담 약속</button>';
+      else b += '<button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자 보내기</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡 보내기</button><button type="button" class="ctb" data-act="logCall">' + IC.phone + '통화 기록</button><button type="button" class="ctb appt" data-appt="1">📅 상담 약속</button>';
     } else b += '<button type="button" class="lnk2" data-act="edit">휴대폰 번호를 넣으면 전화·문자·카톡 바로가기가 생깁니다</button>';
     b += '<span class="ctlast"><span><small>통화</small>' + (L.call ? dot(L.call) : '—') + '</span><span><small>문자</small>' + (L.sms ? dot(L.sms) : '—') + '</span><span><small>카톡</small>' + (L.kakao ? dot(L.kakao) : '—') + '</span><span><small>만남</small>' + (L.meet ? dot(L.meet) : '—') + '</span>' + (L.any ? '<em>마지막 연락 ' + ago(L.any) + '</em>' : '<em>연락 기록 없음</em>') + '</span></div>';
     return b;
@@ -12158,6 +12236,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function preMsg(pre){
     if (!pre) return null;
     if (pre === 'raw' && S.preTxt) return ['약속 안내', S.preTxt, '약속 안내'];
+    if (pre === 'appt' && S.preTxt) return ['상담 예약 확정', S.preTxt, '상담 예약 확정'];
     if (pre === 'nhc' && S.data && S.data.nhc && S.data.nhc.kakao) return ['보장분석 안내', S.data.nhc.kakao, 'NHC 보장분석 안내'];
     var m = /^tpl:(\d+)$/.exec(pre); if (m && MSG_TPL[+m[1]]) return [MSG_TPL[+m[1]][0], MSG_TPL[+m[1]][1], ''];
     m = /^care:([a-z]+)(?::(.+))?$/.exec(pre); if (m) { var cm = careMsg(m[1], m[2]); if (cm) return cm; }
@@ -19582,8 +19661,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       h = await Store.saveHead(h);
       S.list = await Store.list();
       closeDlg();
+      if (!c) { var mid = await custMergeNew(h.id); if (mid !== h.id) { h = S.list.find(function(x){ return x.id === mid; }) || h; toast('이미 있는 ' + h.name + '님이라 한 명으로 합쳤습니다 · 새로 넣은 정보만 더했습니다', 5000); } }   // 2026-11-20: 이름·생년월일이 같으면 합침
       await openCustomer(h.id);
-      if (!c) { var sec0 = await secLoad(); if (sec0.name && sec0.auto !== false) openReqForm(S.cur || h, { fresh: true }); else openFiles(); }
+      if (!c) { var nextUp = async function(){ var sec0 = await secLoad(); if (sec0.name && sec0.auto !== false) openReqForm(S.cur || h, { fresh: true }); else openFiles(); }; openAppt(S.cur || h, { fresh: true, raw: h.memo || '', after: nextUp }); }   // 2026-11-20: 등록하자마자 상담 약속 → 싯플랜·캘린더·예약 문자
     };
   }
 
@@ -19769,7 +19849,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     flush();
     return out;
   }
-  function parsePeople(text){ return peopleScan(text).filter(function(p){ return p.birth; }); }
+  function parsePeople(text){ return rsvName(peopleScan(text).filter(function(p){ return p.birth; }), text); }
 
   // 📇 연락처 파일(.vcf) → 고객 후보 (휴대폰 '연락처 → 공유 → 명함 파일' · 구글 주소록 내보내기). 이 기기 안에서만 읽음
   function vcfParse(text){
@@ -19814,7 +19894,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 카톡 대화 내보내기 줄 머리(날짜·시간·보낸 사람) 지우기
   function cleanKakao(t){ return String(t || '').split(/\r?\n/).map(function(l){ return l.replace(/^\[[^\]]{1,20}\]\s*\[(오전|오후)\s*\d{1,2}:\d{2}\]\s*/, '').replace(/^\d{4}[.년]\s*\d{1,2}[.월]\s*\d{1,2}[.일]?\s*(오전|오후)?\s*\d{1,2}:\d{2},?\s*[^:：]{1,20}\s*[:：]\s*/, '').replace(/^-+\s*\d{4}년.*요일\s*-+$/, '').replace(/^(저장한 날짜|.*님과 카카오톡 대화)\s*:?.*$/, ''); }).join('\n'); }
   // 주민번호 없이 이름+번호만 있는 사람들 (없으면 예전 방식: 메모 한 덩어리에서 한 명 추리기)
-  function parseLoose(text){ var a = peopleScan(text).filter(function(p){ return !p.birth; }); return a.length ? a : looseOne(text); }
+  function parseLoose(text){ var a = rsvName(peopleScan(text).filter(function(p){ return !p.birth; }), text); return a.length ? a : looseOne(text); }
+  // 2026-11-20: '어센틱 홍길동 67 인포DB …' 같은 예약 글에서 '어센틱'·'인포' 같은 낱말을 이름으로 잡으면 예약 글 읽기(calSimplify)의 이름으로 바꿈
+  function rsvName(L, text){ if (!L.length || !L.some(function(p){ return CI_STOP.test(p.name || ''); })) return L; var nm = ''; try { if (ciRaw(text)) nm = (calSimplify(text) || {}).name || ''; } catch(e){} return nm ? L.map(function(p){ return CI_STOP.test(p.name || '') ? Object.assign({}, p, { name: nm }) : p; }) : L; }
   // 주민번호가 없는 메모(이름·연락처·생년월일·주소·직업 등)에서 고객 한 명 추리기 — 이 기기 안에서만
   function looseOne(text){
     var t = String(text || '').replace(/\r/g, '').trim(); if (!t || t.length > 4000) return [];
@@ -19822,6 +19904,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var lm = t.match(/(?:^|\n)\s*(?:성명|이름|고객명?|피보험자|계약자)\s*[:：]?\s*([가-힣]{2,4})(?=\s|$|님|\()/); o.name = lm ? lm[1] : g.name || '';
     if (!o.name) { var m0 = t.match(/(?:^|\s)([가-힣]{2,4})\s*(?:님|고객님?)(?=\s|$|[,(])/); if (m0) o.name = m0[1]; }
     o.name = o.name.replace(/(고객)?님$/, '');
+    if (ciRaw(t) && (!o.name || CI_STOP.test(o.name))) { try { var cs0 = calSimplify(t); if (cs0 && cs0.name) o.name = cs0.name; } catch(e){} }   // 2026-11-20: '어센틱 홍길동 67 인포DB …' 예약 글 — '어센틱'을 이름으로 잡던 것
     if (!o.name || /^(주소|직업|연락처|전화|메모|병력|가족|고객|보험)$/.test(o.name)) return [];
     o.phone = g.phone || '';
     if (g.birth) o.birth = g.birth.replace(/\D/g, '');
@@ -19940,7 +20023,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var draw = function(){
       if (fromZip) { var seenP = {}; found = []; fromZip.forEach(function(t){ parsePeople(t).forEach(function(p){ var k = p.name + p.birth; if (!seenP[k]) { seenP[k] = 1; found.push(p); } }); }); found.sort(function(a, b){ return a.name < b.name ? -1 : 1; }); }
       else if (fromList) found = fromList.slice();
-      else { found = peopleScan($('pTxt').value); if (!found.length) found = looseOne($('pTxt').value); }
+      else { found = rsvName(peopleScan($('pTxt').value), $('pTxt').value); if (!found.length) found = looseOne($('pTxt').value); }
       var have = {}; S.list.forEach(function(c){ have[c.name + c.birth] = c; if (c.phone) have[c.name + '#' + c.phone] = c; });
       var keyOf = function(p){ return p.birth ? p.name + p.birth : p.name + '#' + p.phone; };
       if (!found.length) { $('pPrev').innerHTML = fromZip ? '<div class="note">백업 메모에서 이름·주민번호를 찾지 못했습니다.</div>' : $('pTxt').value.trim() ? '<div class="note">이름과 함께 주민번호·생년월일·010 번호 중 하나가 있어야 등록할 수 있습니다.</div>' : ''; $('pGo').disabled = true; return; }
@@ -19985,14 +20068,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       var picks = Array.prototype.slice.call(document.querySelectorAll('[data-pi]:checked')).map(function(el){ return found[+el.dataset.pi]; });
       if (!picks.length) { $('pErr').textContent = '등록할 고객을 선택하세요.'; return; }
       this.disabled = true; this.textContent = '등록 중…';
-      var last = null;
+      var last = null, rawTxt = $('pTxt') ? $('pTxt').value : '';
       var blocks = fromZip ? [] : (PASTE_CHUNKS && PASTE_CHUNKS.length ? PASTE_CHUNKS : (found.length === 1 ? [$('pTxt').value] : $('pTxt').value.split(/\n\s*\n/)));
       var reqFor = function(pp){ var bl = blocks.filter(function(t){ var q = parsePeople(t); return q.length === 1 && q[0].name === pp.name && q[0].birth === pp.birth; })[0]; var r = bl ? parseReq(bl) : null; return r && Object.keys(r).length ? r : null; };
       for (var i = 0; i < picks.length; i++) { var rq1 = reqFor(picks[i]); if (picks[i].loose && !rq1 && found.length === 1) { var rq2 = parseReq($('pTxt').value); if (rq2 && Object.keys(rq2).length) rq1 = rq2; } if (picks[i].addr && !(rq1 && rq1.addr)) rq1 = Object.assign({}, rq1 || {}, { addr: picks[i].addr }); last = await Store.saveHead(Object.assign({ status: 'wait', name: picks[i].name, sex: picks[i].sex || '', birth: picks[i].birth || '', phone: picks[i].phone || '', memo: picks[i].memo || '', from: picks[i].from || 'memo' }, rq1 ? { req: rq1 } : {})); }
       PASTE_CHUNKS = null; CLIP.list = []; clipSave(); clipBar();
       S.list = await Store.list(); closeDlg(); renderList();
       toast(picks.length + '명을 등록했습니다');
-      if (picks.length === 1 && last) { await openCustomer(last.id); reqAfterNew(S.cur || last); }
+      if (picks.length === 1 && last) { var lid = await custMergeNew(last.id); await openCustomer(lid); var lc = S.cur || last; openAppt(lc, { fresh: true, raw: rawTxt, after: function(){ reqAfterNew(lc); } }); }   // 2026-11-20: 붙여 넣은 글의 날짜·시간을 미리 채운 상담 약속 창
     };
     setTimeout(function(){ $('pTxt').focus(); }, 30);
   }
@@ -20170,6 +20253,64 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     for (var i = 0; i < L0.length; i++) { if (!Store.isOpen()) break; try { var dd = await Store.loadData(L0[i].id); if (dd && !dd.covOnly) { var h = Object.assign({}, L0[i], { hxk: Object.keys((dd.meta && dd.meta.kinds) || {}) }); await Store.saveHead(h); n++; } } catch(e2){} if (i % 10 === 9) await new Promise(function(r){ setTimeout(r, 300); }); }
     if (n) { S.list = await Store.list(); renderList(); } } finally { hxBackfill.on = false; } }
   setTimeout(function tick(){ try { if (Store.isOpen() && S.list && S.list.length) { hxBackfill(); return; } } catch(e){} setTimeout(tick, 5000); }, 8000);
+  // 👥 같은 사람 합치기 (2026-11-20 대표님: "DB 사이트에서 불러온 고객을 내가 또 등록해서 이름·생년월일이 같으면 자동으로 하나로 · 안의 정보는 누락 없이 추가적인 정보만 추가")
+  //   이름(띄어쓰기 무시) + 생년월일 8자리가 같은 고객만 · 남는 쪽 = 병력파악 자료가 있는 쪽 → 먼저 등록한 쪽
+  //   합치기는 '더하기만': 남는 쪽에 비어 있는 칸만 채우고(이미 있는 값은 그대로), 기록·상담·청구 같은 목록은 둘 다 모아 겹친 것만 하나로, 메모가 다르면 둘 다 이어 붙임
+  //   두 사람 모두 병력파악 자료가 있으면 섞일 수 있어 자동으로 합치지 않고 '동일인 확인'(chk)으로만 올린다
+  var MRG_LIST = ['notes', 'cons', 'claims', 'tasks', 'files', 'deals', 'tags'];
+  function mrgEmpty(v){ return v == null || v === '' || (Array.isArray(v) && !v.length) || (typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).length); }
+  function mrgFill(a, b){   // a 에 없는 것만 b 에서 (안쪽 객체까지)
+    if (mrgEmpty(a)) return b; if (mrgEmpty(b) || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a) || Array.isArray(b)) return a;
+    var o = Object.assign({}, a); Object.keys(b).forEach(function(k){ o[k] = mrgFill(a[k], b[k]); }); return o;
+  }
+  function mrgList(a, b){ var out = [], seen = {}; (a || []).concat(b || []).forEach(function(x){ var k = JSON.stringify(x); if (seen[k]) return; seen[k] = 1; out.push(x); }); return out; }
+  var MRG_STG = { db: 0, lead: 0, consult: 1, contract: 2, care: 3 };
+  function mrgHead(keep, drop){
+    var h = Object.assign({}, keep);
+    Object.keys(drop).forEach(function(k){
+      if (/^(id|created|updated|deleted|chk)$/.test(k)) return;
+      var a = keep[k], b = drop[k];
+      if (MRG_LIST.indexOf(k) >= 0 && (Array.isArray(a) || Array.isArray(b))) { h[k] = mrgList(a, b); return; }
+      if (k === 'memo') { var A = String(a || '').trim(), B = String(b || '').trim(); h.memo = !A ? B : !B || A.indexOf(B) >= 0 ? A : B.indexOf(A) >= 0 ? B : A + '\n' + B; return; }
+      if (k === 'stage') { if ((MRG_STG[b] || 0) > (MRG_STG[a] || 0)) h.stage = b; return; }   // 더 진행된 단계로 (예: DB 가망 + 내가 상담 중 → 상담 중)
+      if (k === 'next') { var t = todayStr(), an = a && a.d && a.d >= t, bn = b && b.d && b.d >= t; if (!an && bn) h.next = b; else if (mrgEmpty(a)) h.next = b; return; }
+      h[k] = mrgFill(a, b);
+    });
+    if (!h.ch && drop.ch) h.ch = drop.ch;
+    return h;
+  }
+  var MRG = { on: false };
+  async function custDedupe(quiet){
+    if (MRG.on || !Store.isOpen()) return 0; MRG.on = true; var n = 0, flag = 0;
+    try {
+      var key = function(c){ return String(c.name || '').replace(/\s+/g, '') + '|' + (/^\d{8}$/.test(c.birth || '') ? c.birth : ''); };
+      var G = {}; (S.list || []).forEach(function(c){ if (c.sample || c.hidden || c.deleted) return; var k = key(c); if (!/\|\d{8}$/.test(k) || k.length < 11) return; (G[k] = G[k] || []).push(c); });
+      var ks = Object.keys(G).filter(function(k){ return G[k].length > 1; }); if (!ks.length) return 0;
+      for (var i = 0; i < ks.length; i++) {
+        var L = G[ks[i]].slice(), D = {};
+        for (var j = 0; j < L.length; j++) { try { D[L[j].id] = await Store.loadData(L[j].id); } catch(e){ D[L[j].id] = null; } }
+        var withData = L.filter(function(c){ var d = D[c.id]; return d && (d.input || d.analyzedAt || (d.files && d.files.length) || d.coverage); });
+        if (withData.length > 1) { for (var q = 0; q < L.length; q++) if (!L[q].chk) { L[q].chk = 1; await Store.saveHead(L[q]); flag++; } continue; }   // 자료가 둘 다 있으면 손으로 확인
+        L.sort(function(a, b){ var da = withData.indexOf(a) >= 0 ? 0 : 1, db = withData.indexOf(b) >= 0 ? 0 : 1; return da - db || (a.created || 0) - (b.created || 0); });
+        var keep = L[0];
+        for (var r = 1; r < L.length; r++) {
+          var drop = L[r]; keep = mrgHead(keep, drop);
+          if (!D[keep.id] && D[drop.id]) { await Store.saveData(keep.id, D[drop.id]); D[keep.id] = D[drop.id]; }
+          for (var s2 = 0; s2 < S.list.length; s2++) { var o = S.list[s2]; if (o.refId === drop.id) { o.refId = keep.id; await Store.saveHead(o); } }   // 소개한 사람 연결도 옮김
+          await Store.remove(drop.id); n++;
+          if (S.cur && S.cur.id === drop.id) S.cur = keep;
+        }
+        delete keep.chk; keep = await Store.saveHead(keep); if (S.cur && S.cur.id === keep.id) S.cur = keep;
+      }
+      if (n || flag) { S.list = await Store.list(); renderList(); if (S.cur && !S.list.some(function(c){ return c.id === S.cur.id; })) showWelcome(); else if (S.cur && $('dlg').hidden) renderCustomer(); }
+      if (n && !quiet) toast('👥 이름·생년월일이 같은 고객 ' + n + '명을 합쳤습니다 · 정보는 빠짐없이 한쪽에 모았습니다', 5000);
+    } catch(e){} finally { MRG.on = false; }
+    return n;
+  }
+  // 새로 등록한 고객이 이미 있는 사람이면 그 사람에게 더하고, 남은 고객 id 를 돌려줌
+  async function custMergeNew(id){ var c = S.list.find(function(x){ return x.id === id; }); if (!c) return id; var k = String(c.name || '').replace(/\s+/g, ''), b = c.birth; await custDedupe(true); var hit = S.list.find(function(x){ return !x.deleted && String(x.name || '').replace(/\s+/g, '') === k && x.birth === b; }); return hit ? hit.id : id; }
+  setTimeout(function tick2(){ try { if (Store.isOpen() && S.list && S.list.length) { custDedupe(); return; } } catch(e){} setTimeout(tick2, 5000); }, 9000);
+  try { var mrgT = 0; Store.onChange(function(){ clearTimeout(mrgT); mrgT = setTimeout(function(){ custDedupe(); }, 4000); }); } catch(e){}
   // ---------- 🔒 개인정보 원칙 · 익명 통계 · 추천 (2026-11-04 대표님 결정) ----------
   // 고객 이름·연락처·생년월일·주소·병력 원본·계약 원본은 이 기기와 본인 구글 드라이브에만. 회사·관리자에게 가는 길 없음.
   // 동의한 사람만, 계약을 넣을 때 '결과 숫자'(보험사·심사 유형·병력 앞 3자리 묶음·상품 분류·보험료 구간)만 익명으로 보냄. 서버는 횟수만 셈(사람·기기·시각 저장 안 함).
@@ -21086,6 +21227,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="836135e599fd";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="315cfc948a39";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
