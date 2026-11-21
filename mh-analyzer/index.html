@@ -3795,6 +3795,48 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 .rtmini small{color:var(--ink2);font-size:12px}
 .rtmini.warn{background:rgba(232,140,30,.1);border-color:rgba(232,140,30,.4)}
 
+/* ===== 📒 싯플랜 월간 = 종이 플래너 모양 (2026-11-21 대표님: "MONTHLY PLAN 사진처럼") =====
+   종이는 밝은 화면·어두운 화면 모두 크림색 종이 그대로(일부러 고정) · 일정은 내 필체(--hand)로 · 색: 회사 먹색 / 상담 빨강 / 프로세스 초록 / 리대 파랑 */
+.ppcal{--ink:#1d1d1d;--ink2:#3d3d3d;--mute:#7a7a7a;--line:#a9a59b;--soft:#ece8df;--paper:#f7f6f2;background:#f7f6f2;color:#1d1d1d;border:1px solid #cfcabf;box-shadow:0 14px 34px -18px rgba(0,0,0,.45);-webkit-backdrop-filter:none;backdrop-filter:none}
+.ppcal .pmemo{background:transparent;border-right:1px solid #cfcabf}
+.ppaper{border-top:3px solid #d98c8c}
+.ppaper .ph{color:#1d1d1d;font:800 12px/1 Georgia,"Times New Roman","Noto Serif KR",serif;letter-spacing:.04em;border-bottom:2px solid #555;padding:12px 2px 10px}
+.ppaper .ph.sun{color:#c0392b}.ppaper .ph.sat{color:#1d1d1d}
+.ppaper .ph+.ph{border-left:0}
+.ppaper .ph .en{display:inline}.ppaper .ph .ko{display:none}
+.ppaper .pcd{border:0;border-left:1px solid #b9b5ab;border-bottom:1px solid #b9b5ab;background:transparent;min-height:132px;padding:4px 6px 6px;gap:1px;align-items:stretch;text-align:left}
+.ppaper>.pcd:nth-child(7n+8){border-left:0}
+.ppaper .pcd:hover{background:rgba(0,0,0,.035)}
+.ppaper .pcd.off{background:rgba(0,0,0,.025)}
+.ppaper .pd{width:auto;height:auto;border-radius:0;display:flex;align-items:baseline;gap:5px;font:400 22px/1.05 Georgia,"Times New Roman",serif;color:#1d1d1d;margin:0 0 2px;place-items:unset}
+.ppaper .pcd.sun .pd,.ppaper .pcd.hol .pd{color:#c0392b}.ppaper .pcd.sat .pd{color:#1d1d1d}
+.ppaper .phol{font:600 10px/1.2 var(--f-body,sans-serif);color:#c0392b}
+.ppaper .pwk{position:absolute;top:6px;right:7px;font:600 9.5px/1 Georgia,serif;color:#8a8a8a}
+.ppaper .pcd.past .pd{opacity:1}.ppaper .pcd.past .pl{opacity:.82}
+.ppaper .pcd.today{background:rgba(47,107,255,.07)}
+.ppaper .pcd.today::after{border:2px solid rgba(47,107,255,.75)}
+.ppaper .pcd.today .pd{background:transparent;color:#1f4fb8;font-weight:700;opacity:1}
+.ppaper .pl{display:block;font-family:var(--f-body,sans-serif);font-size:12.5px;line-height:1.22;color:#1d2430;word-break:keep-all;overflow-wrap:anywhere;white-space:normal;overflow:visible}
+.ppaper.hand-on .pl{font-family:var(--hand);font-size:15px;line-height:1.08}
+.ppaper .pl b{font-weight:700;margin-right:4px;font-variant-numeric:tabular-nums}
+.ppaper .pl.c-r{color:#b3261e}.ppaper .pl.c-g{color:#2e7d32}.ppaper .pl.c-b{color:#1f4fb8}.ppaper .pl.c-t{color:#9a7b3a;opacity:.9}
+.ppaper .pbig{color:#b3261e;background:transparent;font-size:13px;padding:0;white-space:normal}
+.ppaper .ptr{margin-top:auto;font-size:10px;color:#7a7a7a}
+@media (max-width:640px){
+  .ppaper .ph{font-size:12px;letter-spacing:0;padding:9px 0 7px}
+  .ppaper .ph .en{display:none}.ppaper .ph .ko{display:inline}
+  .ppaper .pcd{min-height:92px;padding:2px 2px 4px}
+  .ppaper .pd{font-size:15px;margin-left:1px}
+  .ppaper .phol{display:none}
+  .ppaper .pwk{display:none}
+  .ppaper .pl{font-size:9.5px;line-height:1.15;letter-spacing:-.02em}
+  .ppaper.hand-on .pl{font-size:11.5px;line-height:1.02;letter-spacing:-.03em}
+  .ppaper .pl b{display:block;margin:0;font-size:.92em}
+  .ppaper .pbig{font-size:10px}
+}
+/* 👆 잠금 화면 지문·얼굴로 열기 (2026-11-21) */
+#lbio{margin-bottom:10px;background:#1f2a44;border:1px solid #4f7dff;color:#fff}
+
 </style>
 </head>
 <body>
@@ -3827,7 +3869,7 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button><button type="button" id="routeBtn" class="mstub" data-route=""></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="bioBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button><button type="button" id="routeBtn" class="mstub" data-route=""></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -9992,6 +10034,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 44, d: '2026-11-21', ic: '📒', t: '싯플랜 월간 = 종이 플래너 모양', s: '월간 달력이 시간만 보이던 칸 대신 종이 MONTHLY PLAN처럼 일정 글을 내 필체·색(상담 빨강·프로세스 초록·리대 파랑)으로 그대로 보여 줍니다. 날짜 칸을 누르면 그날 일정을 고칩니다. [💾 이미지 저장]을 누르면 미리보기 없이 바로 플래너 그림을 저장합니다.', w: '아래 메뉴 싯플랜 → 월간 · 위 줄 [💾 이미지 저장] · 카톡 보내기·필체는 [🖼 보내기]' },
     { id: 43, d: '2026-11-20', ic: '🚗', t: '상담 동선 · 이동 시간', s: '싯플랜에 적은 고객 상담을 시간 순서대로 이어서, 고객 지역끼리 차로 약 몇 분·몇 km인지와 하루 이동 합계를 보여 줍니다. 일정 사이 시간보다 이동이 더 걸리면 ⚠로 알려 주고, 구간마다 [카카오맵]을 누르면 바로 길찾기가 열립니다. 지점 위치를 정해 두면 출근·귀점까지 셉니다.', w: '☰ 메뉴 → 영업 → 🚗 상담 동선 · 이동 시간 · 싯플랜 화면 [🚗 동선] · 지도 탭 [🚗 상담 이동 시간] · 싯플랜 하루 창' },
     { id: 42, d: '2026-11-20', ic: '🔁', t: 'DB 인수상태 — 앱에서 바꾸고 회사 사이트와 맞추기', s: 'AFG DB 고객 화면의 인수상태(부재·상담중·TA거절…)를 눌러 바로 바꿉니다. PC에서 [🔁 상태 복사]를 누른 뒤 회사 DB 사이트에서 "AOB로 복사" 북마크를 누르면, 앱과 회사 사이트 중 더 최근에 바꾼 쪽으로 서로 맞춰집니다(회사 사이트를 바꾸기 전에 목록을 보여 주고 묻습니다).', w: 'AFG DB 고객 화면 → 담당자 정보 · 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기' },
     { id: 41, d: '2026-11-20', ic: '🪪', t: '내 명함 · 문자에 명함 붙여 보내기', s: '얼굴 사진 · 이름 · 직급 · 번호 · 소속 · 설계사 등록(생명·손해) · e-클린보험서비스 조회 안내가 들어간 명함을 각자 한 번 만들어 두면, 상담 약속·문자를 보낼 때 명함 그림이 같이 붙습니다. 상담 예약 문자의 장소에는 고객 지역도 자동으로 들어갑니다.', w: '☰ 메뉴 → 영업 → 🪪 내 명함 · ⚙ 환경설정 → 내 정보 · 문자 보내기 창의 🪪 칸' },
@@ -10121,6 +10164,69 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (st === 'open') { enterApp(); return; }
     drawLock(st);
   }
+  // ===== 🔐 지문·얼굴로 열기 (2026-11-21 대표님) =====
+  // 잠금 비밀번호를 앱 틀(안드로이드 키 저장소 · 지문/얼굴 인증해야만 꺼낼 수 있음)에 맡겨 두고, 잠금 화면에서 지문·얼굴로 꺼내 Store.unlock 한다.
+  // 비밀번호는 기기 밖·서버로 가지 않는다. 앱 틀에 이 기능이 없으면(예전 앱·웹·PC) 단추가 안 보이고 비밀번호로만 연다.
+  var BIO = BIO || { st: null, asked: false };   // 앱을 열자마자(이 줄보다 먼저) bioSt 가 불릴 수 있어 아래에서도 만들어 둠
+  async function bioSt(){ if (!BIO) BIO = { st: null, asked: false }; if (!(window.Native && Native.on)) return null; try { BIO.st = await natCall('bioStatus'); } catch(e){ BIO.st = null; } return BIO.st; }
+  function bioName(s){ return s && s.face && !s.finger ? '얼굴' : s && s.face ? '지문·얼굴' : '지문'; }
+  function bioCode(e){ return String((e && (e.code || e.message)) || ''); }
+  async function bioTry(auto){
+    var err = $('lerr'), b = $('lbio');
+    try {
+      var r = await natCall('bioUnlock'); if (!r || !r.secret) return;
+      if (b) { b.disabled = true; b.textContent = '여는 중…'; }
+      var ok = await Store.unlock(r.secret);
+      if (ok) { enterApp(); return; }
+      try { await natCall('bioClear'); } catch(e2){}
+      if (err) err.textContent = '잠금 비밀번호가 바뀌어 지문으로 열 수 없습니다 · 비밀번호로 열면 다시 켤 수 있습니다';
+      if (b) b.remove();
+    } catch(e){
+      var c = bioCode(e);
+      if (/invalid/.test(c)) { if (err) err.textContent = '휴대폰에 지문·얼굴이 새로 등록되어 다시 켜야 합니다 · 비밀번호로 열면 다시 켤 수 있습니다'; if (b) b.remove(); return; }
+      if (/lockout/.test(c)) { if (err) err.textContent = '여러 번 틀려 잠시 지문을 쓸 수 없습니다 · 비밀번호로 열어 주세요'; }
+      else if (!/cancel/.test(c) && !auto && err) err.textContent = '지문으로 열지 못했습니다 · 비밀번호로 열어 주세요';
+      if (b) { b.disabled = false; b.textContent = '👆 ' + bioName(BIO.st) + '으로 열기'; }
+    }
+  }
+  async function bioLockUi(){
+    var s = await bioSt(); if (!s || !s.saved || !s.can) return;
+    var go = $('lgo'); if (!go || $('lbio')) return;
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'lbio'; b.className = 'go lbio'; b.textContent = '👆 ' + bioName(s) + '으로 열기';
+    go.parentNode.insertBefore(b, go); b.onclick = function(){ bioTry(false); };
+    if (!BIO.asked) { BIO.asked = true; setTimeout(function(){ bioTry(true); }, 350); }   // 잠금 화면이 뜨면 한 번은 바로 지문 창
+  }
+  // 비밀번호로 연 직후: 이 휴대폰에 지문이 있고 아직 안 켰으면 한 번 묻기 (다시 묻지 않기 가능)
+  async function bioOffer(pw){
+    var s = await bioSt();   // 환경설정 항목 보이기에도 씀(BIO.st)
+    try { if (localStorage.getItem('aob_bio_no')) return; } catch(e){}
+    if (!s || !s.can || s.saved) return;
+    setTimeout(function(){
+      if (document.querySelector('#dlg:not([hidden])')) return;
+      var nm = bioName(s);
+      openDlg('<h4>👆 다음부터 ' + nm + '으로 열까요?</h4><p class="note">잠금 비밀번호 대신 ' + nm + ' 인증으로 엽니다. 비밀번호는 이 휴대폰의 보안 저장소에만 잠가 두고 어디로도 보내지 않습니다. 언제든 ⚙ 환경설정 → 🗂 자료 · 보안 → 👆 지문·얼굴로 열기에서 끌 수 있습니다.</p><div class="mrow"><button class="btn lg" type="button" id="bioNo" style="margin-right:auto">다시 묻지 않기</button><button class="btn lg" type="button" id="bioLater">나중에</button><button class="go" type="button" id="bioOn">켜기</button></div>');
+      $('bioNo').onclick = function(){ try { localStorage.setItem('aob_bio_no', '1'); } catch(e){} closeDlg(); };
+      $('bioLater').onclick = closeDlg;
+      $('bioOn').onclick = async function(){ closeDlg(); try { await natCall('bioSave', { secret: pw }); toast('다음부터 ' + nm + '으로 엽니다'); } catch(e){ if (!/cancel/.test(bioCode(e))) toast('켜지 못했습니다 · ⚙ 환경설정에서 다시 시도해 주세요'); } };
+    }, 900);
+  }
+  async function openBio(){
+    var s = await bioSt();
+    if (!s) { openDlg('<h4>👆 지문·얼굴로 열기</h4><p class="note">이 기능은 새 안드로이드 앱(시험판)에서 됩니다. 지금 앱에는 아직 없어 비밀번호로만 열 수 있습니다.</p><div class="mrow"><button class="go" type="button" id="bioX">확인</button></div>'); $('bioX').onclick = closeDlg; return; }
+    var nm = bioName(s);
+    if (s.saved) {
+      openDlg('<h4>👆 ' + nm + '으로 열기 — 켜져 있음</h4><p class="note">잠금 화면에서 ' + nm + ' 인증으로 엽니다. 휴대폰에 지문·얼굴을 새로 등록하면 자동으로 꺼지고, 비밀번호로 한 번 열면 다시 켤 수 있습니다.</p><div class="mrow"><button class="btn lg" type="button" id="bioX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="bioOff">끄기</button></div>');
+      $('bioX').onclick = closeDlg; $('bioOff').onclick = async function(){ try { await natCall('bioClear'); } catch(e){} closeDlg(); toast('껐습니다 · 비밀번호로 엽니다'); };
+      return;
+    }
+    if (!s.can) { openDlg('<h4>👆 지문·얼굴로 열기</h4><p class="note">' + (s.code === 11 ? '이 휴대폰에 등록된 지문(얼굴)이 없습니다. 휴대폰 설정 → 보안(생체 인식)에서 지문을 먼저 등록한 뒤 다시 눌러 주세요.' : '이 휴대폰은 앱에서 쓸 수 있는 지문·얼굴 인증을 지원하지 않습니다.') + '</p><div class="mrow"><button class="go" type="button" id="bioX">확인</button></div>'); $('bioX').onclick = closeDlg; return; }
+    openDlg('<h4>👆 ' + nm + '으로 열기 켜기</h4><div class="form"><p class="note">확인을 위해 잠금 비밀번호를 한 번 넣어 주세요. 이 휴대폰의 보안 저장소에만 잠가 둡니다.</p><input autocomplete="off" data-lpignore="true" id="bioPw" type="text" class="pw" inputmode="numeric" placeholder="잠금 비밀번호"><div class="ferr" id="bioErr"></div></div><div class="mrow"><button class="btn lg" type="button" id="bioX" style="margin-right:auto">닫기</button><button class="go" type="button" id="bioOn">켜기</button></div>');
+    $('bioX').onclick = closeDlg;
+    $('bioOn').onclick = async function(){ var pw = $('bioPw').value;
+      if (!pw || !(await Store.unlock(pw))) { $('bioErr').textContent = '비밀번호가 맞지 않습니다.'; return; }
+      try { await natCall('bioSave', { secret: pw }); closeDlg(); toast('다음부터 ' + nm + '으로 엽니다'); try { localStorage.removeItem('aob_bio_no'); } catch(e){} }
+      catch(e){ if (!/cancel/.test(bioCode(e))) $('bioErr').textContent = '켜지 못했습니다 · 다시 시도해 주세요'; } };
+  }
   function drawLock(st){
     $('shell').hidden = true; $('lock').hidden = false;
     var h = BRAND;
@@ -10144,7 +10250,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       } else {
         go.disabled = true; go.textContent = '확인 중…';
         var ok = await Store.unlock(a);
-        if (ok) { try { localStorage.setItem('mhs_pinlen', String(a.length)); } catch(e){} enterApp(); } else { go.disabled = false; go.textContent = '열기'; err.textContent = '비밀번호가 맞지 않습니다.'; $('pin1').value = ''; $('pin1').focus(); }
+        if (ok) { try { localStorage.setItem('mhs_pinlen', String(a.length)); } catch(e){} enterApp(); bioOffer(a); } else { go.disabled = false; go.textContent = '열기'; err.textContent = '비밀번호가 맞지 않습니다.'; $('pin1').value = ''; $('pin1').focus(); }
       }
     };
     go.onclick = submit;
@@ -10160,9 +10266,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
         var v = this.value; $('lerr').textContent = ''; clearTimeout(tm);
         if (PLN) { if (v.length === PLN) submit(); return; }
         if (v.length < 4) return;
-        tm = setTimeout(async function(){ if (busy || $('pin1').value !== v) return; busy = true; var ok = false; try { ok = await Store.unlock(v); } catch(e){} busy = false; if (ok && $('pin1') && $('pin1').value === v) { saveLen(v.length); enterApp(); } }, 450);
+        tm = setTimeout(async function(){ if (busy || $('pin1').value !== v) return; busy = true; var ok = false; try { ok = await Store.unlock(v); } catch(e){} busy = false; if (ok && $('pin1') && $('pin1').value === v) { saveLen(v.length); enterApp(); bioOffer(v); } }, 450);
       });
     }
+    if (st !== 'new' && st !== 'nocrypto') bioLockUi();
     var rs = $('lreset'); if (rs) rs.onclick = async function(){
       if (!confirm('이 기기에 저장된 고객 자료가 모두 지워집니다. 백업 파일이 있다면 새 비밀번호를 만든 뒤 불러올 수 있습니다(백업 당시 비밀번호 필요).\n\n정말 초기화할까요?')) return;
       await Store.wipe(); drawLock('new');
@@ -11738,21 +11845,22 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var prevM = m === 1 ? dstr(y - 1, 12, 1) : dstr(y, m - 1, 1), nextM = m === 12 ? dstr(y + 1, 1, 1) : dstr(y, m + 1, 1);
     var gOn = gcReady(), gBad = gOn && PL.d.gcal && PL.d.gcal.err;
     var h = '<div class="chead plhead"><button class="btn back" type="button" data-act="back">‹ 목록</button><div class="pttl"><small>' + esc(PL.d.nick) + '의 MONTHLY PLAN</small><h2>싯플랜</h2></div><span class="pnav"><button type="button" class="pb" data-pm="' + prevM.slice(0, 7) + '" aria-label="이전 달">‹</button><b>' + y + '. ' + m + '월</b><button type="button" class="pb" data-pm="' + nextM.slice(0, 7) + '" aria-label="다음 달">›</button><button type="button" class="pb ptoday" data-pm="' + ymOf(t) + '">오늘</button></span></div>' +
-      '<div class="ptool"><span class="stb" role="group"><button type="button" data-pvw="month" aria-pressed="' + (S.pview === 'month') + '">월간</button><button type="button" data-pvw="list" aria-pressed="' + (S.pview === 'list') + '">주간</button></span><button class="btn pgoal" type="button" data-pl="acfp" aria-pressed="' + !!S.acfpOn + '" title="ACFP 월납 목표 보이기/숨기기"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>목표</button><span class="sp"></span><button class="btn" type="button" data-route="">🚗 동선</button><button class="btn" type="button" data-pl="addm">➕ 넣기</button><button class="btn" type="button" data-pl="snap">🖼 이미지</button><button class="btn" type="button" data-pl="cal" title="' + (gBad ? '캘린더 맞추기 오류 · 눌러서 확인' : gOn ? '캘린더 자동 맞추는 중' : '캘린더 연결 안 됨') + '"><span class="gdot' + (gBad ? ' bad' : gOn ? ' on' : '') + '"></span>캘린더</button></div>';
+      '<div class="ptool"><span class="stb" role="group"><button type="button" data-pvw="month" aria-pressed="' + (S.pview === 'month') + '">월간</button><button type="button" data-pvw="list" aria-pressed="' + (S.pview === 'list') + '">주간</button></span><button class="btn pgoal" type="button" data-pl="acfp" aria-pressed="' + !!S.acfpOn + '" title="ACFP 월납 목표 보이기/숨기기"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>목표</button><span class="sp"></span><button class="btn" type="button" data-route="">🚗 동선</button><button class="btn" type="button" data-pl="addm">➕ 넣기</button><button class="btn" type="button" data-pl="snapsave">💾 이미지 저장</button><button class="btn" type="button" data-pl="snap" title="미리보기 · 카톡 보내기 · 내 필체">🖼 보내기</button><button class="btn" type="button" data-pl="cal" title="' + (gBad ? '캘린더 맞추기 오류 · 눌러서 확인' : gOn ? '캘린더 자동 맞추는 중' : '캘린더 연결 안 됨') + '"><span class="gdot' + (gBad ? ' bad' : gOn ? ' on' : '') + '"></span>캘린더</button></div>';
     if (S.acfpOn) h += acfpPanel(S.pm);
     var memo = (PL.d.months[S.pm] || {}).memo || '';
     if (S.pview === 'month') {
       var cells = [], d0 = 1 - first;
       for (var i = 0; i < Math.ceil((first + n) / 7) * 7; i++) { var dn = d0 + i; cells.push(dn >= 1 && dn <= n ? dstr(y, m, dn) : ''); }
-      h += goalBox(S.pm) + bizDetails('phonly') + '<div class="pcal">' + bizPanel(memo) + '<div class="pcgrid">' + WD_EN.map(function(w, i){ return '<div class="ph' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '"><span class="en">' + w.slice(0, 3) + '</span><span class="ko">' + '일월화수목금토'[i] + '</span></div>'; }).join('') +
+      // 📒 종이 플래너 모양 (2026-11-21 대표님: "이 화면도 MONTHLY PLAN 사진처럼") — 시간만 보이던 칸 대신 일정 글을 내 필체로 그대로 · 날짜 칸을 누르면 그날 고치기(예전과 같음)
+      var HDp = handCfg(), pF = "'" + HDp.f + "','Nanum Pen Script','Pretendard Variable',sans-serif";
+      if (!HAND_CSS[HDp.f]) handLoad(HDp.f).then(function(){ var g = document.querySelector('.ppaper'); if (g) g.classList.add('hand-on'); });
+      var pline = function(x, todo){ return '<span class="pl c-' + (todo ? 't' : (x.c || 'k')) + '">' + (x.t ? '<b>' + esc(x.t) + '</b>' : todo ? '<b>📌</b>' : '') + esc(x.x) + '</span>'; };
+      h += goalBox(S.pm) + bizDetails('phonly') + '<div class="pcal ppcal">' + bizPanel(memo) + '<div class="pcgrid ppaper' + (HAND_CSS[HDp.f] ? ' hand-on' : '') + '" style="--hand:' + esc(pF) + ';--hsl:' + (-HDp.sl) + 'deg">' + WD_EN.map(function(w, i){ return '<div class="ph' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '') + '"><span class="en">' + w.slice(0, 3) + ' · ' + '日月火水木金土'[i] + '</span><span class="ko">' + '일월화수목금토'[i] + '</span></div>'; }).join('') +
         cells.map(function(d){ if (!d) return '<div class="pcd off"></div>';
           var v = PL.d.days[d] || {}, it = itemsOf(d), td = todosOn(d).filter(function(x){ return !it.some(function(y){ return y.x.indexOf(x.x.split(' ')[0]) >= 0; }); });
-          var all = it.map(function(x){ return '<span class="pi c-' + (x.c || 'k') + '"><i>' + x.t + '</i><em>' + esc(x.x) + '</em></span>'; }).concat(td.map(function(x){ return '<span class="pi todo"><i>' + (x.t || '📌') + '</i><em>' + esc(x.x) + '</em></span>'; }));
-          var cap = v.big ? 4 : 5, more = all.length > cap ? '<span class="pmore">+' + (all.length - cap + 1) + '</span>' : '', trd = trailDay(d);
-          if (trd && trd.v.length) more += '<span class="ptr">📍' + trd.v.length + '</span>';
-          var hol = holiOf(d);
-          return '<button type="button" class="pcd' + (d === t ? ' today' : '') + (d < t ? ' past' : '') + (wdOf(d) === 0 ? ' sun' : wdOf(d) === 6 ? ' sat' : '') + (hol ? ' hol' : '') + '" data-pd="' + d + '"><span class="pd">' + (+d.slice(8)) + (hol ? '<small class="phol">' + esc(hol) + '</small>' : '') + '</span>' + (v.big ? '<span class="pbig">' + esc(v.big) + '</span>' : '') +
-            (more ? all.slice(0, cap - 1).join('') + more : all.join('')) + '</button>'; }).join('') + '</div></div>';
+          var trd = trailDay(d), hol = holiOf(d), wd = wdOf(d);
+          return '<button type="button" class="pcd' + (d === t ? ' today' : '') + (d < t ? ' past' : '') + (wd === 0 ? ' sun' : wd === 6 ? ' sat' : '') + (hol ? ' hol' : '') + '" data-pd="' + d + '"><span class="pd">' + (+d.slice(8)) + (hol ? '<small class="phol">' + esc(hol) + '</small>' : '') + '</span>' + (wd === 6 ? '<small class="pwk">Week ' + isoWeek(d) + '</small>' : '') + (v.big ? '<span class="pbig">' + esc(v.big) + '</span>' : '') +
+            it.map(function(x){ return pline(x); }).join('') + td.map(function(x){ return pline(x, 1); }).join('') + (trd && trd.v.length ? '<span class="ptr">📍' + trd.v.length + '</span>' : '') + '</button>'; }).join('') + '</div></div>';
     } else {
       var days = []; for (var k = 1; k <= n; k++) days.push(dstr(y, m, k));
       var wk = weeksOf(S.pm);
@@ -11983,7 +12091,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('hdGo').onclick = async function(){ PL.d.hand = { f: H.f, sl: H.sl, w: H.w, sz: H.sz, jit: H.jit }; await planSave(); closeDlg(); toast('내 필체를 저장했습니다'); if (after) after(); };
   }
   var MON_EN = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-  async function planSnap(){
+  async function planSnap(o){
     var y = +S.pm.slice(0, 4), m = +S.pm.slice(5, 7), n = mDays(S.pm), first = wdOf(dstr(y, m, 1)), rows = Math.ceil((first + n) / 7);
     var W = 2400, H = 1640, LC = 330, GL = LC + 16, GR = W - 36, TOPY = 190, BOT = H - 44, cw = (GR - GL) / 7, rh = (BOT - TOPY) / rows;
     var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var g = cv.getContext('2d');
@@ -12041,6 +12149,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     }
     var name = PL.d.nick + '_싯플랜_' + S.pm + '.png';
     var blob = await new Promise(function(res){ cv.toBlob(res, 'image/png'); });
+    // 💾 이미지 저장 단추(화면 바깥 · 2026-11-21 대표님): 미리보기 창 없이 바로 저장 — 앱은 저장할 곳 고르기(내 파일·드라이브·카톡), 웹·PC는 내려받기
+    if (o && o.save) {
+      if (window.Native && Native.on && Native.saveBlob) { await Native.saveBlob(blob, name); toast('이미지를 만들었습니다 · 저장할 곳을 고르세요'); }
+      else { var a0 = document.createElement('a'); a0.href = URL.createObjectURL(blob); a0.download = name; document.body.appendChild(a0); a0.click(); setTimeout(function(){ a0.remove(); }, 1500); toast('이미지를 저장했습니다 · ' + name); }
+      return;
+    }
     openDlg('<h4>' + IC.doc + ' 싯플랜 사진</h4><img class="psnap" alt="싯플랜 사진 미리보기" src="' + URL.createObjectURL(blob) + '"><div class="mrow psnrow"><button class="btn lg" type="button" id="snX" style="margin-right:auto">닫기</button>' + (navigator.clipboard && window.ClipboardItem ? '<button class="btn lg" type="button" id="snCp" title="이미지 복사 → 카톡 PC 대화창에 Ctrl+V">🖼 이미지 복사</button>' : '') + (navigator.canShare && navigator.canShare({ files: [new File([blob], name, { type: 'image/png' })] }) ? '<button class="go" type="button" id="snSh">공유 (카톡 등)</button>' : '') + '<button class="go" type="button" id="snKk">💬 카톡 나에게 보내기</button><button class="go" type="button" id="snDl">💾 이미지 저장</button></div>', 'wide');
     $('snX').onclick = closeDlg;
     var mr = $('snX').parentNode, hb = document.createElement('button'); hb.type = 'button'; hb.className = 'btn lg'; hb.textContent = '✍️ 내 필체'; hb.onclick = function(){ closeDlg(); openHand(planSnap); }; mr.insertBefore(hb, $('snX').nextSibling);
@@ -12066,7 +12180,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (t.dataset.pd) { await planLoad(); openDay(t.dataset.pd); }
     else if (t.dataset.pm) showPlan(t.dataset.pm);
     else if (t.dataset.pvw) { S.pview = t.dataset.pvw; showPlan(); }
-    else { var a = t.dataset.pl; await planLoad(); if (a === 'goal') openGoal(); else if (a === 'photo') { await aiLoad(); openPlanPhoto(); } else if (a === 'addm') planAddMenu(); else if (a === 'deal') openDeal(); else if (a === 'snap' || a === 'sendm') planSnap(); else if (a === 'open') showPlan(); else if (a === 'cal') openCalSend(); else if (a === 'acfp') { S.acfpOn = !S.acfpOn; try { localStorage.setItem('mhs_acfp', S.acfpOn ? '1' : '0'); } catch(e){} var y0 = window.scrollY; showPlan(); window.scrollTo(0, y0); } }
+    else { var a = t.dataset.pl; await planLoad(); if (a === 'goal') openGoal(); else if (a === 'photo') { await aiLoad(); openPlanPhoto(); } else if (a === 'addm') planAddMenu(); else if (a === 'deal') openDeal(); else if (a === 'snap' || a === 'sendm') planSnap(); else if (a === 'snapsave') { toast('이미지를 만드는 중…'); planSnap({ save: 1 }); } else if (a === 'open') showPlan(); else if (a === 'cal') openCalSend(); else if (a === 'acfp') { S.acfpOn = !S.acfpOn; try { localStorage.setItem('mhs_acfp', S.acfpOn ? '1' : '0'); } catch(e){} var y0 = window.scrollY; showPlan(); window.scrollTo(0, y0); } }
   });
 
   // ---------- 삼성 캘린더 · 구글 캘린더로 보내기 (.ics) ----------
@@ -13760,6 +13874,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     S.list = await Store.list(); await roleSync();
     renderList(); showWelcome();
     drawSync(); drawClipToggle();
+    bioSt();   // 👆 지문·얼굴로 열기: 이 앱에 그 기능이 있는지 미리 알아 둠 (⚙ 환경설정 항목 보이기)
     setTimeout(function(){ otpPoll(); if (OTPQ) admLoad().then(function(a){ if (a && a.token) openAdmin(); else toast('OTP 발급은 관리자 기기에서만 할 수 있습니다'); }); }, 2500);
     checkUpdate();
     armBack();
@@ -18373,12 +18488,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       ['🙋 내 정보', [['#cardBtn', '🪪', '내 명함', '얼굴 사진 · 직급 · 번호 · 자격 → 문자에 같이 붙음']]],
       ['🔗 연결', [['#connBtn', '🔗', '연결 · 권한', '구글·위치·마이크·알림·AI·지도 키'], ['.sfoot [data-act="ntSet"]', '🔔', '알림 설정', '할 일·생일·갱신·회사 소식'], ['[data-sync="signout"]', '🔄', '구글 계정 바꾸기', '']]],
       ['🖥 화면 · 앱', [['#pnBtn', '📝', '새 기능 안내', '패치노트 · 업데이트로 새로 생긴 기능과 쓰는 곳'], ['#themeBtn', '🌗', $('themeBtn').textContent, ''], ['#fullBtn', '🔲', '전체 화면 ' + (fullOn() ? '끄기' : '켜기'), fullOn() ? '지금: 아래 시스템 단추·태스크바 숨김 (아래에서 위로 쓸면 잠깐 나옴)' : '아래 시스템 단추·태스크바를 숨겨 화면을 넓게'], ['#keysBtn', '⌨️', '단축키', '키보드로 빠르게'], ['#apkBtn', '📱', inApk() ? '앱 정보 · 업데이트' : '안드로이드 앱 받기', inApk() ? '새 버전 확인' : 'APK로 설치']]],
-      ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
+      ['🗂 자료 · 보안', [['#bkOut', '💾', '백업 내보내기', ''], ['#bkIn', '📂', '백업 불러오기', ''], ['#sample', '🧪', '예시 고객 보기', ''], ['#bioBtn', '👆', '지문·얼굴로 열기', '잠금 화면에서 비밀번호 대신 (안드로이드 앱)'], ['#lockBtn', '🔒', '잠그기', ''], ['#privBtn', '🛡', '개인정보 · 익명 통계', '동의 · 끄기 · 약관']]]
     ];
     if (IS_MOBILE) SET[1][1] = SET[1][1].filter(function(x){ return x[0] !== '#keysBtn'; });
     if (IS_DESKTOP) { MENU[0][1] = MENU[0][1].filter(function(x){ return x[0] !== '#callBtn'; }); SET[1][1] = SET[1][1].map(function(x){ return x[0] === '#apkBtn' ? ['#apkBtn', '📱', '휴대폰 앱 설치', 'QR로 팀원 휴대폰에 설치'] : x; }); SET[0][1] = SET[0][1].map(function(x){ return x[0] === '#connBtn' ? ['#connBtn', '🔗', '연결 · 설정', '구글·알림·AI·지도 키'] : x; }); }
     var AD = ROLE.admin ? [['#admBtn', '🛡️', '사용자 관리', 'OTP 발급 · 요청 · 정지'], ['#annBtn', '📣', '전체 공지', 'OTP 있는 팀원 모두에게 앱을 열 때 한 번 띄우기'],['#cuBtn', '📞', '액션콜 사용 현황', '팀원별 오늘 · 이번 달 통화 시간 · 한도'], ['#teamSetBtn', '🏆', '팀 서버', '팀원 공유 기능 연결'], ['[data-nx="setup"]', '🏢', 'NHC 본사 연결', '보장분석 · 숫자 보고']] : [];
-    var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; };
+    var vis = function(x){ if (x[0] === '#wkMenu') return !!S.list.length; if (x[0] === '#bioBtn') return !!(BIO && BIO.st);   /* 이 기능이 든 앱(시험판)에서만 보임 — 예전 앱 팀원에게는 안 보임 */ if (x[0] === '#propMenu') return ocrOn();   /* 사진 읽기는 휴대폰 앱에서만 됨 */ if (x[0] === '#bugMenu' || x[0] === '#treeMenu') return true; var el = document.querySelector(x[0]); if (!el) return false; if (x[0] === '#gchip' || x[0] === '.scm') return true; return !el.hidden; };
     return { MENU: MENU, SET: SET, AD: AD, vis: vis };
   }
   function openSheet(kind, into){
@@ -18405,7 +18520,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
   var FIND_KW = { '#routeBtn': '이동 시간 이동시간 동선 길찾기 네비 내비 카카오맵 거리 몇분 소요 운전 차 지도 오늘 내일 상담 지역', '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
-    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
+    '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#bioBtn': '지문 얼굴 생체 인증 페이스 아이디 바이오 잠금 해제 비밀번호 없이', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:all': '가져오기 불러오기 파일 업로드 넣기 엑셀 알마인드 마인드맵 보유계약 연락처 vcf 보장분석 PDF 알림톡 카톡 내보내기 DB 디비 북마크 붙여넣기 한꺼번에 통합', 'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
     'v:chan': '채널 DB 지인 소개 표 고객관리', 'v:db': 'AFG DB 디비 회사 배분 인수상태 업체승인 AS 반려 DB 사이트 목록 리스트 녹취 듣기', 'v:dbreq': 'DB 신청 신청하기 신청현황 디비 수량 당월 익월 배분 자동배분','v:tree': '알마인드 마인드맵 소개 트리', 'v:pol': '증권 전달 수납 계약 장부 보유계약 미납 연체 최종납입 보험료 실효 실효관리 부활 수금', 'v:sel': '여러 명 선택 한꺼번에 일괄', 'v:dense': '간단히 자세히 줄 간격 촘촘 목록 모양' };
   function finderItems(){
@@ -18495,6 +18610,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   setInterval(annCheck, 4000); document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') setTimeout(annCheck, 1500); });
   $('pnBtn').onclick = function(){ pnOpen(); };
+  $('bioBtn').onclick = function(){ openBio(); };
   // 관리자: 📣 전체 공지 쓰기 (OTP 있는 팀원 모두 다음에 앱을 열 때 한 번 뜸)
   var ANN_PRESET = '📥 AFG DB 고객을 AOB9로 한 번에 옮기는 법 (PC 크롬)\n\n[처음 한 번만]\n1. PC 크롬에서 https://sicrics27-gif.github.io/mh-analyzer/bookmark.html 열기\n2. 북마크바가 안 보이면 Ctrl + Shift + B\n3. 파란 [AOB로 복사] 버튼을 꾹 눌러 북마크바로 끌어다 놓기 (예전 북마크는 오른쪽 클릭 → 삭제)\n\n[쓸 때]\n1. DB 사이트 아무 리스트 화면에서 북마크 한 번 클릭\n2. 오른쪽 위 상자가 모든 리스트를 돌며 담음 (100명에 5분쯤, 그동안 그 탭은 건드리지 않기)\n3. [📋 AOB9로 복사] → AOB9 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기 → 붙여넣기 → 가져오기\n\n내 DB만 담기고, 고객 정보는 내 크롬 → 내 AOB9로만 갑니다.';
   $('annBtn').onclick = async function(){
@@ -21668,6 +21784,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="82e3f7325f95";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="77924e2fb5c0";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
