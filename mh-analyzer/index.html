@@ -3837,6 +3837,8 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 /* 👆 잠금 화면 지문·얼굴로 열기 (2026-11-21) */
 #lbio{margin-bottom:10px;background:#1f2a44;border:1px solid #4f7dff;color:#fff}
 .ppaper .pcd.today .pd{color:#1f4fb8!important;background:transparent!important}   /* 밝은 화면 규칙이 오늘 날짜를 흰 글자로 바꾸던 것 */
+.rtmini span{color:#C46A00;font-weight:700;font-size:13px}
+.rtmini .rtmiss{color:#C46A00;font-weight:600}
 
 </style>
 </head>
@@ -11915,6 +11917,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (btn) { btn.onmousedown = function(e){ e.preventDefault(); }; btn.onclick = function(){ if (full) { close(); return; } full = true; render(match(tokOf()).slice(0, 60), true); inp.focus(); }; }
   }
   function openDay(d){
+    RTV.pd = d;
     var v = PL.d.days[d] || {}, items = itemsOf(d).map(function(x){ return Object.assign({}, x); }), td = todosOn(d);
     var draw = function(){
       $('pdRows').innerHTML = items.map(function(x, i){ return '<div class="pdr"><input type="text" inputmode="numeric" maxlength="4" enterkeyhint="next" class="pdt" data-i="' + i + '" value="' + esc(x.t) + '" placeholder="0900"><input type="text" class="pdx" data-i="' + i + '" value="' + esc(x.x) + '" placeholder="내용 (예: 홍길동 프로세스)" autocomplete="off" enterkeyhint="next"><select class="pdc" tabindex="-1" data-i="' + i + '">' + Object.keys(PCOL).map(function(k){ return '<option value="' + k + '"' + ((x.c || 'k') === k ? ' selected' : '') + '>' + PCOL[k][0] + '</option>'; }).join('') + '</select><button type="button" class="pdrm" data-rm="' + i + '" aria-label="이 일정 빼기">빼기</button></div>'; }).join('') || '<p class="note">아래에서 일정을 넣으세요.</p>';
@@ -15948,11 +15951,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function areaKey(c){ var a = String(meetOf(c).area || '').replace(/\s+/g, ' ').trim(); if (!a) a = areaOfAddr(reqOf(c).addr); return a; }
   function areaSrc(c){ return String(meetOf(c).area || '').trim() ? '만남 정보' : (reqOf(c).addr ? '주소' : ''); }
   async function geoLoad(){ if (!BZ.geo) BZ.geo = await hidLoad('__geo', {}); return BZ.geo; }
-  async function geocode(area){
+  async function geocode(area, retry){
     // 2026-11-04: 시·도를 붙인 검색어로 찾고(예: 양산 사송 → 경남 양산시 사송), 여러 곳이 나오면 같은 시·도 → 경남·부산·울산 순으로 고름. 예전에 시·도 없이 찾아 둔 위치는 다시 찾음
     // 2026-11-17: 시·도를 알 수 없는 이름(예: 동네 이름만)은 경남·부산·울산·경북·대구 안에서 먼저 찾고, 없을 때만 전국 → 예전 위치는 v3로 다시 찾음
     var R = regionQ(area), ck = !R.sd ? 'v3|' + R.q : (R.q === area ? area : 'v2|' + R.q);
-    var g = await geoLoad(); if (g[ck] && g[ck].lat) return g[ck]; if (g[ck] && g[ck].fail && Date.now() - g[ck].fail < 7 * 864e5) return null;
+    var g = await geoLoad(); if (g[ck] && g[ck].lat) return g[ck]; if (g[ck] && g[ck].fail && Date.now() - g[ck].fail < (retry ? 6e5 : 7 * 864e5)) return null;
     var out = null, key = await kakaoKey();
     try {
       if (key) {
@@ -17893,29 +17896,48 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   //   회사 일정(출근·교육·귀점…)은 '지점 위치'(PL.d.base)를 정해 두면 같이 셈. 지도 검색에는 지역 이름만 쓰고(고객 이름·상세 주소는 안 보냄), 길찾기 주소에도 지역 이름만.
   var RTV = { d: '', R: null };
   var RT_OFFICE = /출근|귀점|팀\s*미팅|위클리|석회|교육|지점|사무실|워킹\s*공유|퇴근/;
-  function rtCust(x){ var cn = custNames(), best = ''; Object.keys(cn).forEach(function(n){ if (n.length >= 2 && x.indexOf(n) >= 0 && n.length > best.length) best = n; }); return best ? S.list.find(function(c){ return c.id === cn[best]; }) || null : null; }
-  function rtStops(items){
+  // 같은 이름 고객이 여럿이면(합치기 전 · 동일인 확인 중) 지역을 아는 쪽부터 · 그 날 할 일이 잡힌 쪽부터 (2026-11-21 대표님: "화개면 왜 못 잡냐" — 지역 없는 쪽을 골라 빠졌음)
+  function rtCusts(x, d){
+    var L = S.list.filter(function(c){ return c.name && c.name.length >= 2 && !c.hidden && c.status !== 'admin' && x.indexOf(c.name) >= 0; }); if (!L.length) return [];
+    var mx = Math.max.apply(null, L.map(function(c){ return c.name.length; }));
+    return L.filter(function(c){ return c.name.length === mx; }).sort(function(a, b){ var s = function(c){ return (d && c.next && c.next.d === d ? 4 : 0) + (rtAreas(c).length ? 2 : 0); }; return s(b) - s(a); });
+  }
+  function rtCust(x, d){ return rtCusts(x, d)[0] || null; }
+  // 고객 한 명의 지역 후보: 만남 정보 → 주소 → 특이사항 속 주소(회사 DB 고객은 여기에 있음) · 지도 검색에는 시·군·동까지만
+  function rtAreas(c){
+    var out = [], add = function(a){ a = String(a || '').replace(/\s+/g, ' ').trim(); if (a && out.indexOf(a) < 0) out.push(a); };
+    add(meetOf(c).area); add(areaOfAddr(reqOf(c).addr));
+    String(c.memo || '').replace(/\[[^\]]*\]/g, ' ').split(/[\/\n]/).forEach(function(seg){ if (/(시|군|구)\s+\S+(읍|면|동|가|리|로|길)/.test(seg)) add(areaOfAddr(seg.trim())); });
+    return out;
+  }
+  function rtStops(items, d){
     var base = String((PL.d && PL.d.base) || '').trim(), out = [];
     (items || []).filter(function(x){ return x && String(x.x || '').trim() && Route.hm(x.t) != null; }).sort(function(a, b){ return Route.hm(a.t) - Route.hm(b.t); }).forEach(function(x){
-      var s = String(x.x).trim(), c = rtCust(s), area = '', src = '', kind = '';
-      if (x.loc) { area = areaOfAddr(x.loc) || ''; src = '일정 위치'; }
-      if (!area && c) { area = areaKey(c); src = areaSrc(c) || ''; }
-      if (!area && c) { var pre = s.slice(0, s.indexOf(c.name)).trim().split(/\s+/).pop() || ''; if (pre.length >= 2 && !/DB|상담|클로징|프로세스|\d/.test(pre)) { area = pre; src = '일정 글'; } }
+      var s = String(x.x).trim(), cs = rtCusts(s, d), c = cs[0] || null, cands = [], kind = '', pre = '';
+      var add = function(a, src){ a = String(a || '').trim(); if (a && !cands.some(function(z){ return z.a === a; })) cands.push({ a: a, src: src }); };
+      if (x.loc) add(areaOfAddr(x.loc), '일정 위치');
+      cs.forEach(function(cc){ rtAreas(cc).forEach(function(a){ add(a, a === String(meetOf(cc).area || '').trim() ? '만남 정보' : '고객 주소·특이사항'); }); });
+      if (c) { pre = s.slice(0, s.indexOf(c.name)).trim().split(/\s+/).pop() || ''; if (pre.length >= 2 && !/DB|상담|클로징|프로세스|\d/.test(pre)) { var hit = cands.filter(function(z){ return z.a.indexOf(pre) >= 0; }); if (hit.length) cands = hit.concat(cands.filter(function(z){ return hit.indexOf(z) < 0; })); else add(pre, '일정 글'); } }   // 일정에 적은 동네와 맞는 고객 지역을 먼저
       if (c || x.loc) kind = 'cust';
-      else if (RT_OFFICE.test(s)) { kind = 'office'; area = base; src = base ? '지점' : ''; }
+      else if (RT_OFFICE.test(s)) { kind = 'office'; if (base) add(base, '지점'); }
       else return;
-      out.push({ t: x.t, x: s, kind: kind, area: area, src: src, cid: c ? c.id : '', name: c ? c.name : '' });
+      out.push({ t: x.t, x: s, kind: kind, area: cands[0] ? cands[0].a : '', src: cands[0] ? cands[0].src : '', cands: cands, cid: c ? c.id : '', name: c ? c.name : '' });
     });
     return out.filter(function(p, i){ var q = out[i - 1]; return !(q && p.kind === 'office' && q.kind === 'office'); });   // 출근·팀미팅·교육이 이어지면 지점 한 곳
   }
-  async function rtCalc(items){
-    var st = rtStops(items);
-    for (var i = 0; i < st.length; i++) { var p = st[i]; p.ll = null; if (p.area) { try { p.ll = await geocode(p.area); } catch(e){} } }
+  async function rtCalc(items, d){
+    var st = rtStops(items, d);
+    // 후보를 차례로 찾고, 못 찾으면 끝 낱말을 하나 떼어(경남 하동군 화개면 → 경남 하동군) 다시 · 예전에 실패해 기억해 둔 것도 10분 지났으면 다시 찾음
+    for (var i = 0; i < st.length; i++) { var p = st[i]; p.ll = null;
+      for (var k = 0; k < (p.cands || []).length && !p.ll; k++) { var a = p.cands[k].a, T = a.split(' ');
+        try { p.ll = await geocode(a, true); } catch(e){}
+        if (p.ll) { p.area = a; p.src = p.cands[k].src; break; }
+        if (T.length >= 3) { try { p.ll = await geocode(T.slice(0, -1).join(' '), true); } catch(e){} if (p.ll) { p.area = T.slice(0, -1).join(' '); p.src = p.cands[k].src + ' (시·군까지만 찾음)'; } } } }
     var pts = st.filter(function(p){ return p.ll; }), legs = [];
     for (var j = 1; j < pts.length; j++) { var a = pts[j - 1], b = pts[j], L = Route.leg(a.ll, b.ll); L.a = a; L.b = b; L.gap = Route.hm(b.t) - Route.hm(a.t); L.warn = !L.same && L.gap >= 0 && L.min > L.gap; legs.push(L); }
     return { st: st, pts: pts, legs: legs, min: legs.reduce(function(s, l){ return s + l.min; }, 0), km: legs.reduce(function(s, l){ return s + l.km; }, 0), warn: legs.filter(function(l){ return l.warn; }).length, nCust: st.filter(function(p){ return p.kind === 'cust'; }).length };
   }
-  function rtDef(){ var t = todayStr(), n = new Date().getHours(); var has = function(d){ return rtStops(itemsOf(d)).some(function(p){ return p.kind === 'cust'; }); }; return n >= 17 || !has(t) ? (has(addDay(t, 1)) || !has(t) ? addDay(t, 1) : t) : t; }
+  function rtDef(){ var t = todayStr(), n = new Date().getHours(); var has = function(d){ return rtStops(itemsOf(d), d).some(function(p){ return p.kind === 'cust'; }); }; return n >= 17 || !has(t) ? (has(addDay(t, 1)) || !has(t) ? addDay(t, 1) : t) : t; }
   function rtDayName(d){ var t = todayStr(); return d === t ? '오늘' : d === addDay(t, 1) ? '내일' : d === addDay(t, 2) ? '모레' : ''; }
   async function openRoute(d){
     await planLoad(); d = d || rtDef(); RTV.d = d;
@@ -17924,7 +17946,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       '<div class="mrow"><button class="btn lg" type="button" id="rtX" style="margin-right:auto">닫기</button><button class="btn lg" type="button" id="rtEd">🗓 이날 싯플랜 고치기</button></div>', 'wide rtdlg');
     $('rtX').onclick = closeDlg; $('rtEd').onclick = function(){ openDay(d); };
     $('dlgBox').querySelectorAll('[data-rtd]').forEach(function(b){ b.onclick = function(){ openRoute(b.dataset.rtd); }; });
-    var R = RTV.R = await rtCalc(itemsOf(d)), box = $('rtBody'); if (!box || RTV.d !== d) return;
+    var R = RTV.R = await rtCalc(itemsOf(d), d), box = $('rtBody'); if (!box || RTV.d !== d) return;
     var base = String(PL.d.base || '').trim(), needBase = R.st.some(function(p){ return p.kind === 'office' && !p.area; });
     if (!R.nCust) { box.innerHTML = '<p class="note rtempty">이날 싯플랜에 고객 상담 일정이 없습니다.<br>싯플랜에 "1400 홍길동 1차상담"처럼 고객 이름을 넣으면, 그 고객 지역으로 이동 시간을 계산합니다.</p>'; return; }
     var hh = function(x){ return x ? x.slice(0, 2) + ':' + x.slice(2, 4) : ''; }, li = 0;
@@ -17963,10 +17985,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function rtMini(items){
     clearTimeout(RTM); RTM = setTimeout(async function(){
       var box = $('pdRoute'); if (!box) return;
-      var st = rtStops(items); if (!st.some(function(p){ return p.kind === 'cust'; }) || st.length < 2) { box.innerHTML = ''; return; }
-      var R = await rtCalc(items); box = $('pdRoute'); if (!box) return;
+      var st = rtStops(items, RTV.pd); if (!st.some(function(p){ return p.kind === 'cust'; }) || st.length < 2) { box.innerHTML = ''; return; }
+      var R = await rtCalc(items, RTV.pd); box = $('pdRoute'); if (!box) return;
       var mv = R.legs.filter(function(l){ return !l.same; });
-      box.innerHTML = mv.length ? '<div class="rtmini' + (R.warn ? ' warn' : '') + '"><b>🚗 이동 약 ' + Route.fmt(R.min) + '</b> · ' + Math.round(R.km) + 'km' + (R.warn ? ' · ⚠ 빠듯 ' + R.warn + '곳' : '') + '<small>' + R.legs.map(function(l){ return l.same ? '' : esc(l.a.area.split(' ').pop()) + ' → ' + esc(l.b.area.split(' ').pop()) + ' ' + Route.fmt(l.min) + (l.warn ? '⚠' : ''); }).filter(Boolean).join(' · ') + '</small></div>' : '';
+      var miss = R.st.filter(function(p){ return p.kind === 'cust' && !p.ll; });
+      box.innerHTML = mv.length || miss.length ? '<div class="rtmini' + (R.warn || miss.length ? ' warn' : '') + '"><b>🚗 이동 약 ' + Route.fmt(R.min) + ' · ' + Math.round(R.km) + 'km</b>' + (R.warn ? '<span>⚠ 빠듯 ' + R.warn + '곳</span>' : '') +
+        '<small>' + R.pts.map(function(p, i){ var l = R.legs[i - 1]; return (i ? ' → ' + (l && !l.same ? Route.fmt(l.min) + (l.warn ? '⚠' : '') + ' → ' : '') : '') + esc(p.area.split(' ').pop()); }).join('') + '</small>' +
+        (miss.length ? '<small class="rtmiss">📍 위치를 못 찾아 빠짐: ' + miss.map(function(p){ return esc(p.name || p.x); }).join(', ') + ' — 🚗 동선 화면에서 [지역 넣기]</small>' : '') + '</div>' : '';
     }, 500);
   }
   document.addEventListener('click', function(e){ var b = e.target.closest('[data-route]'); if (!b) return; e.preventDefault(); openRoute(b.dataset.route || ''); });
@@ -21785,6 +21810,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="98898a27cea4";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="e0faa6b6a7d3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
