@@ -10037,6 +10037,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 45, d: '2026-11-21', ic: '🧹', t: '겹친 일정은 자동으로 하나만', s: '회사 일정표·팀 공유로 이름 한두 글자만 다르게 두 번 들어간 회사 일정(교육·석회·주마감 등)은 이제 묻지 않고 바로 하나만 남깁니다. 지운 것은 다시 들어오지 않고 캘린더에서도 지워집니다. 고객 상담 일정은 건드리지 않습니다.', w: '자동 · 싯플랜을 열 때' },
     { id: 44, d: '2026-11-21', ic: '📒', t: '싯플랜 월간 = 종이 플래너 모양', s: '월간 달력이 시간만 보이던 칸 대신 종이 MONTHLY PLAN처럼 일정 글을 내 필체·색(상담 빨강·프로세스 초록·리대 파랑)으로 그대로 보여 줍니다. 날짜 칸을 누르면 그날 일정을 고칩니다. [💾 이미지 저장]을 누르면 미리보기 없이 바로 플래너 그림을 저장합니다.', w: '아래 메뉴 싯플랜 → 월간 · 위 줄 [💾 이미지 저장] · 카톡 보내기·필체는 [🖼 보내기]' },
     { id: 43, d: '2026-11-20', ic: '🚗', t: '상담 동선 · 이동 시간', s: '싯플랜에 적은 고객 상담을 시간 순서대로 이어서, 고객 지역끼리 차로 약 몇 분·몇 km인지와 하루 이동 합계를 보여 줍니다. 일정 사이 시간보다 이동이 더 걸리면 ⚠로 알려 주고, 구간마다 [카카오맵]을 누르면 바로 길찾기가 열립니다. 지점 위치를 정해 두면 출근·귀점까지 셉니다.', w: '☰ 메뉴 → 영업 → 🚗 상담 동선 · 이동 시간 · 싯플랜 화면 [🚗 동선] · 지도 탭 [🚗 상담 이동 시간] · 싯플랜 하루 창' },
     { id: 42, d: '2026-11-20', ic: '🔁', t: 'DB 인수상태 — 앱에서 바꾸고 회사 사이트와 맞추기', s: 'AFG DB 고객 화면의 인수상태(부재·상담중·TA거절…)를 눌러 바로 바꿉니다. PC에서 [🔁 상태 복사]를 누른 뒤 회사 DB 사이트에서 "AOB로 복사" 북마크를 누르면, 앱과 회사 사이트 중 더 최근에 바꾼 쪽으로 서로 맞춰집니다(회사 사이트를 바꾸기 전에 목록을 보여 주고 묻습니다).', w: 'AFG DB 고객 화면 → 담당자 정보 · 고객 탭 ＋ 추가 → 회사 DB 고객 가져오기' },
@@ -17598,7 +17599,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 저장 위치: access.json 의 sched (회사 교육·회의 일정만, 고객 정보 없음). 팀원 앱은 열 때 받아 싯플랜에 넣고 캘린더에도 맞춤.
   // ---------- 👥 회사 일정 팀 공유 (2026-11-04): 팀원 누구나 올림 → 팀 서버가 '추가만'으로 합침(줄어든 것·오타 차이는 반영 안 함) → 모두의 싯플랜에 추가 ----------
   // ---------- 겹쳐 들어간 일정 정리 (2026-11-04): 회사 일정표 사진·팀 공유가 이름 한두 글자만 다르게 여러 번 들어간 것 ----------
-  // 자동으로 지우지 않음('지우기는 직접 지운 것만') → 싯플랜을 열 때 한 번 보여 주고, [하나만 남기기]를 누르면 그때 정리(다시 안 들어오게 tomb, 캘린더에서도 지움)
+  // (2026-11-21 대표님 결정으로 묻지 않고 자동 정리 — 아래 dupOffer)
   function dupGroups(){
     var out = [], days = (PL.d && PL.d.days) || {}, skip = (PL.d && PL.d.dupSkip2) || {}, t0 = addDay(todayStr(), -7);
     Object.keys(days).sort().forEach(function(d){
@@ -17609,21 +17610,22 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     });
     return out;
   }
-  function dupOffer(){
+  // 2026-11-21 대표님: "이딴 거 물어보지 말고 자동으로 알아서 하나만 남겨" → 묻는 창 없이 바로 정리하고 알림 한 줄.
+  //   남길 것은 예전 권하던 것과 같음(dupKeep: 내가 직접 쓴 것·글자색/필체 정한 것 → 자주 나온 글자 → 먼저 들어온 것 · 사람 교육은 0800 줄)
+  //   지운 줄은 tomb(다른 기기·회사 일정표에서 다시 안 들어옴) + 캘린더 복사본도 지움 · 고객 상담 줄(빨강)은 건드리지 않음(dupGroups) · 지난 7일 전보다 예전 날은 그대로
+  var DUP_BUSY = 0;
+  async function dupOffer(){
     try { var td0 = planTidyRaw(); if (td0.length) { planSave().then(function(){ planChanged(td0); if (gcReady()) gcPush(td0, true).catch(function(){}); if (S.view === 'plan' && $('dlg').hidden) { var y0 = window.scrollY; showPlan(); window.scrollTo(0, y0); } }).catch(function(){}); } } catch(e){}
-    if (S.view !== 'plan' || !$('dlg').hidden) return; var gs = dupGroups(); if (!gs.length) return;
-    var n = gs.reduce(function(a, g){ return a + g.items.length - 1; }, 0);
-    var li = gs.slice(0, 12).map(function(g){ return '<li><b>' + (+g.d.slice(5, 7)) + '/' + (+g.d.slice(8)) + '</b> ' + g.items.map(function(x, k){ var t = (x.t ? x.t + ' ' : '') + x.x; return '<a href="#" data-dk="' + gs.indexOf(g) + ':' + k + '">' + (k ? '<s>' : '<u>') + esc(t) + (k ? '</s>' : '</u>') + '</a>'; }).join(' · ') + '</li>'; }).join('');
-    openDlg('<h4>🧹 같은 일정이 겹쳐 들어간 것 같아요</h4><p class="note">회사 일정표를 여러 번 넣거나 팀원이 올리면서 이름 한두 글자·시간만 다르게 <b>' + n + '건</b>이 더 들어갔습니다. 밑줄 친 것 하나만 남기고 줄 그은 것을 지울까요? <b>남길 것을 바꾸려면 그 글자를 누르세요.</b> (캘린더에서도 같이 지워지고, 다시 들어오지 않습니다)</p><ul class="dupl">' + li + '</ul>' +
-      '<div class="row"><button class="btn primary" type="button" id="dupGo">하나만 남기기</button><button class="btn" type="button" id="dupNo">그대로 두기</button></div>');
-    $('dlgBox').querySelectorAll('[data-dk]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); var p = a.dataset.dk.split(':'), g = gs[+p[0]], x = g.items.splice(+p[1], 1)[0]; g.items.unshift(x); var li = a.closest('li'); li.querySelectorAll('[data-dk]').forEach(function(b, k){ var it = g.items[k], t = (it.t ? it.t + ' ' : '') + it.x; b.innerHTML = (k ? '<s>' : '<u>') + esc(t) + (k ? '</s>' : '</u>'); }); }; });
-    $('dupNo').onclick = async function(){ PL.d.dupSkip2 = PL.d.dupSkip2 || {}; gs.forEach(function(g){ PL.d.dupSkip2[g.key] = 1; }); await planSave(); closeDlg(); };
-    $('dupGo').onclick = async function(){
-      var ds = []; PL.d.gdel = PL.d.gdel || []; PL.d.mt = PL.d.mt || {};
-      gs.forEach(function(g){ var v = PL.d.days[g.d]; if (!v) return; g.items.slice(1).forEach(function(x){ var i = v.items.indexOf(x); if (i < 0) return; var gi = x.gid || gcIdFor(g.d, x); planTomb(g.d, x); v.items.splice(i, 1); if (gi && gcIdFor(g.d, g.items[0]) !== gi) PL.d.gdel.push(gi); }); PL.d.mt[g.d] = Date.now(); ds.push(g.d); });
-      await planSave(); closeDlg(); toast(n + '건 정리했습니다' + (gcReady() ? ' · 캘린더에서도 지우는 중…' : '')); showPlan(S.pm);
+    if (DUP_BUSY || !PL.d || !PL.d.days) return; var sk = PL.d.dupSkip2; PL.d.dupSkip2 = {}; var gs = dupGroups(); PL.d.dupSkip2 = sk; if (!gs.length) return;
+    DUP_BUSY = 1;
+    try {
+      var ds = [], n = 0; PL.d.gdel = PL.d.gdel || []; PL.d.mt = PL.d.mt || {};
+      gs.forEach(function(g){ var v = PL.d.days[g.d]; if (!v) return; g.items.slice(1).forEach(function(x){ var i = v.items.indexOf(x); if (i < 0) return; var gi = x.gid || gcIdFor(g.d, x); planTomb(g.d, x); v.items.splice(i, 1); n++; if (gi && gcIdFor(g.d, g.items[0]) !== gi) PL.d.gdel.push(gi); }); PL.d.mt[g.d] = Date.now(); if (ds.indexOf(g.d) < 0) ds.push(g.d); });
+      if (!n) return;
+      await planSave(); toast('🧹 겹쳐 들어간 일정 ' + n + '건을 하나만 남기고 정리했습니다');
+      if (S.view === 'plan' && $('dlg').hidden) { var y = window.scrollY; showPlan(S.pm); window.scrollTo(0, y); }
       if (gcReady()) gcPush(ds, true).then(function(){ return gcSweep(true); }).catch(function(){}); planChanged(ds);
-    };
+    } catch(e){} finally { DUP_BUSY = 0; }
   }
   // 2026-11-05: 같은 날 '같은 일정' 판단을 넓힘 — ① 띄어쓰기·대소문자·점만 다르면 시간이 달라도 같음 ② 회사 교육·초청석회 같은 일정은 사진 글자 읽기 오타(김명환/김영환, 동양/동의, 로얄/호암)가 30%까지 달라도 같음 (고객 상담 일정은 이름 한 글자 차이도 다른 사람일 수 있어 ①만)
   var INS_RE = /메리츠|삼성|한화|흥국|kb|동양|db|현대|롯데|농협|nh|미래에셋|신한|교보|aia|라이나|메트라이프|처브|하나|abl|푸본|ibk|오렌지|카디프|mg|im|동부|aig|캐롯|에이스/;
@@ -21810,6 +21812,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="e0faa6b6a7d3";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="79fcddd117a2";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
