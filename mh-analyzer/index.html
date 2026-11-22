@@ -11743,7 +11743,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 색 (2026-11-02 대표님): 회사·일반 검정 / 1차·2차상담·클로징 빨강 / 프로세스(기프트·증권전달) 초록 / 리대(리쿠르팅 대상자) 만남 파랑
   var PCOL = { k: ['회사·일반', '#1d2430'], r: ['상담·클로징', '#b3261e'], g: ['프로세스', '#2e7d32'], b: ['리대', '#1f4fb8'] };
   var WD_EN = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-  async function planLoad(){ if (PL.d) return PL.d; try { PL.d = (await Store.loadData(PL.id)) || {}; } catch(e){ PL.d = {}; PL.bad = true; } var d = PL.d; d.days = d.days || {}; d.months = d.months || {}; d.deals = d.deals || []; d.goal = Object.assign({ acfp: 0, avg: 200000, m2c: 3, c2m: 5 }, d.goal || {}); if (d.goal.avg === 100000 && !d.goal.avgSet) d.goal.avg = 200000; /* 2026-11-04: 평균 객단가 기본 10만→20만 (목표 창에서 직접 저장한 값은 그대로) */ d.nick = d.nick || '남혁'; return d; }
+  async function planLoad(){ if (PL.d) return PL.d; try { PL.d = (await Store.loadData(PL.id)) || {}; } catch(e){ PL.d = {}; PL.bad = true; } var d = PL.d; d.days = d.days || {}; d.months = d.months || {}; d.deals = d.deals || []; d.goal = Object.assign({ acfp: 0, avg: 200000, m2c: 3, c2m: 5 }, d.goal || {}); if (d.goal.avg === 100000 && !d.goal.avgSet) d.goal.avg = 200000; /* 2026-11-04: 평균 객단가 기본 10만→20만 (목표 창에서 직접 저장한 값은 그대로) */ d.nick = d.nick || '남혁';
+    // 2026-11-23 주간 점검: 팀원 앱도 싯플랜 제목·보내는 글·파일 이름이 '남혁'으로 나왔음 → 관리자 기기가 아니고 직접 정한 적이 없으면 내 이름(팀원·리그 이름)으로
+    if (d.nick === '남혁' && !d.nickSet) { try { var ad = await admLoad(); if (!(ad && ad.token)) { var nm = String(coName() || '').trim(); if (nm && nm.indexOf('남혁') < 0) d.nick = nm; } } catch(e){} }
+    return d; }
   // 저장 전에 기기에 저장된 최신 싯플랜(다른 기기에서 동기화로 들어온 것)과 합침 → 적어 둔 일정이 덮여 사라지지 않음
   async function planSave(){
     if (PL.bad) { PL.bad = false; try { var c0 = await Store.loadData(PL.id); if (c0 && c0.days) { PL.d = Store.mergePlan(PL.d, c0); } } catch(e){ throw new Error('싯플랜을 읽지 못해 저장을 멈췄습니다 · 앱을 다시 열어 주세요'); } }
@@ -11811,7 +11814,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       $('gMineN').textContent = '최근 90일: 연락 ' + a.contact + ' · 만남 ' + a.meet + ' · 계약 ' + deals.length + '건 기준으로 바꿨습니다'; prev();
     };
     $('gX').onclick = closeDlg;
-    $('gGo').onclick = async function(){ PL.d.goal = { acfp: (+$('gA').value || 0) * 10000, avg: Math.max(1, +$('gV').value || 20) * 10000, m2c: +$('gM').value || 3, c2m: +$('gC').value || 5, avgSet: 1 }; PL.d.nick = $('gN').value.trim() || '남혁'; await planSave(); closeDlg(); toast('목표를 저장했습니다'); S.acfpOn = true; try { localStorage.setItem('mhs_acfp', '1'); } catch(e){} showPlan(); };
+    $('gGo').onclick = async function(){ PL.d.goal = { acfp: (+$('gA').value || 0) * 10000, avg: Math.max(1, +$('gV').value || 20) * 10000, m2c: +$('gM').value || 3, c2m: +$('gC').value || 5, avgSet: 1 }; PL.d.nick = $('gN').value.trim() || PL.d.nick || '남혁'; PL.d.nickSet = 1; await planSave(); closeDlg(); toast('목표를 저장했습니다'); S.acfpOn = true; try { localStorage.setItem('mhs_acfp', '1'); } catch(e){} showPlan(); };
   }
   function openDeal(cid, editId){
     var c = cid ? S.list.find(function(x){ return x.id === cid; }) : null, ed = editId ? PL.d.deals.find(function(x){ return x.id === editId; }) : null;
@@ -17607,11 +17610,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     Object.keys(days).sort().forEach(function(d){
       if (d < t0) return; var its = (days[d].items || []).filter(function(x){ return x && x.x && x.c !== 'r'; }), used = [];
       for (var i = 0; i < its.length; i++) { if (used.indexOf(i) >= 0) continue; var g = [its[i]];
-        for (var j = i + 1; j < its.length; j++) if (used.indexOf(j) < 0 && g.some(function(z){ return likeSame(z, its[j]); })) { g.push(its[j]); used.push(j); }
+        for (var j = i + 1; j < its.length; j++) if (used.indexOf(j) < 0 && g.some(function(z){ return dupSame(z, its[j]); })) { g.push(its[j]); used.push(j); }
         if (g.length > 1) { g = dupKeep(g); var key = d + '|' + g.map(function(x){ return Store.planKey(x); }).sort().join('~'); if (!skip[key]) out.push({ d: d, items: g, key: key }); } }
     });
     return out;
   }
+  // 자동으로 지우는 길이라 고객 줄(증권전달 초록·리대 파랑·검정 '거제 홍길동 1차상담')은 띄어쓰기만 다를 때만 같은 것으로 본다
+  //   (2026-11-23 주간 점검: 같은 시각 '홍길동 증권전달'·'홍길순 증권전달'이 한 글자 차이로 묶여 한 줄이 지워질 수 있었음 — 빨강은 원래 제외)
+  function dupSame(a, b){ if (custLike(a.x) || custLike(b.x)) return ptxt(a.x) === ptxt(b.x) && (a.t || '') === (b.t || ''); return likeSame(a, b); }
   // 2026-11-21 대표님: "이딴 거 물어보지 말고 자동으로 알아서 하나만 남겨" → 묻는 창 없이 바로 정리하고 알림 한 줄.
   //   남길 것은 예전 권하던 것과 같음(dupKeep: 내가 직접 쓴 것·글자색/필체 정한 것 → 자주 나온 글자 → 먼저 들어온 것 · 사람 교육은 0800 줄)
   //   지운 줄은 tomb(다른 기기·회사 일정표에서 다시 안 들어옴) + 캘린더 복사본도 지움 · 고객 상담 줄(빨강)은 건드리지 않음(dupGroups) · 지난 7일 전보다 예전 날은 그대로
@@ -21814,6 +21820,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="c34379d11945";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="b73cb648ff38";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
