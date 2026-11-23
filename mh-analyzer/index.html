@@ -3847,6 +3847,10 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 .cvk p.cvkl b{font-size:15.5px;white-space:nowrap}
 .cvhero{grid-template-columns:minmax(0,1fr)}   /* 진단비 칸이 담보마다 줄이 생겨 넓어짐 → 위 요약 · 아래 진단비 두 줄로 */
 .cvhero .cvk>div{min-width:0}
+/* 병명 칩 +N → 눌러서 펼치기 (2026-11-23) */
+.kdxs .kdxh{display:none}
+i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style:dashed;-webkit-tap-highlight-color:transparent}
+.side i.kdx.more[data-kdxmore]{color:inherit}
 
 </style>
 </head>
@@ -10045,6 +10049,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 48, d: '2026-11-23', ic: '🏷', t: '병명 +2 눌러서 펼치기', s: '고객 목록의 병명 칩 끝 "+2" 같은 숫자를 누르면 숨어 있던 병명이 그 자리에서 다 보입니다. 고객 화면으로 넘어가지 않습니다.', w: '고객 목록 → 병명 칩의 +숫자' },
     { id: 47, d: '2026-11-23', ic: '🛡', t: '보장 현황 진단비를 담보별로', s: '뇌는 뇌혈관·뇌졸중·뇌출혈, 심장은 허혈성·급성심근경색, 암은 일반암·유사암, 사망은 질병·상해로 따로 보여 줍니다. 예전에는 한 칸에 다 더하고 만기된 계약까지 넣어 금액이 크게 나왔습니다. 11/12 뒤에 넣은 보장분석의 기준일이 "undefined"로 보이던 것도 고쳤습니다(다시 넣지 않아도 됩니다).', w: '고객 화면 → 보장 현황' },
     { id: 46, d: '2026-11-23', ic: '💌', t: '감톡(감성톡) 문구 틀', s: '상담 뒤·청구 뒤·계약 뒤에 보내는 마음 담은 문자 틀 세 가지가 생겼습니다. 고객 이름과 내 이름·직함·소속(🪪 내 명함)은 자동으로 들어가고, 보내기 전에 고쳐 쓸 수 있습니다.', w: '고객 화면 → 문자·카톡 → 💌 감톡' },
     { id: 45, d: '2026-11-21', ic: '🧹', t: '겹친 일정은 자동으로 하나만', s: '회사 일정표·팀 공유로 이름 한두 글자만 다르게 두 번 들어간 회사 일정(교육·석회·주마감 등)은 이제 묻지 않고 바로 하나만 남깁니다. 지운 것은 다시 들어오지 않고 캘린더에서도 지워집니다. 고객 상담 일정은 건드리지 않습니다.', w: '자동 · 싯플랜을 열 때' },
@@ -12958,8 +12963,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function kdxChips(c, max){
     var L = c && c.kdx || []; if (!L.length) return ''; max = max || 3;
-    return '<span class="kdxs">' + L.slice(0, max).map(function(k){ return '<i class="kdx ' + k.s + '" title="' + esc(k.n + ' · ' + (k.s === 'now' ? '복용 중' : k.s === 'recent' ? '최근 3개월 투약' : k.s === 'past' ? '예전 투약' : '투약 기록 없음') + ' · 마지막 진료 ' + dot(k.l)) + '">' + (k.s === 'now' ? '💊' : '') + esc(k.n) + '</i>'; }).join('') + (L.length > max ? '<i class="kdx more">+' + (L.length - max) + '</i>' : '') + '</span>';
+    // '+N'을 누르면 숨은 병명이 그 자리에서 펼쳐짐 (2026-11-23 대표님: "+2 누르면 뭔지 보게 해 줘야지") — 고객 화면으로 넘어가지 않음
+    return '<span class="kdxs">' + L.map(function(k, i){ return '<i class="kdx ' + k.s + (i >= max ? ' kdxh' : '') + '" title="' + esc(k.n + ' · ' + (k.s === 'now' ? '복용 중' : k.s === 'recent' ? '최근 3개월 투약' : k.s === 'past' ? '예전 투약' : '투약 기록 없음') + ' · 마지막 진료 ' + dot(k.l)) + '">' + (k.s === 'now' ? '💊' : '') + esc(k.n) + '</i>'; }).join('') + (L.length > max ? '<i class="kdx more" role="button" tabindex="0" data-kdxmore aria-label="병명 ' + (L.length - max) + '개 더 보기">+' + (L.length - max) + '</i>' : '') + '</span>';
   }
+  ['click', 'pointerdown', 'touchstart'].forEach(function(ev){ document.addEventListener(ev, function(e){
+    var b = e.target.closest && e.target.closest('[data-kdxmore]'); if (!b) return;
+    e.stopPropagation(); if (ev !== 'click') return; e.preventDefault();
+    var p = b.parentNode; p.querySelectorAll('.kdxh').forEach(function(x){ x.classList.remove('kdxh'); }); p.classList.add('open'); b.remove();
+  }, true); });
   function rxTag(r, base){
     var st = rxState(r, base), md = function(d){ return (+d.slice(5, 7)) + '/' + (+d.slice(8)); };
     if (st === 'now') return '<span class="rxb now">💊 복용 중 · ~' + md(r.rxEnd) + '</span>';
@@ -21859,6 +21870,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="906936628a5b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="229204ac69e9";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
