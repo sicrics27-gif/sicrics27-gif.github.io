@@ -3841,6 +3841,12 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 .ppaper .pcd.today .pd{color:#1f4fb8!important;background:transparent!important}   /* 밝은 화면 규칙이 오늘 날짜를 흰 글자로 바꾸던 것 */
 .rtmini span{color:#C46A00;font-weight:700;font-size:13px}
 .rtmini .rtmiss{color:#C46A00;font-weight:600}
+/* 보장분석 진단비 칸: 담보마다 한 줄 (뇌혈관·뇌졸중·뇌출혈 / 허혈성·급성심근경색) (2026-11-23) */
+.cvk p.cvkl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:4px 0 0}
+.cvk p.cvkl span{font-size:12.5px;color:#C9D1EE;white-space:nowrap}
+.cvk p.cvkl b{font-size:15.5px;white-space:nowrap}
+.cvhero{grid-template-columns:minmax(0,1fr)}   /* 진단비 칸이 담보마다 줄이 생겨 넓어짐 → 위 요약 · 아래 진단비 두 줄로 */
+.cvhero .cvk>div{min-width:0}
 
 </style>
 </head>
@@ -5478,14 +5484,14 @@ function HealthUI(root, H) {
   var APP_SKIP = /(고객님|보장진단|보장상세|연령별|보장금액|보상상세|미가입'만|전체현황|진단\/상세|가입현황|보장현황|정상계약|실효\/해지|월\s*보험료|월납입|납입완료|납입예정|총보험료|재조회|금액숨김|설계요청|보장이\s*부족|보완하실|추천드립니다|모아서\s*보기|분석은|보험회사에\s*문의|자동차\s*보험\s*\?|재물\s*보험\s*\?|^SKT|^\d{1,2}:\d{2}$|계피동일)/;
   var APP_AMT = /^([\d,]+\s*억(?:\s*[\d,]+\s*만)?|[\d,]+\s*(?:천만|백만|만|천)?)\s*원$/;
   function isAppText(rows) { var t = rows.join('\n'); return /(권장금액|가입금액|부족금액)/.test(t) || /\d{4}\.\d{2}\.\d{2}\s*~\s*\d{4}\.\d{2}\.\d{2}/.test(t); }
-  function ymd(y, m, d) { return y === '9999' ? '' : y + '-' + m + '-' + d; }
+  function ymd3(y, m, d) { return y === '9999' ? '' : y + '-' + m + '-' + d; }   // ymd(s)와 이름이 같으면 위 ymd를 덮어써 KB·메리츠 날짜가 깨짐(2026-11-23)
   function capParseApp(rows) {
     var list = [], groups = {}, order = [], cat = '', blk = [], last = null, prev = '';
     var grp = function (co, pr) { var k = capNorm(pr); if (!groups[k]) { groups[k] = { company: co, product: pr, riders: [], seen: {} }; order.push(k); } if (co && !groups[k].company) groups[k].company = co; return groups[k]; };
     rows.forEach(function (raw) {
       var r = String(raw || '').replace(/[>^〉›↑⌃∧]+\s*$/g, '').replace(/\s+/g, ' ').trim(); if (!r) return;
       var dm = r.match(/(\d{4})\.(\d{2})\.(\d{2})\s*~\s*(\d{4})\.(\d{2})\.(\d{2})/);
-      if (dm) { var st = r.match(APP_STATUS); last = { product: prev, start: ymd(dm[1], dm[2], dm[3]), end: ymd(dm[4], dm[5], dm[6]), status: st ? st[1].replace(/\s+/g, '') : '', company: appCo(prev), premium: 0, pay: '' }; if (prev) list.push(last); prev = ''; return; }
+      if (dm) { var st = r.match(APP_STATUS); last = { product: prev, start: ymd3(dm[1], dm[2], dm[3]), end: ymd3(dm[4], dm[5], dm[6]), status: st ? st[1].replace(/\s+/g, '') : '', company: appCo(prev), premium: 0, pay: '' }; if (prev) list.push(last); prev = ''; return; }
       var pm = r.match(/([\d,]+)\s*원\s*(매월납|일시납|매년납)?\s*\/?\s*(\d+\s*년|\d+\s*세|전기납)?/);
       if (last && pm && /매월납|일시납|매년납/.test(r)) { last.premium = won(pm[1]); last.pay = (pm[3] || '').replace(/\s+/g, ''); var c0 = appCo(r.replace(pm[0], '')); if (c0) last.company = c0; last = null; return; }
       if (APP_SKIP.test(r)) return;
@@ -10039,6 +10045,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 47, d: '2026-11-23', ic: '🛡', t: '보장 현황 진단비를 담보별로', s: '뇌는 뇌혈관·뇌졸중·뇌출혈, 심장은 허혈성·급성심근경색, 암은 일반암·유사암, 사망은 질병·상해로 따로 보여 줍니다. 예전에는 한 칸에 다 더하고 만기된 계약까지 넣어 금액이 크게 나왔습니다. 11/12 뒤에 넣은 보장분석의 기준일이 "undefined"로 보이던 것도 고쳤습니다(다시 넣지 않아도 됩니다).', w: '고객 화면 → 보장 현황' },
     { id: 46, d: '2026-11-23', ic: '💌', t: '감톡(감성톡) 문구 틀', s: '상담 뒤·청구 뒤·계약 뒤에 보내는 마음 담은 문자 틀 세 가지가 생겼습니다. 고객 이름과 내 이름·직함·소속(🪪 내 명함)은 자동으로 들어가고, 보내기 전에 고쳐 쓸 수 있습니다.', w: '고객 화면 → 문자·카톡 → 💌 감톡' },
     { id: 45, d: '2026-11-21', ic: '🧹', t: '겹친 일정은 자동으로 하나만', s: '회사 일정표·팀 공유로 이름 한두 글자만 다르게 두 번 들어간 회사 일정(교육·석회·주마감 등)은 이제 묻지 않고 바로 하나만 남깁니다. 지운 것은 다시 들어오지 않고 캘린더에서도 지워집니다. 고객 상담 일정은 건드리지 않습니다.', w: '자동 · 싯플랜을 열 때' },
     { id: 44, d: '2026-11-21', ic: '📒', t: '싯플랜 월간 = 종이 플래너 모양', s: '월간 달력이 시간만 보이던 칸 대신 종이 MONTHLY PLAN처럼 일정 글을 내 필체·색(상담 빨강·프로세스 초록·리대 파랑)으로 그대로 보여 줍니다. 날짜 칸을 누르면 그날 일정을 고칩니다. [💾 이미지 저장]을 누르면 미리보기 없이 바로 플래너 그림을 저장합니다.', w: '아래 메뉴 싯플랜 → 월간 · 위 줄 [💾 이미지 저장] · 카톡 보내기·필체는 [🖼 보내기]' },
@@ -19204,8 +19211,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function judgeBase(){ return (S.cur && S.cur.applyDate) || S.data.base; }
 
+  // 2026-11-12~23 사이 보장분석을 넣은 고객: coverage.js 날짜 함수 이름이 겹쳐 '2026.11.13-undefined-undefined'로 저장됨 → 열 때 바로잡음
+  function covFix(cv){ if (!cv) return; var f = function(v){ var m = /^(\d{4})[.\-](\d{2})[.\-](\d{2})-undefined-undefined$/.exec(v || ''); return m ? m[1] + '-' + m[2] + '-' + m[3] : v; };
+    cv.asOf = f(cv.asOf); (cv.contracts || []).forEach(function(c){ c.start = f(c.start); c.end = f(c.end); }); }
   function compute(){
-    var d = S.data, base = judgeBase();
+    var d = S.data, base = judgeBase(); try { covFix(d && d.coverage); } catch(e){}
     S.DD = dataDates(d);
     S.E = Products.evaluate(d.input, base);
     S.E0 = (S.cur && S.cur.applyDate && S.cur.applyDate !== d.base) ? Products.evaluate(d.input, d.base) : null;
@@ -19822,10 +19832,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var h = '';
     if (!cv) return ((S.data.proposals || []).length ? propCard() + '<div class="mrow"><button class="btn lg" type="button" data-act="bsx">📊 보장분석표 엑셀</button></div>' : '') + '<div class="welcome" style="margin-top:2vh"><h2>보장분석 PDF를 넣어 보세요</h2><p>메리츠 <b>M보장분석</b> 또는 KB <b>보장분석</b> PDF를 넣으면 고객이 가진 계약·특약을 정리하고, 진료 기록과 대조해 <b>청구할 만한 건</b>과 <b>실손 세대</b>를 자동으로 찾습니다. 병원 자료를 다시 넣을 필요는 없습니다.</p><div><button class="go" type="button" data-act="files" style="padding:0 26px">' + IC.clip + ' 보장분석 PDF 첨부</button>' + (ocrOn() ? ' <button class="btn lg" type="button" data-act="capUpd">📷 보험사 앱 캡처로 넣기</button>' : '') + '</div></div>' + renderPathRevs();
     var cs = cv.contracts, prem = cs.reduce(function(s, c){ return s + (c.premium || 0); }, 0), plan = Benefit.silsonPlan(cv);
-    var cnt = function(re){ return cs.reduce(function(s, c){ return s + c.riders.filter(function(r){ return re.test(r.name) && !/수술|치료|입원|통원|간병|혈전/.test(r.name); }).reduce(function(a, r){ return a + (r.type === '정액' ? r.amount : 0); }, 0); }, 0); };
-    var kpi = [['암 진단', cnt(/암.*진단|통합암|일반암/)], ['뇌 진단', cnt(/뇌출혈|뇌졸중|뇌경색|뇌혈관/)], ['심장 진단', cnt(/심근경색|허혈성|심장질환/)], ['질병·상해 사망', cnt(/사망/)]];
+    // 진단비 = 보장분석표(엑셀)와 같은 분류(Bunseok.rowsOf) · 지금 유지 중인 계약만 · 정액만 (2026-11-23 대표님: "뇌·심장 진단비가 안 맞다")
+    //   예전: 뇌혈관+뇌졸중+뇌출혈(심장도 허혈성+심근경색)을 한 칸에 다 더하고 만기 계약까지 넣어 부풀려졌음 → 넓은 담보를 크게, 좁은 담보는 아래 작게
+    var today0 = todayStr(), RS = {}; cs.forEach(function(c){ if (c.end && c.end < today0) return; c.riders.forEach(function(r){ if (r.type !== '정액' || !r.amount) return; (window.Bunseok ? Bunseok.rowsOf(r) : []).forEach(function(k){ RS[k] = (RS[k] || 0) + r.amount; }); }); });
+    // 대표님 표기(2026-11-23): 뇌 = 뇌혈관 · 뇌졸중 · 뇌출혈 / 심장 = 허혈성 · 급성심근경색 — 담보마다 한 줄씩 같은 크기, 더하지 않음
+    var rv = function(k){ return RS[k] || 0; };
+    var kpi = [['암 진단', [['일반암', rv(12) + rv(13), 1], ['유사암', rv(14)]]], ['뇌 진단', [['뇌혈관', rv(26), 1], ['뇌졸중', rv(27), 1], ['뇌출혈', rv(28), 1]]], ['심장 진단', [['허혈성', rv(31), 1], ['급성심근경색', rv(33), 1], ['부정맥 등', rv(32)]]], ['사망', [['질병사망', rv(49) + rv(50), 1], ['상해사망', rv(51), 1]]]];
     h += '<section class="cvhero"><div><span class="eyebrow">보유 계약 · ' + esc((cv.kinds || []).map(function(k){ return k === 'kb' ? 'KB 보장분석' : k === 'capture' ? '앱 캡처' : '메리츠 M보장분석'; }).join(' + ')) + (cv.asOf ? ' · ' + dot(cv.asOf) + ' 기준' : '') + '</span><b class="kh-num">' + cs.length + '<small>건</small></b><span class="kh-sub">월 보험료 합계 <b>' + won(prem) + '</b> · 실손 ' + (plan.length ? plan.map(function(p){ return '<i class="gen">' + p.gen + '세대</i> ' + esc(p.company); }).join(', ') : '없음') + '</span></div>' +
-      '<div class="cvk">' + kpi.map(function(k){ return '<div><small>' + k[0] + '</small><b>' + (k[1] ? man(k[1]) : '—') + '</b></div>'; }).join('') + '</div>' +
+      '<div class="cvk">' + kpi.map(function(k){ return '<div><small>' + k[0] + '</small>' + k[1].filter(function(x){ return x[1] || x[2]; }).map(function(x){ return '<p class="cvkl"><span>' + x[0] + '</span><b>' + (x[1] ? man(x[1]) : '없음') + '</b></p>'; }).join('') + '</div>'; }).join('') + '</div>' +
       '<div class="kh-act">' + (ocrOn() ? '<button class="btn lg ghost" type="button" data-act="capUpd">📷 앱 캡처로 특약 업데이트</button>' : '') + '<button class="btn lg ghost" type="button" data-act="files">' + IC.clip + '보장분석 다시 넣기</button><button class="btn lg ghost" type="button" data-ptab="claim">' + IC.won + '청구할 만한 건 보기</button><button class="btn lg ghost" type="button" data-act="bsx">📊 보장분석표 ' + ((S.data.proposals || []).length ? '(전)·(후)' : '(전)') + ' 엑셀</button></div></section>' + propCard() + renderPathRevs();
     if (ROLE.admin) h += nhcPane();
     h += '<div class="cvlist">' + cs.map(function(c, i){
@@ -21845,6 +21859,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="bc995c0d635f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="906936628a5b";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
