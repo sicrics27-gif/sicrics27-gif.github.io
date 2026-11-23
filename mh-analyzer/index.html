@@ -11007,9 +11007,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   function apptTime(t){ var h = +t.slice(0, 2), m = +t.slice(3, 5); return (h < 12 ? '오전 ' : '오후 ') + (h % 12 === 0 ? 12 : h % 12) + '시' + (m ? ' ' + m + '분' : ''); }
   function apptDay(d){ return (+d.slice(5, 7)) + '월 ' + (+d.slice(8, 10)) + '일 ' + WD[new Date(d + 'T12:00:00').getDay()] + '요일'; }
   function apptMsg(o){
-    var when = apptDay(o.d) + ' ' + apptTime(o.t), who = String(o.me || '').trim();
-    var visit = o.where === 'home' ? '고객님댁 방문예정' : o.where === 'office' ? '지점 방문 상담' : o.where === 'cafe' ? '카페에서 뵙겠습니다' : '';
-    return o.name + ' 고객님\n안녕하세요.\n방금 전화드린 담당자' + (who && who !== '담당자' ? ' ' + who : '') + '입니다.\n\n-상담 예약 확정-\n상담일시 : ' + when + '\n상담장소 : ' + [String(o.place || '').trim(), visit].filter(Boolean).join(' ') +
+    // 2026-11-23 대표님 양식: "방금 전화드린 담당자 강남혁팀장 입니다." (이름과 직함은 붙여서 · '입니다' 앞은 띄움) · 댁이 아니면 방문예정 줄 없음
+    var when = apptDay(o.d) + ' ' + apptTime(o.t), who = String(o.me || '').replace(/\s+/g, '').trim();
+    var visit = o.where === 'home' ? '고객님댁 방문예정' : '';
+    return o.name + ' 고객님\n안녕하세요.\n방금 전화드린 담당자' + (who && who !== '담당자' ? ' ' + who + ' ' : '') + '입니다.\n\n-상담 예약 확정-\n상담일시 : ' + when + '\n상담장소 : ' + [String(o.place || '').trim(), visit].filter(Boolean).join(' ') +
       '\n\n무료로 진행 해드리는 일정이라 정말 필요로 원하시는 고객님들이 상담을 못받으실 수 있어 일정 변동 있으시면 미리 연락 부탁드립니다.\n\n' + when + '에 뵙겠습니다. 감사합니다.';
   }
   async function openAppt(c, opt){
@@ -11026,8 +11027,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (memoAddr && areaFull) { var a1 = areaFull.split(/\s+/); if (memoAddr.indexOf(a1[a1.length - 1]) < 0 && memoAddr.indexOf(a1[0]) < 0) memoAddr = areaFull + ' ' + memoAddr; }
     var place0 = g.loc || (c.req && c.req.addr) || memoAddr || (nx && nx.place) || areaFull || g.region || '';
     await BC.load();
-    var me0 = myId().name ? meLine() : (BC.who() || coName() || '');
-    var st = { kind: g.kind && APPT_KIND.indexOf(g.kind) >= 0 ? g.kind : '1차상담', where: /카페/.test(place0) ? 'cafe' : 'home', edited: false };
+    // 직함이 비어 있으면 명함 직함 → 관리자(대표님)는 '팀장' (2026-11-23 "팀장 명칭 붙여줘야지")
+    var bcN = (BC.cur && BC.cur.name) || '', meN = myId().name || bcN || coName() || '', meT = myId().title || (BC.cur && BC.cur.title) || (ROLE.admin ? '팀장' : '');
+    var me0 = meN ? (meN + (meT && meN.indexOf(meT) < 0 ? ' ' + meT : '')).trim() : '';
+    var st = { kind: g.kind && APPT_KIND.indexOf(g.kind) >= 0 ? g.kind : '1차상담', where: /카페/.test(place0) ? 'cafe' : /청|층|빌딩|센터|사무실|회사|병원|학교|지점|역\b|호텔|식당/.test(place0) ? 'etc' : 'home', edited: false };
     var chip = function(id, L, cur){ return '<div class="sexsel apch" id="' + id + '">' + L.map(function(x){ var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<button type="button" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + t + '</button>'; }).join('') + '</div>'; };
     openDlg('<h4>📅 ' + esc(c.name) + '님 상담 약속</h4><div class="form apform">' +
       (opt.fresh ? '<p class="note">새로 등록한 고객입니다 · 상담 날짜·시간만 확인하면 싯플랜·캘린더·문자까지 한 번에 됩니다</p>' : '') +
@@ -11045,16 +11048,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('apL').value = lineOf();
     var cur = function(){ return { d: $('apD').value, t: $('apT').value || '14:00', name: c.name, place: $('apP').value.trim(), where: st.where, me: $('apMe').value.trim() }; };
     var redraw = function(){ var o = cur(); $('apWd').textContent = o.d ? apptDay(o.d) + ' ' + apptTime(o.t) + (o.d < todayStr() ? ' · 지난 날짜입니다' : '') : ''; $('apLt').textContent = o.t.replace(':', ''); if (!st.edited && o.d) $('apM').value = apptMsg(o); };
+    var WHERE_RE = /청|층|빌딩|센터|사무실|회사|병원|학교|지점|역\b|호텔|식당/;
+    $('apP').addEventListener('input', function(){ if (st.wset) return; var w = /카페/.test(this.value) ? 'cafe' : WHERE_RE.test(this.value) ? 'etc' : 'home'; if (w !== st.where) { st.where = w; $('apW').querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x.dataset.v === w)); }); } });   // 장소를 적으면 방문 종류도 맞춤(직접 고르면 그대로)
     ['apD', 'apT', 'apP', 'apMe'].forEach(function(id){ $(id).addEventListener('input', redraw); $(id).addEventListener('change', redraw); });
     $('apM').addEventListener('input', function(){ st.edited = true; });
     $('apK').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; st.kind = b.dataset.v; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); $('apL').value = lineOf(); };
-    $('apW').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; st.where = b.dataset.v; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); if (st.where === 'office' && !$('apP').value.trim()) $('apP').value = '지점'; redraw(); };
+    $('apW').onclick = function(e){ var b = e.target.closest('button'); if (!b) return; st.where = b.dataset.v; st.wset = 1; this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); if (st.where === 'office' && !$('apP').value.trim()) $('apP').value = '지점'; redraw(); };
     redraw();
     var done = false, fin = function(){ if (done) return; done = true; if (opt.after) setTimeout(function(){ opt.after(); }, 300); };
     $('apX').onclick = function(){ closeDlg(); fin(); };
     var save = async function(){
       var o = cur(), line = $('apL').value.trim(); if (!o.d) { $('apE').textContent = '상담 날짜를 넣어 주세요'; return null; } if (!line) { $('apE').textContent = '싯플랜 한 줄을 넣어 주세요'; return null; }
-      if (o.me && (!PL.d.me || !PL.d.me.name)) { var sp = o.me.split(/\s+/); PL.d.me = { name: sp[0], title: sp.slice(1).join(' ') }; }
+      if (o.me) { var sp = o.me.trim().split(/\s+/), mt = /^(.+?)(팀장|부장|본부장|지점장|실장|과장|차장|대리|매니저|AP|ap|SM|sm|BM|bm|TL|tl)$/.exec(sp[0]); var nm2 = sp.length > 1 ? { name: sp[0], title: sp.slice(1).join(' ') } : mt ? { name: mt[1], title: mt[2] } : { name: sp[0], title: (PL.d.me && PL.d.me.title) || '' }; if (!PL.d.me || PL.d.me.name !== nm2.name || PL.d.me.title !== nm2.title) PL.d.me = nm2; }   // 고친 이름·직함은 다음부터 그대로
       var t4 = o.t.replace(':', '').slice(0, 4), day = PL.d.days[o.d] = PL.d.days[o.d] || { items: [], big: '' }; day.items = day.items || [];
       var dup = day.items.some(function(x){ return x.t === t4 && String(x.x).replace(/\s+/g, '') === line.replace(/\s+/g, ''); });
       if (!dup) { var it = { t: t4, x: line, c: st.kind === '증권전달' ? 'g' : 'r', at: Date.now() }; if (o.place && st.where !== 'office') it.loc = o.place; day.items.push(it); day.items.sort(function(p, q){ return (p.t || '9999') < (q.t || '9999') ? -1 : (p.t || '9999') > (q.t || '9999') ? 1 : 0; }); if (PL.d.tomb) delete PL.d.tomb[o.d + '|' + Store.planKey(it)]; }
@@ -21820,6 +21825,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="b73cb648ff38";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="df9c5a91fce7";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
