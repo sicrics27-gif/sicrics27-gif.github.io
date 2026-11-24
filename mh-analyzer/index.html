@@ -10049,6 +10049,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 49, d: '2026-11-24', ic: '📎', t: '못 읽은 파일은 빼고 바로 분석', s: '병력파악에 넣은 파일 중 읽지 못한 것이 있어도 멈추지 않고, 그 파일만 빼고 나머지로 분석합니다. 뺀 파일 이름은 알림으로 한 번 알려 드립니다.', w: '고객 화면 → 병력파악(파일 첨부) → 분석 시작' },
     { id: 48, d: '2026-11-23', ic: '🏷', t: '병명 +2 눌러서 펼치기', s: '고객 목록의 병명 칩 끝 "+2" 같은 숫자를 누르면 숨어 있던 병명이 그 자리에서 다 보입니다. 고객 화면으로 넘어가지 않습니다.', w: '고객 목록 → 병명 칩의 +숫자' },
     { id: 47, d: '2026-11-23', ic: '🛡', t: '보장 현황 진단비를 담보별로', s: '뇌는 뇌혈관·뇌졸중·뇌출혈, 심장은 허혈성·급성심근경색, 암은 일반암·유사암, 사망은 질병·상해로 따로 보여 줍니다. 예전에는 한 칸에 다 더하고 만기된 계약까지 넣어 금액이 크게 나왔습니다. 11/12 뒤에 넣은 보장분석의 기준일이 "undefined"로 보이던 것도 고쳤습니다(다시 넣지 않아도 됩니다).', w: '고객 화면 → 보장 현황' },
     { id: 46, d: '2026-11-23', ic: '💌', t: '감톡(감성톡) 문구 틀', s: '상담 뒤·청구 뒤·계약 뒤에 보내는 마음 담은 문자 틀 세 가지가 생겼습니다. 고객 이름과 내 이름·직함·소속(🪪 내 명함)은 자동으로 들어가고, 보내기 전에 고쳐 쓸 수 있습니다.', w: '고객 화면 → 문자·카톡 → 💌 감톡' },
@@ -21265,8 +21266,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var isLockedSheet = function(n){ var f = FILES.find(function(x){ return x.name === n; }); return f && Ingest.sniff(f.data) === 'sheet' && /암호/.test(R.states[n].kind || ''); };
     var lockedTuyak = badF.filter(isLockedSheet), otherBad = badF.filter(function(n){ return !isLockedSheet(n); });
     var badMsg = function(list){ return '- ' + list.map(function(n){ return n + ' (' + R.states[n].kind + ')'; }).join('\n- '); };
-    if (otherBad.length) { err.textContent = '읽지 못한 파일이 있어 분석을 멈췄습니다. 빠지는 자료 없이 분석하려면 아래 파일을 고친 뒤 다시 넣어 주세요.\n' + badMsg(badF) + (msgs.length ? '\n\n' + msgs.join('\n') : ''); return; }
-    if (!R.ok) { err.textContent = msgs.concat(['인식된 진료내역 파일이 없습니다. 심평원 기본진료정보 PDF를 포함해 주세요. (보장분석 PDF만 넣어도 됩니다)']).join('\n'); return; }
+    // 못 읽은 파일은 멈추지 않고 빼고 분석 (2026-11-24 대표님: "읽지 못하는 파일이 있으면 자동으로 빼고 인식하면 되잖아")
+    //   읽은 자료가 하나도 없을 때만 멈춤 · 뺀 파일 이름은 알림으로 한 번 보여 줌
+    if (!R.ok) { err.textContent = (badF.length ? '읽지 못한 파일:\n' + badMsg(badF) + '\n\n' : '') + msgs.concat(['인식된 진료내역 파일이 없습니다. 심평원 기본진료정보 PDF를 포함해 주세요. (보장분석 PDF만 넣어도 됩니다)']).join('\n'); return; }
+    if (otherBad.length) { var skipN = otherBad.length; setTimeout(function(){ toast('못 읽은 파일 ' + skipN + '개는 빼고 분석했습니다: ' + otherBad.join(', ').slice(0, 120) + (msgs.length ? ' · ' + msgs[0] : '')); }, 1200); }
     if (R.coverage) {
       var cvw = covMismatch(R.coverage);
       if (cvw && !R._cvOk) { showChoice('<b>보장분석 PDF가 이 고객의 것이 맞는지 확인하세요.</b><br>' + esc(cvw), [{ label: '파일 다시 확인', fn: hideChoice }, { label: '이 고객 것이 맞음', pri: true, fn: function(){ hideChoice(); R._cvOk = true; contAfterCov(); } }]); return; }
@@ -21870,6 +21873,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="229204ac69e9";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="726dde0e23c8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
