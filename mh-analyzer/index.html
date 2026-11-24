@@ -3851,6 +3851,11 @@ button.dbs{border:0;cursor:pointer;font-family:inherit;line-height:1.5}
 .kdxs .kdxh{display:none}
 i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style:dashed;-webkit-tap-highlight-color:transparent}
 .side i.kdx.more[data-kdxmore]{color:inherit}
+/* 고객 화면: 탭 줄을 맨 위로 (2026-11-24) — '진행' 탭 안은 예전 카드 묶음 모양 그대로 · PC는 이름 줄(붙어 있음) 바로 아래에 탭 줄이 붙음 */
+.ppane.pwork{display:block}
+#ptabAt{position:absolute;width:0;height:0}
+.flowbar:has(+ #ptabAt){margin-bottom:0}
+@media (min-width:901px){.main .ptabs{top:var(--chead-h,0px)}}
 
 </style>
 </head>
@@ -7118,7 +7123,9 @@ function HealthUI(root, H) {
       Object.keys(photo.states).forEach(function (n) { states[n] = photo.states[n]; });
       Object.keys(scanOf).forEach(function (n) { var ks = scanOf[n].map(function (x) { var st = states[x] || {}; delete states[x]; return st; }), okN = ks.filter(function (x) { return x.ok; }); states[n] = okN.length ? { ok: true, photo: 1, kind: String(okN[0].kind).replace(/ · .*$/, '') + ' · 스캔 ' + ks.length + '쪽' } : { bad: true, kind: '스캔 PDF에서 서류를 못 알아봄' }; });
       L.Photo.build(photo).forEach(function (d) { take(d, !!d.car, true); });
-      meta.photo = { n: pages.length, rows: photo.tabs.reduce(function (a, t) { return a + (t.rows ? t.rows.length : 0); }, 0), left: photo.crit, fixed: photo.fixed || 0, auto: photo.auto, gaps: photo.gaps.map(function (g) { return { kind: g.kind, car: g.car ? 1 : 0, from: g.from, to: g.to }; }) };
+      // n = 서류로 읽힌 사진 수 · skip = 서류가 아니어서(못 알아봐서) 뺀 사진 수 (2026-11-24: 못 읽은 것은 멈추지 않고 빼고 분석)
+      var phOk = pages.filter(function (pg) { var st = photo.states[pg.name]; return !st || st.ok; }).length;
+      meta.photo = { n: phOk, skip: pages.length - phOk, rows: photo.tabs.reduce(function (a, t) { return a + (t.rows ? t.rows.length : 0); }, 0), left: photo.crit, fixed: photo.fixed || 0, auto: photo.auto, gaps: photo.gaps.map(function (g) { return { kind: g.kind, car: g.car ? 1 : 0, from: g.from, to: g.to }; }) };
     }
     function take(r, car, isPhoto) {
         meta.kinds[r.kind] = 1; if (car || /자동차/.test(r.text || '')) meta.kinds.car = 1;
@@ -10049,6 +10056,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 51, d: '2026-11-24', ic: '🏷', t: 'PC에서도 고객 줄에 주요 병력', s: '고객 목록의 병명 칩(고혈압·당뇨·고지혈증 …)이 PC 프로그램에서는 잘 안 채워지던 것을 고쳤습니다. 고객 화면을 열어 둔 채로 써도 1~2분 안에 채워집니다.', w: '자동 · 고객 목록' },
+    { id: 50, d: '2026-11-24', ic: '🗂', t: '고객 화면: 탭이 맨 위로', s: '고객을 열면 이름 바로 아래에 [진행 · 고지항목 · 진료이력 · 보장 현황 …] 탭이 있습니다. 예전처럼 연락·상담·요청 칸은 "진행" 탭에 그대로 있고, 분석은 화면을 내리지 않고 탭 한 번으로 봅니다.', w: '고객 목록 → 고객 누르기' },
     { id: 49, d: '2026-11-24', ic: '📎', t: '못 읽은 파일은 빼고 바로 분석', s: '병력파악에 넣은 파일 중 읽지 못한 것이 있어도 멈추지 않고, 그 파일만 빼고 나머지로 분석합니다. 뺀 파일 이름은 알림으로 한 번 알려 드립니다.', w: '고객 화면 → 병력파악(파일 첨부) → 분석 시작' },
     { id: 48, d: '2026-11-23', ic: '🏷', t: '병명 +2 눌러서 펼치기', s: '고객 목록의 병명 칩 끝 "+2" 같은 숫자를 누르면 숨어 있던 병명이 그 자리에서 다 보입니다. 고객 화면으로 넘어가지 않습니다.', w: '고객 목록 → 병명 칩의 +숫자' },
     { id: 47, d: '2026-11-23', ic: '🛡', t: '보장 현황 진단비를 담보별로', s: '뇌는 뇌혈관·뇌졸중·뇌출혈, 심장은 허혈성·급성심근경색, 암은 일반암·유사암, 사망은 질병·상해로 따로 보여 줍니다. 예전에는 한 칸에 다 더하고 만기된 계약까지 넣어 금액이 크게 나왔습니다. 11/12 뒤에 넣은 보장분석의 기준일이 "undefined"로 보이던 것도 고쳤습니다(다시 넣지 않아도 됩니다).', w: '고객 화면 → 보장 현황' },
@@ -12981,15 +12990,34 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
   function kdxSame(a, b){ return JSON.stringify(a || []) === JSON.stringify(b || []); }
   // 분석은 끝났는데 아직 주요 병력 칩이 없는 고객: 조용히 한 번 계산 (이 기기 안에서만)
+  // 2026-11-24 대표님 "PC 버전엔 왜 고지혈증 같은 주요 병력이 안 뜨냐": 예전엔 켠 지 20초 뒤 딱 한 번만 돌고, 그때(또는 도는 중에) 고객 화면이 열려 있으면 그만두고 그날은 다시 안 했다
+  //   → PC는 프로그램을 하루 종일 켜 두고 고객 화면을 열어 놓고 쓰니 거의 계산이 안 됨(휴대폰은 하루에도 여러 번 켜서 채워짐).
+  //   이제: 열려 있는 고객 한 명만 건너뛰고 끝까지 · 남았으면 1분 뒤 다시 · 다른 기기에서 받아온 뒤에도 한 번 더 · 이미 표시가 있는데 칩만 없는 고객도 다시 봄
+  var KDXF = { busy: false, tried: {}, t: 0 };
+  function kdxLater(ms){ clearTimeout(KDXF.t); KDXF.t = setTimeout(function(){ kdxFill().catch(function(){}); }, ms || 5000); }
   async function kdxFill(){
-    if (!Store.isOpen() || S.cur) return;
-    var todo = S.list.filter(function(c){ return !c.sample && c.status === 'done' && !c.kdxAt; }).slice(0, 300), n = 0;
-    for (var i = 0; i < todo.length; i++) {
-      if (S.cur) break;
-      try { var c = todo[i], d = await Store.loadData(c.id); if (!d || !d.input || d.covOnly) { c.kdxAt = todayStr(); await Store.saveHead(c); continue; }
-        var base = d.base || todayStr(); c.kdx = keyDx(Claims.history(d.input, base), base); c.kdxAt = base; await Store.saveHead(c); if (c.kdx.length) n++; } catch(e){}
-    }
-    if (todo.length) { S.list = await Store.list(); if (!S.cur && !S.view) renderList(); }
+    if (KDXF.busy || !Store.isOpen() || !$('lock').hidden) return;
+    var ids = S.list.filter(function(c){ return !c.sample && c.status === 'done' && (!c.kdxAt || !c.kdx) && !KDXF.tried[c.id]; }).map(function(c){ return c.id; }).slice(0, 400);
+    if (!ids.length) return;
+    KDXF.busy = true; var n = 0, left = 0;
+    try {
+      for (var i = 0; i < ids.length; i++) {
+        if (!Store.isOpen()) break;
+        if (S.cur && S.cur.id === ids[i]) { left++; continue; }   // 열려 있는 고객은 열 때 이미 계산됨(updateFacts) — 화면에 있는 것과 엇갈리지 않게 이번엔 건너뜀
+        var id = ids[i], c = S.list.find(function(x){ return x.id === id; }); if (!c) continue;
+        KDXF.tried[id] = 1;
+        try {
+          var d = await Store.loadData(id);
+          if (!d || !d.input || d.covOnly) { if (!c.kdxAt) { c.kdxAt = todayStr(); await Store.saveHead(c); } continue; }
+          var base = d.base || todayStr(), kd = keyDx(Claims.history(d.input, base), base);
+          c = S.list.find(function(x){ return x.id === id; }) || c;   // 계산하는 사이 목록이 새로 읽혔으면 최신 것에 적음 (그 사이 바꾼 단계·할 일을 덮지 않게)
+          c.kdx = kd; c.kdxAt = base; await Store.saveHead(c); n++;
+        } catch(e){}
+        await new Promise(function(r){ setTimeout(r, 30); });   // 쓰는 중에 버벅이지 않게 조금씩
+      }
+    } finally { KDXF.busy = false; }
+    if (n) { S.list = await Store.list(); renderList(); }
+    if (left) kdxLater(60000);
   }
   setTimeout(function k0(){ try { if (Store.isOpen() && $('lock').hidden) { kdxFill().catch(function(){}); return; } } catch(e){} setTimeout(k0, 15000); }, 20000);
   function updateFacts(){
@@ -13918,7 +13946,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   }
 
   // ================= 상태 =================
-  var S = { list: [], cur: null, data: null, E: null, HI: null, CL: null, HP: null, tab: 'prod', pv: null, pvTab: 'sum', hmode: 'code', filter: 'all', q: '' };
+  var S = { list: [], cur: null, data: null, E: null, HI: null, CL: null, HP: null, tab: 'work', pv: null, pvTab: 'sum', hmode: 'code', filter: 'all', q: '' };
   try { S.hmode = localStorage.getItem('mhs_hmode') || 'code'; } catch(e){}
   try { S.hsort = localStorage.getItem('mhs_hsort') || 'desc'; } catch(e){}
   async function enterApp(){
@@ -14148,7 +14176,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   Sync.on(async function(st){
     syncSt = st; drawSync();
     if (st.status === 'ok' && st.down && Store.isOpen()) {
-      S.list = await Store.list(); renderList();
+      S.list = await Store.list(); renderList(); kdxLater(8000);   // 다른 기기에서 받은 고객 중 병명 칩이 없는 것은 이 기기에서 채움
       // 다른 기기에서 바뀐 싯플랜: 합친 최신본으로 다시 읽기 (화면에 남은 옛 내용으로 덮어쓰지 않게)
       if (st.changed.indexOf(PL.id) >= 0 && $('dlg').hidden && !GC_BUSY && !GC_PULL) { PL.d = null; try { await planLoad(); if (S.view === 'plan') { var yp = window.scrollY; showPlan(S.pm); window.scrollTo(0, yp); } } catch(e){} }
       if (S.cur && !S.cur.sample && st.changed.indexOf(S.cur.id) >= 0 && $('dlg').hidden) {
@@ -19192,6 +19220,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   async function openCustomer(id){
     var c = id === 'sample' ? SAMPLE.head : S.list.find(function(x){ return x.id === id; });
     if (!c) return;
+    if (!S.cur || S.cur.id !== c.id || S.view) S.tab = c.sample ? 'prod' : 'work';   // 고객을 열면 '진행' 탭부터 (2026-11-24)
     S.cur = c; S.pv = null; S.data = null; S.E = null;
     if (c.status === 'done') {
       try { S.data = id === 'sample' ? SAMPLE.data : await Store.loadData(id); } catch(e){ S.data = null; }
@@ -19247,43 +19276,49 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       (c.sample ? '' : '<button class="btn lg pri" type="button" data-act="files">' + IC.clip + (d ? '다시 분석' : '병력파악 (파일 첨부)') + '</button>') +
       (c.sample ? '' : '<button class="btn lg cmore" type="button" data-act="cmore" aria-label="더보기 (정보 수정 · 삭제)">⋯</button>') + '</div></div>';
     if (!c.sample) h += flowBar(c);
-    h += renderCard();
+    if (memMode) h += '<div class="membanner">이 화면에서는 기기 저장소를 쓸 수 없어, 창을 닫으면 자료가 사라집니다. PC용 파일이나 설치된 앱에서 사용하세요.</div>';
+    if (c.sample) h += '<div class="membanner">예시 고객입니다 · 가상의 자료로 화면 구성을 보여 줍니다.</div>';
+    // 2026-11-24 대표님 'ㄱㄱ': 탭 줄을 맨 위로 — 예전엔 단계·채널·연락·상담·요청·계약 칸이 전부 펼쳐진 아래(휴대폰 2.2화면)에 분석 탭이 있었다.
+    //   이제 [진행 | 고지항목 | 진료이력 | 보장 현황 | …] — '진행' 탭 = 예전 카드 묶음 그대로(단추는 하나도 안 없앰) · 자료 날짜·공백 경고(ana)는 병력 탭 안으로
+    var ana = '';
     if (d && !d.covOnly) {
       var DD = S.DD, F = freshOf(DD.asOf);
-      h += '<div class="dbar">' +
+      ana += '<div class="dbar">' +
         '<div class="dchip"><small>자료 조회일</small><b>' + dot(DD.asOf) + '</b><em>' + esc(DD.src) + '</em></div>' +
         '<div class="dchip"><small>마지막 진료일</small><b>' + dot(DD.last) + '</b><em>자료상 가장 최근 병원·약국</em></div>' +
         '<div class="dchip"><small>분석일</small><b>' + dot(DD.analyzed) + '</b><em>판정 기준일 ' + dot(judgeBase()) + '</em></div>' +
         '<div class="dchip fr ' + F.lv + '"><small>자료 신선도</small><b>' + F.txt + '</b><em>' + (F.lv === 'g' ? '그대로 청약 가능' : F.lv === 'a' ? '그 사이 진료 여부 확인' : '재조회 권장') + '</em></div>' +
         (c.sample ? '' : '<div class="dchip ap"><small>청약 예정일</small><input type="date" id="applyDate" value="' + esc(c.applyDate || '') + '" min="' + d.base + '" aria-label="청약 예정일">' + (c.applyDate ? '<button type="button" class="lnk" data-act="clearApply">지우기</button>' : '<em>넣으면 그날 기준으로 판정</em>') + '</div>') +
         '</div>';
-      if (F.lv !== 'g' && DD.asOf) h += '<div class="gapban ' + F.lv + '">' + IC.warn + '<span>자료 조회일(' + dot(DD.asOf) + ') 이후 <b>' + F.days + '일</b>은 자료에 없는 기간입니다. ' + (F.lv === 'r' ? '최근 진료가 빠졌을 수 있으니 <b>심평원·공단 자료를 다시 받아 분석</b>하는 것을 권장합니다.' : '그 사이 병원·약국 방문이나 새로 먹는 약이 있는지 고객에게 확인하세요. (질문지에 자동으로 넣었습니다)') + '</span></div>';
+      if (F.lv !== 'g' && DD.asOf) ana += '<div class="gapban ' + F.lv + '">' + IC.warn + '<span>자료 조회일(' + dot(DD.asOf) + ') 이후 <b>' + F.days + '일</b>은 자료에 없는 기간입니다. ' + (F.lv === 'r' ? '최근 진료가 빠졌을 수 있으니 <b>심평원·공단 자료를 다시 받아 분석</b>하는 것을 권장합니다.' : '그 사이 병원·약국 방문이나 새로 먹는 약이 있는지 고객에게 확인하세요. (질문지에 자동으로 넣었습니다)') + '</span></div>';
     }
-    if (memMode) h += '<div class="membanner">이 화면에서는 기기 저장소를 쓸 수 없어, 창을 닫으면 자료가 사라집니다. PC용 파일이나 설치된 앱에서 사용하세요.</div>';
-    if (d && d.excluded && d.excluded.length) h += '<div class="membanner">' + esc(d.excluded.join(', ')) + '을(를) 빼고 분석한 결과입니다. 잠금 푼 파일로 다시 분석하면 더 정확해집니다.</div>';
-    if (c.sample) h += '<div class="membanner">예시 고객입니다 · 가상의 자료로 화면 구성을 보여 줍니다.</div>';
-    if (!c.sample) h += '<details class="memo"' + (c.memo ? ' open' : '') + '><summary>고객 메모 <small class="note">(잠금 비밀번호로 암호화 저장)</small></summary><textarea id="memoTa" placeholder="상담 내용, 가입 희망 상품 등">' + esc(c.memo || '') + '</textarea></details>';
-    if (d && !d.covOnly && base !== todayStr() && !c.sample && !c.applyDate) h += '<div class="rebase">분석 기준일이 오늘(' + todayStr() + ')과 다릅니다. 기간 계산(3개월·N년)을 오늘 기준으로 다시 하려면 <button type="button" data-act="rebase">오늘 기준으로 다시 판정</button></div>';
-    if (!d && S.tab === 'log') { h += '<nav class="ptabs" role="tablist"><button type="button" role="tab" class="ptab" data-ptab="prod" aria-selected="false">' + IC.clip + '<span>병력파악</span></button><button type="button" role="tab" class="ptab" data-ptab="log" aria-selected="true">' + IC.list + '<span>상담 기록</span></button></nav><section class="ppane">' + renderLog() + '</section>'; $('main').innerHTML = h; afterRender(); afterLog(); return; }
-    if (!d) {
-      h += '<nav class="ptabs" role="tablist"><button type="button" role="tab" class="ptab" data-ptab="prod" aria-selected="true">' + IC.clip + '<span>병력파악</span></button><button type="button" role="tab" class="ptab" data-ptab="log" aria-selected="false">' + IC.list + '<span>상담 기록</span>' + ((c.notes || []).length ? '<span class="cnt">' + c.notes.length + '</span>' : '') + '</button></nav>';
-      h += '<div class="welcome" style="margin-top:2vh"><h2>파일을 첨부하고 분석을 시작하세요</h2><p>심평원·공단에서 받은 파일을 한 번에 넣으면, 모든 상품의 고지 판정표와 진료이력, 미청구 보험금, 건강 분석을 한 번에 만들어 저장합니다.</p>' +
+    if (d && d.excluded && d.excluded.length) ana += '<div class="membanner">' + esc(d.excluded.join(', ')) + '을(를) 빼고 분석한 결과입니다. 잠금 푼 파일로 다시 분석하면 더 정확해집니다.</div>';
+    if (d && d.skipped && d.skipped.length) ana += '<div class="membanner">읽지 못해 뺀 파일 ' + d.skipped.length + '개: ' + esc(d.skipped.join(', ')) + ' — 이 파일의 내용은 분석에 들어 있지 않습니다.</div>';
+    if (d && !d.covOnly && base !== todayStr() && !c.sample && !c.applyDate) ana += '<div class="rebase">분석 기준일이 오늘(' + todayStr() + ')과 다릅니다. 기간 계산(3개월·N년)을 오늘 기준으로 다시 하려면 <button type="button" data-act="rebase">오늘 기준으로 다시 판정</button></div>';
+    if (d && S.pv) { h += ana + renderDetail(S.pv); $('main').innerHTML = h; afterRender(); return; }
+    var memoH = c.sample ? '' : '<details class="memo"' + (c.memo ? ' open' : '') + '><summary>고객 메모 <small class="note">(잠금 비밀번호로 암호화 저장)</small></summary><textarea id="memoTa" placeholder="상담 내용, 가입 희망 상품 등">' + esc(c.memo || '') + '</textarea></details>';
+    var welcomeH = '<div class="welcome" style="margin-top:2vh"><h2>파일을 첨부하고 분석을 시작하세요</h2><p>심평원·공단에서 받은 파일을 한 번에 넣으면, 모든 상품의 고지 판정표와 진료이력, 미청구 보험금, 건강 분석을 한 번에 만들어 저장합니다.</p>' +
         '<div class="steps"><div class="step"><i>1</i><b>심평원 PDF</b><span>기본진료 · 세부진료 · 처방조제 (자동차보험 진료가 있으면 함께)</span></div><div class="step"><i>2</i><b>공단 PDF</b><span>요양급여내역서 (최근 진료) · 건강검진 결과 한눈에 보기</span></div><div class="step"><i>3</i><b>투약이력 엑셀</b><span>내가 먹는 약 한눈에 — 암호를 풀고 저장한 파일</span></div></div>' +
         '<p>위쪽 <b>서류 받기</b>에서 자료를 받은 뒤 <b>병력파악 (파일 첨부)</b>를 눌러 한꺼번에 넣으세요.</p></div>';   // 2026-11-16 대표님: 위쪽과 같은 단추 두 개(서류 받기·파일 첨부)를 아래에서 뺌
-      $('main').innerHTML = h; return;
-    }
-    if (S.pv) { h += renderDetail(S.pv); $('main').innerHTML = h; afterRender(); return; }
-    var nP = S.E.products.filter(function(p){ return p.status !== 'n'; }).length;
-    var nC = claimCount();
-    var TABS = [['prod', IC.list, '고지항목', ''], ['hist', IC.doc, '진료이력', ''], ['cov', IC.shield2, '보장 현황', d.coverage ? d.coverage.contracts.length : ''], ['claim', IC.won, '미청구 보험금', nC ? nC : ''], ['health', IC.heart, '건강 분석', S.HP && S.HP.years.length ? S.HP.years.length + '년' : ''], ['log', IC.list, '상담 기록', (c.notes || []).length || '']];
-    h += '<nav class="ptabs" role="tablist">' + TABS.map(function(t){ return '<button type="button" role="tab" class="ptab" data-ptab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '">' + t[1] + '<span>' + t[2] + '</span>' + (t[3] !== '' ? '<span class="cnt">' + t[3] + '</span>' : '') + '</button>'; }).join('') + '</nav>';
-    h += '<section class="ppane">' + (d.covOnly && /^(prod|hist|health)$/.test(S.tab) ? covOnlyPane() : S.tab === 'prod' ? renderProducts() : S.tab === 'hist' ? renderHistory() : S.tab === 'claim' ? renderClaims() : S.tab === 'cov' ? renderCoverage() : S.tab === 'log' ? renderLog() : '<div id="hpPane"></div>') + '</section>';
+    var tab = S.tab || 'work', TABS;
+    if (!d) TABS = [['work', IC.user, '진행', ''], ['prod', IC.clip, '병력파악', ''], ['log', IC.list, '상담 기록', (c.notes || []).length || '']];
+    else { var nC = claimCount(); TABS = [['work', IC.user, '진행', ''], ['prod', IC.list, '고지항목', ''], ['hist', IC.doc, '진료이력', ''], ['cov', IC.shield2, '보장 현황', d.coverage ? d.coverage.contracts.length : ''], ['claim', IC.won, '미청구 보험금', nC ? nC : ''], ['health', IC.heart, '건강 분석', S.HP && S.HP.years.length ? S.HP.years.length + '년' : ''], ['log', IC.list, '상담 기록', (c.notes || []).length || '']]; }
+    if (!TABS.some(function(t){ return t[0] === tab; })) tab = 'work';
+    S.tab = tab;
+    h += '<div id="ptabAt"></div><nav class="ptabs" role="tablist">' + TABS.map(function(t){ return '<button type="button" role="tab" class="ptab" data-ptab="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + t[1] + '<span>' + t[2] + '</span>' + (t[3] !== '' ? '<span class="cnt">' + t[3] + '</span>' : '') + '</button>'; }).join('') + '</nav>';
+    var pane = tab === 'work' ? renderCard() + memoH : tab === 'log' ? renderLog() : !d ? welcomeH : d.covOnly && /^(prod|hist|health)$/.test(tab) ? covOnlyPane() : tab === 'prod' ? renderProducts() : tab === 'hist' ? renderHistory() : tab === 'claim' ? renderClaims() : tab === 'cov' ? renderCoverage() : '<div id="hpPane"></div>';
+    h += '<section class="ppane' + (tab === 'work' ? ' pwork' : '') + '">' + (d && /^(prod|hist|claim|health)$/.test(tab) ? ana : '') + pane + '</section>';
     $('main').innerHTML = h;
-    if (S.tab === 'health' && !d.covOnly) renderHealth($('hpPane'));
-    afterRender(); if (S.tab === 'log') afterLog();
+    if (d && tab === 'health' && !d.covOnly) renderHealth($('hpPane'));
+    afterRender(); if (tab === 'log') afterLog();
   }
   function covOnlyPane(){ return '<div class="welcome" style="margin-top:2vh"><h2>병원 자료가 아직 없습니다</h2><p>보장분석만 넣은 상태입니다. 심평원·공단 자료를 넣으면 고지 판정표·진료이력·건강 분석을 만들고, 보장분석과 대조해 청구할 만한 건을 찾습니다. (보장분석은 그대로 유지됩니다)</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn lg" type="button" data-act="docs">' + IC.doc + ' 서류 받기</button><button class="go" type="button" data-act="files" style="padding:0 26px">' + IC.clip + ' 병원 자료 첨부</button></div></div>'; }
+  function cheadH(){ var ch = document.querySelector('#main > .chead'); return ch && getComputedStyle(ch).position === 'sticky' ? ch.offsetHeight : 0; }
+  function ptabFit(){ try { document.documentElement.style.setProperty('--chead-h', cheadH() + 'px'); } catch(e){} }
+  function ptabTop(){ var at = $('ptabAt'); if (!at) return; var y = Math.round(at.getBoundingClientRect().top + window.scrollY - cheadH()); if (window.scrollY > y) window.scrollTo(0, y); }
+  window.addEventListener('resize', function(){ if ($('ptabAt')) ptabFit(); });
   function afterRender(){
+    ptabFit();
     var ad = $('applyDate');
     if (ad) ad.addEventListener('change', async function(){
       var v = this.value || '';
@@ -19291,7 +19326,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       S.cur.applyDate = v; S.cur = await Store.saveHead(S.cur); S.list = await Store.list();
       compute(); renderList(); renderCustomer(); toast(v ? '청약 예정일 ' + dot(v) + ' 기준으로 다시 판정했습니다' : '분석일 기준으로 돌아왔습니다');
     });
-    var st = document.querySelector('.ptab[aria-selected="true"]'); if (st && st.scrollIntoView && window.innerWidth < 900) { var pt = st.parentNode; pt.scrollLeft = st.offsetLeft - 16; }
+    var st = document.querySelector('.ptab[aria-selected="true"]'); if (st && st.scrollIntoView && window.innerWidth < 900) { var pt = st.parentNode; pt.scrollLeft = Math.max(0, st.offsetLeft - (pt.clientWidth - st.offsetWidth) / 2); }   /* 고른 탭을 가운데로 — 양옆 탭(맨 앞 '진행' 쪽)이 같이 보이게 */
     var hz = $('hideZero'); if (hz) hz.addEventListener('change', function(){ S.hideZero = this.checked; var y = window.scrollY; renderCustomer(); window.scrollTo(0, y); });
     var ta = $('memoTa');
     if (ta) ta.addEventListener('change', async function(){ S.cur.memo = this.value; await Store.saveHead(S.cur); S.list = await Store.list(); S.cur = S.list.find(function(x){ return x.id === S.cur.id; }) || S.cur; renderList(); toast('메모를 저장했습니다'); });
@@ -19901,7 +19936,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     ck2.push(['공단 요양급여내역서', okv(kinds.recent), kinds.recent ? (R.recentPeriod || '') : '없으면 최근 2~3개월 진료가 빠질 수 있음']);
     if (kinds.car && !kinds.carBasic && !kinds.carDetail) ck2.push(['자동차보험 진료', okv(true), '교통사고 치료 포함']);
     else { ck2.push(['자동차 기본진료', okv(kinds.carBasic), kinds.carBasic ? '교통사고 치료 포함' : '교통사고 치료가 없었다면 \'해당 없음\' · 파일 이름에 \'자동차\'가 있어야 알아봅니다']); ck2.push(['자동차 세부진료', okv(kinds.carDetail), kinds.carDetail ? '교통사고 수술·검사 포함' : '교통사고 치료가 없었다면 \'해당 없음\'']); }
-    if (d.meta.photo) (function(ph){ var bits = ['사진 ' + ph.n + '장 · ' + ph.rows + '줄']; if (ph.fixed) bits.push('직접 고친 곳 ' + ph.fixed); if (ph.auto) bits.push('자동으로 바로잡은 코드 ' + ph.auto); if (ph.left) bits.push('못 읽어 빠진 줄 ' + ph.left); (ph.gaps || []).forEach(function(g){ bits.push((g.car ? '자동차 ' : '') + (Photo.KIND_T[g.kind] || '') + ' ' + (g.from === g.to ? g.from : g.from + '~' + g.to) + '번 없음'); }); ck2.push(['📷 사진으로 읽은 서류', ph.left || (ph.gaps || []).length ? '<span class="no">확인</span>' : '<span class="ok">읽음</span>', esc(bits.join(' · ')) + ' — 종이 서류와 진료이력을 한 번 견주어 보세요']); })(d.meta.photo);
+    if (d.meta.photo) (function(ph){ var bits = ['사진 ' + ph.n + '장 · ' + ph.rows + '줄']; if (ph.fixed) bits.push('직접 고친 곳 ' + ph.fixed); if (ph.auto) bits.push('자동으로 바로잡은 코드 ' + ph.auto); if (ph.left) bits.push('못 읽어 빠진 줄 ' + ph.left); if (ph.skip) bits.push('서류로 못 알아봐 뺀 사진 ' + ph.skip + '장'); (ph.gaps || []).forEach(function(g){ bits.push((g.car ? '자동차 ' : '') + (Photo.KIND_T[g.kind] || '') + ' ' + (g.from === g.to ? g.from : g.from + '~' + g.to) + '번 없음'); }); ck2.push(['📷 사진으로 읽은 서류', ph.left || (ph.gaps || []).length ? '<span class="no">확인</span>' : '<span class="ok">읽음</span>', esc(bits.join(' · ')) + ' — 종이 서류와 진료이력을 한 번 견주어 보세요']); })(d.meta.photo);
     var lag = R.dataRange ? Math.round((new Date(R.base) - new Date(R.dataRange.to)) / 864e5) : null;
     if (lag !== null && lag > 45 && !kinds.recent) ck2.push(['최근 진료 공백', '<span class="no">주의</span>', '심평원 마지막 진료일이 기준일보다 ' + lag + '일 앞섭니다. 요양급여내역서로 확인하세요.']);
     if (R.mode === 'simple' && R.N > 5) ck2.push([R.N + '년 이내 입원·수술', '<span class="no">자료 부족</span>', '심평원 자료는 5년치만 나옵니다. 5년 이전 입원·수술은 고객 확인 필요.']);
@@ -20145,7 +20180,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     }
     if ((t = e.target.closest('[data-tier]'))) { openTierEdit(t); return; }
     if ((t = e.target.closest('[data-gen]'))) { S.data.silGen = t.dataset.gen ? +t.dataset.gen : 0; await saveClaimState(); var y2 = window.scrollY; renderCustomer(); window.scrollTo(0, y2); toast(S.data.silGen ? S.data.silGen + '세대 기준으로 계산했습니다' : '보장분석 가입일 기준(자동)으로 계산했습니다'); return; }
-    if ((t = e.target.closest('[data-ptab]'))) { S.tab = t.dataset.ptab; S.pv = null; renderCustomer(); return; }
+    if ((t = e.target.closest('[data-ptab]'))) { S.tab = t.dataset.ptab; S.pv = null; renderCustomer(); ptabTop(); return; }
     if ((t = e.target.closest('[data-dt]'))) { setDTab(t.dataset.dt); return; }
     if ((t = e.target.closest('[data-hk]'))) { var hk = t.dataset.hk, wsx = document.querySelector('.ht-w'), sx = wsx ? wsx.scrollLeft : 0; if (S.hsk === hk && t.tagName === 'TH') S.hsort = S.hsort === 'asc' ? 'desc' : 'asc'; else { S.hsk = hk; S.hsort = t.dataset.hd || 'desc'; } try { localStorage.setItem('mhs_hsort', S.hsort); localStorage.setItem('mhs_hsk', S.hsk); } catch(er){} renderCustomer(); wsx = document.querySelector('.ht-w'); if (wsx) wsx.scrollLeft = sx; return; }
     if ((t = e.target.closest('[data-hm]'))) { S.hmode = t.dataset.hm; try { localStorage.setItem('mhs_hmode', S.hmode); } catch(er){} renderCustomer(); return; }
@@ -21269,7 +21304,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     // 못 읽은 파일은 멈추지 않고 빼고 분석 (2026-11-24 대표님: "읽지 못하는 파일이 있으면 자동으로 빼고 인식하면 되잖아")
     //   읽은 자료가 하나도 없을 때만 멈춤 · 뺀 파일 이름은 알림으로 한 번 보여 줌
     if (!R.ok) { err.textContent = (badF.length ? '읽지 못한 파일:\n' + badMsg(badF) + '\n\n' : '') + msgs.concat(['인식된 진료내역 파일이 없습니다. 심평원 기본진료정보 PDF를 포함해 주세요. (보장분석 PDF만 넣어도 됩니다)']).join('\n'); return; }
-    if (otherBad.length) { var skipN = otherBad.length; setTimeout(function(){ toast('못 읽은 파일 ' + skipN + '개는 빼고 분석했습니다: ' + otherBad.join(', ').slice(0, 120) + (msgs.length ? ' · ' + msgs[0] : '')); }, 1200); }
+    if (otherBad.length) { R.skipped = otherBad.slice(); var skipN = otherBad.length; setTimeout(function(){ toast('못 읽은 파일 ' + skipN + '개는 빼고 분석했습니다: ' + otherBad.join(', ').slice(0, 120) + (msgs.length ? ' · ' + msgs[0] : '')); }, 1200); }
     if (R.coverage) {
       var cvw = covMismatch(R.coverage);
       if (cvw && !R._cvOk) { showChoice('<b>보장분석 PDF가 이 고객의 것이 맞는지 확인하세요.</b><br>' + esc(cvw), [{ label: '파일 다시 확인', fn: hideChoice }, { label: '이 고객 것이 맞음', pri: true, fn: function(){ hideChoice(); R._cvOk = true; contAfterCov(); } }]); return; }
@@ -21796,6 +21831,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   async function finishAnalysis(R, excluded){
     var gfs = FILES.slice();
     var data = { input: R.input, meta: R.meta, base: todayStr(), analyzedAt: Date.now(), excluded: excluded || [], files: FILES.map(function(f){ return { name: f.name, kind: (R.states[f.name] || {}).kind || '' }; }) };
+    if (R.skipped && R.skipped.length) data.skipped = R.skipped.slice(0, 20).map(function(n){ return String(n).slice(0, 60); });   // 못 읽어 뺀 파일 — 결과 화면에 계속 보이게 (2026-11-24)
     var old = S.data || {};
     data.coverage = R.coverage || old.coverage || null; data.coverageAt = R.coverage ? Date.now() : old.coverageAt;
     data.proposals = (R.proposals && R.proposals.length) ? R.proposals : (old.proposals || null); if (data.proposals) data.proposalAt = R.proposals ? Date.now() : old.proposalAt;
@@ -21873,6 +21909,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="726dde0e23c8";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="14c894cda45f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
