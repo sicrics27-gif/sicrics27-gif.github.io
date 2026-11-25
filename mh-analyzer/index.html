@@ -4328,6 +4328,16 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
   function majorSuspect(code) {
     if (!code) return '';
     if (startsAny(code, ['Z030', 'Z031'])) return '암 의심(관찰)';
+    // 2026-11-25 정확도 점검: 암을 치료한 뒤의 추적·병력 상병(주상병이 C코드가 아님)도 조용히 넘기지 않는다
+    if (startsAny(code, ['Z08', 'Z85', 'Z860'])) return '암 병력·치료 뒤 추적(암 고지 대상인지 확인)';
+    if (startsAny(code, ['Z510', 'Z511', 'Z512'])) return '방사선·항암 치료(암 치료 여부 확인)';
+    if (startsAny(code, ['Z95', 'Z941', 'Z867'])) return '심장·혈관 삽입물·병력(스텐트·인공판막 등 심장·뇌혈관 병력 확인)';
+    if (startsAny(code, ['I01', 'I09', 'Q22', 'Q23'])) return '심장판막 관련 질환(심장판막증 여부 확인)';
+    if (c3(code) === 'O24') return '임신 중 당뇨(당뇨병 해당 여부 확인)';
+    if (inRange(code, 'O10', 'O16')) return '임신 중 고혈압(고혈압 해당 여부 확인)';
+    if (startsAny(code, ['G632', 'G590', 'N083', 'M142', 'H280', 'I792', 'G730', 'G990'])) return '당뇨 합병증 상병(당뇨병 진단 여부 확인)';
+    if (startsAny(code, ['B18', 'Z225', 'I85'])) return '만성 간염·식도정맥류(간경화 진행 여부 확인)';
+    if (c3(code) === 'R75') return 'HIV 검사 이상 소견(확인)';
     if (startsAny(code, ['Z033'])) return '신경계(뇌) 질환 의심(관찰)';
     if (startsAny(code, ['Z034', 'Z035'])) return '심장질환 의심(관찰)';
     if (c3(code) === 'G45' || c3(code) === 'G46') return '일과성 뇌허혈·뇌혈관 증후군';
@@ -4359,13 +4369,31 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
   }
 
   // ---------- 진료내역 분류 ----------
-  var SURG_RE = /수술|절제술|적출술|성형술|봉합술|고정술|치환술|이식술|절개술|배액술|결찰술|재건술|교정술|접합술|관혈적|형성술|박리술|천공술|삽입술|폐쇄술|우회술|중재술|색전술|용종절제|점막절제|제거술|발거술|쇄석술|절석술|광응고술|임플란트.*식립|조갑|침생검|재소파술|유방생검|소작술/;
-  var SURG_EX = /수술후처치|발치술|치석|치근활택|치주소파|구강내소염|치관확장|약물소작|첩모발거|드레싱|BURR|SAW|NEEDLE|SNARE|CLIP|FORCEPS|재료|소모품|단순처치|처치\[|창상처치|기본진료료|이구전색/i;
-  var PROC_RE = /주입술|흡인술|천자|생검|레이저|체외충격파|고주파|소작|구강내소염|치관확장|첩모발거|매복|봉합|절개|적출|제거/;
-  var PROC_EX = /BURR|SAW|NEEDLE|SNARE|CLIP|FORCEPS|재료|소모품|드레싱|기본진료료|이구전색|치석|조직병리|검사료|차단술|신경블록|전달마취|침윤마취|재활|저출력레이저|수복물|보철물|계측|지각과민|단순처치/i;
+  // 2026-11-25 정확도 점검: 수술 이름 끝말을 넓힘 — 절단술·절골술·근치술(치핵)·문합술·유합술·개두/개흉/개복술·조루/조성술·유리술·감압술·소파술·파쇄술·제왕절개(만출술)·경피적 …확장술 등이
+  //   예전 목록에 없어 수술로 안 잡혔다. 목록에 없는 '…술'도 조용히 넘기지 않고 '시술(확인)'으로 올린다(classify 맨 끝 갈래).
+  var SURG_RE = /수술|절제술|적출술|성형술|봉합술|고정술|치환술|이식술|절개술|배액술|결찰술|재건술|교정술|접합술|관혈적|형성술|박리술|천공술|삽입술|폐쇄술|우회술|중재술|색전술|용종절제|점막절제|제거술|발거술|쇄석술|절석술|광응고술|임플란트.*식립|조갑|침생검|재소파술|유방생검|소작술|절단술|절골술|근치술|문합술|유합술|개두술|천두술|개흉술|개복술|개창술|개방술|조루술|조성술|유리술|감압술|소파술|파쇄술|제왕절개|만출술|축소술|거상술|단축술|연장술|이전술|전위술|절제생검|절개생검|경피적.{0,14}확장술|혈관확장술|풍선확장술/;
+  var SURG_EX = /수술후처치|발치술|치석|치근활택|치주소파|치수절단|구강내소염|치관확장|약물소작|첩모발거|드레싱|재료|소모품|술용|단순처치|처치\[|창상처치|기본진료료|이구전색/;
+  // 치료재료 줄(영어 제품 이름): 한글 수술 이름('…수술', '…술')이 같이 있으면 재료가 아니라 수술이다 — 예) 뇌동맥류수술-단순[경부Clipping]. '…술용 ○○'은 재료
+  var MAT_EN = /BURR|SAW|NEEDLE|SNARE|CLIP|FORCEPS/i, KO_OP = /수술(?!용)|[가-힣]술(?![가-힣])/;
+  var PROC_RE = /주입술|흡인술|흡입술|천자|생검|레이저|체외충격파|고주파|소작|구강내소염|치관확장|첩모발거|매복|봉합|절개|적출|제거|확장술|정복술|응고술|경화요법|경화술|삽관술|파괴술/;
+  var PROC_EX = /재료|소모품|드레싱|기본진료료|이구전색|치석|조직병리|검사료|차단술|신경블록|전달마취|침윤마취|재활|저출력레이저|수복물|보철물|계측|지각과민|단순처치|침술|부항|구술|추나|전색술|교합조정|소생술|누점확장|누관/;
   var EXAM_RE = /\bCT\b|CT진단|MRI|자기공명|전산화단층|초음파|내시경|조직병리|생검|PET-?CT|혈관조영|골밀도|심초음파|뇌파|근전도|유방촬영|조영/;
   var EXAM_EX = /세척|소독|재료|NEEDLE|SNARE|CLIP|소모/i;
-  function isPharm(h, dept) { return /약국$|약국\s*$/.test(h) || (/약국/.test(h) && /일반의/.test(dept || '')); }
+  // 약국: 이름이 '약국'으로 끝나거나, 이름에 약국이 있고 진단과가 일반의이거나, 병·의원 낱말이 없는 이름('○○약국(△△점)')
+  function isPharm(h, dept) { h = String(h || ''); return /약국\s*$/.test(h) || (/약국/.test(h) && (/일반의/.test(dept || '') || !/병원|의원|의료원|보건|클리닉|센터/.test(h))); }
+  // 세부진료 한 줄 분류 — surg 수술(고지) · proc 시술(수술인지 확인) · exam 정밀검사
+  function classify(d) {
+    var it = String((d && d.item) || ''), cat = String((d && d.cat) || '');
+    var out = { surg: false, proc: false, exam: false };
+    if (!it) return out;
+    var mat = MAT_EN.test(it) && !KO_OP.test(it);
+    var opCat = !cat || /처치|수술|수혈|마취/.test(cat);      // 분류 칸을 못 읽었으면(빈 칸) 이름만으로 본다 — 수술을 놓치지 않는 쪽
+    if (!mat && SURG_RE.test(it) && !SURG_EX.test(it) && (opCat || /생검|광응고|쇄석|절석|임플란트|조갑/.test(it))) out.surg = true;
+    else if (!mat && PROC_RE.test(it) && !PROC_EX.test(it)) out.proc = true;
+    else if (!mat && /수술/.test(cat) && KO_OP.test(it) && !SURG_EX.test(it) && !PROC_EX.test(it)) out.proc = true;   // '처치 및 수술료' 칸의 '…술'인데 목록에 없는 이름
+    if ((EXAM_RE.test(it) || /영상진단|방사선|특수장비|핵의학/.test(cat)) && !EXAM_EX.test(it) && !/PACS|영상저장/.test(it)) out.exam = true;
+    return out;
+  }
 
   // ---------- 원본 표 -> 레코드 ----------
   function rowsToRecords(rows, need) {
@@ -4457,12 +4485,18 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
     var majorLabel = mode === 'std' ? '11대질병' : '중대질병';
 
     var basic = input.basic || [], detail = input.detail || [], rx = input.rx || [], recent = (input.recent && input.recent.rows) || [];
-    var inWin = function (r) { var d = pd(r.date); return d && d >= d5 && d <= base; };
+    var DAY = 864e5;
+    // 입원은 퇴원하는 날까지가 한 덩어리 — 시작일이 기간 밖이어도 입원 기간이 기간 안에 걸치면 넣는다 (2026-11-25: 5년 하루 전 입원해 5년 안에 퇴원한 입원이 통째로 빠졌음)
+    var stayEnd = function (r) { var d = pd(r.date); if (!d) return null; var n = /입원/.test(r.type || '') ? Math.max(1, +r.days || +r.inDays || 1) : 1; return new Date(d.getTime() + (n - 1) * DAY); };
+    var inWin = function (r) { var d = pd(r.date); return !!d && d <= base && stayEnd(r) >= d5; };
+    var endD = function (x) { return pd(x.end || x.date); };
 
     var hospRows = basic.filter(function (r) { return !isPharm(r.hosp, r.dept) && inWin(r); });
     // 요양급여내역서(공단) 병원 진료 중 심평원 자료에 없는 것 추가
     var basicKeys = {}; basic.forEach(function (r) { basicKeys[r.hosp + '|' + r.date] = 1; });
+    var recentRx = {};     // 공단 자료의 투약일수 (심평원 처방조제 자료에 아직 없는 최근 진료용)
     recent.forEach(function (r) {
+      if (r.rxDays > 0 && !/약국/.test(r.type) && r.hosp) recentRx[r.hosp + '|' + r.date] = Math.max(recentRx[r.hosp + '|' + r.date] || 0, +r.rxDays || 0);
       if (/약국/.test(r.type) || !r.code || basicKeys[r.hosp + '|' + r.date] || !inWin(r)) return;
       hospRows.push({ date: r.date, hosp: r.hosp, hospDisp: r.hospDisp, dept: '', type: r.type, code: r.code, src: '', name: r.name, days: r.inDays || 1, fromRecent: true });
     });
@@ -4470,35 +4504,57 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
 
     // 병원 방문 단위 (병원+날짜)
     var visitKey = function (h, d) { return h + '|' + d; };
-    var visits = {};
+    var visits = {}, vByDate = {}, vByHosp = {};
     hospRows.forEach(function (r) {
       var k = visitKey(r.hosp, r.date);
-      if (!visits[k]) visits[k] = { hosp: r.hosp, hospDisp: r.hospDisp, dept: r.dept, date: r.date, rows: [] };
+      if (!visits[k]) { visits[k] = { hosp: r.hosp, hospDisp: r.hospDisp, dept: r.dept, date: r.date, end: r.date, rows: [] }; (vByDate[r.date] = vByDate[r.date] || []).push(k); (vByHosp[r.hosp] = vByHosp[r.hosp] || []).push(k); }
       visits[k].rows.push(r);
+      var e = fmt(stayEnd(r)); if (e > visits[k].end) visits[k].end = e;
     });
+    var hn = function (h) { return String(h || '').replace(/\s|\(.*?\)|의원$|병원$|의료법인|재단법인/g, '').slice(0, 6); };
+    var dayStr = function (s, n) { return fmt(new Date(pd(s).getTime() + n * DAY)); };
+    // 같은 병원의 '그 날짜 또는 그 며칠 앞' 진료 찾기: 조제일이 진료 다음 날이거나(처방전은 며칠 뒤에도 조제), 입원 기간 안의 날짜인 기록을 그 진료에 붙인다
+    var nearMemo = {};
+    function nearVisit(hosp, date, back) {
+      var mk = hosp + '|' + date + '|' + back; if (mk in nearMemo) return nearMemo[mk];
+      var best = null, bd = '';
+      (vByHosp[hosp] || []).forEach(function (k) { var v = visits[k]; if (v.date > date) return; if (!(date <= v.end || v.date >= dayStr(date, -back))) return; if (v.date > bd) { bd = v.date; best = k; } });
+      return (nearMemo[mk] = best);
+    }
     // 병원 처방 (외래/입원 처방 행)
-    var rxByVisit = {}, rxPharm = {};
+    var rxByVisit = {}, rxPharm = {}, rxLate = {};
     rx.forEach(function (x) {
       var k = visitKey(x.hosp, x.date);
-      if (visits[k]) (rxByVisit[k] = rxByVisit[k] || []).push(x);
-      else (rxPharm[k] = rxPharm[k] || []).push(x);
+      if (visits[k]) { (rxByVisit[k] = rxByVisit[k] || []).push(x); return; }
+      // 처방한 병원 이름으로 적힌 기록(투약이력의 조제일자 등)인데 그날 진료가 없으면 → 같은 병원의 7일 안 앞선 진료에
+      var nk = x.hosp && pd(x.date) && !isPharm(x.hosp, '') ? nearVisit(x.hosp, x.date, 7) : null;
+      if (nk) { (rxByVisit[nk] = rxByVisit[nk] || []).push(x); rxLate[k] = nk; return; }
+      (rxPharm[k] = rxPharm[k] || []).push(x);
     });
     var drugKey = function (s) { return String(s || '').replace(/\(.*$/, '').replace(/[_\s].*$/, '').replace(/\d.*$/, ''); };
     var ingrKey = function (s) { return String(s || '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 12); };
 
     // 약국 행 -> 병원 방문 연결 (같은 날짜, 약 성분 일치 > 코드 일치 > 단일 병원)
-    var pharmLinks = []; // {visitKey, pharm row, drugs}
+    //   2026-11-25: 같은 날 진료가 없으면 7일 안 앞선 진료 중 약 성분이나 상병이 맞는 곳에 붙인다 (예전엔 조제가 진료 다음 날이면 투약일수가 통째로 빠졌음).
+    //   그래도 못 붙인 조제는 버리지 않고 '약국 조제 기록만 있는 상병' 카드로 남긴다(pharmOrphans).
+    var pharmLinks = [], pharmOrphans = []; // {visitKey, pharm row, drugs}
     pharmRows.forEach(function (p) {
-      var cands = Object.keys(visits).filter(function (k) { return visits[k].date === p.date; });
       var pdrugs = rxPharm[visitKey(p.hosp, p.date)] || [];
-      var best = null, bestScore = -1;
-      cands.forEach(function (k) {
-        var hd = rxByVisit[k] || [], score = 0;
-        pdrugs.forEach(function (a) { if (hd.some(function (b) { return ingrKey(a.ingr) && ingrKey(a.ingr) === ingrKey(b.ingr); })) score += 10; });
-        if (visits[k].rows.some(function (r) { return r.code === p.code; })) score += 3;
-        if (score > bestScore) { bestScore = score; best = k; }
-      });
-      if (best) pharmLinks.push({ vk: best, p: p, drugs: pdrugs });
+      var best = null, bestScore = -1, bestGap = 99, loose3 = [];
+      for (var gap = 0; gap <= 7; gap++) {
+        (vByDate[gap ? dayStr(p.date, -gap) : p.date] || []).forEach(function (k) {
+          var hd = rxByVisit[k] || [], score = 0;
+          pdrugs.forEach(function (a) { if (hd.some(function (b) { return ingrKey(a.ingr) && ingrKey(a.ingr) === ingrKey(b.ingr); })) score += 10; });
+          if (visits[k].rows.some(function (r) { return r.code === p.code; })) score += 3;
+          else if (p.code && visits[k].rows.some(function (r) { return r.code && c3(r.code) === c3(p.code); })) score += 2;
+          if (gap && !score) { if (gap <= 3) loose3.push(k); return; }   // 다른 날 진료는 약 성분이나 상병이 맞을 때만
+          if (score > bestScore) { bestScore = score; best = k; bestGap = gap; }
+        });
+      }
+      // 맞는 진료가 없어도, 앞 3일 안에 병원에 간 날이 딱 한 번뿐이면 그 진료의 처방으로 본다 (약국이 적은 상병이 병원 주상병과 다른 경우)
+      if (!best && loose3.length === 1) { best = loose3[0]; bestGap = 3; }
+      if (best) pharmLinks.push({ vk: best, p: p, drugs: pdrugs, gap: bestGap });
+      else pharmOrphans.push({ p: p, drugs: pdrugs });
     });
 
     // 카드: 상병코드 단위
@@ -4507,6 +4563,9 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
       if (!cards[code]) cards[code] = { code: code, name: name, src: src, visits: [], hosps: {}, pharmCodes: {}, surg: [], proc: [], exams: [], details: {}, meds: [], inpDays: 0, outDays: 0, disc: [], first: null, last: null };
       return cards[code];
     }
+    // 묶지 않고 늘 따로 카드를 만드는 상병: 11대 질병·중대질병 관련·고혈압/당뇨/고지혈증
+    //   2026-11-25: 같은 병원에서 같은 날 두 과 진료를 받으면(정형외과 + 순환기내과) 늘 뒤에 적힌 협심증이 앞 상병 카드에 묶여 '질병' 판정에서 통째로 빠졌다 → 전 상품 '고지 없음'으로 나옴
+    var keepOwn = function (code) { return !!(std11(code) || majorSuspect(code) || chronicHD(code)); };
     // 방문별 주상병: 입원 행 > 내원일수 큰 행 > 자료 순서. 주상병이 된 적 없이 다른 상병과 함께만 나온 상병은 그 주상병 카드에 묶음
     function primaryOf(v) {
       var coded = v.rows.filter(function (r) { return r.code; });
@@ -4517,54 +4576,113 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
     }
     var asPrimary = {};
     Object.keys(visits).forEach(function (k) { var p = primaryOf(visits[k]); if (p) asPrimary[p.code] = 1; });
+    // 세부진료를 진료(병원+날짜)에 붙임: 꼭 같은 것 → 같은 날·병원 이름이 조금 다르게 적힌 것 → 같은 병원의 입원 기간 안.
+    //   그래도 못 붙인 수술·시술·검사는 버리지 않고 '진단명 미상' 카드로 남긴다 (2026-11-25: 예전엔 기본진료에 같은 병원·날짜가 없으면 수술이 조용히 빠졌음)
+    var detByVisit = {}, detLoose = {}, detMemo = {};
+    detail.forEach(function (d) {
+      if (!d.hosp || !d.date) return;
+      var k = visitKey(d.hosp, d.date), vk = visits[k] ? k : detMemo[k];
+      if (vk === undefined) {
+        var n = hn(d.hosp);
+        vk = (vByDate[d.date] || []).filter(function (k2) { return hn(visits[k2].hosp) === n; })[0] || nearVisit(d.hosp, d.date, 0) || null;
+        if (!vk) { var ks = Object.keys(visits).filter(function (k2) { var v2 = visits[k2]; return hn(v2.hosp) === n && v2.date <= d.date && d.date <= v2.end; }); vk = ks[0] || null; }
+        detMemo[k] = vk;
+      }
+      if (vk) (detByVisit[vk] = detByVisit[vk] || []).push(d);
+      else { var dt = pd(d.date); if (dt && dt >= d5 && dt <= base && !isPharm(d.hosp, '')) (detLoose[k] = detLoose[k] || []).push(d); }
+    });
+    var HAS = { detail: detail.length > 0, rx: rx.length > 0 || Object.keys(recentRx).length > 0 };
+    function addDetail(c, d, date, end, hospName) {
+      var cl = classify(d);
+      if (cl.surg) c.surg.push({ date: date, end: end, hosp: hospName, item: d.item });
+      else if (cl.proc) c.proc.push({ date: date, end: end, hosp: hospName, item: d.item });
+      if (cl.exam) c.exams.push({ date: date, end: end, hosp: hospName, item: d.item });
+      return cl;
+    }
+    var maskN = 0;
     Object.keys(visits).forEach(function (k) {
       var v = visits[k];
       var mainRow = primaryOf(v);
-      if (!mainRow) return;
-      var codesSeen = {};
-      v.rows.forEach(function (r) {
-        if (!r.code || codesSeen[r.code]) return; codesSeen[r.code] = 1;
-        var absorbed = !asPrimary[r.code] && r.code !== mainRow.code;
-        var c = absorbed ? card(mainRow.code, mainRow.name, mainRow.src) : card(r.code, r.name, r.src);
-        if (absorbed) { c.siblings = c.siblings || {}; c.siblings[r.code] = r.name; if (codesSeen['@' + mainRow.code]) return; }
-        codesSeen['@' + c.code] = 1;
-        var isIn = v.rows.some(function (x) { return (x.code === r.code || x.code === c.code) && /입원/.test(x.type); });
-        c.visits.push({ hosp: v.hosp, hospDisp: v.hospDisp, dept: v.dept, date: v.date, inp: isIn, days: 1 });
+      // 이 진료(v)의 줄들(mine)을 카드 c 에 한 번 셈
+      function countVisit(c, mine) {
+        var isIn = mine.some(function (x) { return /입원/.test(x.type); });
+        // 날수: 입원 = 입원일수 · 외래 = 내원일수 (한 줄에 여러 날이 묶여 청구된 외래 — 내원일수 5 — 를 예전엔 1일로만 세어 7일 치료를 놓칠 수 있었음, 2026-11-25)
+        var dd = Math.max(1, Math.max.apply(null, mine.filter(function (x) { return !isIn || /입원/.test(x.type); }).map(function (x) { return +x.days || 0; }).concat([0])));
+        if (!isIn && dd > 31) dd = 31;
+        var vend = isIn ? mine.reduce(function (m, x) { var e = fmt(stayEnd(x)); return e > m ? e : m; }, v.date) : v.date;
+        var dp = (mine[0] && mine[0].dept) || v.dept;      // 그 상병 줄의 진료과 (같은 날 두 과면 과가 다름)
+        c.visits.push({ hosp: v.hosp, hospDisp: v.hospDisp, dept: dp, date: v.date, end: vend, inp: isIn, days: dd });
         var h = c.hosps[v.hosp] = c.hosps[v.hosp] || { name: v.hospDisp || v.hosp, dept: {}, dates: {}, inp: 0, out: 0, first: v.date, last: v.date };
-        h.dept[v.dept] = 1;
-        var dd = isIn ? Math.max(1, Math.max.apply(null, v.rows.filter(function (x) { return x.code === r.code || x.code === c.code; }).map(function (x) { return x.days || 0; }))) : 1;
-        if (!h.dates[v.date]) { h.dates[v.date] = 1; if (isIn) h.inp += dd; else h.out += 1; }
+        h.dept[dp] = 1;
+        if (!h.dates[v.date]) { h.dates[v.date] = 1; if (isIn) h.inp += dd; else h.out += dd; }
         if (v.date < h.first) h.first = v.date; if (v.date > h.last) h.last = v.date;
-      });
-      var c = cards[mainRow.code];
+      }
+      var c;
+      if (!mainRow) {
+        // 상병코드가 안 나온 진료(민감상병 비표시 '$' 등): 예전엔 통째로 건너뛰어 입원·치료 날수가 판정에서 빠졌다 → 병원별 '진단명 가려짐' 카드로 (2026-11-25)
+        var mk = '가려짐|' + v.hosp; c = cards[mk];
+        if (!c) { maskN++; c = card(mk, '진단명이 안 나온 진료 — ' + (v.hospDisp || v.hosp), ''); c.code = '가려짐' + maskN; c.masked = true; }
+        countVisit(c, v.rows);
+      } else {
+        var codesSeen = {};
+        v.rows.forEach(function (r) {
+          if (!r.code || codesSeen[r.code]) return; codesSeen[r.code] = 1;
+          var absorbed = !asPrimary[r.code] && r.code !== mainRow.code && !keepOwn(r.code);
+          var cc = absorbed ? card(mainRow.code, mainRow.name, mainRow.src) : card(r.code, r.name, r.src);
+          if (absorbed) { cc.siblings = cc.siblings || {}; cc.siblings[r.code] = r.name; }
+          if (codesSeen['@' + cc.code]) return;               // 이 진료는 그 카드에 이미 셈 (묶인 상병이 먼저 나온 경우 두 번 세지 않게)
+          codesSeen['@' + cc.code] = 1;
+          countVisit(cc, v.rows.filter(function (x) { return x.code === r.code || x.code === cc.code; }));
+        });
+        c = cards[mainRow.code];
+      }
       // 세부진료 (같은 병원+날짜)
-      detail.forEach(function (d) {
-        if (d.hosp !== v.hosp || d.date !== v.date) return;
+      (detByVisit[k] || []).forEach(function (d) {
         (c.details[v.date + ' ' + (v.hospDisp || v.hosp)] = c.details[v.date + ' ' + (v.hospDisp || v.hosp)] || []).push(d.item);
-        if (SURG_RE.test(d.item) && !SURG_EX.test(d.item) && (/처치|수술|수혈|마취/.test(d.cat) || /생검|광응고|쇄석|절석|임플란트|조갑/.test(d.item))) c.surg.push({ date: v.date, hosp: v.hospDisp || v.hosp, item: d.item });
-        else if (PROC_RE.test(d.item) && !PROC_EX.test(d.item)) c.proc.push({ date: v.date, hosp: v.hospDisp || v.hosp, item: d.item });
-        if (d.item && (EXAM_RE.test(d.item) || /영상진단|방사선|특수장비|핵의학/.test(d.cat)) && !EXAM_EX.test(d.item) && !/PACS|영상저장/.test(d.item)) c.exams.push({ date: v.date, hosp: v.hospDisp || v.hosp, item: d.item });
+        addDetail(c, d, v.date, v.end, v.hospDisp || v.hosp);
       });
       // 투약
       var drugs = (rxByVisit[k] || []).slice();
       pharmLinks.filter(function (l) { return l.vk === k; }).forEach(function (l) {
         l.drugs.forEach(function (a) { if (!drugs.some(function (b) { return ingrKey(a.ingr) === ingrKey(b.ingr) && ingrKey(a.ingr); })) drugs.push(a); });
-        if (l.p.code && l.p.code !== mainRow.code && !v.rows.some(function (r) { return r.code === l.p.code; })) {
+        if (l.p.code && (!mainRow || l.p.code !== mainRow.code) && !v.rows.some(function (r) { return r.code === l.p.code; })) {
           var pc = c.pharmCodes[l.p.code] = c.pharmCodes[l.p.code] || { code: l.p.code, name: l.p.name, pharm: l.p.hosp, dates: [] };
           pc.dates.push(v.date);
         }
       });
+      // 심평원 처방 자료에 아직 없는 최근 진료: 공단 자료의 투약일수로 (약 이름은 모름)
+      if (!drugs.length && recentRx[k]) drugs.push({ drug: '약 이름 미상(공단 자료의 투약일수)', days: recentRx[k] });
       if (drugs.length) c.meds.push({ date: v.date, hosp: v.hospDisp || v.hosp, drugs: drugs.map(function (x) { return { name: x.drug, days: x.days }; }) });
+    });
+    // 병원 기록 없이 약국 조제만 있는 것 → 그 상병 카드에 (없으면 '약국 조제 기록만 있는 상병' 카드를 만듦). 치료 날수에는 넣지 않는다.
+    pharmOrphans.forEach(function (o) {
+      var p = o.p; if (!p.code) return;
+      var c = cards[p.code];
+      if (!c) { c = card(p.code, p.name, p.src); c.pharmOnly = true; }
+      if (c.pharmOnly) {
+        c.visits.push({ hosp: p.hosp, hospDisp: p.hospDisp || p.hosp, dept: '', date: p.date, end: p.date, inp: false, days: 0, pharm: true });
+        var h = c.hosps[p.hosp] = c.hosps[p.hosp] || { name: p.hospDisp || p.hosp, dept: {}, dates: {}, inp: 0, out: 0, first: p.date, last: p.date };
+        h.dates[p.date] = 1; if (p.date < h.first) h.first = p.date; if (p.date > h.last) h.last = p.date;
+      }
+      if (o.drugs.length) c.meds.push({ date: p.date, hosp: p.hospDisp || p.hosp, drugs: o.drugs.map(function (x) { return { name: x.drug, days: x.days }; }) });
+    });
+    // 세부진료에만 있는 수술·시술·검사 (기본진료에 같은 병원·날짜가 없음) → '진단명 미상' 카드
+    Object.keys(detLoose).forEach(function (k) {
+      var rows = detLoose[k], d0 = rows[0], any = rows.some(function (d) { var cl = classify(d); return cl.surg || cl.proc || cl.exam; });
+      if (!any) return;
+      var c = card('미상', '진단명 미상 — 세부진료에만 있는 기록(기본진료에 같은 병원·날짜 없음)', ''); c.loose = true;
+      c.visits.push({ hosp: d0.hosp, hospDisp: d0.hosp, dept: '', date: d0.date, end: d0.date, inp: false, days: 0, loose: true });
+      var h = c.hosps[d0.hosp] = c.hosps[d0.hosp] || { name: d0.hosp, dept: {}, dates: {}, inp: 0, out: 0, first: d0.date, last: d0.date };
+      h.dates[d0.date] = 1; if (d0.date < h.first) h.first = d0.date; if (d0.date > h.last) h.last = d0.date;
+      rows.forEach(function (d) { (c.details[d0.date + ' ' + d0.hosp] = c.details[d0.date + ' ' + d0.hosp] || []).push(d.item); addDetail(c, d, d0.date, d0.date, d0.hosp); });
     });
 
     // 카드 집계
     var list = Object.keys(cards).map(function (k) { return cards[k]; });
-    // 날짜 기준 처방 묶음 (병원 외래 + 약국 조제 모두)
-    var rxByDate = {};
-    rx.forEach(function (x) { (rxByDate[x.date] = rxByDate[x.date] || []).push(x); });
     list.forEach(function (c) {
       c.visits.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
       c.first = c.visits[0].date; c.last = c.visits[c.visits.length - 1].date;
+      c.lastEnd = c.visits.reduce(function (m, v) { var e = v.end || v.date; return e > m ? e : m; }, c.last);   // 마지막 진료가 입원이면 퇴원하는 날
       Object.keys(c.hosps).forEach(function (h) { c.inpDays += c.hosps[h].inp; c.outDays += c.hosps[h].out; });
       // 그 상병 방문(병원+날짜)에 연결된 처방과, 그 방문에 연결된 약국 조제만 집계 (같은 날 다른 병원 처방은 제외)
       var maxMed = 0, cumByDrug = {};
@@ -4578,24 +4696,32 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
       c.medTotals = Object.keys(cumByDrug).map(function (n) { return { name: n, days: cumByDrug[n] }; }).sort(function (a, b) { return b.days - a.days; });
       c.rxDays = c.medTotals.length ? c.medTotals[0].days : 0; // 대표 약물 누적일수
     });
-    // 동일원인 합산 (3자리 코드)
+    // 동일원인 합산 (3자리 코드) — 진단명이 없는 카드(가려짐·미상)는 서로 같은 병인지 알 수 없어 묶지 않는다
     var groups = {};
-    list.forEach(function (c) { (groups[c3(c.code)] = groups[c3(c.code)] || []).push(c); });
+    list.forEach(function (c) { if (c.masked || c.loose) return; (groups[c3(c.code)] = groups[c3(c.code)] || []).push(c); });
     list.forEach(function (c) {
-      var g = groups[c3(c.code)];
-      c.group = g.length > 1 ? { key: c3(c.code), total: g.reduce(function (s, x) { return s + x.outDays + x.inpDays; }, 0), rx: g.reduce(function (s, x) { return s + x.rxDays; }, 0), members: g } : null;
+      var g = (!c.masked && !c.loose && groups[c3(c.code)]) || [c];
+      if (g.length < 2) { c.group = null; return; }
+      // 같은 약 누적일수도 3자리 코드로 합침 (K21.0 28일 + K21.9 28일 = 같은 약 56일 → 30일 이상 투약) — 2026-11-25: 7일 치료는 합쳐 보면서 30일 투약은 따로 보고 있었음
+      var cum = {}; g.forEach(function (x) { x.medTotals.forEach(function (m) { cum[m.name] = (cum[m.name] || 0) + m.days; }); });
+      var rxMax = Object.keys(cum).reduce(function (m, n) { return Math.max(m, cum[n]); }, 0);
+      c.group = { key: c3(c.code), total: g.reduce(function (s, x) { return s + x.outDays + x.inpDays; }, 0), rx: g.reduce(function (s, x) { return s + x.rxDays; }, 0), rxMax: rxMax, members: g };
     });
 
     // 같은 병원 연속 치료(30일 이내 간격) 묶음: 상병코드가 달라도 같은 질환일 수 있어 확인용
     var hospEp = {};
     (function () {
       var byH = {};
-      Object.keys(visits).forEach(function (k) { var v = visits[k]; (byH[v.hosp] = byH[v.hosp] || {})[v.date] = 1; });
+      Object.keys(visits).forEach(function (k) {
+        var v = visits[k], isIn = v.rows.some(function (x) { return /입원/.test(x.type); });
+        var n = Math.max(1, Math.max.apply(null, v.rows.filter(function (x) { return !isIn || /입원/.test(x.type); }).map(function (x) { return +x.days || 0; }).concat([0])));
+        (byH[v.hosp] = byH[v.hosp] || {})[v.date] = isIn ? n : Math.min(n, 31);
+      });
       Object.keys(byH).forEach(function (h) {
         var ds = Object.keys(byH[h]).sort(), ep = [], eps = [];
         ds.forEach(function (d, i) { if (i && (pd(d) - pd(ds[i - 1])) / 864e5 > 30) { eps.push(ep); ep = []; } ep.push(d); });
         if (ep.length) eps.push(ep);
-        eps.forEach(function (e) { e.forEach(function (d) { hospEp[h + '|' + d] = e; }); });
+        eps.forEach(function (e) { var o = { length: e.reduce(function (a, d) { return a + byH[h][d]; }, 0), dates: e }; e.forEach(function (d) { hospEp[h + '|' + d] = o; }); });   // length = 그 묶음의 치료 날수
       });
     })();
     var d1y = addM(base, -12);
@@ -4605,15 +4731,32 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
       var D = [];
       var add = function (lv, k, t, q) { D.push({ lv: lv, k: k, t: t, q: q || '' }); };
       var winY = mode === 'std' ? d5 : dN;
-      var inpN = c.visits.filter(function (v) { return v.inp && pd(v.date) >= winY; });
-      var surgN = c.surg.filter(function (s) { return pd(s.date) >= winY; });
-      var procN = c.proc.filter(function (s) { return pd(s.date) >= winY; });
+      var inpN = c.visits.filter(function (v) { return v.inp && endD(v) >= winY; });
+      var surgN = c.surg.filter(function (s) { return endD(s) >= winY; });
+      var procN = c.proc.filter(function (s) { return endD(s) >= winY; });
+      var lastD = pd(c.lastEnd || c.last);
       var hs = Object.keys(c.hosps).map(function (h) { return c.hosps[h].name; }).join(', ');
       var major = majorFn(c.code), sus = majorSuspect(c.code) || (mode === 'simple' && std11(c.code) && !major ? std11(c.code) : '');
       var tot = c.group ? c.group.total : c.outDays + c.inpDays;
+      // '계속하여'는 같은 원인으로 치료를 시작해 끝날 때까지 — 판정은 예전처럼 5년 합산(고지 쪽)으로 하고, 띄엄띄엄 다닌 것인지 볼 수 있게 가장 길게 이어진 치료 날수를 같이 적어 둔다
+      (function () {
+        var vs = (c.group ? c.group.members : [c]).reduce(function (a, x) { return a.concat(x.visits); }, []).filter(function (v) { return v.days > 0; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+        var best = 0, cur = 0, prevEnd = null, eps = 0, seenD = {};
+        vs.forEach(function (v) {
+          var k = v.hosp + '|' + v.date; if (seenD[k]) return; seenD[k] = 1;
+          if (prevEnd && (pd(v.date) - prevEnd) / DAY > 30) { cur = 0; }
+          if (!cur) eps++;
+          cur += v.days; if (cur > best) best = cur;
+          var e = endD(v); if (!prevEnd || e > prevEnd) prevEnd = e;
+        });
+        c.epMax = best; c.epN = eps;
+      })();
       var sumVisitMax = c.meds.reduce(function (s, m) { return s + Math.max.apply(null, m.drugs.map(function (d) { return d.days || 0; }).concat([0])); }, 0);
-      var ex1y = c.exams.filter(function (e) { return pd(e.date) >= d1y; });
-      var ex3m = c.exams.filter(function (e) { return pd(e.date) >= d3m; });
+      var ex1y = c.exams.filter(function (e) { return endD(e) >= d1y; });
+      var ex3m = c.exams.filter(function (e) { return endD(e) >= d3m; });
+      var rxG = c.group && c.group.rxMax > c.rxDays ? c.group.rxMax : c.rxDays;      // 같은 약 누적일수 (3자리 코드 합산)
+      var maskT = '진단명이 안 나온 진료 — 민감상병 표시로 다시 받거나 고객에게 확인', maskQ = hs + '에서 받으신 진료는 자료에 진단명이 나오지 않습니다. 어떤 병으로 다니셨나요?';
+      var pharmT = function (m) { return '약국 조제 기록만 있는 상병(' + m + ') — 병원 진단 여부 확인'; }, pharmQ = hs + '에서 ' + c.name + '(으)로 조제된 기록만 있고 병원 기록이 없습니다. 어느 병원에서 어떤 병으로 처방받으셨나요?';
       var maxEp = 0, epH = '';
       c.visits.forEach(function (v) { var e = hospEp[v.hosp + '|' + v.date]; if (e && e.length > maxEp) { maxEp = e.length; epH = v.hospDisp || v.hosp; } });
       var procNames = function (arr) { var u = {}; arr.forEach(function (p) { u[p.item.replace(/[\[(].*$/, '')] = 1; }); return Object.keys(u).slice(0, 3).join(', '); };
@@ -4621,23 +4764,27 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
       if (mode === 'std') {
         if (inpN.length) add('y', '입원', '입원(5년 이내)');
         if (surgN.length) add('y', '수술', '수술(5년 이내)');
-        if (!surgN.length && !procN.length && /^S[0-9]1|^T1[4-9]/.test(c.code.replace('.', '')) && pd(c.last) >= winY) add('c', '시술', '상처·이물 진료 — 봉합·제거 등 처치(수술) 여부 확인', hs + ' 진료 때 상처 봉합이나 이물 제거 같은 처치를 받으셨나요?');
+        if (!surgN.length && !procN.length && /^S[0-9]1|^T1[4-9]/.test(c.code.replace('.', '')) && lastD >= winY) add('c', '시술', '상처·이물 진료 — 봉합·제거 등 처치(수술) 여부 확인', hs + ' 진료 때 상처 봉합이나 이물 제거 같은 처치를 받으셨나요?');
         if (!surgN.length && procN.length) add('c', '시술', '시술 — 수술 해당 여부 확인 (' + procNames(procN) + ')', hs + '에서 ' + procNames(procN) + ' 받으신 적이 있는데, 병원에서 수술로 안내받으셨나요?');
         if (tot >= 7) add('y', '7일이상', '7일이상 치료(5년 이내)' + (c.group && c.outDays + c.inpDays < 7 ? ' · 동일원인 합산' : ''));
         else if (maxEp >= 7) add('c', '7일이상', '7일이상 치료 가능성 — ' + epH + ' 연속 치료 ' + maxEp + '일 (같은 질환인지 확인)', epH + '에서 비슷한 시기에 ' + maxEp + '일 치료받으셨는데, 같은 질환으로 계속 치료받으신 건가요?');
-        if (c.rxDays >= 30) add('y', '30일이상', '30일이상 투약(5년 이내)');
+        if (rxG >= 30) add('y', '30일이상', '30일이상 투약(5년 이내)' + (c.rxDays < 30 ? ' · 동일원인 합산' : ''));
         else if (sumVisitMax >= 20) add('c', '30일이상', '30일이상 투약 가능성 — 처방 합계 ' + sumVisitMax + '일 (같은 약 계속 복용·추가 처방 여부 확인)', c.name + ' 관련 약을 합계 ' + sumVisitMax + '일 처방받으셨는데, 같은 약을 계속 드신 건가요?');
-        if (major) add('y', '질병', '11대질병(' + major + ')');
+        if (c.masked) D.push({ lv: 'c', k: '질병', t: maskT, q: maskQ, keep: true });
+        else if (c.pharmOnly && (major || sus)) add('c', '질병', pharmT(major || sus), pharmQ);
+        else if (major) add('y', '질병', '11대질병(' + major + ')');
         else if (sus) add('c', '질병', '중대질병 관련 확인 — ' + sus, c.name + ' 진단 이후 확진이나 추적검사, 치료를 받으신 적이 있나요?');
         var hasY = D.some(function (d) { return d.lv === 'y'; });
         if (ex1y.length) add(hasY ? 'y' : 'c', '정밀', '1년 이내 정밀검사 — 추가검사·재검사 소견 확인 (' + uniqStr(ex1y.map(function (e) { return e.item.replace(/[\[(].*$/, ''); })).slice(0, 2).join(', ') + ')', (ex1y[ex1y.length - 1].hosp) + '(' + ex1y[ex1y.length - 1].date.slice(2) + ')에서 받으신 ' + uniqStr(ex1y.map(function (e) { return e.item.replace(/[\[(].*$/, ''); }))[0] + ' 결과로 재검사나 추가검사 소견을 들으셨나요?');
       } else {
         if (N > 0 && inpN.length) add('y', '입원', '입원(' + N + '년 이내)');
         if (N > 0 && surgN.length) add('y', '수술', '수술(' + N + '년 이내)');
-        if (N > 0 && !surgN.length && !procN.length && /^S[0-9]1|^T1[4-9]/.test(c.code.replace('.', '')) && pd(c.last) >= winY) add('c', '시술', '상처·이물 진료 — 봉합·제거 등 처치(수술) 여부 확인', hs + ' 진료 때 상처 봉합이나 이물 제거 같은 처치를 받으셨나요?');
+        if (N > 0 && !surgN.length && !procN.length && /^S[0-9]1|^T1[4-9]/.test(c.code.replace('.', '')) && lastD >= winY) add('c', '시술', '상처·이물 진료 — 봉합·제거 등 처치(수술) 여부 확인', hs + ' 진료 때 상처 봉합이나 이물 제거 같은 처치를 받으셨나요?');
         if (N > 0 && !surgN.length && procN.length) add('c', '시술', '시술 — 수술 해당 여부 확인 (' + procNames(procN) + ')', hs + '에서 ' + procNames(procN) + ' 받으신 적이 있는데, 병원에서 수술로 안내받으셨나요?');
-        if (major && pd(c.last) >= dM) add('y', '질병', '중대질병(' + major + ', ' + M + '년 이내)');
-        else if (sus && pd(c.last) >= dM) add('c', '질병', '중대질병 관련 확인 — ' + sus, c.name + ' 진단 이후 확진이나 추적검사, 치료를 받으신 적이 있나요?');
+        if (c.masked && lastD >= dM) D.push({ lv: 'c', k: '질병', t: maskT, q: maskQ, keep: true });
+        else if (c.pharmOnly && (major || sus) && lastD >= dM) add('c', '질병', pharmT(major || sus), pharmQ);
+        else if (major && lastD >= dM) add('y', '질병', '중대질병(' + major + ', ' + M + '년 이내)');
+        else if (sus && lastD >= dM) add('c', '질병', '중대질병 관련 확인 — ' + sus, c.name + ' 진단 이후 확진이나 추적검사, 치료를 받으신 적이 있나요?');
         if (ex3m.length) add('c', '정밀', '3개월 이내 검사 — 추가검사·재검사 소견 확인', ex3m[ex3m.length - 1].hosp + '(' + ex3m[ex3m.length - 1].date.slice(2) + ')에서 최근 받으신 검사 결과로 재검사나 추가검사 소견을 들으셨나요?');
         var ch = chronicHD(c.code);
         if (ch && opt.chronic) add('c', '만성', ch + ' — 상품의 고혈압·당뇨 고지 기준 확인 (진단·투약 이력)', '');
@@ -4660,12 +4807,12 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
         var rs = [];
         if (mode === 'std') {
           rs.push('치료 ' + tot + '일(7일 미만)');
-          rs.push(c.rxDays ? '투약 누적 ' + c.rxDays + '일(30일 미만)' : '투약 없음');
+          rs.push(rxG ? '투약 누적 ' + rxG + '일(30일 미만)' : HAS.rx ? '투약 없음' : '투약 자료 없음(처방조제 미첨부)');
           rs.push(c.visits.some(function (v) { return v.inp; }) ? '입원 5년 경과' : '입원 없음');
-          rs.push(c.surg.length || c.proc.length ? '수술·시술 5년 경과' : '수술 없음');
+          rs.push(c.surg.length || c.proc.length ? '수술·시술 5년 경과' : HAS.detail ? '수술 없음' : '수술 자료 없음(세부진료 미첨부)');
         } else {
           rs.push(c.visits.some(function (v) { return v.inp; }) ? '입원 ' + N + '년 경과' : '입원 없음');
-          rs.push(c.surg.length ? '수술 ' + N + '년 경과' : '수술 없음');
+          rs.push(c.surg.length ? '수술 ' + N + '년 경과' : HAS.detail ? '수술 없음' : '수술 자료 없음(세부진료 미첨부)');
           rs.push('중대질병 아님');
         }
         c.reason = rs.join(' · ');
@@ -4682,26 +4829,28 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
     var knownCodes = {}; list.forEach(function (c) { if (pd(c.first) < d3m) knownCodes[c.code] = 1; });
     var r3 = [];
     var seen = {};
+    // 입원은 퇴원하는 날이 3개월 안이면 3개월 이내 진료 (2026-11-25)
     recent.forEach(function (r) {
-      var d = pd(r.date); if (!d || d < d3m || d > base) return;
+      var d = pd(r.date); if (!d || stayEnd(r) < d3m || d > base) return;
       seen[r.hosp + '|' + r.date] = 1;
       r3.push({ date: r.date, hosp: r.hospDisp || r.hosp, type: r.type, days: r.inDays, rxDays: r.rxDays, code: r.code, name: r.name, src: '요양급여내역서' });
     });
     basic.forEach(function (r) {
-      var d = pd(r.date); if (!d || d < d3m || d > base || seen[r.hosp + '|' + r.date]) return;
+      var d = pd(r.date); if (!d || stayEnd(r) < d3m || d > base || seen[r.hosp + '|' + r.date]) return;
       r3.push({ date: r.date, hosp: r.hospDisp || r.hosp, type: isPharm(r.hosp, r.dept) ? '약국' : r.type, days: r.days, rxDays: 0, code: r.code, name: r.name, src: '심평원 기본진료' });
     });
     // 처방조제 자료에만 있는 최근 병원 방문(심평원 기본·공단 자료에 아직 없는 것): 같은 병원의 이전 상병으로 추정
     basic.forEach(function (r) { seen[r.hosp + '|' + r.date] = 1; });
     rx.forEach(function (x) {
       var d = pd(x.date); if (!d || d < d3m || d > base || seen[x.hosp + '|' + x.date] || isPharm(x.hosp, '')) return;
+      // 같은 병원의 며칠 앞 진료에서 받은 처방을 다음 날 조제한 것(조제일자 기록)이고 그 진료가 이미 3개월 안에 잡혀 있으면 따로 세지 않는다
+      var late = rxLate[x.hosp + '|' + x.date]; if (late && visits[late] && pd(visits[late].date) >= d3m) return;
       seen[x.hosp + '|' + x.date] = 1;
       var prev = basic.filter(function (b) { return b.hosp === x.hosp && b.code && b.date < x.date; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
       // 2026-11-13 MHS 대조: 진단명이 아직 안 나온 최근 방문은 이전 상병 카드에 섞지 않고 '진단명 파악 불가' 카드로 따로 (MHS '근접이력'과 같게 · 고지 쪽으로)
       r3.push({ date: x.date, hosp: x.hosp, type: '외래', days: 1, rxDays: x.days, code: '', name: '', hint: prev ? prev.code + ' ' + prev.name : '', src: x.src === '투약이력' ? '내가 먹는 약(투약이력)' : '심평원 처방조제', guessed: true });
     });
     // 세부진료(주사·처치)에만 있는 최근 병원 방문도 같은 방식으로 (2026-11-13 MHS '근접이력' 대조: 10/19 정형외과 주사처럼 진단명이 아직 안 나온 방문)
-    var hn = function (h) { return String(h || '').replace(/\s|\(.*?\)|의원$|병원$|의료법인|재단법인/g, '').slice(0, 6); };
     var seenN = {}; basic.concat(recent).forEach(function (r) { seenN[hn(r.hosp) + '|' + r.date] = 1; }); rx.forEach(function (r) { seenN[hn(r.hosp) + '|' + r.date] = 1; });
     detail.forEach(function (x) {
       var d = pd(x.date); if (!d || d < d3m || d > base || !x.hosp || seen[x.hosp + '|' + x.date] || seenN[hn(x.hosp) + '|' + x.date] || isPharm(x.hosp, '')) return;
@@ -4792,20 +4941,14 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
       base: fmt(base), from5: fmt(d5), from3m: fmt(d3m), mode: mode, N: N, M: M,
       label: mode === 'std' ? '표준체 5년 고지 (일반심사)' : '유병자 간편심사 3.' + N + '.' + M,
       majorLabel: majorLabel, main: main, check: check, extra: extra, questions: questions, recent3m: r3, recent3mCards: cards3, counts: counts,
+      has: HAS, pharmOnlyN: pharmOrphans.length,
       dataRange: basic.length ? { from: basic.reduce(function (m, r) { return r.date < m ? r.date : m; }, '9999'), to: basic.reduce(function (m, r) { return r.date > m ? r.date : m; }, '0000') } : null,
       recentPeriod: input.recent ? input.recent.period : ''
     };
   }
 
-  // 세부진료 항목 분류: 'surg' | 'proc' | '' , exam 여부
-  function classifyDetail(d) {
-    var out = { surg: false, proc: false, exam: false };
-    if (SURG_RE.test(d.item) && !SURG_EX.test(d.item) && (/처치|수술|수혈|마취/.test(d.cat) || /생검|광응고|쇄석|절석|임플란트|조갑/.test(d.item))) out.surg = true;
-    else if (PROC_RE.test(d.item) && !PROC_EX.test(d.item)) out.proc = true;
-    if (d.item && (EXAM_RE.test(d.item) || /영상진단|방사선|특수장비|핵의학/.test(d.cat)) && !EXAM_EX.test(d.item) && !/PACS|영상저장/.test(d.item)) out.exam = true;
-    return out;
-  }
-  var api = { analyze: analyze, classifyDetail: classifyDetail, majorSuspect: majorSuspect, chronicHD: chronicHD, addM: addM, pd: pd, fmt: fmt, buildTuyak: buildTuyak, mergeRx: mergeRx, buildBasic: buildBasic, buildDetail: buildDetail, buildRx: buildRx, buildRecent: buildRecent, normCode: normCode, std11: std11, simple6: simple6, isPharm: isPharm };
+  function classifyDetail(d) { return classify(d); }
+  var api = { analyze: analyze, classifyDetail: classifyDetail, classify: classify, majorSuspect: majorSuspect, chronicHD: chronicHD, addM: addM, pd: pd, fmt: fmt, buildTuyak: buildTuyak, mergeRx: mergeRx, buildBasic: buildBasic, buildDetail: buildDetail, buildRx: buildRx, buildRecent: buildRecent, normCode: normCode, std11: std11, simple6: simple6, isPharm: isPharm };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Analyzer = api;
 })(this);
 
@@ -4967,7 +5110,7 @@ function HealthUI(root, H) {
   // 방문 단위 모델: 병원 방문(병원+날짜), 약국 조제(약국+날짜)
   function buildVisits(input, base, years) {
     var from = addY(base, years || 5);
-    var inWin = function (d) { return d && d > from && d <= base; };
+    var inWin = function (d) { return d && d >= from && d <= base; };   // 경계일(딱 N년 전 그날)도 넣는다 — 판정(analyzer)과 같게
     var basic = input.basic || [], recent = (input.recent && input.recent.rows) || [], rx = input.rx || [], detail = input.detail || [];
     var visits = {}, pharms = {};
     function vkey(h, d) { return h + '|' + d; }
@@ -4978,6 +5121,7 @@ function HealthUI(root, H) {
       if (r.code && !v.codes.some(function (c) { return c.code === r.code; })) v.codes.push({ code: r.code, name: r.name });
       if (r.dept) v.depts[r.dept] = 1;
       if (/입원/.test(r.type || '')) { v.inp = true; v.inDays = Math.max(v.inDays, r.days || r.inDays || 1); }
+      else v.outDays = Math.min(31, Math.max(v.outDays || 1, +r.days || +r.inDays || 1));     // 한 줄에 여러 날이 묶인 외래(내원일수 5 등)
       v.pay += r.pay || 0;
       return v;
     }
@@ -5005,7 +5149,7 @@ function HealthUI(root, H) {
       if (!inWin(x.date) || !x.hosp || isPharm(x.hosp, '')) return;
       var k = vkey(x.hosp, x.date);
       if (!visits[k]) { visits[k] = { key: k, hosp: x.hosp, hospDisp: x.hosp, date: x.date, codes: [], depts: {}, inp: false, inDays: 0, pay: 0, src: 'rx', rx: true, surg: [], exam: [], pharm: [] }; }
-      visits[k].rx = true;
+      visits[k].rx = true; visits[k].rx0 = true;
     });
     // 세부진료: 수술·검사
     detail.forEach(function (d) {
@@ -5064,13 +5208,17 @@ function HealthUI(root, H) {
       // 진단별 요약
       var by = {};
       G.visits.forEach(function (v) {
-        var codes = v.codes.length ? v.codes.slice(0, 1) : [{ code: '', name: '' }];
+        var codes = v.codes.length ? v.codes : [{ code: '', name: '' }];
+        // 약이 어느 상병 것인지: 연결된 약국 조제의 상병이 이 진료의 상병 중 하나와 맞으면 그 상병에만, 알 수 없으면 모두에
+        var pcs = {}; v.pharm.forEach(function (p) { (p.codes || []).forEach(function (pc) { pcs[pc.code] = 1; }); });
+        var split = codes.length > 1 && !v.rx0 && codes.some(function (c) { return pcs[c.code]; });
         codes.forEach(function (c) {
-          var r = by[c.code] = by[c.code] || { code: c.code, name: c.name, depts: {}, dates: {}, first: v.date, last: v.date, dx: !!c.code, rx: false, inp: false, surg: false, exam: false, inDays: 0 };
+          var r = by[c.code] = by[c.code] || { code: c.code, name: c.name, depts: {}, dates: {}, first: v.date, last: v.date, dx: !!c.code, rx: false, inp: false, surg: false, exam: false, inDays: 0, dayN: 0 };
           Object.keys(v.depts).forEach(function (d) { r.depts[d] = 1; });
+          if (!r.dates[v.date]) r.dayN += v.inp ? Math.max(1, v.inDays || 1) : Math.max(1, v.outDays || 1);
           r.dates[v.date] = 1;
           if (v.date < r.first) r.first = v.date; if (v.date > r.last) r.last = v.date;
-          if (v.rx || v.pharm.length) {
+          if ((v.rx || v.pharm.length) && (!split || pcs[c.code])) {
             r.rx = true;
             var nd = Math.max(dmap[v.key] || 0, 0); v.pharm.forEach(function (p) { nd = Math.max(nd, dmap[p.key] || 0); });
             if (!r.rxLast || v.date > r.rxLast) r.rxLast = v.date;
@@ -5081,7 +5229,7 @@ function HealthUI(root, H) {
           if (v.exam.length) r.exam = true;
         });
       });
-      G.byCode = Object.keys(by).map(function (k) { var r = by[k]; r.days = Object.keys(r.dates).length + (r.inDays ? Math.max(0, r.inDays - 1) : 0); r.deptList = Object.keys(r.depts).filter(Boolean); return r; })
+      G.byCode = Object.keys(by).map(function (k) { var r = by[k]; r.days = r.dayN || Object.keys(r.dates).length; r.deptList = Object.keys(r.depts).filter(Boolean); return r; })
         .sort(function (a, b) { return a.last < b.last ? 1 : -1; });
     });
     return { groups: list, from: M.from };
@@ -5954,9 +6102,14 @@ function HealthUI(root, H) {
     sick2: { mode: 'std', years: 2 }
   };
 
+  // 기간 안의 자료만 남김. 2026-11-25: 경계일(딱 2년 전 그날)도 넣고(다른 기간 계산과 같게), 입원은 퇴원하는 날이 기간 안이면 넣는다. 그 진료에 딸린 세부·처방도 같이.
+  function stayEnd(r) { var d = A.pd(r.date); if (!d) return ''; var n = /입원/.test(r.type || '') ? Math.max(1, +r.days || +r.inDays || 1) : 1; return A.fmt(new Date(d.getTime() + (n - 1) * 864e5)); }
   function filterInput(input, from) {
-    var f = function (a) { return (a || []).filter(function (r) { return r.date && r.date > from; }); };
-    return { basic: f(input.basic), detail: f(input.detail), rx: f(input.rx), recent: input.recent ? { rows: f(input.recent.rows), period: input.recent.period } : null };
+    var keep = {};
+    var fv = function (a) { return (a || []).filter(function (r) { if (!r.date || stayEnd(r) < from) return false; keep[r.hosp + '|' + r.date] = 1; return true; }); };
+    var basic = fv(input.basic), rec = input.recent ? fv(input.recent.rows) : null;
+    var f = function (a) { return (a || []).filter(function (r) { return r.date && (r.date >= from || keep[r.hosp + '|' + r.date]); }); };
+    return { basic: basic, detail: f(input.detail), rx: f(input.rx), recent: input.recent ? { rows: rec, period: input.recent.period } : null };
   }
   function runCfg(input, key, base) {
     var c = RUNS[key];
@@ -5992,15 +6145,15 @@ function HealthUI(root, H) {
       case 'm3ins': {
         var d3 = R.from3m;
         var all = ctx.std.main.concat(ctx.std.check, ctx.std.extra);
-        var y = all.filter(function (c) { return c.visits.some(function (v) { return v.inp && v.date >= d3; }) || c.surg.some(function (s) { return s.date >= d3; }); }).length;
-        var ex = all.filter(function (c) { return c.exams.some(function (e) { return e.date >= d3; }); }).length;
+        var y = all.filter(function (c) { return c.visits.some(function (v) { return v.inp && (v.end || v.date) >= d3; }) || c.surg.some(function (s) { return (s.end || s.date) >= d3; }); }).length;
+        var ex = all.filter(function (c) { return c.exams.some(function (e) { return (e.end || e.date) >= d3; }); }).length;
         var cc = y ? 0 : (ex || ctx.std.recent3mCards.length ? Math.max(ex, ctx.std.recent3mCards.length) : 0);
         return { label: '3개월 내 입원·수술·추가검사 소견', y: y, c: cc, note: cc ? '최근 3개월 진료가 있습니다. 입원·수술·추가검사 소견이 있었는지 고객에게 확인하세요.' : '' };
       }
       case 'ins7': n = countK(ctx.sick2, K_INS7); return { label: '2년 내 입원·수술·7일↑ 치료', y: n.y, c: n.c };
       case 'cancer': {
         var al = ctx.std.main.concat(ctx.std.check, ctx.std.extra);
-        return { label: '5년 내 암', y: al.filter(isCancer).length, c: al.filter(function (c) { return !isCancer(c) && cancerSus(c); }).length };
+        return { label: '5년 내 암', y: al.filter(function (c) { return isCancer(c) && !c.pharmOnly; }).length, c: al.filter(function (c) { return (isCancer(c) && c.pharmOnly) || (!isCancer(c) && (cancerSus(c) || c.masked)); }).length };   // 진단명이 가려진 진료·약국 조제만 있는 암 상병은 '확인'
       }
     }
     return { label: id, y: 0, c: 0 };
@@ -6024,10 +6177,10 @@ function HealthUI(root, H) {
     var R = ctx[p.run];
     if (p.id === 'silSick') {
       var A2 = ctx.sick2;
-      var cards = A2.main.concat(A2.check).map(function (c) { return cloneCard(c, K_INS7, function (d) { return d.pharm; }); }); // 2026-11-13 MHS 대조: 약국 조제 상병 '확인 요망'도 유병자 실손에 남김(고지 쪽)
+      var cards = A2.main.concat(A2.check).map(function (c) { return cloneCard(c, K_INS7, function (d) { return d.pharm || d.keep; }); }); // 2026-11-13 MHS 대조: 약국 조제 상병 '확인 요망'도 유병자 실손에 남김(고지 쪽)
       var seen = {}; cards.forEach(function (c) { seen[c.code] = 1; });
       ctx.std.main.concat(ctx.std.check, ctx.std.extra).forEach(function (c) {
-        if (!seen[c.code] && c.disc.some(function (d) { return d.pharm; })) { var pc = cloneCard(c, [], function (d) { return d.pharm; }); if (pc.disc.length) { cards.push(pc); seen[c.code] = 1; return; } }
+        if (!seen[c.code] && c.disc.some(function (d) { return d.pharm || d.keep; })) { var pc = cloneCard(c, [], function (d) { return d.pharm || d.keep; }); if (pc.disc.length) { cards.push(pc); seen[c.code] = 1; return; } }
         if (seen[c.code] || !(isCancer(c) || cancerSus(c))) return;
         var cc = cloneCard(c, [], function (d) { return d.k === '질병'; });
         if (!cc.disc.length) cc = Object.assign({}, cc, { disc: [{ lv: isCancer(c) ? 'y' : 'c', k: '질병', t: isCancer(c) ? '암(5년 이내)' : '암 관련 확인 — ' + A.majorSuspect(c.code), q: c.name + ' 진단 이후 암 확진이나 추적검사를 받으신 적이 있나요?' }] });
@@ -7130,6 +7283,22 @@ function HealthUI(root, H) {
     function take(r, car, isPhoto) {
         meta.kinds[r.kind] = 1; if (car || /자동차/.test(r.text || '')) meta.kinds.car = 1;
         if (car && r.kind === 'basic') meta.kinds.carBasic = 1; if (car && r.kind === 'detail') meta.kinds.carDetail = 1;
+        // 서류에 적힌 조회기간(있을 때만): 5년보다 짧게 받은 자료인지 '자료 점검'에서 알려 주는 데 쓴다 (2026-11-25) — 자동차보험 서류는 따로
+        if (!car && /^(basic|detail|rx)$/.test(r.kind)) (function () {
+          var m = /(?:조회|진료|열람)\s*기간\s*[:：]?\s*(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})\s*[~∼～]\s*(\d{4})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/.exec(String(r.text || '').slice(0, 4000));
+          if (!m) return;
+          var p2 = function (x) { return ('0' + x).slice(-2); }, from = m[1] + '-' + p2(m[2]) + '-' + p2(m[3]), to = m[4] + '-' + p2(m[5]) + '-' + p2(m[6]);
+          if (from > to) return;
+          meta.span = meta.span || {}; var cur = meta.span[r.kind];
+          meta.span[r.kind] = cur ? { from: from < cur.from ? from : cur.from, to: to > cur.to ? to : cur.to } : { from: from, to: to };
+        })();
+        // 표에서 못 읽은 줄이 있는지: 순번이 1…N 인데 중간 번호가 없거나, 순번은 있는데 날짜를 못 읽어 빠진 줄 → 조용히 넘기지 않고 '자료 점검'에 알림 (2026-11-25 · 사진은 photo.js 가 따로 봄)
+        if (!isPhoto && /^(basic|detail|rx)$/.test(r.kind)) (function () {
+          var seqs = {}, mx = 0, hd = false, n = 0;
+          (r.rows || []).forEach(function (row) { if (row[0] === '순번') { hd = true; return; } if (hd && /^\d+$/.test(row[0] || '')) { n++; seqs[+row[0]] = 1; if (+row[0] > mx) mx = +row[0]; } });
+          var got = Object.keys(seqs).length, miss = mx > got ? mx - got : 0, nodate = r.kind === 'basic' ? Math.max(0, n - A.buildBasic(r.rows).length) : 0;
+          if (miss || nodate) (meta.rowGaps = meta.rowGaps || []).push({ kind: r.kind, car: car ? 1 : 0, max: mx, miss: miss, nodate: nodate });
+        })();
         var dd = function (arr) { return arr.filter(function (x) { var k = r.kind + JSON.stringify(x); if (seen[k]) return false; seen[k] = 1; return true; }); };
         if (r.kind === 'basic') input.basic = (input.basic || []).concat(dd(A.buildBasic(r.rows)));
         if (r.kind === 'detail') input.detail = (input.detail || []).concat(dd(A.buildDetail(r.rows)));
@@ -9510,13 +9679,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
       put(1, o, md(x.first) + (x.first !== x.last ? '~' + md(x.last) : '') + ' ' + (x.hosps.join(', ') || '병원 미상') + ' · ' + (x.code ? codeTxt(x) : (x.hint ? '진단명 미상 (이전 ' + x.hint + ')' : '진단명 미상 — 고객 확인')) + (x.days > 1 ? ' · ' + x.days + '일' : '') + (x.rx ? ' · 투약' : ''));
     });
     all.forEach(function (c) {
-      (c.visits || []).forEach(function (v) { if (v.inp && v.date >= from3) put(1, ['입원']); });
-      (c.surg || []).forEach(function (s) { if (s.date >= from3) put(1, ['수술(제왕절개 포함)']); });
+      (c.visits || []).forEach(function (v) { if (v.inp && (v.end || v.date) >= from3) put(1, ['입원']); });      // 입원은 퇴원하는 날 기준
+      (c.surg || []).forEach(function (s) { if ((s.end || s.date) >= from3) put(1, ['수술(제왕절개 포함)']); });
     });
     // 2. 1년 이내 추가검사(재검사) — 정밀검사가 있으면 '확인 필요'로 적어 둔다 (재검 소견인지는 고객 확인)
     all.forEach(function (c) {
-      var ex = (c.exams || []).filter(function (e) { return e.date >= d1y; });
-      var sg = (c.surg || []).filter(function (s) { return s.date >= d1y && /생검|조직|폴립|용종/.test(s.item); });
+      var ex = (c.exams || []).filter(function (e) { return (e.end || e.date) >= d1y; });
+      var sg = (c.surg || []).filter(function (s) { return (s.end || s.date) >= d1y && /생검|조직|폴립|용종/.test(s.item); });
       if (!ex.length && !sg.length) return;
       var items = uniq(ex.concat(sg).map(function (e) { return String(e.item).replace(/[\[(].*$/, '').trim(); })).slice(0, 3);
       var last = ex.concat(sg).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
@@ -9524,7 +9693,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
     });
     // 3. 8대질병 · 4. 3대질병 / 투약
     all.concat(R.extra || []).forEach(function (c) {
-      if (!c.code || c.last < R.from5) return;
+      if (!c.code || c.masked || c.loose || (c.lastEnd || c.last) < R.from5) return;
       var b8 = big8(c.code), b3 = big3(c.code), mg = medGroup(c.code), span = md(c.first) + (c.first !== c.last ? '~' + md(c.last) : '');
       var how = []; if ((c.visits || []).some(function (v) { return v.inp; })) how.push('입원'); if ((c.surg || []).length) how.push('수술'); if (c.rxDays) how.push('투약 ' + c.rxDays + '일');
       if (b8) put(3, [b8], span + ' ' + hospsOf(c) + ' · ' + codeTxt(c) + (how.length ? ' · ' + how.join('·') : ''));
@@ -10056,6 +10225,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 52, d: '2026-11-25', ic: '🩺', t: '병력고지 판정을 더 꼼꼼하게', s: '고지 대상인데 조용히 빠질 수 있던 경우를 찾아 고쳤습니다. ① 같은 병원에서 같은 날 두 과 진료를 받으면 둘째 상병(협심증·고혈압 등)이 빠지던 것 ② 5년·2년·3개월 하루 전에 입원해 기간 안에 퇴원한 입원 ③ 치핵근치술·절단술·유합술·개두술 등 수술 이름 12가지와 제왕절개 ④ 약국 조제가 진료 다음 날인 투약일수 ⑤ 상병코드가 안 나온 진료(민감상병 비표시)의 입원·치료 날수 ⑥ 암 치료 뒤 추적·스텐트·임신성 당뇨 같은 상병은 "확인 필요"로. 이미 분석해 둔 고객도 열면 새 기준으로 다시 판정됩니다(다시 넣지 않아도 됩니다).', w: '자동 · 고객 화면 → 고지항목 · 걸린 진료 보기 → 아래 "자료 점검"에 새 확인 줄' },
     { id: 51, d: '2026-11-24', ic: '🏷', t: 'PC에서도 고객 줄에 주요 병력', s: '고객 목록의 병명 칩(고혈압·당뇨·고지혈증 …)이 PC 프로그램에서는 잘 안 채워지던 것을 고쳤습니다. 고객 화면을 열어 둔 채로 써도 1~2분 안에 채워집니다.', w: '자동 · 고객 목록' },
     { id: 50, d: '2026-11-24', ic: '🗂', t: '고객 화면: 탭이 맨 위로', s: '고객을 열면 이름 바로 아래에 [진행 · 고지항목 · 진료이력 · 보장 현황 …] 탭이 있습니다. 예전처럼 연락·상담·요청 칸은 "진행" 탭에 그대로 있고, 분석은 화면을 내리지 않고 탭 한 번으로 봅니다.', w: '고객 목록 → 고객 누르기' },
     { id: 49, d: '2026-11-24', ic: '📎', t: '못 읽은 파일은 빼고 바로 분석', s: '병력파악에 넣은 파일 중 읽지 못한 것이 있어도 멈추지 않고, 그 파일만 빼고 나머지로 분석합니다. 뺀 파일 이름은 알림으로 한 번 알려 드립니다.', w: '고객 화면 → 병력파악(파일 첨부) → 분석 시작' },
@@ -19419,7 +19589,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var rowV = function(v, hosp){
       var c0 = v.codes[0], pp = ppOf(v);
       var cost = v.pharmOnly ? '약국 ' + won(pp) : '병원 ' + won(v.pay) + (v.pharm.length ? '<br>약국 ' + won(pp) : '');
-      return '<tr><td class="n">' + (c0 ? esc(c0.code) : '-') + '</td><td' + (c0 ? '' : ' class="unk"') + '>' + (c0 ? esc(c0.name) + (v.codes.length > 1 ? ' <small class="note">외 ' + (v.codes.length - 1) + '</small>' : '') : UNK) + (hosp ? '<small class="hos">' + esc(hosp) + '</small>' : '') + '</td><td class="n">' + cost + '</td><td>' + (esc(Object.keys(v.depts).filter(Boolean).join(', ')) || '-') + '</td><td class="n">' + yy(v.date) + '</td><td class="n">' + (v.inp ? v.inDays : 1) + '일</td><td class="c">' + ck(!!c0,'진단') + '</td><td class="c">' + ck(v.rx || v.pharm.length,'투약') + '</td><td class="c">' + ck(v.inp,'입원') + '</td><td class="c">' + ck(v.surg.length,'수술') + '</td><td class="c">' + ck(v.exam.length,'검사') + '</td></tr>';
+      return '<tr><td class="n">' + (c0 ? esc(c0.code) : '-') + '</td><td' + (c0 ? '' : ' class="unk"') + '>' + (c0 ? esc(c0.name) + (v.codes.length > 1 ? ' <small class="note">외 ' + (v.codes.length - 1) + '</small>' : '') : UNK) + (hosp ? '<small class="hos">' + esc(hosp) + '</small>' : '') + '</td><td class="n">' + cost + '</td><td>' + (esc(Object.keys(v.depts).filter(Boolean).join(', ')) || '-') + '</td><td class="n">' + yy(v.date) + '</td><td class="n">' + (v.inp ? v.inDays : (v.outDays || 1)) + '일</td><td class="c">' + ck(!!c0,'진단') + '</td><td class="c">' + ck(v.rx || v.pharm.length,'투약') + '</td><td class="c">' + ck(v.inp,'입원') + '</td><td class="c">' + ck(v.surg.length,'수술') + '</td><td class="c">' + ck(v.exam.length,'검사') + '</td></tr>';
     };
     var row = day ? rowV : rowR, listOf = function(g){ return day ? g.visits : g.byCode; };
     if (key === 'date') {
@@ -19939,6 +20109,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (d.meta.photo) (function(ph){ var bits = ['사진 ' + ph.n + '장 · ' + ph.rows + '줄']; if (ph.fixed) bits.push('직접 고친 곳 ' + ph.fixed); if (ph.auto) bits.push('자동으로 바로잡은 코드 ' + ph.auto); if (ph.left) bits.push('못 읽어 빠진 줄 ' + ph.left); if (ph.skip) bits.push('서류로 못 알아봐 뺀 사진 ' + ph.skip + '장'); (ph.gaps || []).forEach(function(g){ bits.push((g.car ? '자동차 ' : '') + (Photo.KIND_T[g.kind] || '') + ' ' + (g.from === g.to ? g.from : g.from + '~' + g.to) + '번 없음'); }); ck2.push(['📷 사진으로 읽은 서류', ph.left || (ph.gaps || []).length ? '<span class="no">확인</span>' : '<span class="ok">읽음</span>', esc(bits.join(' · ')) + ' — 종이 서류와 진료이력을 한 번 견주어 보세요']); })(d.meta.photo);
     var lag = R.dataRange ? Math.round((new Date(R.base) - new Date(R.dataRange.to)) / 864e5) : null;
     if (lag !== null && lag > 45 && !kinds.recent) ck2.push(['최근 진료 공백', '<span class="no">주의</span>', '심평원 마지막 진료일이 기준일보다 ' + lag + '일 앞섭니다. 요양급여내역서로 확인하세요.']);
+    // 2026-11-25 정확도 점검: 자료가 5년보다 짧게 받아졌는지 · 판정에 못 붙인 기록이 있는지를 조용히 넘기지 않는다
+    (function(){
+      var sp = (d.meta.span || {}).basic;
+      if (sp && sp.from > addDay(R.from5, 31)) ck2.push(['심평원 조회기간', '<span class="no">짧음</span>', '받은 자료의 조회기간이 ' + sp.from + '부터입니다. 5년(' + R.from5 + '부터)보다 짧아 그 앞의 입원·수술·치료는 자료에 없습니다. 5년으로 다시 받아 주세요.']);
+      else if (!sp && R.dataRange && R.dataRange.from > addDay(R.from5, 365)) ck2.push(['심평원 조회기간', '<span class="no">확인</span>', '가장 오래된 진료 기록이 ' + R.dataRange.from + '입니다. 조회기간을 5년(' + R.from5 + '부터)으로 받은 자료인지 확인하세요 — 짧게 받았다면 그 앞의 입원·수술이 빠집니다.']);
+      (d.meta.rowGaps || []).forEach(function(g){ var nm = (g.car ? '자동차 ' : '') + ({ basic: '기본진료', detail: '세부진료', rx: '처방조제' }[g.kind] || '');
+        ck2.push([nm + ' 못 읽은 줄', '<span class="no">확인</span>', (g.miss ? '순번이 ' + g.max + '번까지 있는데 ' + g.miss + '줄이 읽히지 않았습니다. ' : '') + (g.nodate ? '날짜를 못 읽어 빠진 줄이 ' + g.nodate + '개 있습니다. ' : '') + '파일을 다시 받아 넣거나 원본과 견주어 보세요.']); });
+      var allC = R.main.concat(R.check, R.extra), mk = allC.filter(function(c){ return c.masked; }).length, ls = allC.filter(function(c){ return c.loose && c.tier !== 'none'; }).length, po = allC.filter(function(c){ return c.pharmOnly && c.tier !== 'none'; }).length;   // 판정에 걸린 것만 알림 (걸리지 않은 것은 미해당 목록에)
+      if (mk) ck2.push(['진단명이 안 나온 진료', '<span class="no">확인</span>', '상병코드가 없는 진료가 병원 ' + mk + '곳에 있습니다(민감상병 비표시 등). 입원·치료 날수는 판정에 넣었고, 진단명은 고객에게 확인하세요.']);
+      if (ls) ck2.push(['세부진료에만 있는 기록', '<span class="no">확인</span>', '기본진료에 같은 병원·날짜가 없는 수술·시술·검사 기록이 있습니다. \'진단명 미상\'으로 따로 올렸습니다 — 기본진료 자료가 다 들어왔는지 확인하세요.']);
+      if (po) ck2.push(['약국 조제만 있는 상병', '<span class="no">확인</span>', '병원 기록 없이 약국 조제만 있는 상병이 ' + po + '개 있습니다. 투약일수는 판정에 넣었고, 어느 병원 처방인지는 고객에게 확인하세요.']);
+    })();
     if (R.mode === 'simple' && R.N > 5) ck2.push([R.N + '년 이내 입원·수술', '<span class="no">자료 부족</span>', '심평원 자료는 5년치만 나옵니다. 5년 이전 입원·수술은 고객 확인 필요.']);
     ck2.push(['민감상병 표시', '<span class="no">확인</span>', '심평원 조회 때 "민감상병 표시"를 체크해야 정신과 등 상병이 나옵니다.']);
     ck2.push(['비급여 진료', '<span class="no">자료 없음</span>', '도수치료·비급여 주사 등은 자료에 나오지 않습니다. 고객 질문 필수.']);
@@ -20023,7 +20205,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (lv === 'c') items.filter(function(d){ return d.lv === 'c'; }).forEach(function(d){ Lx.push('  ※ ' + d.t); });
     Object.keys(c.hosps).forEach(function(k){ var x = c.hosps[k]; if (x.out) Lx.push('[통원 ' + x.out + '일] ' + x.name + '(' + yy(x.first) + (x.first !== x.last ? ' ~ ' + yy(x.last) : '') + ')'); });
     var adm = {};
-    (input.basic || []).forEach(function(r){ if (codes.indexOf(r.code) >= 0 && /입원/.test(r.type) && r.date >= R.from5) { var key = r.hosp + '|' + r.date; adm[key] = { hosp: r.hospDisp || r.hosp, date: r.date, days: Math.max((adm[key] || {}).days || 0, r.days || 1) }; } });
+    (input.basic || []).forEach(function(r){ if (codes.indexOf(r.code) >= 0 && /입원/.test(r.type) && plusDays(r.date, r.days || 1) >= R.from5) { var key = r.hosp + '|' + r.date; adm[key] = { hosp: r.hospDisp || r.hosp, date: r.date, days: Math.max((adm[key] || {}).days || 0, r.days || 1) }; } });
     Object.keys(adm).sort().forEach(function(k){ var a = adm[k]; Lx.push('[입원 ' + a.days + '일] ' + a.hosp + '(' + yy(a.date) + ' ~ ' + yy(plusDays(a.date, a.days)) + ')'); });
     var su = {}; c.surg.forEach(function(s){ su[s.hosp + '|' + s.date] = s; });
     Object.keys(su).sort().forEach(function(k){ Lx.push('[수술] ' + su[k].hosp + '(' + su[k].date + ')'); });
@@ -20076,13 +20258,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var hosps = Object.keys(c.hosps).map(function(k){ var x = c.hosps[k]; return { name: x.name, dept: Object.keys(x.dept).filter(Boolean).join('/'), out: x.out, inp: x.inp, first: x.first, last: x.last }; });
     var chips = c.disc.map(function(d){ return '<span class="chip' + (d.lv === 'c' ? ' amb' : '') + '">' + (d.lv === 'c' ? '확인 · ' : '') + esc(d.t) + '</span>'; }).join('') + (c.expired || []).map(function(e){ return '<span class="chip gr">' + esc(e) + '</span>'; }).join('');
     var h = '<article class="card"><div class="card-top"><div class="dx"><span class="code">' + esc(c.code) + (c.src ? ' · ' + c.src : '') + '</span><span class="name">' + esc(c.name) + '</span><span class="sub">진료기간 ' + yy(c.first) + (c.first !== c.last ? ' ~ ' + yy(c.last) : '') + ' · 통원 ' + c.outDays + '일' + (c.inpDays ? ' · 입원 ' + c.inpDays + '일' : '') + (c.rxDays ? ' · 투약 ' + c.rxDays + '일' : '') + '</span></div><div class="chips">' + chips + '</div></div><div class="kv">';
+    if (c.masked) h += '<div>진단명</div><div><span class="alert">자료에 상병코드가 안 나온 진료입니다</span> <small class="note">민감상병을 표시하지 않고 받은 자료일 수 있습니다. 심평원에서 \'민감상병 표시\'로 다시 받거나 고객에게 확인하세요.</small></div>';
+    if (c.loose) h += '<div>진단명</div><div><span class="alert">세부진료에만 있는 기록입니다</span> <small class="note">기본진료 자료에 같은 병원·날짜가 없어 진단명을 알 수 없습니다.</small></div>';
+    if (c.pharmOnly) h += '<div>기록</div><div><span class="alert">약국 조제 기록만 있습니다</span> <small class="note">같은 주에 병원 진료 기록이 없습니다. 상병은 약국이 적은 것이라 병원 진단명을 확인하세요.</small></div>';
     if (c.siblings) h += '<div>함께 청구된 상병</div><div>' + Object.keys(c.siblings).map(function(k){ return '<span class="mono">' + esc(k) + '</span> ' + esc(c.siblings[k]); }).join('<br>') + '</div>';
     var pcs = Object.keys(c.pharmCodes || {}).map(function(k){ return c.pharmCodes[k]; });
     if (pcs.length) h += '<div>약국 조제 상병</div><div>' + pcs.map(function(p){ return '<span class="mono">' + esc(p.code) + '</span> ' + esc(p.name) + (Analyzer.std11(p.code) ? ' <span class="alert">· 중대 상병, 병원 진단명 확인</span>' : '') + ' <small class="note">' + esc(p.pharm || '') + '</small>'; }).join('<br>') + '</div>';
     h += '<div>의료기관</div><div>' + hosps.map(function(x){ return esc(x.name) + (x.dept ? ' (' + esc(x.dept) + ')' : '') + '<br><small class="note">' + (x.inp ? '입원 ' + x.inp + '일 · ' : '') + '통원 ' + x.out + '일 · ' + yy(x.first) + (x.first !== x.last ? ' ~ ' + yy(x.last) : '') + '</small>'; }).join('<br>') + '</div>';
+    // 7일 이상 치료로 걸렸는데 실제로는 띄엄띄엄 다닌 경우: 판정은 그대로 두고(고지 쪽) 가장 길게 이어진 날수를 같이 보여 준다 (2026-11-25)
+    if (c.epMax && c.epMax < 7 && c.disc.some(function(d){ return d.k === '7일이상' && d.lv === 'y'; })) h += '<div>이어진 치료</div><div>5년 합산 <b>' + (c.group ? c.group.total : c.outDays + c.inpDays) + '일</b> · 가장 길게 이어진 치료 <b>' + c.epMax + '일</b> <small class="note">(' + c.epN + '번에 나눠 다님 · 30일 넘게 끊겼다 다시 간 것은 따로 셈)</small><br><small class="note">\'계속하여 7일 이상\'은 같은 원인으로 이어서 치료받은 날수입니다. 띄엄띄엄 다닌 것이면 같은 원인으로 계속 치료한 것인지 고객에게 확인하세요.</small></div>';
     h += '<div>수술·시술</div><div>' + (c.surg.length || c.proc.length ? c.surg.map(function(s){ return '<span class="pill">수술</span>' + esc(s.item) + ' <small class="note">' + yy(s.date) + ' ' + esc(s.hosp) + '</small>'; }).concat(c.proc.map(function(s){ return '<span class="pill">시술</span>' + esc(s.item) + ' <small class="note">' + yy(s.date) + ' ' + esc(s.hosp) + '</small>'; })).join('<br>') : '없음') + '</div>';
     h += '<div>정밀검사</div><div>' + (c.exams.length ? uniq(c.exams.map(function(e){ return yy(e.date) + ' ' + e.item; })).map(esc).join('<br>') : '없음') + '</div>';
-    if (c.group) h += '<div>동일원인 합산</div><div>' + c.group.members.map(function(g){ return '<span class="mono">' + esc(g.code) + '</span> ' + esc(g.name) + ' · 통원 ' + g.outDays + '일'; }).join('<br>') + '<br><b>합계 ' + c.group.total + '일</b></div>';
+    if (c.group) h += '<div>동일원인 합산</div><div>' + c.group.members.map(function(g){ return '<span class="mono">' + esc(g.code) + '</span> ' + esc(g.name) + ' · 통원 ' + g.outDays + '일'; }).join('<br>') + '<br><b>합계 ' + c.group.total + '일</b>' + (c.group.rxMax >= 30 && c.rxDays < 30 ? '<br><b>같은 약 누적 ' + c.group.rxMax + '일</b>' : '') + '</div>';
     h += '<div>투약(누적)</div><div>' + (c.medTotals.length ? c.medTotals.slice(0, 6).map(function(m){ return esc(shortDrug(m.name)) + ' <b class="mono">' + m.days + '일</b>'; }).join('<br>') + (c.medTotals.length > 6 ? '<br><small class="note">외 ' + (c.medTotals.length - 6) + '종</small>' : '') : '없음') + '</div>';
     var det = Object.keys(c.details).sort().reverse();
     h += '<div>세부진료</div><div>' + (det.length ? '<details><summary>세부진료내역 ' + det.length + '회 보기</summary><div class="inner">' + det.map(function(k){ return '<b>' + esc(k) + '</b><br>' + uniq(c.details[k]).map(esc).join(', '); }).join('<br>') + '</div></details>' : '없음') + '</div>';
@@ -21909,6 +22096,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="14c894cda45f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="7eaef06d7316";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
