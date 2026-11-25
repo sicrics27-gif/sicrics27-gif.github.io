@@ -3857,6 +3857,56 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
 .flowbar:has(+ #ptabAt){margin-bottom:0}
 @media (min-width:901px){.main .ptabs{top:var(--chead-h,0px)}}
 
+/* ============================================================
+   2026-11-25 화면 정리 2번 + 디자인 다듬기 (대표님: "UI 위치·기능 추천해서 고쳐 주고, 조금 더 세련되게 · 가시성은 좋게")
+   글자 크기는 2026-11-10에 키운 그대로 두고, 줄 수와 빈 자리만 줄인다. 재 본 값(휴대폰 412×915 · 가짜 고객):
+   첫 고객 365px → 292px · 병력 있는 고객 줄 262px → 177px · 없는 고객 줄 153px → 120px · 한 화면에 온전히 보이는 고객 2명 → 4명
+   ============================================================ */
+/* ① 고객 줄: 자료 날짜는 번호·연락 줄 끝에(따로 한 줄 안 씀) · 병명 칩은 앞 칩들과 이어서 흐르게 */
+.citem .r5{flex-wrap:wrap!important;white-space:normal!important;column-gap:10px;row-gap:1px}
+.citem .r5>*{white-space:nowrap}
+.citem .r5 .r3{display:inline-flex;align-items:center;gap:5px;font-size:13.5px!important;opacity:.85}
+.citem .rtg .kdxs{display:contents}
+.sang .sgw{font-style:normal}
+/*    성별·나이: 넓은 화면은 이름 줄(sa) · 좁은 휴대폰은 칩 줄 앞(sa2 — 이름 줄이 두 줄로 넘치던 것) · 간단히 보기는 칩 줄이 숨으므로 이름 줄 */
+.citem .rtg small.sa2{display:none;font-size:14.5px;opacity:.82;white-space:nowrap;margin-right:1px}
+@media (max-width:520px){
+  html:not(.dense) .citem .r1 small.sa{display:none}
+  html:not(.dense) .citem .rtg small.sa2{display:inline}
+  .citem .sang .sgw{display:none}                                /* '상령' 낱말은 빼고 D-숫자만 (누르고 있으면 설명) */
+}
+/*    병력·보장이 둘 다 없음(왼쪽 띠 빨강) · 둘 다 있음(초록)이면 '병력✕ 보장✕' 꼬리표는 줄에서 생략 — 왼쪽 띠 색·진행 띠와 같은 뜻.
+      하나만 있을 때(노랑)와 '서류 N개 빠짐'은 그대로 보인다. 간단히 보기는 원래 칩 줄이 없음 */
+.citem.doc0 .rtg .dtg i.no,.citem.doc2 .rtg .dtg i.ok{display:none}
+.citem .rtg .dtg:empty{display:none}
+/*    PC(마우스): ⋯ 단추 자리를 줄 전체가 아니라 이름 줄에만 비움 → 칩·번호 줄이 24px 넓어짐 · 단계·채널 칩의 그림 글자는 뺌(휴대폰과 같게) */
+@media (hover:hover){
+  .citem{padding-right:12px!important}
+  .citem .r1{padding-right:26px!important}
+  .citem .r1 .qmore{top:9px!important;transform:none!important}
+  .citem .r1 .pk em{display:none}
+}
+/* ② 목록의 묶음 제목(오늘 · 최근 7일 …)은 얇게 */
+.side .clist>.cgrp{margin:8px 0 2px;padding:6px 12px 5px}
+.side .clist>.lsort+.cgrp,.side .clist>.polb+.cgrp{margin-top:6px}
+/* ③ 휴대폰·폴드 첫 화면 위쪽: 레벨 띠를 따로 한 줄 쓰지 않고 이름 아래 작은 띠로 (회사 이름 줄 자리) · 폴드 두 칸은 오른쪽 첫 화면과 ＋ 추가에 같은 것이 있는 '신규 고객 등록' 큰 단추를 뺌 */
+@media (max-width:900px){
+  .side>.sbrand:has(+ .gchip:not([hidden])) small{display:none}
+  .side>.sbrand:has(+ .gchip:not([hidden])){padding-bottom:40px!important}
+  .side>.sbrand+.gchip{align-self:flex-start;width:auto;max-width:calc(100% - 52px);margin:-48px 0 0 46px;padding:3px 12px 3px 4px;border-radius:999px;gap:8px;min-height:28px}
+  .side>.sbrand+.gchip .gc-lv{padding:2px 8px;border-radius:999px;font-size:12px}
+  .side>.sbrand+.gchip .gc-t{flex-direction:row;align-items:center;gap:8px}
+  .side>.sbrand+.gchip .gc-t b{font-size:13px}
+  .side>.sbrand+.gchip .gc-t i{width:56px;flex:none}
+}
+html.split .side>#newCust{display:none}
+@media (max-width:900px){.side>#newCust{display:none}}       /* 좁은 창(두 칸)도 같음 — 휴대폰은 원래 없음 */
+/* ④ 어두운 화면: 배경 로고가 글자 뒤에서 밝게 비쳐 읽기 어렵던 것 → 은은하게 눌러 주고, 고객 줄에는 옅은 카드 바탕(밝은 화면의 흰 카드와 같은 구조) */
+:root[data-theme="dark"] body{background:linear-gradient(rgba(20,22,26,.6),rgba(20,22,26,.6)),#17191d url(lib/bg-main.jpg) center/cover fixed no-repeat}
+:root[data-theme="dark"] .side .citem{background-color:rgba(255,255,255,.04)}
+:root[data-theme="dark"] .side .citem:hover{background-color:rgba(255,255,255,.065)}
+:root[data-theme="dark"] .side .citem[aria-current="true"]{background-color:rgba(255,255,255,.11)}
+
 </style>
 </head>
 <body>
@@ -4513,6 +4563,16 @@ i.kdx.more[data-kdxmore]{cursor:pointer;color:var(--accent,#2f6fed);border-style
     });
     var hn = function (h) { return String(h || '').replace(/\s|\(.*?\)|의원$|병원$|의료법인|재단법인/g, '').slice(0, 6); };
     var dayStr = function (s, n) { return fmt(new Date(pd(s).getTime() + n * DAY)); };
+    // 공단 자료의 약국 줄(투약일수가 약국 줄에 적힘) → 같은 날(없으면 앞 3일 안) 그 상병의 병원 진료에. 상병이 안 맞으면 그날 병원이 한 곳뿐일 때만
+    recent.forEach(function (r) {
+      if (!/약국/.test(r.type || '') || !(r.rxDays > 0) || !pd(r.date)) return;
+      var cand = null;
+      for (var g = 0; g <= 3 && !cand; g++) {
+        var ks = vByDate[g ? dayStr(r.date, -g) : r.date] || [];
+        cand = ks.filter(function (k) { return r.code && visits[k].rows.some(function (x) { return x.code === r.code; }); })[0] || (ks.length === 1 ? ks[0] : null);
+      }
+      if (cand) recentRx[cand] = Math.max(recentRx[cand] || 0, +r.rxDays || 0);
+    });
     // 같은 병원의 '그 날짜 또는 그 며칠 앞' 진료 찾기: 조제일이 진료 다음 날이거나(처방전은 며칠 뒤에도 조제), 입원 기간 안의 날짜인 기록을 그 진료에 붙인다
     var nearMemo = {};
     function nearVisit(hosp, date, back) {
@@ -10225,6 +10285,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 53, d: '2026-11-25', ic: '🧹', t: '고객 목록이 한 화면에 더 많이 · 배경은 은은하게', s: '글자 크기는 그대로 두고 줄 수만 줄였습니다. 휴대폰 첫 화면에서 고객이 2명 보이던 것이 4명 보입니다(레벨 띠는 이름 아래 작은 띠로 · 성별·나이는 칩 줄 앞으로 · "자료 N일 전"은 번호 줄 끝으로). 병력·보장이 둘 다 있거나(왼쪽 띠 초록) 둘 다 없으면(빨강) "병력✓ 보장✓" 꼬리표는 줄에서 생략하고, 하나만 있을 때(노랑)만 보여 줍니다. 어두운 화면의 배경 로고는 글자가 잘 읽히게 은은하게 눌렀고, "걸린 진료 보기"를 누르면 결과가 바로 보이게 했습니다.', w: '자동 · 고객 목록 · 고객 화면 → 고지항목 → 걸린 진료 보기' },
     { id: 52, d: '2026-11-25', ic: '🩺', t: '병력고지 판정을 더 꼼꼼하게', s: '고지 대상인데 조용히 빠질 수 있던 경우를 찾아 고쳤습니다. ① 같은 병원에서 같은 날 두 과 진료를 받으면 둘째 상병(협심증·고혈압 등)이 빠지던 것 ② 5년·2년·3개월 하루 전에 입원해 기간 안에 퇴원한 입원 ③ 치핵근치술·절단술·유합술·개두술 등 수술 이름 12가지와 제왕절개 ④ 약국 조제가 진료 다음 날인 투약일수 ⑤ 상병코드가 안 나온 진료(민감상병 비표시)의 입원·치료 날수 ⑥ 암 치료 뒤 추적·스텐트·임신성 당뇨 같은 상병은 "확인 필요"로. 이미 분석해 둔 고객도 열면 새 기준으로 다시 판정됩니다(다시 넣지 않아도 됩니다).', w: '자동 · 고객 화면 → 고지항목 · 걸린 진료 보기 → 아래 "자료 점검"에 새 확인 줄' },
     { id: 51, d: '2026-11-24', ic: '🏷', t: 'PC에서도 고객 줄에 주요 병력', s: '고객 목록의 병명 칩(고혈압·당뇨·고지혈증 …)이 PC 프로그램에서는 잘 안 채워지던 것을 고쳤습니다. 고객 화면을 열어 둔 채로 써도 1~2분 안에 채워집니다.', w: '자동 · 고객 목록' },
     { id: 50, d: '2026-11-24', ic: '🗂', t: '고객 화면: 탭이 맨 위로', s: '고객을 열면 이름 바로 아래에 [진행 · 고지항목 · 진료이력 · 보장 현황 …] 탭이 있습니다. 예전처럼 연락·상담·요청 칸은 "진행" 탭에 그대로 있고, 분석은 화면을 내리지 않고 탭 한 번으로 봅니다.', w: '고객 목록 → 고객 누르기' },
@@ -14385,7 +14446,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var A = sangInfo(c.birth); if (!A) return '';
     var recent = A.since >= 0 && A.since <= 30, cls = recent ? 'past' : A.left <= 30 ? 'hot' : A.left <= 60 ? 'soon' : '';
     var dd = recent ? 'D+' + A.since : A.left === 0 ? 'D-DAY' : 'D-' + A.left;
-    return '<i class="sang ' + cls + '" title="보험나이 ' + A.age + '세 · ' + (recent ? '상령일 ' + dot(A.prev) + '에 지남(보험료 오름)' : '다음 상령일 ' + dot(A.next) + ' (이날부터 보험나이 ' + (A.age + 1) + '세)') + '">🎂보험 ' + A.age + '세 · 상령 ' + dd + '</i>';
+    return '<i class="sang ' + cls + '" title="보험나이 ' + A.age + '세 · ' + (recent ? '상령일 ' + dot(A.prev) + '에 지남(보험료 오름)' : '다음 상령일 ' + dot(A.next) + ' (이날부터 보험나이 ' + (A.age + 1) + '세)') + '">🎂보험 ' + A.age + '세 · <em class="sgw">상령 </em>' + dd + '</i>';
   }
   function birthTxt(b){ b = String(b||'').replace(/\D/g,''); return b.length === 8 ? b.slice(0,4)+'. '+b.slice(4,6)+'. '+b.slice(6) : b; }
   function sexTxt(s){ return s === 'F' ? '여' : s === 'M' ? '남' : ''; }
@@ -14424,6 +14485,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (so !== 'recent') { groups = {}; groups[(SORTS.find(function(x){ return x[0] === so; }) || ['', ''])[1]] = sortList(L2, so); L2 = []; }
     L2.forEach(function(c){ var d = new Date(new Date(c.updated).getTime() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10); var t = new Date(d).getTime(); (t >= now ? groups['오늘'] : now - t <= 7*864e5 ? groups['최근 7일'] : groups['지난 기록']).push(c); });
     var dupName = {}; S.list.forEach(function(c){ dupName[c.name] = (dupName[c.name] || 0) + 1; });
+    var narrowList = (window.innerWidth || 999) <= 520;     // 좁은 휴대폰: 병명 칩 3개까지(나머지는 +N) → 칩 줄이 두 줄 안에
     var h = '';
     Object.keys(groups).forEach(function(g){
       if (!groups[g].length) return;
@@ -14432,9 +14494,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
         var cur = S.cur && S.cur.id === c.id;
         var nd = nextDue(c), r4 = nd != null ? '<span class="r4' + (nd < 0 ? ' late' : nd === 0 ? ' due' : nd <= 2 ? ' soon' : '') + '"><i>' + (nd < 0 ? 'D+' + (-nd) : nd === 0 ? '오늘' : 'D-' + nd) + '</i>' + esc(c.next.t || '할 일') + '</span>' : '';
         var r2 = c.status === 'done' ? '<span class="r2 ' + (c.sumOk ? 'ok' : '') + '">' + esc(c.summary || '') + '</span>' : '';
-        var lo = lastOf(c), ph2 = normPhone(c.phone), r5 = (c.consLast && c.consLast.t ? '<span class="cs1">📝 ' + esc(String(c.consLast.t).slice(0, 46)) + ' <small>' + ago(c.consLast.d) + '</small></span>' : '') + '<span class="r5">' + (ph2 ? '<span class="ph">' + phoneTxt(ph2) + '</span>' : '<span class="ph none">번호 없음</span>') + (lo.any ? '<span class="lc' + (dayDiff(lo.any, todayStr()) > 60 ? ' old' : '') + '">' + ago(lo.any) + ' 연락</span>' : '<span class="lc old">연락 기록 없음</span>') + '</span>';
+        // 2026-11-25 화면 정리 2번: 고객 줄 높이 줄이기 — 자료 날짜(r3)를 따로 한 줄 쓰지 않고 번호·연락 줄 끝에 '자료 N일 전'으로(자세한 날짜는 길게 누르면/마우스를 올리면) · 성별·나이는 칩 줄 앞에(좁은 화면에서 이름 줄이 두 줄로 넘치던 것)
+        var r3in = c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3" title="자료 ' + dot(c.asOf) + ' · ' + F.txt + '"><i class="fp ' + F.lv + '"></i>자료 ' + (F.days == null ? dot(c.asOf) : F.days <= 0 ? '오늘' : F.days + '일 전') + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '';
+        var saT = sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '');
+        var lo = lastOf(c), ph2 = normPhone(c.phone), r5 = (c.consLast && c.consLast.t ? '<span class="cs1">📝 ' + esc(String(c.consLast.t).slice(0, 46)) + ' <small>' + ago(c.consLast.d) + '</small></span>' : '') + '<span class="r5">' + (ph2 ? '<span class="ph">' + phoneTxt(ph2) + '</span>' : '<span class="ph none">번호 없음</span>') + (lo.any ? '<span class="lc' + (dayDiff(lo.any, todayStr()) > 60 ? ' old' : '') + '">' + ago(lo.any) + ' 연락</span>' : '<span class="lc old">연락 기록 없음</span>') + r3in + '</span>';
         var DOC = docOf(c), FL = flowOf(c);
-        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small>' + sexTxt(c.sex) + (ageOf(c.birth) !== '' ? '·' + ageOf(c.birth) + '세' : '') + (dupName[c.name] > 1 && c.birth ? ' · ' + String(c.birth).slice(2, 4) + '.' + String(c.birth).slice(4, 6) + '.' + String(c.birth).slice(6, 8) + '생' : '') + '</small>' + flowPill(c, FL) + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + sangChip(c) + (FL.late ? '<i class="polr" title="계약 장부: 수납이 밀렸거나 연체인 계약 ' + FL.late + '건">💳 수납 밀림</i>' : '') + kdxChips(c, 4) + mtChip(c) + docTags(c) + '</span>' + (c.status === 'done' && c.asOf ? (function(){ var F = freshOf(c.asOf); return '<span class="r3"><i class="fp ' + F.lv + '"></i>자료 ' + dot(c.asOf) + ' · ' + F.txt + (c.applyDate ? ' · 청약 ' + dot(c.applyDate) : '') + '</span>'; })() : '') + r5 + r4 + r2 + '</button>';
+        return '<button type="button" class="citem doc' + DOC.n + '" data-cid="' + c.id + '" aria-current="' + cur + '"><span class="cav s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + (/^(contract|care)$/.test(c.stage || '') ? ' mk-g' : ' mk-o') + (bigOf(c) !== 'sales' ? ' bz' : '') + '" aria-hidden="true" title="' + (/^(contract|care)$/.test(c.stage || '') ? '계약자' : '아직 계약 전') + (bigOf(c) !== 'sales' ? ' · 사업' : '') + '">' + esc(String(c.name || '?').slice(0, 1)) + '</span><span class="r1">' + (QS.sel ? '<span class="qck' + (QS.sel[c.id] ? ' on' : '') + '" aria-hidden="true"></span>' : '') + '<b>' + esc(c.name) + '</b><i class="stg pk s-' + (c.stage === 'db' ? 'lead' : c.stage || 'lead') + '" data-q="stage" title="진행현황 바꾸기"><em>📊</em>' + stageTxt(c.stage) + '<u>▾</u></i><i class="chp pk cg-' + chGrp(chOf(c)) + (chOf(c) ? '' : ' none') + '" data-q="ch" title="영업 채널 바꾸기"><em>🏷️</em>' + (chOf(c) ? chTxt(chOf(c)) : '채널') + '<u>▾</u></i><small class="sa">' + saT + '</small>' + flowPill(c, FL) + '<span class="qmore" data-q="more" title="빠른 메뉴 (오른쪽 클릭·길게 누르기)">⋯</span></span>' + '<span class="rtg">' + (saT ? '<small class="sa2">' + saT + '</small>' : '') + sangChip(c) + (FL.late ? '<i class="polr" title="계약 장부: 수납이 밀렸거나 연체인 계약 ' + FL.late + '건">💳 수납 밀림</i>' : '') + kdxChips(c, narrowList ? 3 : 4) + mtChip(c) + docTags(c) + '</span>' + r5 + r4 + r2 + '</button>';
       }).join('');
     });
     var nShow = 0; Object.keys(groups).forEach(function(g){ nShow += groups[g].length; });
@@ -20372,7 +20437,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if ((t = e.target.closest('[data-hk]'))) { var hk = t.dataset.hk, wsx = document.querySelector('.ht-w'), sx = wsx ? wsx.scrollLeft : 0; if (S.hsk === hk && t.tagName === 'TH') S.hsort = S.hsort === 'asc' ? 'desc' : 'asc'; else { S.hsk = hk; S.hsort = t.dataset.hd || 'desc'; } try { localStorage.setItem('mhs_hsort', S.hsort); localStorage.setItem('mhs_hsk', S.hsk); } catch(er){} renderCustomer(); wsx = document.querySelector('.ht-w'); if (wsx) wsx.scrollLeft = sx; return; }
     if ((t = e.target.closest('[data-hm]'))) { S.hmode = t.dataset.hm; try { localStorage.setItem('mhs_hmode', S.hmode); } catch(er){} renderCustomer(); return; }
     if ((t = e.target.closest('[data-pvj]'))) { var r0 = document.getElementById('pv2-' + t.dataset.pvj); if (r0) { r0.open = true; r0.scrollIntoView({ behavior: 'smooth', block: 'center' }); } return; }
-    if ((t = e.target.closest('[data-pv]'))) { S.pv = t.dataset.pv; S.pvTab = 'sum'; renderCustomer(); window.scrollTo(0, 0); return; }
+    // 2026-11-25: '걸린 진료 보기'를 누르면 결과 제목 줄이 바로 보이게 — 예전엔 맨 위로 올려서 이름·자료 날짜 칸(휴대폰 한 화면)을 다시 내려야 결과가 보였다
+    if ((t = e.target.closest('[data-pv]'))) { S.pv = t.dataset.pv; S.pvTab = 'sum'; renderCustomer(); var pvh0 = document.querySelector('#main .pvh'); window.scrollTo(0, pvh0 ? Math.max(0, Math.round(pvh0.getBoundingClientRect().top + window.scrollY - cheadH() - 8)) : 0); return; }
     if ((t = e.target.closest('[data-ps]'))) { var p = prodOf(t.dataset.ps); saveFile(S.cur.name + ' 병력분석 레포트(' + p.title + ')_' + ymd() + '.html', buildHistoryReport(p.id)); if (S.pv) buildParts(S.pv); return; }
     if ((t = e.target.closest('[data-dl]'))) {
       if (t.dataset.dl === 'claim') saveFile(S.cur.name + ' 미청구 보험금 예상액_' + ymd() + '.html', buildClaimsReport());
@@ -20387,7 +20453,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       if (a === 'kakao') { openKakao(); return; }
       if (a === 'clearApply') { S.cur.applyDate = ''; S.cur = await Store.saveHead(S.cur); S.list = await Store.list(); compute(); renderList(); renderCustomer(); toast('분석일 기준으로 돌아왔습니다'); return; }
       if (a === 'sample') { openCustomer('sample'); return; }
-      if (a === 'pvback') { S.pv = null; renderCustomer(); return; }
+      if (a === 'pvback') { S.pv = null; renderCustomer(); try { var at0 = $('ptabAt'); if (at0) window.scrollTo(0, Math.max(0, Math.round(at0.getBoundingClientRect().top + window.scrollY - cheadH()))); } catch(er){} return; }   // 판정표(탭 줄) 자리로
       if (a === 'files') { openFiles(); return; }
       if (a === 'edit') { openCustForm(S.cur); return; }
       if (a === 'del') {
@@ -22096,6 +22162,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="7eaef06d7316";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="1dc69d774a42";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
