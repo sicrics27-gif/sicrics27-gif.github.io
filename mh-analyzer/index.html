@@ -3907,6 +3907,36 @@ html.split .side>#newCust{display:none}
 :root[data-theme="dark"] .side .citem:hover{background-color:rgba(255,255,255,.065)}
 :root[data-theme="dark"] .side .citem[aria-current="true"]{background-color:rgba(255,255,255,.11)}
 
+/* 🎁 고객 도움 서비스 (2026-11-25 · ui.js openHelp · help.js) — 색은 변수만(밝은·어두운 화면 둘 다) */
+.hsg{margin:14px 0 6px;font-size:14px;font-weight:700;color:var(--ink)}
+.hsl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;align-items:start}
+.hsv{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);display:flex;flex-direction:column;gap:6px;min-width:0}
+.hsv.on{background:var(--green-soft);border-color:color-mix(in srgb,var(--green) 40%,var(--line))}
+.hsv.hit{outline:2px solid var(--accent);outline-offset:1px}
+.hsh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hsh i{font-style:normal;font-size:20px;line-height:1}
+.hsh b{font-size:15.5px;font-weight:700;color:var(--ink);margin-right:auto}
+.hsh b small{font-size:12.5px;font-weight:600;color:var(--mute);margin-left:2px}
+.hsby{font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.hsby.priv{border-color:color-mix(in srgb,var(--amber) 55%,var(--line));background:var(--amber-soft);color:var(--ink);font-weight:700}
+.hsw{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.hsb{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hsb .btn{height:36px;padding:0 12px;font-size:13.5px}
+.hsb .btn svg{width:15px;height:15px}
+.hsck{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:13px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.hsck input{width:18px;height:18px}
+.hsck em{font-style:normal;color:var(--green);font-weight:700}
+.hsown{font-size:12.5px;color:var(--mute)}
+.hsd{font-size:12.5px;color:var(--ink2)}
+.hsd summary{cursor:pointer;color:var(--mute);padding:2px 0}
+.hsd .hsp{margin:4px 0;line-height:1.55}
+.hsd .hsp b{display:inline-block;min-width:30px;color:var(--ink);font-weight:700;margin-right:6px}
+.hsurl{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:3px 10px;font:inherit;font-size:12.5px;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.hssrc{color:var(--mute)}
+.ctb.help small{display:none}
+.ctb.help em{font-style:normal;font-weight:700;color:var(--green);margin-left:2px}
+@media (max-width:600px){.ctb.help{flex:1 1 100%;justify-content:flex-start;height:36px;padding:0 12px;gap:6px}.ctb.help small{display:inline;font-size:12px;font-weight:500;color:var(--mute);margin-left:4px;min-width:0;overflow:hidden;text-overflow:ellipsis}.hsl{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -3939,7 +3969,7 @@ html.split .side>#newCust{display:none}
     <button type="button" class="sct spl" data-pl="open" data-tb="plan"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h4M7 17h7"/></svg><b>싯플랜</b><small>ACFP 목표</small></button>
     <button type="button" class="sct sbr" id="snMap" data-tb="map"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z"/><path d="M9 4v13M15 6.5v13"/></svg><b>지도</b><small>고객 지도·내 동선</small></button>
     <button type="button" class="sct smn" id="snMenu" data-tb="more"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><b>메뉴</b><small>액션콜·DB 가져오기·MD 등</small></button>
-    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="bioBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button><button type="button" id="routeBtn" class="mstub" data-route=""></button>
+    <button type="button" id="snCall" hidden></button><button type="button" id="mateBtn" class="mstub"></button><button type="button" id="propMenu" data-act="propScan" class="mstub"></button><button type="button" id="coDirBtn" class="mstub"></button><button type="button" id="fxCalcBtn" class="mstub"></button><button type="button" id="piBtn" class="mstub"></button><button type="button" id="wcBtn" class="mstub"></button><button type="button" id="bulkMemoBtn" class="mstub"></button><button type="button" id="briefBtn" class="mstub"></button><button type="button" id="polBtn" class="mstub"></button><button type="button" id="fullBtn" class="mstub"></button><button type="button" id="cuBtn" class="mstub"></button><button type="button" id="annBtn" class="mstub"></button><button type="button" id="pnBtn" class="mstub"></button><button type="button" id="bioBtn" class="mstub"></button><button type="button" id="cardBtn" class="mstub"></button><button type="button" id="helpBtn" class="mstub" data-help=""></button><button type="button" id="routeBtn" class="mstub" data-route=""></button>
     
     </div>
     <div class="clist" id="clist"></div>
@@ -9994,6 +10024,108 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Policy;
 
 </script>
 <script>
+// 🎁 고객 도움 서비스 (2026-11-25 대표님: "고객에게 접점으로 먼저 도움을 주는 경우가 많은데 … 우리 프로그램에도 넣어 줘 · 찾기 편한 곳에 · 추천할 만한 다른 것도")
+// 순수 자료(목록 · 고객에게 보낼 문구)만 — 화면은 ui.js `openHelp`. 기기 밖으로 보내는 것 없음.
+// 주소는 2026-11-25에 하나씩 확인한 것만 넣었다. src = 어디서 확인했는지(화면 '출처'에 그대로 보임).
+//   새 서비스를 넣을 때: 공식 기관 자료(금융위 · 금감원 · 정책브리핑 · 그 기관 누리집)로 주소를 확인하고 src에 적는다. 확인 못 한 주소는 넣지 않는다.
+//   민간 회사 서비스는 kind:'priv' + 수수료 · 고객 정보가 그 회사로 가는지를 warn에 적는다. 남의 로고 · 문구 · 화면은 옮기지 않는다(이름 · 주소 · 하는 일만).
+//   send:false = 설계사가 직접 쓰는 것(고객에게 보낼 문구 없음).
+(function (root) {
+  var HI = '{이름} 고객님 안녕하세요 😊 {나}입니다.\n\n', BYE = '\n\n하시다 막히면 편하게 연락 주세요!';
+  var G = [['money', '💰 숨은 돈 찾아 드리기'], ['ins', '🛡 보험 확인 · 청구'], ['hub', '🧭 한 번에 모아 보기']];
+  var L = [
+    { id: 'sum', g: 'money', ic: '🔎', t: '숨은 보험금 찾기', nick: '내보험찾아줌', by: '생명보험협회 · 손해보험협회', kind: 'pub', url: 'https://cont.insure.or.kr',
+      what: '가입한 생명 · 손해보험 전체와, 안 찾아간 중도 · 만기 · 휴면 보험금을 조회하고 청구까지',
+      need: '본인인증(고객 본인 휴대폰)', warn: '조회한 정보는 영업에 쓰이지 않습니다 · 조회 뒤 가입 권유 전화가 오면 비슷한 다른 사이트입니다',
+      src: '금융위원회 「숨은보험금 조회 · 청구 FAQ」(2025-06-30) · 금융위원회 카드뉴스',
+      kw: '숨은보험금 휴면보험금 휴면 보험금 중도보험금 만기보험금 내보험찾아줌 내 보험 찾아줌 생명보험협회 손해보험협회 생보협회',
+      msg: HI + '예전에 가입하신 보험 중에 받을 수 있는데 아직 안 찾아가신 보험금(중도 · 만기 · 휴면 보험금)이 있는지 한번 확인해 보세요.\n생명 · 손해보험협회가 운영하는 「내보험찾아줌」에서 가입하신 보험 전체와 숨은 보험금을 한 번에 조회하고 바로 청구하실 수 있습니다.\n\n👉 https://cont.insure.or.kr\n\n본인인증만 하시면 됩니다.' + BYE },
+    { id: 'card', g: 'money', ic: '💳', t: '카드포인트 통합조회', nick: '숨은 카드 포인트', by: '여신금융협회', kind: 'pub', url: 'https://www.cardpoint.or.kr',
+      what: '모든 카드사의 안 쓴 포인트를 한 번에 조회하고 현금으로 계좌에 받기',
+      need: '본인인증(휴대폰 번호 + 카드번호 ARS · 아이핀 · 문자 인증 중 하나) · 본인 명의 계좌', warn: '수수료 없음 · 카드 비밀번호 · CVC는 묻지 않습니다(묻는 곳은 다른 사이트) · 카드사별 하루 1번 · 신청 뒤 취소 안 됨',
+      src: '금융위원회 카드뉴스 「카드포인트 통합조회 · 계좌입금」',
+      kw: '카드포인트 카드 포인트 숨은 포인트 여신금융협회 여신금융 여신 포인트 현금화 계좌입금',
+      msg: HI + '혹시 안 쓰고 잠자는 카드 포인트가 있는지 한번 확인해 보세요.\n여신금융협회 공식 사이트에서 가지고 계신 모든 카드의 포인트를 한 번에 조회하고, 현금으로 계좌에 바로 받으실 수 있습니다. (수수료 없음)\n\n👉 https://www.cardpoint.or.kr\n\n본인인증만 하시면 되고 카드 비밀번호나 CVC는 묻지 않습니다.' + BYE },
+    { id: 'life', g: 'money', ic: '🩺', t: '놓친 실손보험금 찾기', nick: '라이프캐치', by: '㈜그린리본', kind: 'priv', fee: '수수료 있음', url: 'https://www.lifecatch.co.kr/home',
+      what: '최근 3년 병원 진료 중 청구 안 한 실손보험금을 찾아 주고 청구까지 대행',
+      need: '간편인증(고객 본인) · 웹 또는 앱', warn: '민간 회사 서비스입니다 · 찾은 보험금을 받을 때 수수료가 있습니다(금액은 그 화면에서 확인) · 고객의 진료 · 보험 정보를 그 회사에 맡기는 것이라 고객이 직접 동의해야 합니다',
+      more: '금융위원회는 실손24에 무료 「미청구 보험금 찾기」를 2027년 1분기에 열 예정이라고 발표했습니다(정책브리핑 2026-11-19).',
+      src: '라이프캐치 누리집 · IT비즈뉴스(2023-11-24)',
+      kw: '라이프캐치 실손 실비 미청구 환급금 놓친 보험금 청구 대행 병원비 환급 그린리본',
+      msg: HI + '병원 다녀오시고 실손보험 청구를 깜빡하신 게 있는지 한번 확인해 보세요.\n「라이프캐치」에서 최근 3년 동안 청구 안 한 실손보험금을 한 번에 찾아 주고 청구까지 대신해 줍니다.\n\n👉 https://www.lifecatch.co.kr/home\n\n민간 회사 서비스라 찾은 보험금을 받으실 때 수수료가 있으니, 금액 확인하시고 진행해 주세요. 영수증이 남아 있는 건은 저한테 보내 주시면 제가 직접 청구 도와드리겠습니다!' },
+    { id: 'acct', g: 'money', ic: '🏦', t: '잠자는 계좌 찾기', nick: '어카운트인포', by: '금융결제원', kind: 'pub', url: 'https://www.accountinfo.or.kr',
+      what: '은행 · 증권 등 내 계좌를 한 번에 조회하고, 오래 안 쓴 소액 계좌는 해지해서 잔액 받기',
+      need: '본인인증 · 문의 1577-5500(평일 9~17시)', warn: '',
+      src: '금융위원회 보도자료(2020-11-09)',
+      kw: '어카운트인포 계좌정보통합관리 잠자는 계좌 휴면계좌 안 쓰는 통장 소액 계좌 해지 금융결제원 내 계좌 한눈에',
+      msg: HI + '오래 안 쓴 통장에 남아 있는 돈이 있는지 한번 확인해 보세요.\n금융결제원 「어카운트인포」에서 은행 · 증권 계좌를 한 번에 조회하고, 안 쓰는 소액 계좌는 바로 해지해서 잔액을 받으실 수 있습니다.\n\n👉 https://www.accountinfo.or.kr\n\n본인인증만 하시면 됩니다.' + BYE },
+    { id: 'sleep', g: 'money', ic: '💤', t: '휴면예금 찾아줌', nick: '', by: '서민금융진흥원', kind: 'pub', url: 'https://sleepmoney.kinfa.or.kr',
+      what: '오래 찾아가지 않아 서민금융진흥원으로 넘어간 휴면예금 · 휴면보험금 조회 · 지급 신청',
+      need: '본인인증', warn: '',
+      src: '금융위원회 보도자료(2020-11-09)',
+      kw: '휴면예금 휴면 예금 찾아줌 서민금융진흥원 서금원 오래된 통장 휴면보험금',
+      msg: HI + '아주 오래전에 만들고 잊어버린 통장이나 보험이 있으셨다면, 그 돈이 서민금융진흥원에 보관돼 있을 수 있습니다.\n「휴면예금 찾아줌」에서 조회하고 바로 지급 신청하실 수 있습니다.\n\n👉 https://sleepmoney.kinfa.or.kr\n\n본인인증만 하시면 됩니다.' + BYE },
+    { id: 'tel', g: 'money', ic: '📱', t: '통신비 미환급금', nick: '스마트초이스', by: '한국통신사업자연합회', kind: 'pub', url: 'https://www.smartchoice.or.kr/smc/service/refund.do',
+      what: '해지한 휴대폰 · 인터넷에서 돌려받지 못한 요금 · 보증금(통신 미환급액) 조회',
+      need: '이름 · 주민등록번호를 고객 본인이 직접 입력 · 조회는 회원가입 없이, 환급 신청은 로그인', warn: '',
+      src: '스마트초이스 안내를 옮긴 자료(2026-10-25 게시본)로 확인 — 화면이 다르면 스마트초이스에서 「통신 미환급액 조회」를 찾으세요',
+      kw: '통신비 미환급금 미환급액 스마트초이스 휴대폰 요금 환급 통신사 해지 보증금 인터넷',
+      msg: HI + '예전에 쓰시던 휴대폰이나 인터넷을 해지하면서 돌려받지 못한 요금이 있는지 한번 확인해 보세요.\n통신사 연합회가 운영하는 「스마트초이스」에서 통신 미환급액을 조회하실 수 있습니다.\n\n👉 https://www.smartchoice.or.kr/smc/service/refund.do' + BYE },
+    { id: 'nhis', g: 'money', ic: '🏥', t: '건강보험 환급금', nick: '본인부담상한액 초과금', by: '국민건강보험공단', kind: 'pub', url: 'https://www.nhis.or.kr/nhis/index.do',
+      what: '한 해 병원비를 상한액보다 많이 냈을 때 넘은 만큼 돌려받는 돈 — 3년이 지나면 못 받습니다',
+      need: '공단 누리집 민원신청 · The건강보험 앱 · 전화 1577-1000 · 본인 명의 계좌', warn: '',
+      src: '세계일보(2026-08-04 · 건강보험공단 안내)',
+      kw: '건강보험 환급금 본인부담상한제 본인부담상한액 초과금 병원비 환급 공단 건보 더건강보험',
+      msg: HI + '작년에 병원비가 많이 나오셨다면 건강보험공단에서 돌려받을 돈이 있는지 한번 확인해 보세요.\n한 해 병원비가 소득에 따라 정해진 상한액을 넘으면 넘은 만큼 돌려주는 제도(본인부담상한제)가 있는데, 3년이 지나면 받을 수 없습니다.\n\n👉 국민건강보험공단 ☎ 1577-1000 · \'The건강보험\' 앱 · https://www.nhis.or.kr\n\n안내문을 받으셨는데 신청을 안 하셨다면 지금 하시면 됩니다. 궁금한 점 있으면 편하게 연락 주세요!' },
+    { id: 'car', g: 'money', ic: '🚗', t: '자동차보험 과납보험료', nick: '더 낸 자동차보험료', by: '보험개발원', kind: 'pub', url: 'https://fine.fss.or.kr',
+      what: '군 운전병 · 해외 운전 경력이 빠졌거나 보험사기 피해로 더 낸 자동차보험료 조회 · 환급 신청',
+      need: '금감원 파인 → 「잠자는 내 돈 찾기」 → 자동차보험 과납보험료', warn: '보험사기 피해로 더 낸 보험료는 법원 판결로 확정된 뒤 환급 대상입니다',
+      src: '경향신문(2023-09-21) · 헤럴드경제(2026-01-31)',
+      kw: '자동차보험 과납보험료 과납 군 운전병 운전 경력 보험사기 할증 환급 보험개발원',
+      msg: HI + '자동차보험료를 더 내신 게 있는지 한번 확인해 보세요.\n군대 운전병 경력이나 해외 운전 경력이 빠져 있었거나, 보험사기 피해 사고로 보험료가 올랐던 경우 더 낸 보험료를 돌려받으실 수 있습니다.\n\n👉 https://fine.fss.or.kr (금융감독원 파인 → 잠자는 내 돈 찾기 → 자동차보험 과납보험료)' + BYE },
+    { id: 'cur', g: 'ins', ic: '📚', t: '약관 확인', nick: '보험 큐레이터', by: '보험 큐레이터', kind: 'priv', url: 'https://insure153.com', send: false,
+      what: '보험 약관 찾아보기 (설계사가 상담 준비할 때)',
+      need: '', warn: '',
+      src: '검색에 나온 사이트 이름(「보험 전문가를 위한 보험 큐레이터」)으로 주소를 확인 — 쓰시는 곳과 다르면 😣 불편해로 알려 주세요',
+      kw: '보험큐레이터 보험 큐레이터 약관 약관확인 약관 검색 판매중지 구약관 큐레이터' },
+    { id: 'all', g: 'ins', ic: '📋', t: '가입한 보험 한눈에', nick: '내보험다보여', by: '한국신용정보원', kind: 'pub', url: 'https://www.credit4u.or.kr',
+      what: '가입한 보험 전체(보장성 · 저축성 · 실손)와 보장 내역 · 납입 현황을 한 번에 조회',
+      need: '본인인증 · 크레딧포유 → 내보험다보여', warn: '',
+      src: '정책브리핑(2016-12-08 · 한국신용정보원)',
+      kw: '내보험다보여 내 보험 다 보여 크레딧포유 신용정보원 가입내역 가입 보험 조회 보장 내역',
+      msg: HI + '지금 가입돼 있는 보험을 한 번에 보실 수 있는 곳이 있어 알려 드립니다.\n한국신용정보원 「내보험다보여」에서 가입하신 보험 전체와 보장 내역, 보험료 납입 현황을 조회하실 수 있습니다.\n\n👉 https://www.credit4u.or.kr (크레딧포유 → 내보험다보여)\n\n조회하신 화면을 보내 주시면 겹치는 보장이나 빠진 보장이 없는지 제가 꼼꼼히 봐 드리겠습니다!' },
+    { id: 's24', g: 'ins', ic: '🧾', t: '서류 없이 실손 청구', nick: '실손24', by: '실손24 (금융위원회 안내)', kind: 'pub', url: 'https://www.silson24.or.kr',
+      what: '종이 서류 없이 실손보험 청구 — 병원 · 의원 · 약국이 서류를 보험사로 바로 전송 · 부모 · 자녀 대신 청구',
+      need: '실손24 앱 또는 누리집 · 연계된 병원인지는 네이버지도 · 카카오맵에서 「실손24」 검색 · 문의 1811-3000', warn: '',
+      src: '금융위원회 카드뉴스(2025-10-24)',
+      kw: '실손24 실손 실비 청구 전산화 서류 없이 간편 청구 병원 전송',
+      msg: HI + '실손보험 청구하실 때 병원에서 서류를 떼지 않아도 되는 방법이 있어 알려 드립니다.\n「실손24」 앱에서 청구하시면 병원 · 의원 · 약국이 서류를 보험사로 바로 보내 줍니다. 부모님이나 자녀분 것도 대신 청구하실 수 있습니다.\n\n👉 https://www.silson24.or.kr (앱: 실손24 · ☎ 1811-3000)\n\n연계가 안 된 병원이거나 하시다 막히면 영수증 사진만 보내 주세요. 제가 청구 도와드리겠습니다!' },
+    { id: 'gov', g: 'hub', ic: '🏛', t: '정부24 미환급금 찾기', nick: '세금 · 4대보험 환급', by: '정부24', kind: 'pub', url: 'https://www.gov.kr',
+      what: '국세 · 지방세 · 건강보험 · 국민연금 · 고용/산재보험료 · 통신비 미환급금을 한 번에 조회',
+      need: '정부24 로그인(간편인증) → 검색창에 「미환급금 찾기」', warn: '',
+      src: '정책브리핑(2021-10-14) — 메뉴 위치는 바뀌었을 수 있어 검색으로 안내',
+      kw: '정부24 미환급금 국세 환급금 지방세 환급 국민연금 고용보험 산재보험 세금 환급 홈택스 위택스',
+      msg: HI + '세금이나 건강보험 · 국민연금에서 더 내서 돌려받을 돈이 있는지 한번 확인해 보세요.\n정부24에서 국세 · 지방세 · 건강보험 · 국민연금 · 통신비 미환급금을 한 번에 조회하실 수 있습니다.\n\n👉 https://www.gov.kr (로그인 뒤 검색창에 "미환급금 찾기")' + BYE },
+    { id: 'fine', g: 'hub', ic: '🧭', t: '금감원 파인', nick: '잠자는 내 돈 찾기', by: '금융감독원', kind: 'pub', url: 'https://fine.fss.or.kr',
+      what: '휴면예금 · 보험금 · 카드포인트 · 자동차보험 과납보험료 조회 사이트를 한곳에 모아 둔 금융소비자 포털',
+      need: '「잠자는 내 돈 찾기」 메뉴', warn: '',
+      src: '금융위원회 누리집 「금융서비스 포털모음」 · 헤럴드경제(2026-01-31)',
+      kw: '파인 금감원 금융감독원 잠자는 내 돈 찾기 금융소비자 포털 모음',
+      msg: HI + '잠자는 돈을 한곳에서 찾아보실 수 있는 금융감독원 사이트를 알려 드립니다.\n「파인」의 "잠자는 내 돈 찾기"에서 휴면예금 · 보험금 · 카드포인트 조회를 한 번에 찾아가실 수 있습니다.\n\n👉 https://fine.fss.or.kr' + BYE }
+  ];
+  function get(id) { for (var i = 0; i < L.length; i++) if (L[i].id === id) return L[i]; return null; }
+  function name(h) { return h.t + (h.nick ? ' (' + h.nick + ')' : ''); }
+  // 고객에게 보낼 글: {이름} · {나}를 채움. 고객을 안 고르고 복사할 때는 '고객님 안녕하세요'로 시작
+  function msg(id, who, me) {
+    var h = get(id); if (!h || !h.msg) return '';
+    var t = h.msg.replace(/\{이름\}/g, String(who || '').trim()).replace(/\{나\}/g, String(me || '').trim() || '담당자');
+    return t.replace(/^\s+/, '');
+  }
+  root.HelpSvc = { groups: G, list: L, get: get, name: name, msg: msg, asOf: '2026-11-25' };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
 // 🔍 통합 검색 (2026-11-17 대표님 요청): 화면 오른쪽 위 🔍 → 모든 메뉴·환경설정·고객 추가/보기 항목과 고객 이름을 한 칸에서 찾는다.
 // · 찾기는 이 기기 안에서만 한다 — 검색어·고객 이름은 어디로도 보내지 않는다.
 // · '자주 쓰는 메뉴'는 메뉴 이름표(id)와 누른 횟수만 기기에 기억한다(aob_find · 고객 정보 없음).
@@ -10285,6 +10417,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 // 고객 정보는 넣지 않는다 (이 파일은 공개 화면에 그대로 실린다).
 (function (root) {
   var LIST = [
+    { id: 54, d: '2026-11-25', ic: '🎁', t: '고객 도움 서비스 — 숨은 돈 찾아 드리기', s: '고객에게 먼저 도움을 드릴 때 쓰는 곳을 한 화면에 모았습니다: 숨은 보험금(내보험찾아줌) · 카드포인트 통합조회 · 놓친 실손보험금(라이프캐치 — 민간 · 수수료 있음) · 잠자는 계좌 · 휴면예금 · 통신비 미환급금 · 건강보험 환급금 · 자동차보험 과납보험료 · 정부24 미환급금 · 약관 확인(보험 큐레이터) · 내보험다보여 · 실손24. [열기]로 바로 열고, 고객 화면에서 열면 그 고객에게 안내 문자·카톡이 문구까지 채워져 나갑니다. 해 드린 것은 체크해 두면 고객 화면에 숫자로 남습니다. 조회는 고객 본인 휴대폰에서 본인인증으로 합니다.', w: '☰ 메뉴 → 영업 → 🎁 고객 도움 서비스 · 고객 화면 → 진행 → 🎁 도움 서비스 · 🔍에서 "카드포인트"처럼 이름으로' },
     { id: 53, d: '2026-11-25', ic: '🧹', t: '고객 목록이 한 화면에 더 많이 · 배경은 은은하게', s: '글자 크기는 그대로 두고 줄 수만 줄였습니다. 휴대폰 첫 화면에서 고객이 2명 보이던 것이 4명 보입니다(레벨 띠는 이름 아래 작은 띠로 · 성별·나이는 칩 줄 앞으로 · "자료 N일 전"은 번호 줄 끝으로). 병력·보장이 둘 다 있거나(왼쪽 띠 초록) 둘 다 없으면(빨강) "병력✓ 보장✓" 꼬리표는 줄에서 생략하고, 하나만 있을 때(노랑)만 보여 줍니다. 어두운 화면의 배경 로고는 글자가 잘 읽히게 은은하게 눌렀고, "걸린 진료 보기"를 누르면 결과가 바로 보이게 했습니다.', w: '자동 · 고객 목록 · 고객 화면 → 고지항목 → 걸린 진료 보기' },
     { id: 52, d: '2026-11-25', ic: '🩺', t: '병력고지 판정을 더 꼼꼼하게', s: '고지 대상인데 조용히 빠질 수 있던 경우를 찾아 고쳤습니다. ① 같은 병원에서 같은 날 두 과 진료를 받으면 둘째 상병(협심증·고혈압 등)이 빠지던 것 ② 5년·2년·3개월 하루 전에 입원해 기간 안에 퇴원한 입원 ③ 치핵근치술·절단술·유합술·개두술 등 수술 이름 12가지와 제왕절개 ④ 약국 조제가 진료 다음 날인 투약일수 ⑤ 상병코드가 안 나온 진료(민감상병 비표시)의 입원·치료 날수 ⑥ 암 치료 뒤 추적·스텐트·임신성 당뇨 같은 상병은 "확인 필요"로. 이미 분석해 둔 고객도 열면 새 기준으로 다시 판정됩니다(다시 넣지 않아도 됩니다).', w: '자동 · 고객 화면 → 고지항목 · 걸린 진료 보기 → 아래 "자료 점검"에 새 확인 줄' },
     { id: 51, d: '2026-11-24', ic: '🏷', t: 'PC에서도 고객 줄에 주요 병력', s: '고객 목록의 병명 칩(고혈압·당뇨·고지혈증 …)이 PC 프로그램에서는 잘 안 채워지던 것을 고쳤습니다. 고객 화면을 열어 둔 채로 써도 1~2분 안에 채워집니다.', w: '자동 · 고객 목록' },
@@ -12818,6 +12951,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
       if (IS_MOBILE) b += '<a class="ctb call" href="tel:' + ph + '" data-pend="call">' + IC.phone + '전화</a><button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡</button><button type="button" class="ctb appt" data-appt="1">📅 상담 약속</button>';
       else b += '<button type="button" class="ctb" data-msg="sms">' + IC.sms + '문자 보내기</button><button type="button" class="ctb kakao" data-msg="kakao">' + IC.chat + '카톡 보내기</button><button type="button" class="ctb" data-act="logCall">' + IC.phone + '통화 기록</button><button type="button" class="ctb appt" data-appt="1">📅 상담 약속</button>';
     } else b += '<button type="button" class="lnk2" data-act="edit">휴대폰 번호를 넣으면 전화·문자·카톡 바로가기가 생깁니다</button>';
+    var hpN = Object.keys(c.help || {}).filter(function(k){ return c.help[k]; }).length;   // 🎁 고객 도움 서비스 (2026-11-25) — 해 드린 개수
+    b += '<button type="button" class="ctb help" data-help="1">🎁 도움 서비스' + (hpN ? '<em>' + hpN + '</em>' : '') + '<small>숨은 보험금 · 카드포인트 · 환급금 찾아 드리기</small></button>';
     b += '<span class="ctlast"><span><small>통화</small>' + (L.call ? dot(L.call) : '—') + '</span><span><small>문자</small>' + (L.sms ? dot(L.sms) : '—') + '</span><span><small>카톡</small>' + (L.kakao ? dot(L.kakao) : '—') + '</span><span><small>만남</small>' + (L.meet ? dot(L.meet) : '—') + '</span>' + (L.any ? '<em>마지막 연락 ' + ago(L.any) + '</em>' : '<em>연락 기록 없음</em>') + '</span></div>';
     return b;
   }
@@ -12926,6 +13061,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     if (pre === 'nhc' && S.data && S.data.nhc && S.data.nhc.kakao) return ['보장분석 안내', S.data.nhc.kakao, 'NHC 보장분석 안내'];
     var m = /^tpl:(\d+)$/.exec(pre); if (m && MSG_TPL[+m[1]]) return [MSG_TPL[+m[1]][0], MSG_TPL[+m[1]][1], ''];
     m = /^care:([a-z]+)(?::(.+))?$/.exec(pre); if (m) { var cm = careMsg(m[1], m[2]); if (cm) return cm; }
+    m = /^help:([a-z0-9]+)$/.exec(pre); if (m && window.HelpSvc) { var hs = HelpSvc.get(m[1]); if (hs && hs.msg) return ['🎁 ' + (hs.nick || hs.t), hs.msg, '도움 안내: ' + HelpSvc.name(hs)]; }
     m = /^camp:(.+)$/.exec(pre); if (m) { var cp = campsGet(), it = cp && (cp.items || []).find(function(x){ return x.id === m[1]; }); if (it) return ['오늘 캠페인', it.msg, '캠페인: ' + it.title]; }
     return null;
   }
@@ -18823,7 +18959,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
   // 메뉴·환경설정 항목 목록 — ☰ 메뉴 · ⚙ 환경설정 · PC 왼쪽 메뉴 · 🔍 통합 검색이 모두 이 목록 하나를 씀 (2026-11-17 · 목록을 두 군데 두면 한쪽만 고쳐져서)
   function sheetDefs(){
     var MENU = [
-      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#routeBtn', '🚗', '상담 동선 · 이동 시간', '싯플랜 고객 지역끼리 차로 몇 분 · 카카오맵 길찾기'], ['#cardBtn', '🪪', '내 명함', '사진 · 이름 · 번호 → 문자에 명함 붙여 보내기'],['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
+      ['💼 영업', [['#briefBtn', '📋', '오늘 브리핑', '미처리 할 일 · 해결 표시 · 텔레그램'], ['#polBtn', '📑', '계약 · 실효 · 증권 전달', '보유계약 엑셀 넣기 · 실효 위험 · 수납'], ['#helpBtn', '🎁', '고객 도움 서비스', '숨은 보험금 · 카드포인트 · 환급금 찾아 드리기 · 약관 확인'], ['#routeBtn', '🚗', '상담 동선 · 이동 시간', '싯플랜 고객 지역끼리 차로 몇 분 · 카카오맵 길찾기'], ['#cardBtn', '🪪', '내 명함', '사진 · 이름 · 번호 → 문자에 명함 붙여 보내기'],['#bulkMemoBtn', '📝', '상담 메모 한꺼번에', '이름 + 할 일 여러 줄 → 고객별 반영'], ['#wcBtn', '🗓', '주마감', '싯플랜·신규 고객·계약으로 자동 작성 → 카톡'], ['#wkMenu', '📊', '이번 주 실적', '통화·만남·계약 숫자 → 팀장님께 카톡'], ['#callBtn', '☎️', '액션콜', '통화 연습']]],
       ['📚 상품 · 자료', [['#propMenu', '📄', '가입제안서 사진 기록', '사진 여러 장 → 고객별 설계 진행 자동 기록'], ['#coDirBtn', '📇', '보험사 연락처', '지점장·매니저·인콜·청구·모니터링'], ['#piBtn', '🔎', '상품 정보', '담보별 보험사 비교 · 원수사 문자 넣기 · 출처 표시'], ['#fxCalcBtn', '💼', '상담 화면', '같은 돈 비교 · 달러 저축전환 · 원화고정 · 원화 종신 · 연금 · 적금'], ['#mdBtn', '⭐', 'MD’s PICK', '추천 상품 노트'], ['#mdbBtn', '📚', 'MD 백과', '담보별 한도·보험료 비교']]],
       ['🌱 성장 · 소통', [['#mateBtn', '👥', '팀원', mtMenuDesc()], ['#gchip', '🏆', '내 성장', '레벨 · 퀘스트 · 배지'], ['#bugMenu', '🐞', '오류·건의', '오류·불편·아이디어 한 줄 → AI가 고침 (사진 안 보냄)'], /* 2026-11-16: '💡 건의사항'은 같은 화면을 열어 하나로 합침 */ ['#arcBtn', '🏙️', '아케이드 화면', 'AOB9 타워']]]
     ];
@@ -18861,7 +18997,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     $('dlgBox').querySelectorAll('[data-fav]').forEach(function(b){ b.onclick = function(){ FIND.go(fav[+b.dataset.fav]); }; });
   }
   // 🔍 통합 검색 (finder.js · 2026-11-17 대표님 요청): 모든 메뉴·환경설정·고객 추가/보기 항목 + 고객 이름을 한 칸에서. 기기 안에서만 찾음
-  var FIND_KW = { '#routeBtn': '이동 시간 이동시간 동선 길찾기 네비 내비 카카오맵 거리 몇분 소요 운전 차 지도 오늘 내일 상담 지역', '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
+  var FIND_KW = { '#helpBtn': '도움 서비스 접점 숨은 돈 잠자는 돈 찾아주기 찾아 드리기 숨은보험금 휴면보험금 내보험찾아줌 카드포인트 여신금융협회 라이프캐치 실손 미청구 환급금 환급 보험큐레이터 큐레이터 약관 어카운트인포 휴면예금 통신비 미환급금 스마트초이스 건강보험 본인부담상한 정부24 국세 지방세 실손24 내보험다보여 파인 자동차보험 과납', '#routeBtn': '이동 시간 이동시간 동선 길찾기 네비 내비 카카오맵 거리 몇분 소요 운전 차 지도 오늘 내일 상담 지역', '#cardBtn': '명함 내명함 모바일명함 온라인명함 디지털명함 프로필 사진 얼굴 직급 연락처 등록번호 자격 소개', '#briefBtn': '할 일 아침 텔레그램 미처리 브리핑', '#polBtn': '보유계약 계약 장부 실효 실효관리 부활 미납 연체 수금 최종납입 증권번호 보험료 계약금액 증권 전달 엑셀', '#bulkMemoBtn': '메모 일괄 여러 명 한번에', '#wcBtn': '주간 마감 위클리 보고 주마감', '#wkMenu': '실적 주간 보고 통계 숫자 팀장', '#callBtn': '통화 연습 롤플레이 AI 전화 가상 고객 사투리', '#propMenu': '제안서 설계 사진 기록', '#coDirBtn': '지점장 매니저 인콜 청구 팩스 번호 전화번호 원수사 콜센터', '#piBtn': '담보 비교 한도 보험료 원수사 문자 공시', '#fxCalcBtn': '달러 환율 종신 연금 적금 비교 계산기 저축 상담', '#mdBtn': '추천 상품 엠디 픽 노트', '#mdbBtn': '담보 한도 백과 스펙 엠디', '#mateBtn': '동료 팀원 교환 보내기 접속 한마디', '#gchip': '레벨 퀘스트 배지 게임 경험치', '#bugMenu': '오류 신고 건의 불편 버그 아이디어 건의사항', '#arcBtn': '타워 게임 아케이드',
     '#connBtn': '구글 드라이브 동기화 위치 마이크 알림 AI 키 지도 권한 캘린더 통화 자동 정리 녹음 연결', '.sfoot [data-act="ntSet"]': '알림 푸시 생일 갱신 소식', '[data-sync="signout"]': '로그아웃 계정 로그인 구글', '#themeBtn': '다크 라이트 어두운 밝은 테마 화면 색 모드 블랙 화이트 검정 검은 흰색 하얀 까만 가시성 눈부심 야간', '#fullBtn': '전체 화면 풀스크린 태스크바 내비게이션 뒤로가기 홈 단추 숨기기 폴드 게임', '#keysBtn': '키보드 단축키', '#apkBtn': '앱 설치 업데이트 버전 APK 안드로이드 휴대폰', '#bkOut': '백업 저장 내보내기 파일', '#bkIn': '복원 불러오기 백업 파일', '#sample': '예시 샘플 데모 가상', '#lockBtn': '잠금 비밀번호 잠그기', '#privBtn': '개인정보 동의 통계 약관 방침',
     '#admBtn': 'OTP 입장 코드 사용자 발급 정지 관리자', '#annBtn': '공지 공지사항 알림 전체 팀원 모두 안내 방송', '#bioBtn': '지문 얼굴 생체 인증 페이스 아이디 바이오 잠금 해제 비밀번호 없이', '#pnBtn': '패치노트 업데이트 새 기능 새로운 기능 변경 사항 추가 기능 뭐가 바뀌었','#cuBtn': '액션콜 사용 현황 통계 팀원 누가 몇 분 통화 시간 요금 한도 회사 연결 AI 전화', '#teamSetBtn': '팀 서버 앱스 스크립트 코드 업데이트', '[data-nx="setup"]': 'NHC 본사 보장분석부서 연결',
     'add:all': '가져오기 불러오기 파일 업로드 넣기 엑셀 알마인드 마인드맵 보유계약 연락처 vcf 보장분석 PDF 알림톡 카톡 내보내기 DB 디비 북마크 붙여넣기 한꺼번에 통합', 'add:form': '새 고객 신규 등록 입력', 'add:paste': '붙여넣기 카톡 메모 복사', 'add:cam': '명함 사진 카메라 글자 읽기', 'add:pick': '연락처 주소록', 'add:vcf': '연락처 파일 vcf 주소록 메모', 'add:db': 'AFG DB 디비 배분 회사', 'add:xlsx': '엑셀 고객표 가져오기', 'add:emm': '알마인드 마인드맵', 'add:cov': '보장분석 PDF 메리츠 KB 여러 명', 'add:pol': '계약 리스트 보유계약 엑셀 증권 수납 장부 넣기', 'add:note': '보험사 알림톡 카톡 카카오톡 내보내기 입금 완료 체결 증권번호 증서번호 보험료 계약금액 영업지원 미래에셋 메리츠', 'add:reg': '보험사 등록 팩스 고객등록 동의서',
@@ -18878,6 +19014,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var AD2 = addDefs(); AD2[0].concat(AD2[1]).forEach(function(x){ var p = split(x[1]); add(x[0], p[0], p[1], x[2], '고객 추가 · 가져오기', function(){ addGo(x[0]); }); });
     viewDefs().forEach(function(x){ var p = split(x[1]); add(x[0], p[0], p[1], x[2], '고객 보기', function(){ viewGo(x[0]); }); });
     D.MENU.forEach(function(g){ g[1].filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], g[0].replace(/^\S+\s+/, ''), function(){ sheetGo(x[0]); }); }); });
+    // 🎁 고객 도움 서비스는 서비스 이름으로도 바로 찾게 (카드포인트 · 내보험찾아줌 · 라이프캐치 …) → 그 서비스 자리로 열림
+    if (window.HelpSvc) HelpSvc.list.forEach(function(h){ add('help:' + h.id, h.ic, HelpSvc.name(h), h.what, '고객 도움 서비스', function(){ openHelp(null, h.id); }); L[L.length - 1].kw = h.kw || ''; });
     D.SET.forEach(function(g){ g[1].filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], '환경설정', function(){ sheetGo(x[0]); }); }); });
     D.AD.filter(D.vis).forEach(function(x){ add('px:' + x[0], x[1], x[2], x[3], '관리자 전용', function(){ sheetGo(x[0]); }); });
     return L;
@@ -21150,6 +21288,51 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
     var done = function(){ toast(label + ' 복사했습니다'); };
     try { navigator.clipboard.writeText(t).then(done, function(){ prompt('길게 눌러 복사하세요', t); }); } catch(e){ prompt('길게 눌러 복사하세요', t); }
   }
+  // ---------- 🎁 고객 도움 서비스 (help.js · 2026-11-25 대표님: "고객에게 접점으로 먼저 도움을 주는 경우가 많은데 … 찾기 편한 곳에") ----------
+  // 여는 길: ☰ 메뉴 → 영업 → 🎁 고객 도움 서비스(#helpBtn) · 🔍 서비스 이름(카드포인트 · 내보험찾아줌 …) · 고객 화면 진행 탭 연락 줄 [🎁 도움 서비스] — 입구를 더 늘리지 않는다(docs/todo.md 11번 원칙)
+  // 고객 화면에서 열면 그 고객에게 바로 문자·카톡(문구 자동 · 보낸 것은 상담 기록에) + '해 드림' 체크(c.help[id] = 날짜 — 이 기기와 본인 드라이브에만)
+  // 주소 · 운영 기관 · 출처는 help.js 한 곳에만 둔다. 민간 서비스는 '민간 · 수수료 있음' 꼬리표를 떼지 않는다.
+  function openHelp(c, focus){
+    if (!window.HelpSvc) { toast('도움 서비스 화면을 불러오지 못했습니다'); return; }
+    var H = window.HelpSvc, done = (c && c.help) || {}, ph = c ? normPhone(c.phone) : '';
+    try { if (!BC.cur && BC.load) BC.load(); } catch(e){}
+    var mdT = function(d){ d = String(d || ''); return d.length >= 10 ? (+d.slice(5, 7)) + '/' + (+d.slice(8, 10)) : ''; };
+    var card = function(h){
+      var d = done[h.id], own = h.send === false;
+      var tag = h.kind === 'priv' ? '<span class="hsby priv">민간' + (h.fee ? ' · ' + esc(h.fee) : '') + '</span>' : '<span class="hsby">' + esc(h.by) + '</span>';
+      var send = own ? '<span class="hsown">설계사가 직접 쓰는 곳</span>'
+        : c ? (ph ? '<button type="button" class="btn" data-hsend="sms" data-h="' + h.id + '">' + IC.sms + '문자</button>' : '') + '<button type="button" class="btn" data-hsend="kakao" data-h="' + h.id + '">' + IC.chat + '카톡</button>'
+        : '<button type="button" class="btn" data-hcopy="' + h.id + '">📋 보낼 글 복사</button>';
+      return '<div class="hsv' + (d ? ' on' : '') + '" id="hs_' + h.id + '"><div class="hsh"><i>' + h.ic + '</i><b>' + esc(h.t) + (h.nick ? ' <small>' + esc(h.nick) + '</small>' : '') + '</b>' + tag + '</div>' +
+        '<div class="hsw">' + esc(h.what) + '</div>' +
+        '<div class="hsb"><button type="button" class="btn pri" data-ext="' + esc(h.url) + '">열기 ↗</button>' + send +
+        (c && !own ? '<label class="hsck"><input type="checkbox" data-hdone="' + h.id + '"' + (d ? ' checked' : '') + '><span>해 드림' + (d ? ' <em>' + mdT(d) + '</em>' : '') + '</span></label>' : '') + '</div>' +
+        // 창 안의 <p>는 경고색(.mbox p)이라 <div>로 쓴다
+        '<details class="hsd"><summary>준비물 · 주의 · 출처</summary>' + (h.need ? '<div class="hsp"><b>준비</b>' + esc(h.need) + '</div>' : '') + (h.warn ? '<div class="hsp"><b>주의</b>' + esc(h.warn) + '</div>' : '') + (h.more ? '<div class="hsp"><b>참고</b>' + esc(h.more) + '</div>' : '') +
+        '<div class="hsp"><b>운영</b>' + esc(h.by) + (h.kind === 'priv' ? ' (민간 회사)' : '') + '</div><div class="hsp"><b>주소</b><button type="button" class="hsurl" data-cv="' + esc(h.url) + '" data-cl="주소">' + esc(h.url.replace(/^https:\/\//, '')) + ' · 복사</button></div><div class="hsp hssrc"><b>출처</b>' + esc(h.src) + '</div></details></div>';
+    };
+    var body = H.groups.map(function(g){ var l = H.list.filter(function(h){ return h.g === g[0]; }); return l.length ? '<h5 class="hsg">' + g[1] + '</h5><div class="hsl">' + l.map(card).join('') + '</div>' : ''; }).join('');
+    openDlg('<h4>🎁 고객 도움 서비스' + (c ? ' — ' + esc(c.name) + '님' : '') + '</h4>' +
+      '<div class="safe">' + IC.lock + '<span>조회는 <b>고객 본인 휴대폰에서 본인인증</b>으로 합니다. 인증번호를 대신 받아 입력하지 마세요. 주소는 ' + esc(H.asOf) + '에 하나씩 확인한 것입니다.' + (c ? '' : ' <b>고객 화면의 [🎁 도움 서비스]로 열면</b> 그 고객에게 바로 문자 · 카톡으로 보낼 수 있습니다.') + '</span></div>' + body +
+      '<div class="mrow"><button class="btn lg" type="button" id="hsX" style="margin-left:auto">닫기</button></div>', 'wide hsdlg');
+    $('hsX').onclick = closeDlg;
+    var box = $('dlgBox');
+    box.querySelectorAll('[data-ext]').forEach(function(el){ el.onclick = function(){ openExt(el.dataset.ext); }; });
+    box.querySelectorAll('[data-cv]').forEach(function(el){ el.onclick = function(){ copyText(el.dataset.cv, el.dataset.cl); }; });
+    box.querySelectorAll('[data-hcopy]').forEach(function(el){ el.onclick = function(){ copyText(H.msg(el.dataset.hcopy, '', fillMe()), '보낼 글'); }; });
+    box.querySelectorAll('[data-hsend]').forEach(function(el){ el.onclick = async function(){ var ch = el.dataset.hsend, id = el.dataset.h; closeDlg(); if (!S.cur || S.cur.id !== c.id) await openCustomer(c.id); openMsg(ch, 'help:' + id); }; });
+    box.querySelectorAll('[data-hdone]').forEach(function(el){ el.onchange = async function(){
+      if (!S.cur || S.cur.id !== c.id) return;
+      if (S.cur.sample) { el.checked = !el.checked; toast('예시 고객은 저장되지 않습니다'); return; }
+      var id = el.dataset.hdone, t = el.checked ? todayStr() : '';
+      S.cur.help = Object.assign({}, S.cur.help || {}); if (t) S.cur.help[id] = t; else delete S.cur.help[id];
+      el.closest('.hsv').classList.toggle('on', el.checked); el.nextElementSibling.innerHTML = '해 드림' + (t ? ' <em>' + mdT(t) + '</em>' : '');
+      S.cur = await Store.saveHead(S.cur); S.list = await Store.list(); c = S.cur;
+      var y = window.scrollY; renderCustomer(); window.scrollTo(0, y);
+    }; });
+    if (focus) setTimeout(function(){ var el = $('hs_' + focus); if (!el) return; el.classList.add('hit'); var dt = el.querySelector('details'); if (dt) dt.open = true; try { el.scrollIntoView({ block: 'center' }); } catch(e){} }, 80);
+  }
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-help]'); if (!t) return; openHelp(t.id === 'helpBtn' ? null : S.cur); });
   function openDocs(){
     var c = S.cur, got = c.docs || {};
     var b = String(c.birth || '');
@@ -22162,6 +22345,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = Finder;
 })();
 
 </script>
-<script>window.AOB_V="1dc69d774a42";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
+<script>window.AOB_V="3d55485e299f";if("serviceWorker" in navigator&&location.protocol!=="file:"){addEventListener("load",function(){navigator.serviceWorker.register("sw.js").then(function(r){try{r.update();}catch(e){}}).catch(function(){});});}(function(){if(location.protocol==="file:")return;var hid=0,shown=0;function busy(){return !!document.getElementById("cph")||!!document.querySelector("#dlg:not([hidden])");}function bar(){if(shown)return;shown=1;var b=document.createElement("button");b.type="button";b.id="verBar";b.textContent="🔄 새 버전이 나왔습니다 · 눌러서 바로 적용";b.style.cssText="position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);transform:translateX(-50%);z-index:99999;border:0;border-radius:999px;padding:10px 18px;background:#2f6bff;color:#fff;font:600 14px sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)";b.onclick=function(){location.reload();};document.body.appendChild(b);}function chk(auto){fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){if(j&&j.v&&j.v!==window.AOB_V){if(auto&&!busy())location.reload();else bar();}}).catch(function(){});}document.addEventListener("visibilitychange",function(){if(document.hidden){hid=Date.now();return;}var away=hid?Date.now()-hid:0;hid=0;chk(away>30*60*1000);});setInterval(function(){if(!document.hidden)chk(false);},5*60*1000);setTimeout(function(){chk(false);},20000);})();</script>
 </body>
 </html>
